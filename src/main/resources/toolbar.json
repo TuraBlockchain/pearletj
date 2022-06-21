@@ -1,0 +1,38 @@
+[
+	{
+		"text": "Dashboard",
+		"icon": "gauge-solid.svg"
+	},
+	{
+		"text": "Transcations",
+		"icon": "swap_vert_black_48dp.svg"
+	},
+	{
+		"text": "Send",
+		"icon": "plane-departure-solid.svg"
+	},
+	{
+		"text": "Receive",
+		"icon": "plane-arrival-solid.svg"
+	},
+	{
+		"text": "Account Info",
+		"icon": "account_balance_wallet_black_48dp.svg"
+	},
+	{
+		"text": "Messages",
+		"icon": "forum_black_24dp.svg"
+	},
+	{
+		"text": "Aliases",
+		"icon": "alt_route_black_48dp.svg"
+	},
+	{
+		"text": "Settings",
+		"icon": "gear-solid.svg"
+	},
+	{
+		"text": "About",
+		"icon": "help_outline_black_48dp.svg"
+	}
+]
