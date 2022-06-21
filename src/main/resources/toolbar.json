@@ -1,37 +1,46 @@
 [
 	{
+		"id": "dashboard",
 		"text": "Dashboard",
 		"icon": "gauge-solid.svg"
 	},
 	{
+		"id": "txs",
 		"text": "Transcations",
 		"icon": "swap_vert_black_48dp.svg"
 	},
 	{
+		"id": "sends",
 		"text": "Send",
 		"icon": "plane-departure-solid.svg"
 	},
 	{
+		"id": "rcv",
 		"text": "Receive",
 		"icon": "plane-arrival-solid.svg"
 	},
 	{
+		"id": "acc_info",
 		"text": "Account Info",
 		"icon": "account_balance_wallet_black_48dp.svg"
 	},
 	{
+		"id": "msgs",
 		"text": "Messages",
 		"icon": "forum_black_24dp.svg"
 	},
 	{
+		"id": "alis",
 		"text": "Aliases",
 		"icon": "alt_route_black_48dp.svg"
 	},
 	{
+		"id": "sets",
 		"text": "Settings",
 		"icon": "gear-solid.svg"
 	},
 	{
+		"id": "about",
 		"text": "About",
 		"icon": "help_outline_black_48dp.svg"
 	}

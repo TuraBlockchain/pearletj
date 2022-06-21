@@ -1,8 +1,11 @@
 package hk.zdl.crpto.pearlet;
 
-import java.awt.Dimension;
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.GridLayout;
 import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
@@ -14,39 +17,59 @@ import javax.swing.SwingConstants;
 import org.json.JSONArray;
 import org.json.JSONTokener;
 
+import com.formdev.flatlaf.extras.FlatDesktop;
+
 import hk.zdl.crpto.pearlet.component.MyStretchIcon;
 
 @SuppressWarnings("serial")
 public class MyToolbar extends JScrollPane {
 	private final JPanel panel = new JPanel(new GridLayout(0, 1));
+	private final Map<String, JToggleButton> buttons = new TreeMap<>();
 
 	public MyToolbar() {
 		init();
 	}
 
 	private void init() {
-		setViewportView(panel);
-		setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		var x = new JPanel(new BorderLayout());
+		x.add(panel, BorderLayout.NORTH);
+		x.add(new Container(), BorderLayout.CENTER);
+		setViewportView(x);
 		setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		init_buttons();
+		set_callbacks();
 	}
 
 	private void init_buttons() {
 		JSONArray jarr = new JSONArray(new JSONTokener(getClass().getClassLoader().getResourceAsStream("toolbar.json")));
 		for (int i = 0; i < jarr.length(); i++) {
+			String id = jarr.getJSONObject(i).getString("id");
 			String text = jarr.getJSONObject(i).getString("text");
 			String icon = jarr.getJSONObject(i).getString("icon");
 			var btn = new JToggleButton(text, getIcon(icon));
+			btn.addActionListener((e) -> buttons.values().stream().filter(x -> x != e.getSource()).forEach(o -> o.setSelected(false)));
 			btn.setHorizontalAlignment(SwingConstants.LEFT);
-			btn.setPreferredSize(new Dimension(200, 50));
+			buttons.put(id, btn);
 			panel.add(btn);
 		}
 
 	}
 
+	private void set_callbacks() {
+		FlatDesktop.setAboutHandler( () -> {
+			buttons.get("about").doClick();
+		} );
+		FlatDesktop.setPreferencesHandler( () -> {
+			buttons.get("sets").doClick();
+		} );
+		FlatDesktop.setQuitHandler( response -> {
+			response.performQuit();
+		});
+	}
+
 	private final Icon getIcon(String str) {
 		try {
-			return new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("toolbar/" + str)),32,32);
+			return new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("toolbar/" + str)), 32, 32);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
