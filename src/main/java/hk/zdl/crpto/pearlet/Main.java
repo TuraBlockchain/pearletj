@@ -6,11 +6,14 @@ import java.awt.Taskbar;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
-import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXFrame;
 
 import com.formdev.flatlaf.FlatLightLaf;
+
+import hk.zdl.crpto.pearlet.component.DashBoard;
+import hk.zdl.crpto.pearlet.component.NetworkAndAccountBar;
 
 public class Main {
 
@@ -21,21 +24,28 @@ public class Main {
 
 		Taskbar.getTaskbar().setIconImage(ImageIO.read(Main.class.getClassLoader().getResource("app_icon.png")));
 		FlatLightLaf.setup();
-		
-		var toolbar = new MyToolbar();
-		
-		
+
 		var frame = new JXFrame("Pearlet");
 		frame.getContentPane().setLayout(new BorderLayout());
+		var panel1 = new JPanel(new BorderLayout());
+		var panel2 = new JPanel();
+		var mfs = new MainFrameSwitch(panel2);
+		panel1.add(new NetworkAndAccountBar(), BorderLayout.NORTH);
+		panel1.add(panel2, BorderLayout.CENTER);
+		frame.add(panel1, BorderLayout.CENTER);
+		var toolbar = new MyToolbar(mfs);
 		frame.add(toolbar, BorderLayout.WEST);
-		frame.add(new JXButton(), BorderLayout.CENTER);
-		
+
+		var frame_size = new Dimension(800, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setPreferredSize(new Dimension(800, 600));
-		frame.setMinimumSize(new Dimension(800, 600));
-		frame.setSize(800, 600);
+		frame.setPreferredSize(frame_size);
+		frame.setMinimumSize(frame_size);
+		frame.setSize(frame_size);
 		frame.setLocationByPlatform(true);
 		frame.setVisible(true);
+
+		mfs.put("dashboard", new DashBoard());
+		mfs.showComponent("dashboard");
 	}
 
 }

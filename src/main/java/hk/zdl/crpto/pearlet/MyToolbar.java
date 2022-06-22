@@ -23,10 +23,12 @@ import hk.zdl.crpto.pearlet.component.MyStretchIcon;
 
 @SuppressWarnings("serial")
 public class MyToolbar extends JScrollPane {
+	private final MainFrameSwitch mfs;
 	private final JPanel panel = new JPanel(new GridLayout(0, 1));
 	private final Map<String, JToggleButton> buttons = new TreeMap<>();
 
-	public MyToolbar() {
+	public MyToolbar(MainFrameSwitch mfs) {
+		this.mfs = mfs;
 		init();
 	}
 
@@ -47,6 +49,7 @@ public class MyToolbar extends JScrollPane {
 			String text = jarr.getJSONObject(i).getString("text");
 			String icon = jarr.getJSONObject(i).getString("icon");
 			var btn = new JToggleButton(text, getIcon(icon));
+			btn.addActionListener((e) -> mfs.showComponent(buttons.entrySet().stream().filter(x -> x.getValue() == e.getSource()).findAny().get().getKey()));
 			btn.addActionListener((e) -> buttons.values().stream().filter(x -> x != e.getSource()).forEach(o -> o.setSelected(false)));
 			btn.setHorizontalAlignment(SwingConstants.LEFT);
 			buttons.put(id, btn);
@@ -56,13 +59,13 @@ public class MyToolbar extends JScrollPane {
 	}
 
 	private void set_callbacks() {
-		FlatDesktop.setAboutHandler( () -> {
+		FlatDesktop.setAboutHandler(() -> {
 			buttons.get("about").doClick();
-		} );
-		FlatDesktop.setPreferencesHandler( () -> {
+		});
+		FlatDesktop.setPreferencesHandler(() -> {
 			buttons.get("sets").doClick();
-		} );
-		FlatDesktop.setQuitHandler( response -> {
+		});
+		FlatDesktop.setQuitHandler(response -> {
 			response.performQuit();
 		});
 	}
