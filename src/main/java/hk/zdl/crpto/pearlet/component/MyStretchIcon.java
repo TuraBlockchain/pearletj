@@ -7,6 +7,7 @@ import java.awt.image.ImageObserver;
 
 import javax.swing.ImageIcon;
 
+@SuppressWarnings("serial")
 public class MyStretchIcon extends ImageIcon {
 
 	private final int width, height;

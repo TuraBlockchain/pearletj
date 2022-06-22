@@ -26,6 +26,7 @@ public class MainFrameSwitch{
 			comp.removeAll();
 			comp.add(c,BorderLayout.CENTER);
 			comp.revalidate();
+			comp.paintAll(comp.getGraphics());
 		}
 	}
 }
