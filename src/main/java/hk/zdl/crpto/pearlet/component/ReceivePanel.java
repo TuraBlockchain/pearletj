@@ -28,7 +28,9 @@ public class ReceivePanel extends JPanel {
 		btn.addActionListener(e -> {
 			var s = new StringSelection(adr_filed.getText().trim());
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(s, s);
+			//It works!
 		});
+//		setText("ha!ha!");
 	}
 
 	public void setText(String t) {

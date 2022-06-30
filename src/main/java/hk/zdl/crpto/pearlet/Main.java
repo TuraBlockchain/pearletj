@@ -17,6 +17,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import hk.zdl.crpto.pearlet.component.DashBoard;
 import hk.zdl.crpto.pearlet.component.NetworkAndAccountBar;
 import hk.zdl.crpto.pearlet.component.ReceivePanel;
+import hk.zdl.crpto.pearlet.component.SendPanel;
 import hk.zdl.crpto.pearlet.component.TranscationPanel;
 
 public class Main {
@@ -50,9 +51,10 @@ public class Main {
 
 			mfs.put("dashboard", new DashBoard());
 			mfs.put("txs", new TranscationPanel());
+			mfs.put("send", new SendPanel());
 			mfs.put("rcv", new ReceivePanel());
 
-			mfs.showComponent("dashboard");
+			SwingUtilities.invokeLater(() -> toolbar.clickButton("dashboard"));
 		});
 		SwingUtilities.invokeLater(() -> {
 			try {

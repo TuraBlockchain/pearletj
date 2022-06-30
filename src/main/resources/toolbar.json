@@ -10,7 +10,7 @@
 		"icon": "swap_vert_black_48dp.svg"
 	},
 	{
-		"id": "sends",
+		"id": "send",
 		"text": "Send",
 		"icon": "plane-departure-solid.svg"
 	},

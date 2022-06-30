@@ -5,6 +5,7 @@ import java.awt.Container;
 import java.awt.GridLayout;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
@@ -49,8 +50,11 @@ public class MyToolbar extends JScrollPane {
 			String text = jarr.getJSONObject(i).getString("text");
 			String icon = jarr.getJSONObject(i).getString("icon");
 			var btn = new JToggleButton(text, getIcon(icon));
-			btn.addActionListener((e) -> mfs.showComponent(buttons.entrySet().stream().filter(x -> x.getValue() == e.getSource()).findAny().get().getKey()));
-			btn.addActionListener((e) -> buttons.values().stream().filter(x -> x != e.getSource()).forEach(o -> o.setSelected(false)));
+			btn.addActionListener((e) -> {
+				mfs.showComponent(buttons.entrySet().stream().filter(x -> x.getValue() == e.getSource()).findAny().get().getKey());
+				buttons.values().stream().filter(x -> x != e.getSource()).forEach(o -> o.setSelected(false));
+				btn.setSelected(true);
+			});
 			btn.setHorizontalAlignment(SwingConstants.LEFT);
 			buttons.put(id, btn);
 			panel.add(btn);
@@ -59,15 +63,13 @@ public class MyToolbar extends JScrollPane {
 	}
 
 	private void set_callbacks() {
-		FlatDesktop.setAboutHandler(() -> {
-			buttons.get("about").doClick();
-		});
-		FlatDesktop.setPreferencesHandler(() -> {
-			buttons.get("sets").doClick();
-		});
-		FlatDesktop.setQuitHandler(response -> {
-			response.performQuit();
-		});
+		FlatDesktop.setAboutHandler(() -> clickButton("about"));
+		FlatDesktop.setPreferencesHandler(() -> clickButton("sets"));
+		FlatDesktop.setQuitHandler(response -> response.performQuit());
+	}
+
+	public void clickButton(String str) {
+		Optional.ofNullable(buttons.get(str)).ifPresent(JToggleButton::doClick);
 	}
 
 	private final Icon getIcon(String str) {
