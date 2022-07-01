@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
+import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -44,19 +45,18 @@ public class MyToolbar extends JScrollPane {
 	}
 
 	private void init_buttons() {
+		var btn_gp = new ButtonGroup();
 		JSONArray jarr = new JSONArray(new JSONTokener(getClass().getClassLoader().getResourceAsStream("toolbar.json")));
 		for (int i = 0; i < jarr.length(); i++) {
 			String id = jarr.getJSONObject(i).getString("id");
 			String text = jarr.getJSONObject(i).getString("text");
 			String icon = jarr.getJSONObject(i).getString("icon");
 			var btn = new JToggleButton(text, getIcon(icon));
-			btn.addActionListener((e) -> {
-				mfs.showComponent(buttons.entrySet().stream().filter(x -> x.getValue() == e.getSource()).findAny().get().getKey());
-				buttons.values().stream().filter(x -> x != e.getSource()).forEach(o -> o.setSelected(false));
-				btn.setSelected(true);
-			});
+			btn.addActionListener((e) -> mfs.showComponent(buttons.entrySet().stream().filter(x -> x.getValue() == e.getSource()).findAny().get().getKey()));
 			btn.setHorizontalAlignment(SwingConstants.LEFT);
+			btn.setMultiClickThreshhold(300);
 			buttons.put(id, btn);
+			btn_gp.add(btn);
 			panel.add(btn);
 		}
 
@@ -72,7 +72,7 @@ public class MyToolbar extends JScrollPane {
 		Optional.ofNullable(buttons.get(str)).ifPresent(JToggleButton::doClick);
 	}
 
-	private final Icon getIcon(String str) {
+	public static final Icon getIcon(String str) {
 		try {
 			return new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("toolbar/" + str)), 32, 32);
 		} catch (IOException e) {
