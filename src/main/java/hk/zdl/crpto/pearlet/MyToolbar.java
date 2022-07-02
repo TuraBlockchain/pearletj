@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONTokener;
 
 import com.formdev.flatlaf.extras.FlatDesktop;
+import com.formdev.flatlaf.extras.FlatDesktop.QuitResponse;
 
 import hk.zdl.crpto.pearlet.component.MyStretchIcon;
 
@@ -52,6 +53,9 @@ public class MyToolbar extends JScrollPane {
 			String text = jarr.getJSONObject(i).getString("text");
 			String icon = jarr.getJSONObject(i).getString("icon");
 			var btn = new JToggleButton(text, getIcon(icon));
+			btn.setBorderPainted(false);
+			btn.setFocusPainted(false);
+			btn.setFocusable(true);
 			btn.addActionListener((e) -> mfs.showComponent(buttons.entrySet().stream().filter(x -> x.getValue() == e.getSource()).findAny().get().getKey()));
 			btn.setHorizontalAlignment(SwingConstants.LEFT);
 			btn.setMultiClickThreshhold(300);
@@ -65,7 +69,7 @@ public class MyToolbar extends JScrollPane {
 	private void set_callbacks() {
 		FlatDesktop.setAboutHandler(() -> clickButton("about"));
 		FlatDesktop.setPreferencesHandler(() -> clickButton("sets"));
-		FlatDesktop.setQuitHandler(response -> response.performQuit());
+		FlatDesktop.setQuitHandler(QuitResponse::performQuit);
 	}
 
 	public void clickButton(String str) {

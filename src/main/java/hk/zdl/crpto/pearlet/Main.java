@@ -17,6 +17,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.jthemedetecor.OsThemeDetector;
 
 import hk.zdl.crpto.pearlet.component.DashBoard;
+import hk.zdl.crpto.pearlet.component.MessagesPanel;
 import hk.zdl.crpto.pearlet.component.NetworkAndAccountBar;
 import hk.zdl.crpto.pearlet.component.ReceivePanel;
 import hk.zdl.crpto.pearlet.component.SendPanel;
@@ -56,6 +57,7 @@ public class Main {
 			mfs.put("txs", new TranscationPanel());
 			mfs.put("send", new SendPanel());
 			mfs.put("rcv", new ReceivePanel());
+			mfs.put("msgs", new MessagesPanel());
 
 			SwingUtilities.invokeLater(() -> toolbar.clickButton("dashboard"));
 
