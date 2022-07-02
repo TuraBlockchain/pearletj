@@ -23,6 +23,7 @@ import hk.zdl.crpto.pearlet.component.ReceivePanel;
 import hk.zdl.crpto.pearlet.component.SendPanel;
 import hk.zdl.crpto.pearlet.component.SettingsPanel;
 import hk.zdl.crpto.pearlet.component.TranscationPanel;
+import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
 
 public class Main {
 
@@ -75,6 +76,7 @@ public class Main {
 				SwingUtilities.invokeLater(() -> {
 					SwingUtilities.updateComponentTreeUI(frame);
 					mfs.getComponents().stream().forEach(SwingUtilities::updateComponentTreeUI);
+					IndepandentWindows.getInstance().iterator().forEachRemaining(SwingUtilities::updateComponentTreeUI);
 				});
 			});
 		});
