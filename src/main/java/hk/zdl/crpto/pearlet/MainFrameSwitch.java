@@ -3,13 +3,14 @@ package hk.zdl.crpto.pearlet;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
-public class MainFrameSwitch{
+public class MainFrameSwitch {
 
-	private final Map<String,Component> map = new TreeMap<>();
+	private final Map<String, Component> map = new TreeMap<>();
 	private final Container comp;
 
 	public MainFrameSwitch(Container comp) {
@@ -23,17 +24,20 @@ public class MainFrameSwitch{
 
 	public void showComponent(String str) {
 		Component c = map.get(str);
-		if(c!=null) {
+		Component d = comp.getComponentCount() == 0 ? null : comp.getComponent(0);
+		if (c == d) {
+			return;
+		}
+		if (c != null) {
 			comp.removeAll();
-			comp.add(c,BorderLayout.CENTER);
+			comp.add(c, BorderLayout.CENTER);
 			comp.revalidate();
 			comp.paintAll(comp.getGraphics());
 		}
 	}
 
-	public Collection<Component> getComponents() {
-		return map.values();
+	public Stream<Component> components() {
+		return Collections.unmodifiableCollection(map.values()).stream();
 	}
-	
-	
+
 }

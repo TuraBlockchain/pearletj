@@ -12,8 +12,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.apache.commons.io.IOUtils;
+import org.greenrobot.eventbus.EventBus;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
+import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
+
+@SuppressWarnings("serial")
 public class NetworkAndAccountBar extends JPanel {
 
 	private final JPanel left = new JPanel(new FlowLayout(0)), right = new JPanel(new FlowLayout(0));
@@ -23,7 +27,7 @@ public class NetworkAndAccountBar extends JPanel {
 	public NetworkAndAccountBar() {
 		super(new GridLayout());
 		init();
-		
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -36,15 +40,17 @@ public class NetworkAndAccountBar extends JPanel {
 		right.add(account_combobox);
 		left.add(manage_network_btn);
 		right.add(manage_account_btn);
-		
 
 		List<String> nws = Arrays.asList();
 		try {
-			nws = IOUtils.readLines(SettingsPanel.class.getClassLoader().getResourceAsStream("networks.txt"),"UTF-8");
+			nws = IOUtils.readLines(SettingsPanel.class.getClassLoader().getResourceAsStream("networks.txt"), "UTF-8");
 		} catch (IOException e) {
 		}
 		network_combobox.setModel(new ListComboBoxModel<String>(nws));
-		
+
+		manage_network_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.NET)));
+		manage_account_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.ACC)));
+
 	}
 
 }

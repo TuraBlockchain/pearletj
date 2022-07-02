@@ -1,5 +1,6 @@
 package hk.zdl.crpto.pearlet.component;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -19,24 +20,33 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import org.apache.commons.io.IOUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
 import hk.zdl.crpto.pearlet.MyToolbar;
+import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
+import hk.zdl.crpto.pearlet.misc.AccountTableModel;
 import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
 
 @SuppressWarnings("serial")
 public class SettingsPanel extends JTabbedPane {
 
 	public SettingsPanel() {
-		addTab("Networks", initNetworkPanel());
-		addTab("Accounts", initAccountPanel());
+		addTab(SettingsPanelEvent.NET, initNetworkPanel());
+		addTab(SettingsPanelEvent.ACC, initAccountPanel());
+		EventBus.getDefault().register(this);
 	}
 
 	private static final Component initNetworkPanel() {
@@ -81,7 +91,7 @@ public class SettingsPanel extends JTabbedPane {
 	private static final void createWeb3jAuthDialog(Component c) {
 		var dialog = new JDialog((Frame) SwingUtilities.getRoot(c), "Enter Project ID & Secret", true);
 		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		IndepandentWindows.getInstance().add(dialog);
+		IndepandentWindows.add(dialog);
 		var panel_1 = new JPanel(new GridBagLayout());
 		try {
 			panel_1.add(new JLabel(new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("icon/" + "key_1.svg")), 64, 64)),
@@ -107,7 +117,32 @@ public class SettingsPanel extends JTabbedPane {
 	}
 
 	private static final Component initAccountPanel() {
-		var panel = new JPanel();
+		var panel = new JPanel(new BorderLayout());
+		var acc_mable_model = new AccountTableModel();
+		var table_1 = new JTable(acc_mable_model);
+		table_1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table_1.setShowGrid(true);
+		var scr_1 = new JScrollPane(table_1);
+		panel.add(scr_1, BorderLayout.CENTER);
+
+		var btn_panel = new JPanel(new GridBagLayout());
+		var create_account_btn = new JButton("Create");
+		btn_panel.add(create_account_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+		var import_account_btn = new JButton("Import");
+		btn_panel.add(import_account_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+		var watch_account_btn = new JButton("Watch");
+		btn_panel.add(watch_account_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+		var del_btn = new JButton("Delete");
+		btn_panel.add(del_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+
+		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
+		panel_1.add(btn_panel);
+		panel.add(panel_1, BorderLayout.EAST);
 		return panel;
+	}
+
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(SettingsPanelEvent e) {
+		setSelectedIndex(indexOfTab(e.getString()));
 	}
 }

@@ -18,24 +18,21 @@ public class IndepandentWindows {
 
 	}
 
-	public static final IndepandentWindows getInstance() {
-		return INSTANCE;
-	}
 
-	public void add(Window w) {
-		list.add(w);
+	public static final void add(Window w) {
+		INSTANCE.list.add(w);
 		w.addWindowListener(new WindowAdapter() {
 
 			@Override
 			public void windowClosed(WindowEvent e) {
-				synchronized (list) {
-					list.remove(w);
+				synchronized (INSTANCE.list) {
+					INSTANCE.list.remove(w);
 				}
 			}
 		});
 	}
 
-	public Iterator<Window> iterator() {
-		return Collections.unmodifiableList(list).iterator();
+	public static final Iterator<Window> iterator() {
+		return Collections.unmodifiableList(INSTANCE.list).iterator();
 	}
 }

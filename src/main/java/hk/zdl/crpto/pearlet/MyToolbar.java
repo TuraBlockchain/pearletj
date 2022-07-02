@@ -16,6 +16,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
 import org.json.JSONTokener;
 
@@ -23,6 +26,7 @@ import com.formdev.flatlaf.extras.FlatDesktop;
 import com.formdev.flatlaf.extras.FlatDesktop.QuitResponse;
 
 import hk.zdl.crpto.pearlet.component.MyStretchIcon;
+import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
 
 @SuppressWarnings("serial")
 public class MyToolbar extends JScrollPane {
@@ -43,6 +47,7 @@ public class MyToolbar extends JScrollPane {
 		setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		init_buttons();
 		set_callbacks();
+		EventBus.getDefault().register(this);
 	}
 
 	private void init_buttons() {
@@ -74,6 +79,11 @@ public class MyToolbar extends JScrollPane {
 
 	public void clickButton(String str) {
 		Optional.ofNullable(buttons.get(str)).ifPresent(JToggleButton::doClick);
+	}
+
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(SettingsPanelEvent e) {
+		clickButton("sets");
 	}
 
 	public static final Icon getIcon(String str) {

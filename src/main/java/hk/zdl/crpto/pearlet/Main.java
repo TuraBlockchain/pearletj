@@ -75,8 +75,8 @@ public class Main {
 				});
 				SwingUtilities.invokeLater(() -> {
 					SwingUtilities.updateComponentTreeUI(frame);
-					mfs.getComponents().stream().forEach(SwingUtilities::updateComponentTreeUI);
-					IndepandentWindows.getInstance().iterator().forEachRemaining(SwingUtilities::updateComponentTreeUI);
+					mfs.components().forEach(SwingUtilities::updateComponentTreeUI);
+					IndepandentWindows.iterator().forEachRemaining(SwingUtilities::updateComponentTreeUI);
 				});
 			});
 		});
