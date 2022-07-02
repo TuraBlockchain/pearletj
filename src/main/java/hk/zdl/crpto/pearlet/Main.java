@@ -21,6 +21,7 @@ import hk.zdl.crpto.pearlet.component.MessagesPanel;
 import hk.zdl.crpto.pearlet.component.NetworkAndAccountBar;
 import hk.zdl.crpto.pearlet.component.ReceivePanel;
 import hk.zdl.crpto.pearlet.component.SendPanel;
+import hk.zdl.crpto.pearlet.component.SettingsPanel;
 import hk.zdl.crpto.pearlet.component.TranscationPanel;
 
 public class Main {
@@ -58,6 +59,7 @@ public class Main {
 			mfs.put("send", new SendPanel());
 			mfs.put("rcv", new ReceivePanel());
 			mfs.put("msgs", new MessagesPanel());
+			mfs.put("sets", new SettingsPanel());
 
 			SwingUtilities.invokeLater(() -> toolbar.clickButton("dashboard"));
 

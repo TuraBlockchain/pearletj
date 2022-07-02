@@ -1,0 +1,8 @@
+https://singapore.signum.network
+https://australia.signum.network
+https://brazil.signum.network
+https://canada.signum.network
+https://europe.signum.network
+https://uk.signum.network:8125
+https://us-east.signum.network
+https://wallet.signumcoin.ro
