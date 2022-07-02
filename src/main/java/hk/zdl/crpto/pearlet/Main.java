@@ -3,16 +3,18 @@ package hk.zdl.crpto.pearlet;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Taskbar;
-import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import org.jdesktop.swingx.JXFrame;
 
+import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.jthemedetecor.OsThemeDetector;
 
 import hk.zdl.crpto.pearlet.component.DashBoard;
 import hk.zdl.crpto.pearlet.component.NetworkAndAccountBar;
@@ -27,9 +29,10 @@ public class Main {
 		System.setProperty("apple.awt.application.appearance", "system");
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 
+		Taskbar.getTaskbar().setIconImage(ImageIO.read(Main.class.getClassLoader().getResource("app_icon.png")));
+		var otd = OsThemeDetector.getDetector();
+		UIManager.setLookAndFeel(otd.isDark() ? new FlatDarkLaf() : new FlatLightLaf());
 		SwingUtilities.invokeLater(() -> {
-			FlatLightLaf.setup();
-
 			var frame = new JXFrame("Pearlet");
 			frame.getContentPane().setLayout(new BorderLayout());
 			var panel1 = new JPanel(new BorderLayout());
@@ -55,12 +58,21 @@ public class Main {
 			mfs.put("rcv", new ReceivePanel());
 
 			SwingUtilities.invokeLater(() -> toolbar.clickButton("dashboard"));
-		});
-		SwingUtilities.invokeLater(() -> {
-			try {
-				Taskbar.getTaskbar().setIconImage(ImageIO.read(Main.class.getClassLoader().getResource("app_icon.png")));
-			} catch (IOException e) {
-			}
+
+			otd.registerListener(isDark -> {
+				SwingUtilities.invokeLater(() -> {
+
+					if (isDark) {
+						FlatDarkLaf.setup();
+					} else {
+						FlatLightLaf.setup();
+					}
+				});
+				SwingUtilities.invokeLater(() -> {
+					SwingUtilities.updateComponentTreeUI(frame);
+					mfs.getComponents().stream().forEach(SwingUtilities::updateComponentTreeUI);
+				});
+			});
 		});
 
 	}

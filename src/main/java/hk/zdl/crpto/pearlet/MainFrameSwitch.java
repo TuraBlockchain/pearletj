@@ -3,6 +3,7 @@ package hk.zdl.crpto.pearlet;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -29,4 +30,10 @@ public class MainFrameSwitch{
 			comp.paintAll(comp.getGraphics());
 		}
 	}
+
+	public Collection<Component> getComponents() {
+		return map.values();
+	}
+	
+	
 }
