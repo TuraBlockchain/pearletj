@@ -4,13 +4,15 @@ import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 
 import signumj.crypto.SignumCrypto;
+import signumj.entity.SignumAddress;
 
 public class CryptoUtil {
-
-	public static final boolean validateAccount(String network, String type, String text) {
-		SignumCrypto.getInstance();
-
-		return false;
+	
+	public static final byte[] getPublicKeyFromAddress(String network, String addr) {
+		if (network.equals("signum")) {
+			return SignumAddress.fromRs(addr).getPublicKey();
+		}
+		throw new UnsupportedOperationException();
 	}
 
 	public static final byte[] getPublicKey(String network, String type, String text) {

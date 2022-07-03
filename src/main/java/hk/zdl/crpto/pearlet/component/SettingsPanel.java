@@ -184,9 +184,7 @@ public class SettingsPanel extends JTabbedPane {
 
 		import_account_btn.addActionListener(e -> create_import_account_dialog(panel));
 
-		watch_account_btn.addActionListener(e -> {
-			// TODO:
-		});
+		watch_account_btn.addActionListener(e -> create_watch_account_dialog(panel));
 
 		del_btn.addActionListener(e -> Util.submit(() -> {
 			int row = table_1.getSelectedRow();
@@ -264,7 +262,7 @@ public class SettingsPanel extends JTabbedPane {
 				text_area.setText(Base64.encodeBytes(bArr));
 			}
 		});
-		btn_2.addActionListener(e->{
+		btn_2.addActionListener(e -> {
 			var s = new StringSelection(text_area.getText().trim());
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(s, s);
 		});
@@ -273,16 +271,16 @@ public class SettingsPanel extends JTabbedPane {
 			String type = combobox_1.getSelectedItem().toString();
 			String text = text_area.getText().trim();
 
+			boolean b = false;
 			byte[] public_key, private_key;
 			try {
 				private_key = CryptoUtil.getPrivateKey(nw, type, text);
 				public_key = CryptoUtil.getPublicKey(nw, private_key);
+				b = MyDb.insertAccount(nw, public_key, private_key);
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-
-			boolean b = MyDb.insertAccount(nw, public_key, private_key);
 
 			if (b) {
 				dialog.dispose();
@@ -302,7 +300,7 @@ public class SettingsPanel extends JTabbedPane {
 			public void windowOpened(WindowEvent e) {
 				btn_1.doClick();
 			}
-			
+
 		});
 		dialog.setVisible(true);
 	}
@@ -337,16 +335,73 @@ public class SettingsPanel extends JTabbedPane {
 			String type = combobox_1.getSelectedItem().toString();
 			String text = text_area.getText().trim();
 
+			boolean b = false;
 			byte[] public_key, private_key;
 			try {
 				private_key = CryptoUtil.getPrivateKey(nw, type, text);
 				public_key = CryptoUtil.getPublicKey(nw, private_key);
+				b = MyDb.insertAccount(nw, public_key, private_key);
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
-			boolean b = MyDb.insertAccount(nw, public_key, private_key);
+			if (b) {
+				dialog.dispose();
+				reload_accounts();
+			} else {
+				JOptionPane.showMessageDialog(dialog, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}));
+		var panel_1 = new JPanel(new BorderLayout());
+		panel_1.add(panel, BorderLayout.CENTER);
+		var panel_2 = new JPanel(new FlowLayout());
+		panel_2.add(btn_1);
+		panel_1.add(panel_2, BorderLayout.SOUTH);
+
+		dialog.add(panel_1);
+		dialog.pack();
+		dialog.setResizable(false);
+		dialog.setLocationRelativeTo(w);
+		dialog.setVisible(true);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static final void create_watch_account_dialog(Component c) {
+		var w = SwingUtilities.getWindowAncestor(c);
+		var dialog = new JDialog(w, "Watch Account", Dialog.ModalityType.APPLICATION_MODAL);
+		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		IndepandentWindows.add(dialog);
+		var panel = new JPanel(new GridBagLayout());
+		try {
+			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("icon/" + "eyeglasses.svg")), 64, 64)),
+					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+		} catch (IOException e) {
+		}
+		var label_1 = new JLabel("Network:");
+		var network_combobox = new JComboBox<>();
+		network_combobox.setModel(new ListComboBoxModel<String>(supported_networks));
+		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+		var text_field = new JTextField(30);
+		panel.add(text_field, new GridBagConstraints(1, 1, 4, 3, 0, 0, 10, 1, new Insets(5, 5, 0, 5), 0, 0));
+		var btn_1 = new JButton("OK");
+		btn_1.addActionListener(e -> Util.submit(() -> {
+			String nw = network_combobox.getSelectedItem().toString();
+			String text = text_field.getText().trim();
+
+			boolean b = false;
+			byte[] public_key, private_key = new byte[] {};
+			try {
+				public_key = CryptoUtil.getPublicKeyFromAddress(nw, text);
+				if (public_key == null) {
+					throw new Exception("Reed-Solomon address does not contain public key");
+				}
+				b = MyDb.insertAccount(nw, public_key, private_key);
+			} catch (Exception x) {
+				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 
 			if (b) {
 				dialog.dispose();

@@ -46,9 +46,13 @@ public class AccountTableModel extends AbstractTableModel {
 		if (columnIndex == 0) {
 			return r.get("ID");
 		} else if (columnIndex == 1) {
-			return r.get("NETWORK");
+			var o = r.get("NETWORK");
+			var b = r.getBytes("PRIVATE_KEY");
+			if (b.length == 0)
+				o += " (watch)";
+			return o;
 		} else if (columnIndex == 2) {
-			return CryptoUtil.getAddress(r.getStr("NETWORK"),r.getBytes("PUBLIC_KEY"));
+			return CryptoUtil.getAddress(r.getStr("NETWORK"), r.getBytes("PUBLIC_KEY"));
 		}
 		return null;
 	}
@@ -69,5 +73,5 @@ public class AccountTableModel extends AbstractTableModel {
 	public void onMessage(AccountListUpdateEvent e) {
 		setAccounts(e.getAccounts());
 	}
-	
+
 }
