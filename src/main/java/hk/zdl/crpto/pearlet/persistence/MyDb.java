@@ -72,29 +72,42 @@ public class MyDb {
 			return Db.update("networks", "ID", o);
 		}
 	}
-	
+
 	public static final Optional<Record> get_webj_auth() {
 		List<Record> l = Db.find("select MYAUTH from WEBJAUTH");
-		if(l.isEmpty()) {
+		if (l.isEmpty()) {
 			return Optional.empty();
-		}else {
+		} else {
 			return Optional.of(l.get(0));
 		}
 	}
-	
-	public static final boolean update_webj_auth(String auth_id,String scret) {
-		if(scret.equals("unchanged")) {
+
+	public static final boolean update_webj_auth(String auth_id, String scret) {
+		if (scret.equals("unchanged")) {
 			return true;
 		}
 		List<Record> l = Db.find("select * from WEBJAUTH");
-		if(l.isEmpty()) {
+		if (l.isEmpty()) {
 			var o = new Record().set("MYAUTH", auth_id).set("SECRET", scret);
 			return Db.save("WEBJAUTH", o);
-		}else {
+		} else {
 			var o = l.get(0);
 			o.set("MYAUTH", auth_id).set("SECRET", scret);
 			return Db.update("WEBJAUTH", "ID", o);
 		}
 	}
+
+	public static final List<Record> getAccounts() {
+		return Db.find("select * from ACCOUNTS");
+	}
+
+	public static final boolean insertAccount(String network, byte[] public_key, byte[] private_key) {
+		var o = new Record().set("NETWORK", network).set("PUBLIC_KEY", public_key).set("PRIVATE_KEY", private_key);
+		return Db.save("ACCOUNTS", "ID", o);
+	}
 	
+	public static final boolean deleteAccount(int id) {
+		return Db.deleteById("ACCOUNTS", "ID", id);
+	}
+
 }

@@ -44,6 +44,7 @@ import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
 import hk.zdl.crpto.pearlet.misc.AccountTableModel;
 import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crpto.pearlet.persistence.MyDb;
+import hk.zdl.crpto.pearlet.util.CryptoUtil;
 import hk.zdl.crpto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
@@ -57,6 +58,7 @@ public class SettingsPanel extends JTabbedPane {
 			supported_networks = Arrays.asList();
 		}
 	}
+	private static final AccountTableModel acc_mable_model = new AccountTableModel();
 
 	public SettingsPanel() {
 		addTab(SettingsPanelEvent.NET, initNetworkPanel());
@@ -153,9 +155,9 @@ public class SettingsPanel extends JTabbedPane {
 
 	private static final Component initAccountPanel() {
 		var panel = new JPanel(new BorderLayout());
-		var acc_mable_model = new AccountTableModel();
 		var table_1 = new JTable(acc_mable_model);
 		table_1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table_1.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table_1.setShowGrid(true);
 		var scr_1 = new JScrollPane(table_1);
 		panel.add(scr_1, BorderLayout.CENTER);
@@ -180,17 +182,29 @@ public class SettingsPanel extends JTabbedPane {
 			// TODO:
 		});
 
-		del_btn.addActionListener(e -> {
+		del_btn.addActionListener(e -> Util.submit(() -> {
+			int row = table_1.getSelectedRow();
+			if (row < 0) {
+				return;
+			}
 			int i = JOptionPane.showConfirmDialog(panel.getRootPane(), "Are you sure to delete this?", "", JOptionPane.YES_NO_OPTION);
 			if (i == 0) {
-				// TODO: perform delete entry
+				int id = Integer.parseInt(acc_mable_model.getValueAt(row, 0).toString());
+				MyDb.deleteAccount(id);
+				reload_accounts(acc_mable_model);
 			}
-		});
+		}));
+
+		reload_accounts(acc_mable_model);
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
 		panel.add(panel_1, BorderLayout.EAST);
 		return panel;
+	}
+
+	private static final void reload_accounts(AccountTableModel model) {
+		Util.submit(() -> model.setAccounts(MyDb.getAccounts()));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -218,14 +232,23 @@ public class SettingsPanel extends JTabbedPane {
 		var scr_pane = new JScrollPane(text_area);
 		panel.add(scr_pane, new GridBagConstraints(1, 1, 4, 3, 0, 0, 17, 0, new Insets(5, 5, 0, 5), 0, 0));
 		var btn_1 = new JButton("OK");
-		btn_1.addActionListener(e -> {
+		btn_1.addActionListener(e -> Util.submit(() -> {
 			String nw = network_combobox.getSelectedItem().toString();
 			String type = combobox_1.getSelectedItem().toString();
 			String text = text_area.getText().trim();
 
-			dialog.dispose();
-			// TODO: update data
-		});
+			byte[] public_key = CryptoUtil.getPublicKey(nw, type, text);
+			byte[] private_key = CryptoUtil.getPrivateKey(nw, type, text);
+			
+			boolean b = MyDb.insertAccount(nw, public_key, private_key);
+			
+			if(b) {
+				dialog.dispose();
+				reload_accounts(acc_mable_model);
+			}else {
+				JOptionPane.showMessageDialog(dialog, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}));
 		var panel_1 = new JPanel(new BorderLayout());
 		panel_1.add(panel, BorderLayout.CENTER);
 		var panel_2 = new JPanel(new FlowLayout());
