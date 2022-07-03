@@ -10,6 +10,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,6 +43,8 @@ import hk.zdl.crpto.pearlet.MyToolbar;
 import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
 import hk.zdl.crpto.pearlet.misc.AccountTableModel;
 import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
+import hk.zdl.crpto.pearlet.persistence.MyDb;
+import hk.zdl.crpto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class SettingsPanel extends JTabbedPane {
@@ -91,6 +95,26 @@ public class SettingsPanel extends JTabbedPane {
 			panel.add(opt_btn, new GridBagConstraints(1, 0, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
 			opt_btn.addActionListener(e -> createWeb3jAuthDialog(panel));
 		}
+		Util.submit(() -> MyDb.get_server_url(network_name).ifPresent(combo_box::setSelectedItem));
+		btn.addActionListener(e -> Util.submit(() -> {
+			try {
+				URL url = new URL(combo_box.getSelectedItem().toString().trim());
+				var p = url.getProtocol().toLowerCase();
+				if (!p.equals("http") && !p.equals("https")) {
+					JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(panel), "Unsupported Protocol" + ": " + p, "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				boolean b = MyDb.update_server_url(network_name, url.toString());
+				if (b) {
+					JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(panel), "Node updated.", null, JOptionPane.INFORMATION_MESSAGE);
+				} else {
+					JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(panel), "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+			} catch (MalformedURLException x) {
+				JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(panel), "Invalid URL", "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+		}));
 		return panel;
 	}
 
@@ -106,16 +130,19 @@ public class SettingsPanel extends JTabbedPane {
 		} catch (IOException e) {
 		}
 		panel_1.add(new JLabel("Project ID:"), new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
-		var id_field = new JTextField(30);
+		var id_field = new JTextField("<Your ID here>", 30);
 		panel_1.add(id_field, new GridBagConstraints(1, 1, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
 		panel_1.add(new JLabel("Project Secret:"), new GridBagConstraints(1, 2, 1, 1, 0, 0, 17, 0, new Insets(0, 0, 5, 0), 0, 0));
-		var scret_field = new JPasswordField(30);
+		var scret_field = new JPasswordField("unchanged", 30);
 		panel_1.add(scret_field, new GridBagConstraints(1, 3, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
 		var btn_1 = new JButton("OK");
-		btn_1.addActionListener(e -> {
-			dialog.dispose();
-			// TODO: update data
-		});
+		btn_1.addActionListener(e -> Util.submit(() -> {
+			boolean b = MyDb.update_webj_auth(id_field.getText(), new String(scret_field.getPassword()));
+			if (b) {
+				dialog.dispose();
+			}
+		}));
+		Util.submit(() -> MyDb.get_webj_auth().ifPresent(r -> id_field.setText(r.getStr("MYAUTH"))));
 		panel_1.add(btn_1, new GridBagConstraints(0, 4, 2, 1, 0, 0, 10, 0, new Insets(5, 5, 10, 5), 0, 0));
 		dialog.add(panel_1);
 		dialog.pack();
@@ -195,7 +222,7 @@ public class SettingsPanel extends JTabbedPane {
 			String nw = network_combobox.getSelectedItem().toString();
 			String type = combobox_1.getSelectedItem().toString();
 			String text = text_area.getText().trim();
-			
+
 			dialog.dispose();
 			// TODO: update data
 		});
@@ -216,4 +243,5 @@ public class SettingsPanel extends JTabbedPane {
 	public void onMessage(SettingsPanelEvent e) {
 		setSelectedIndex(indexOfTab(e.getString()));
 	}
+
 }

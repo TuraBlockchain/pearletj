@@ -24,6 +24,7 @@ import hk.zdl.crpto.pearlet.component.SendPanel;
 import hk.zdl.crpto.pearlet.component.SettingsPanel;
 import hk.zdl.crpto.pearlet.component.TranscationPanel;
 import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
+import hk.zdl.crpto.pearlet.persistence.MyDb;
 import hk.zdl.crpto.pearlet.util.Util;
 
 public class Main {
@@ -49,7 +50,7 @@ public class Main {
 			var toolbar = new MyToolbar(mfs);
 			frame.add(toolbar, BorderLayout.WEST);
 
-			var frame_size = new Dimension(800, 600);
+			var frame_size = new Dimension(Util.getProp().getInt("default_window_width"), Util.getProp().getInt("default_window_height"));
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.setPreferredSize(frame_size);
 			frame.setMinimumSize(frame_size);
@@ -82,7 +83,7 @@ public class Main {
 				});
 			});
 		});
-
+		Util.submit(MyDb::create_missing_tables);
 	}
 
 }
