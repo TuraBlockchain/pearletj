@@ -4,8 +4,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import com.jfinal.plugin.activerecord.Record;
 
+import hk.zdl.crpto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crpto.pearlet.util.CryptoUtil;
 
 @SuppressWarnings("serial")
@@ -60,4 +65,9 @@ public class AccountTableModel extends AbstractTableModel {
 		}
 	}
 
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(AccountListUpdateEvent e) {
+		setAccounts(e.getAccounts());
+	}
+	
 }

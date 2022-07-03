@@ -40,6 +40,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
 import hk.zdl.crpto.pearlet.MyToolbar;
+import hk.zdl.crpto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
 import hk.zdl.crpto.pearlet.misc.AccountTableModel;
 import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
@@ -58,7 +59,6 @@ public class SettingsPanel extends JTabbedPane {
 			supported_networks = Arrays.asList();
 		}
 	}
-	private static final AccountTableModel acc_mable_model = new AccountTableModel();
 
 	public SettingsPanel() {
 		addTab(SettingsPanelEvent.NET, initNetworkPanel());
@@ -155,12 +155,14 @@ public class SettingsPanel extends JTabbedPane {
 
 	private static final Component initAccountPanel() {
 		var panel = new JPanel(new BorderLayout());
+		var acc_mable_model = new AccountTableModel();
 		var table_1 = new JTable(acc_mable_model);
 		table_1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table_1.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table_1.setShowGrid(true);
 		var scr_1 = new JScrollPane(table_1);
 		panel.add(scr_1, BorderLayout.CENTER);
+		EventBus.getDefault().register(acc_mable_model);
 
 		var btn_panel = new JPanel(new GridBagLayout());
 		var create_account_btn = new JButton("Create");
@@ -191,11 +193,11 @@ public class SettingsPanel extends JTabbedPane {
 			if (i == 0) {
 				int id = Integer.parseInt(acc_mable_model.getValueAt(row, 0).toString());
 				MyDb.deleteAccount(id);
-				reload_accounts(acc_mable_model);
+				reload_accounts();
 			}
 		}));
 
-		reload_accounts(acc_mable_model);
+		reload_accounts();
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
@@ -203,8 +205,8 @@ public class SettingsPanel extends JTabbedPane {
 		return panel;
 	}
 
-	private static final void reload_accounts(AccountTableModel model) {
-		Util.submit(() -> model.setAccounts(MyDb.getAccounts()));
+	private static final void reload_accounts() {
+		Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -239,13 +241,13 @@ public class SettingsPanel extends JTabbedPane {
 
 			byte[] public_key = CryptoUtil.getPublicKey(nw, type, text);
 			byte[] private_key = CryptoUtil.getPrivateKey(nw, type, text);
-			
+
 			boolean b = MyDb.insertAccount(nw, public_key, private_key);
-			
-			if(b) {
+
+			if (b) {
 				dialog.dispose();
-				reload_accounts(acc_mable_model);
-			}else {
+				reload_accounts();
+			} else {
 				JOptionPane.showMessageDialog(dialog, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}));
