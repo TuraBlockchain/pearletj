@@ -24,11 +24,13 @@ import hk.zdl.crpto.pearlet.component.SendPanel;
 import hk.zdl.crpto.pearlet.component.SettingsPanel;
 import hk.zdl.crpto.pearlet.component.TranscationPanel;
 import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
+import hk.zdl.crpto.pearlet.util.Util;
 
 public class Main {
 
 	public static void main(String[] args) throws Throwable {
-		System.setProperty("apple.awt.application.name", "Pearlet");
+		var appName = Util.getProp().get("appName");
+		System.setProperty("apple.awt.application.name", appName);
 		System.setProperty("apple.awt.application.appearance", "system");
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 
@@ -36,7 +38,7 @@ public class Main {
 		var otd = OsThemeDetector.getDetector();
 		UIManager.setLookAndFeel(otd.isDark() ? new FlatDarkLaf() : new FlatLightLaf());
 		SwingUtilities.invokeLater(() -> {
-			var frame = new JXFrame("Pearlet");
+			var frame = new JXFrame(appName);
 			frame.getContentPane().setLayout(new BorderLayout());
 			var panel1 = new JPanel(new BorderLayout());
 			var panel2 = new JPanel();

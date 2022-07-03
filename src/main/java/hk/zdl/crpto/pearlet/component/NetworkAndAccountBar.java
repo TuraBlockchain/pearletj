@@ -20,7 +20,7 @@ import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
 @SuppressWarnings("serial")
 public class NetworkAndAccountBar extends JPanel {
 
-	private final JPanel left = new JPanel(new FlowLayout(0)), right = new JPanel(new FlowLayout(0));
+	private final JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT)), right = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 	private final JComboBox<String> network_combobox = new JComboBox<String>(), account_combobox = new JComboBox<String>();
 	private final JButton manage_network_btn = new JButton("Manage Networks"), manage_account_btn = new JButton("Manage Accounts");
 

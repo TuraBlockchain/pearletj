@@ -41,7 +41,6 @@ import hk.zdl.crpto.pearlet.MyToolbar;
 import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
 import hk.zdl.crpto.pearlet.misc.AccountTableModel;
 import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
-import hk.zdl.crpto.pearlet.util.CryptoUtil;
 
 @SuppressWarnings("serial")
 public class SettingsPanel extends JTabbedPane {
