@@ -225,7 +225,7 @@ public class SettingsPanel extends JTabbedPane {
 		var network_combobox = new JComboBox<>();
 		network_combobox.setModel(new ListComboBoxModel<String>(supported_networks));
 		var label_2 = new JLabel("Text type:");
-		var combobox_1 = new JComboBox<>(new String[] { "Phrase" });
+		var combobox_1 = new JComboBox<>(new String[] { "Phrase", "HEX", "Base64" });
 		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
 		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
 		panel.add(label_2, new GridBagConstraints(3, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
@@ -239,8 +239,14 @@ public class SettingsPanel extends JTabbedPane {
 			String type = combobox_1.getSelectedItem().toString();
 			String text = text_area.getText().trim();
 
-			byte[] public_key = CryptoUtil.getPublicKey(nw, type, text);
-			byte[] private_key = CryptoUtil.getPrivateKey(nw, type, text);
+			byte[] public_key, private_key;
+			try {
+				public_key = CryptoUtil.getPublicKey(nw, type, text);
+				private_key = CryptoUtil.getPrivateKey(nw, type, text);
+			} catch (Exception x) {
+				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 
 			boolean b = MyDb.insertAccount(nw, public_key, private_key);
 
