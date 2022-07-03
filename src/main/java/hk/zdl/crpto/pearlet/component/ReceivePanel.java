@@ -30,7 +30,6 @@ public class ReceivePanel extends JPanel {
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(s, s);
 			//It works!
 		});
-//		setText("ha!ha!");
 	}
 
 	public void setText(String t) {

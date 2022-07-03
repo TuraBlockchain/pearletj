@@ -1,6 +1,7 @@
 package hk.zdl.crpto.pearlet.util;
 
 import org.bouncycastle.util.encoders.Base64;
+import org.bouncycastle.util.encoders.Hex;
 
 import signumj.crypto.SignumCrypto;
 
@@ -16,8 +17,6 @@ public class CryptoUtil {
 		if (network.equals("signum")) {
 			if (type.equalsIgnoreCase("phrase")) {
 				return SignumCrypto.getInstance().getPublicKey(text);
-			}else if(type.equalsIgnoreCase("base64")) {
-				return SignumCrypto.getInstance().getPublicKey(Base64.decode(text));
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -29,7 +28,17 @@ public class CryptoUtil {
 				return SignumCrypto.getInstance().getPrivateKey(text);
 			}else if(type.equalsIgnoreCase("base64")) {
 				return Base64.decode(text);
+			}else if(type.equals("HEX")) {
+				return Hex.decode(text);
 			}
+		}
+		throw new UnsupportedOperationException();
+	}
+	
+
+	public static final byte[] getPublicKey(String network, byte[] private_key) {
+		if (network.equals("signum")) {
+			return SignumCrypto.getInstance().getPublicKey(private_key);
 		}
 		throw new UnsupportedOperationException();
 	}

@@ -9,11 +9,16 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -37,6 +42,7 @@ import org.apache.commons.io.IOUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.java_websocket.util.Base64;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
 import hk.zdl.crpto.pearlet.MyToolbar;
@@ -174,9 +180,7 @@ public class SettingsPanel extends JTabbedPane {
 		var del_btn = new JButton("Delete");
 		btn_panel.add(del_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
 
-		create_account_btn.addActionListener(e -> {
-			// TODO:
-		});
+		create_account_btn.addActionListener(e -> create_new_account_dialog(panel));
 
 		import_account_btn.addActionListener(e -> create_import_account_dialog(panel));
 
@@ -207,6 +211,100 @@ public class SettingsPanel extends JTabbedPane {
 
 	private static final void reload_accounts() {
 		Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static final void create_new_account_dialog(Component c) {
+		var w = SwingUtilities.getWindowAncestor(c);
+		var dialog = new JDialog(w, "Create New Account", Dialog.ModalityType.APPLICATION_MODAL);
+		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		IndepandentWindows.add(dialog);
+		var panel = new JPanel(new GridBagLayout());
+		try {
+			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("icon/" + "cloud-plus-fill.svg")), 64, 64)),
+					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+		} catch (IOException e) {
+		}
+		var label_1 = new JLabel("Network:");
+		var network_combobox = new JComboBox<>();
+		network_combobox.setModel(new ListComboBoxModel<String>(supported_networks));
+		var label_2 = new JLabel("Text type:");
+		var combobox_1 = new JComboBox<>(new String[] { "HEX", "Base64" });
+		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(label_2, new GridBagConstraints(3, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(combobox_1, new GridBagConstraints(4, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+		var text_area = new JTextArea(5, 30);
+		var scr_pane = new JScrollPane(text_area);
+		panel.add(scr_pane, new GridBagConstraints(1, 1, 4, 3, 0, 0, 17, 0, new Insets(5, 5, 0, 5), 0, 0));
+		text_area.setEditable(false);
+
+		var btn_1 = new JButton("Random");
+		var btn_2 = new JButton("Copy");
+		var btn_3 = new JButton("OK");
+		var panel_1 = new JPanel(new GridBagLayout());
+		panel_1.add(btn_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+		panel_1.add(btn_2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+		panel_1.add(btn_3, new GridBagConstraints(2, 0, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+
+		panel.add(panel_1, new GridBagConstraints(0, 5, 5, 1, 0, 0, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
+
+		btn_1.addActionListener(e -> {
+			byte[] bArr = new byte[32];
+			new Random().nextBytes(bArr);
+			if (combobox_1.getSelectedItem().toString().equals("HEX")) {
+				StringBuilder sb = new StringBuilder();
+				for (byte b : bArr) {
+					sb.append(String.format("%02X", b));
+					sb.append(' ');
+				}
+				String s = sb.toString().trim();
+				text_area.setText(s);
+			} else if (combobox_1.getSelectedItem().toString().equals("Base64")) {
+				text_area.setText(Base64.encodeBytes(bArr));
+			}
+		});
+		btn_2.addActionListener(e->{
+			var s = new StringSelection(text_area.getText().trim());
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(s, s);
+		});
+		btn_3.addActionListener(e -> Util.submit(() -> {
+			String nw = network_combobox.getSelectedItem().toString();
+			String type = combobox_1.getSelectedItem().toString();
+			String text = text_area.getText().trim();
+
+			byte[] public_key, private_key;
+			try {
+				private_key = CryptoUtil.getPrivateKey(nw, type, text);
+				public_key = CryptoUtil.getPublicKey(nw, private_key);
+			} catch (Exception x) {
+				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			boolean b = MyDb.insertAccount(nw, public_key, private_key);
+
+			if (b) {
+				dialog.dispose();
+				reload_accounts();
+			} else {
+				JOptionPane.showMessageDialog(dialog, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}));
+
+		dialog.add(panel);
+		dialog.pack();
+		dialog.setResizable(false);
+		dialog.setLocationRelativeTo(w);
+		dialog.addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowOpened(WindowEvent e) {
+				btn_1.doClick();
+			}
+			
+		});
+		dialog.setVisible(true);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -241,8 +339,8 @@ public class SettingsPanel extends JTabbedPane {
 
 			byte[] public_key, private_key;
 			try {
-				public_key = CryptoUtil.getPublicKey(nw, type, text);
 				private_key = CryptoUtil.getPrivateKey(nw, type, text);
+				public_key = CryptoUtil.getPublicKey(nw, private_key);
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				return;
