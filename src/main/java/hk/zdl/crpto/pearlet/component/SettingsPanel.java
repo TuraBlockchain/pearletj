@@ -163,6 +163,7 @@ public class SettingsPanel extends JTabbedPane {
 		var panel = new JPanel(new BorderLayout());
 		var acc_mable_model = new AccountTableModel();
 		var table_1 = new JTable(acc_mable_model);
+		table_1.getTableHeader().setReorderingAllowed(false); 
 		table_1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table_1.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table_1.setShowGrid(true);

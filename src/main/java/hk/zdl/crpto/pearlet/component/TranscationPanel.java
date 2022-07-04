@@ -8,6 +8,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 
 @SuppressWarnings("serial")
 public class TranscationPanel extends JPanel {
@@ -15,6 +16,10 @@ public class TranscationPanel extends JPanel {
 	public TranscationPanel() {
 		super(new BorderLayout());
 		var table = new JTable(5,5);
+		table.getTableHeader().setReorderingAllowed(false); 
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		table.setShowGrid(true);
 		JScrollPane scrollpane = new JScrollPane(table);
 		add(scrollpane,BorderLayout.CENTER);
 		var pages_panel = new JPanel(new FlowLayout(2));

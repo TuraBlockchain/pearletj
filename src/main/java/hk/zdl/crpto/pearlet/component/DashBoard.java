@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 
 public class DashBoard extends JPanel {
 
@@ -52,6 +53,10 @@ public class DashBoard extends JPanel {
 		var table = new JTable(5,5);
 		JScrollPane scrollpane = new JScrollPane(table);
 		balance_and_tx_panel.add(scrollpane,BorderLayout.CENTER);
+		table.getTableHeader().setReorderingAllowed(false); 
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		table.setShowGrid(true);
 
 	}
 
