@@ -19,6 +19,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import hk.zdl.crpto.pearlet.component.dashboard.DashboardTxProc;
+import hk.zdl.crpto.pearlet.component.dashboard.DashboardTxTableModel;
 import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crpto.pearlet.util.CryptoUtil;
 import hk.zdl.crpto.pearlet.util.Util;
@@ -30,6 +32,8 @@ public class DashBoard extends JPanel {
 	private final JPanel token_list_inner_panel = new JPanel(new GridLayout(0, 1));
 	private final JPanel token_list_panel = new JPanel(new BorderLayout());
 	private final JLabel currency_label = new JLabel(), balance_label = new JLabel();
+	private final DashboardTxTableModel table_model = new DashboardTxTableModel();
+	private final DashboardTxProc dbtp = new DashboardTxProc(table_model);
 
 	public DashBoard() {
 		super(new BorderLayout());
@@ -58,7 +62,7 @@ public class DashBoard extends JPanel {
 
 		balance_panel.add(balance_inner_panel, BorderLayout.EAST);
 		balance_and_tx_panel.add(balance_panel, BorderLayout.NORTH);
-		var table = new JTable(5, 5);
+		var table = new JTable(table_model);
 		JScrollPane scrollpane = new JScrollPane(table);
 		balance_and_tx_panel.add(scrollpane, BorderLayout.CENTER);
 		table.getTableHeader().setReorderingAllowed(false);
@@ -81,12 +85,23 @@ public class DashBoard extends JPanel {
 
 				@Override
 				public Void call() throws Exception {
+					try {
+						dbtp.update(e.network, address);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					return null;
+				}
+			});
+			Util.submit(new Callable<Void>() {
+
+				@Override
+				public Void call() throws Exception {
 					balance_label.setText(CryptoUtil.getBalance(e.network, address).toPlainString());
 					return null;
 				}
 			});
 		}
-		System.out.println(e);
 	}
 
 }
