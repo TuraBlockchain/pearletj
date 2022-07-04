@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.util.stream.Stream;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -13,20 +14,29 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crpto.pearlet.util.Util;
+
+@SuppressWarnings("serial")
 public class DashBoard extends JPanel {
 
+	private static Font  title_font = new Font("Arial Black", Font.PLAIN, 16);
 	private final JPanel token_list_inner_panel = new JPanel(new GridLayout(0, 1));
 	private final JPanel token_list_panel = new JPanel(new BorderLayout());
+	private final JLabel currency_label = new JLabel(),balance_label= new JLabel();
 
 	public DashBoard() {
 		super(new BorderLayout());
-		var title_font = new Font("Arial Black", Font.PLAIN, 16);
+		EventBus.getDefault().register(this);
 		var balance_and_tx_panel = new JPanel(new BorderLayout());
 		add(token_list_panel, BorderLayout.WEST);
 		add(balance_and_tx_panel, BorderLayout.CENTER);
 		token_list_panel.setMinimumSize(new Dimension(200, 0));
 		var label1 = new JLabel("Tokens:");
-		label1.setFont(title_font);
 		var panel0 = new JPanel(new FlowLayout(0));
 		panel0.add(label1);
 		token_list_panel.add(panel0, BorderLayout.NORTH);
@@ -37,18 +47,15 @@ public class DashBoard extends JPanel {
 
 		var balance_panel = new JPanel(new BorderLayout());
 		var label2 = new JLabel("Balance:");
-		label2.setFont(title_font);
 		var panel1 = new JPanel(new FlowLayout(0));
 		panel1.add(label2);
-		balance_panel.add(panel1, BorderLayout.NORTH);
+		balance_panel.add(panel1, BorderLayout.WEST);
 		var balance_inner_panel = new JPanel(new FlowLayout(0));
-		var label3 = new JLabel("SIG");
-		var label4 = new JLabel("12345678");
-		balance_inner_panel.add(label3);
-		balance_inner_panel.add(label4);
+		Stream.of(label1,label2,currency_label,balance_label).forEach(o->o.setFont(title_font));
+		Stream.of(currency_label,balance_label).forEach(balance_inner_panel::add);
 		
 
-		balance_panel.add(balance_inner_panel, BorderLayout.CENTER);
+		balance_panel.add(balance_inner_panel, BorderLayout.EAST);
 		balance_and_tx_panel.add(balance_panel,BorderLayout.NORTH);
 		var table = new JTable(5,5);
 		JScrollPane scrollpane = new JScrollPane(table);
@@ -59,5 +66,20 @@ public class DashBoard extends JPanel {
 		table.setShowGrid(true);
 
 	}
+	
+
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(AccountChangeEvent e) {
+		String symbol = Util.default_currency_symbol.get(e.network.name());
+		String address = e.account;
+		currency_label.setText(symbol);
+		if(address.equals("null")) {
+			balance_label.setText("0");
+		}else {
+			
+		}
+		System.out.println(e);
+	}
+
 
 }

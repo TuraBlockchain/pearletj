@@ -11,6 +11,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crpto.pearlet.component.event.AccountListUpdateEvent;
+import hk.zdl.crpto.pearlet.util.CrptoNetworks;
 import hk.zdl.crpto.pearlet.util.CryptoUtil;
 
 @SuppressWarnings("serial")
@@ -52,7 +53,12 @@ public class AccountTableModel extends AbstractTableModel {
 				o += " (watch)";
 			return o;
 		} else if (columnIndex == 2) {
-			return CryptoUtil.getAddress(r.getStr("NETWORK"), r.getBytes("PUBLIC_KEY"));
+			try {
+				CrptoNetworks nw = CrptoNetworks.valueOf(r.getStr("NETWORK"));
+				return CryptoUtil.getAddress(nw, r.getBytes("PUBLIC_KEY"));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		return null;
 	}

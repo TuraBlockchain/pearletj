@@ -1,10 +1,14 @@
 package hk.zdl.crpto.pearlet.util;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
@@ -13,13 +17,18 @@ import net.harawata.appdirs.AppDirs;
 import net.harawata.appdirs.AppDirsFactory;
 
 public class Util {
-	
-	private static final ExecutorService es = Executors.newCachedThreadPool((r)->{
-		Thread t = new Thread(r,"");
+
+	private static final ExecutorService es = Executors.newCachedThreadPool((r) -> {
+		Thread t = new Thread(r, "");
 		t.setDaemon(true);
 		return t;
 	});
-	
+
+	public static final Map<String, String> default_currency_symbol = Collections.unmodifiableMap(Stream
+			.of(new String[] { "SIGNUM", "SIG" }, new String[] { "ROTURA", "XRT" }, new String[] { "WEB3J", "ETH" }).map(s -> Collections.singletonMap(s[0], s[1])).reduce(new TreeMap<>(), (x, o) -> {
+				x.putAll(o);
+				return x;
+			}));
 
 	public static final Prop getProp() {
 		return PropKit.use("config.txt");

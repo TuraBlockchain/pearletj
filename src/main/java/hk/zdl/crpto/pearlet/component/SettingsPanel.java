@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -43,6 +44,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.java_websocket.util.Base64;
+import org.jdesktop.swingx.combobox.EnumComboBoxModel;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
 import hk.zdl.crpto.pearlet.MyToolbar;
@@ -51,20 +53,12 @@ import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
 import hk.zdl.crpto.pearlet.misc.AccountTableModel;
 import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crpto.pearlet.persistence.MyDb;
+import hk.zdl.crpto.pearlet.util.CrptoNetworks;
 import hk.zdl.crpto.pearlet.util.CryptoUtil;
 import hk.zdl.crpto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class SettingsPanel extends JTabbedPane {
-
-	private static List<String> supported_networks;
-	static {
-		try {
-			supported_networks = IOUtils.readLines(SettingsPanel.class.getClassLoader().getResourceAsStream("networks.txt"), "UTF-8");
-		} catch (IOException e) {
-			supported_networks = Arrays.asList();
-		}
-	}
 
 	public SettingsPanel() {
 		addTab(SettingsPanelEvent.NET, initNetworkPanel());
@@ -74,16 +68,16 @@ public class SettingsPanel extends JTabbedPane {
 
 	private static final Component initNetworkPanel() {
 		var panel = new JPanel(new GridLayout(0, 1));
-		supported_networks.stream().map(SettingsPanel::init_network_UI_components).forEach(panel::add);
+		Stream.of(CrptoNetworks.values()).map(SettingsPanel::init_network_UI_components).forEach(panel::add);
 		var panel_1 = new JPanel(new FlowLayout());
 		panel_1.add(panel);
 		return panel_1;
 	}
 
 	@SuppressWarnings("unchecked")
-	private static final Component init_network_UI_components(String network_name) {
+	private static final Component init_network_UI_components(CrptoNetworks network_name) {
 		var panel = new JPanel(new GridBagLayout());
-		var label = new JLabel(network_name);
+		var label = new JLabel(network_name.name());
 		label.setHorizontalTextPosition(SwingConstants.LEFT);
 		panel.add(label, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 0, 0, 0), 0, 0));
 		var combo_box = new JComboBox<String>();
@@ -94,11 +88,11 @@ public class SettingsPanel extends JTabbedPane {
 		panel.add(btn, new GridBagConstraints(3, 1, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
 		List<String> nws = Arrays.asList();
 		try {
-			nws = IOUtils.readLines(SettingsPanel.class.getClassLoader().getResourceAsStream("network/" + network_name + ".txt"), "UTF-8");
+			nws = IOUtils.readLines(SettingsPanel.class.getClassLoader().getResourceAsStream("network/" + network_name.name().toLowerCase() + ".txt"), "UTF-8");
 		} catch (IOException e) {
 		}
 		combo_box.setModel(new ListComboBoxModel<String>(nws));
-		if (network_name.equals("web3j")) {
+		if (network_name.equals(CrptoNetworks.WEB3J)) {
 			var opt_btn = new JButton("ID / Secret");
 			panel.add(opt_btn, new GridBagConstraints(1, 0, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
 			opt_btn.addActionListener(e -> createWeb3jAuthDialog(panel));
@@ -163,7 +157,7 @@ public class SettingsPanel extends JTabbedPane {
 		var panel = new JPanel(new BorderLayout());
 		var acc_mable_model = new AccountTableModel();
 		var table_1 = new JTable(acc_mable_model);
-		table_1.getTableHeader().setReorderingAllowed(false); 
+		table_1.getTableHeader().setReorderingAllowed(false);
 		table_1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table_1.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table_1.setShowGrid(true);
@@ -226,7 +220,7 @@ public class SettingsPanel extends JTabbedPane {
 		}
 		var label_1 = new JLabel("Network:");
 		var network_combobox = new JComboBox<>();
-		network_combobox.setModel(new ListComboBoxModel<String>(supported_networks));
+		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
 		var label_2 = new JLabel("Text type:");
 		var combobox_1 = new JComboBox<>(new String[] { "HEX", "Base64" });
 		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
@@ -235,7 +229,8 @@ public class SettingsPanel extends JTabbedPane {
 		panel.add(combobox_1, new GridBagConstraints(4, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
 		var text_area = new JTextArea(5, 30);
 		var scr_pane = new JScrollPane(text_area);
-		panel.add(scr_pane, new GridBagConstraints(1, 1, 4, 3, 0, 0, 17, 0, new Insets(5, 5, 0, 5), 0, 0));
+		scr_pane.setPreferredSize(scr_pane.getSize());
+		panel.add(scr_pane, new GridBagConstraints(1, 1, 4, 3, 0, 0, 17, 1, new Insets(5, 5, 0, 5), 0, 0));
 		text_area.setEditable(false);
 
 		var btn_1 = new JButton("Random");
@@ -268,7 +263,7 @@ public class SettingsPanel extends JTabbedPane {
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(s, s);
 		});
 		btn_3.addActionListener(e -> Util.submit(() -> {
-			String nw = network_combobox.getSelectedItem().toString();
+			CrptoNetworks nw = CrptoNetworks.valueOf(network_combobox.getSelectedItem().toString());
 			String type = combobox_1.getSelectedItem().toString();
 			String text = text_area.getText().trim();
 
@@ -320,7 +315,7 @@ public class SettingsPanel extends JTabbedPane {
 		}
 		var label_1 = new JLabel("Network:");
 		var network_combobox = new JComboBox<>();
-		network_combobox.setModel(new ListComboBoxModel<String>(supported_networks));
+		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
 		var label_2 = new JLabel("Text type:");
 		var combobox_1 = new JComboBox<>(new String[] { "Phrase", "HEX", "Base64" });
 		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
@@ -332,7 +327,7 @@ public class SettingsPanel extends JTabbedPane {
 		panel.add(scr_pane, new GridBagConstraints(1, 1, 4, 3, 0, 0, 17, 0, new Insets(5, 5, 0, 5), 0, 0));
 		var btn_1 = new JButton("OK");
 		btn_1.addActionListener(e -> Util.submit(() -> {
-			String nw = network_combobox.getSelectedItem().toString();
+			CrptoNetworks nw = CrptoNetworks.valueOf(network_combobox.getSelectedItem().toString());
 			String type = combobox_1.getSelectedItem().toString();
 			String text = text_area.getText().trim();
 
@@ -381,14 +376,14 @@ public class SettingsPanel extends JTabbedPane {
 		}
 		var label_1 = new JLabel("Network:");
 		var network_combobox = new JComboBox<>();
-		network_combobox.setModel(new ListComboBoxModel<String>(supported_networks));
+		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
 		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
 		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
 		var text_field = new JTextField(30);
 		panel.add(text_field, new GridBagConstraints(1, 1, 4, 3, 0, 0, 10, 1, new Insets(5, 5, 0, 5), 0, 0));
 		var btn_1 = new JButton("OK");
 		btn_1.addActionListener(e -> Util.submit(() -> {
-			String nw = network_combobox.getSelectedItem().toString();
+			CrptoNetworks nw = CrptoNetworks.valueOf(network_combobox.getSelectedItem().toString());
 			String text = text_field.getText().trim();
 
 			boolean b = false;

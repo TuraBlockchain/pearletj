@@ -1,5 +1,8 @@
 package hk.zdl.crpto.pearlet.util;
 
+import static hk.zdl.crpto.pearlet.util.CrptoNetworks.*;
+import java.math.BigDecimal;
+
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -8,15 +11,15 @@ import signumj.entity.SignumAddress;
 
 public class CryptoUtil {
 	
-	public static final byte[] getPublicKeyFromAddress(String network, String addr) {
-		if (network.equals("signum")) {
+	public static final byte[] getPublicKeyFromAddress(CrptoNetworks network, String addr) {
+		if (network.equals(SIGNUM)) {
 			return SignumAddress.fromRs(addr).getPublicKey();
 		}
 		throw new UnsupportedOperationException();
 	}
 
-	public static final byte[] getPublicKey(String network, String type, String text) {
-		if (network.equals("signum")) {
+	public static final byte[] getPublicKey(CrptoNetworks network, String type, String text) {
+		if (network.equals(SIGNUM)) {
 			if (type.equalsIgnoreCase("phrase")) {
 				return SignumCrypto.getInstance().getPublicKey(text);
 			}
@@ -24,8 +27,8 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	public static final byte[] getPrivateKey(String network, String type, String text) {
-		if (network.equals("signum")) {
+	public static final byte[] getPrivateKey(CrptoNetworks network, String type, String text) {
+		if (network.equals(SIGNUM)) {
 			if (type.equalsIgnoreCase("phrase")) {
 				return SignumCrypto.getInstance().getPrivateKey(text);
 			}else if(type.equalsIgnoreCase("base64")) {
@@ -38,18 +41,25 @@ public class CryptoUtil {
 	}
 	
 
-	public static final byte[] getPublicKey(String network, byte[] private_key) {
-		if (network.equals("signum")) {
+	public static final byte[] getPublicKey(CrptoNetworks network, byte[] private_key) {
+		if (network.equals(SIGNUM)) {
 			return SignumCrypto.getInstance().getPublicKey(private_key);
 		}
 		throw new UnsupportedOperationException();
 	}
 	
-	public static final String getAddress(String network,byte[] public_key) {
-		if (network.equals("signum")) {
+	public static final String getAddress(CrptoNetworks network,byte[] public_key) {
+		if (network.equals(SIGNUM)) {
 			return SignumCrypto.getInstance().getAddressFromPublic(public_key).getFullAddress();
 		}
 		return null;
+	}
+	
+	public static final BigDecimal getBalance(CrptoNetworks network,String address) {
+		if (network.equals(SIGNUM)) {
+			
+		}
+		throw new UnsupportedOperationException();
 	}
 
 }

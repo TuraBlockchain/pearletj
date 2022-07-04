@@ -12,6 +12,7 @@ import com.jfinal.plugin.activerecord.Record;
 import com.jfinal.plugin.activerecord.dialect.AnsiSqlDialect;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
 
+import hk.zdl.crpto.pearlet.util.CrptoNetworks;
 import hk.zdl.crpto.pearlet.util.Util;
 
 public class MyDb {
@@ -52,8 +53,8 @@ public class MyDb {
 		prop.getProperties().keySet().stream().map(o -> o.toString().trim().toUpperCase()).filter(s -> !tables.contains(s)).map(s -> s.toLowerCase()).forEach(MyDb::create_table);
 	}
 
-	public static final Optional<String> get_server_url(String network) {
-		List<Record> l = Db.find("select * from networks where network = ?", network);
+	public static final Optional<String> get_server_url(CrptoNetworks network) {
+		List<Record> l = Db.find("select * from networks where network = ?", network.name());
 		if (l.isEmpty()) {
 			return Optional.empty();
 		} else {
@@ -61,10 +62,10 @@ public class MyDb {
 		}
 	}
 
-	public static final boolean update_server_url(String network, String url) {
-		List<Record> l = Db.find("select * from networks where network = ?", network);
+	public static final boolean update_server_url(CrptoNetworks network, String url) {
+		List<Record> l = Db.find("select * from networks where network = ?", network.name());
 		if (l.isEmpty()) {
-			var o = new Record().set("network", network).set("URL", url);
+			var o = new Record().set("network", network.name()).set("URL", url);
 			return Db.save("networks", o);
 		} else {
 			var o = l.get(0);
@@ -101,8 +102,8 @@ public class MyDb {
 		return Db.find("select * from ACCOUNTS");
 	}
 
-	public static final boolean insertAccount(String network, byte[] public_key, byte[] private_key) {
-		var o = new Record().set("NETWORK", network).set("PUBLIC_KEY", public_key).set("PRIVATE_KEY", private_key);
+	public static final boolean insertAccount(CrptoNetworks network, byte[] public_key, byte[] private_key) {
+		var o = new Record().set("NETWORK", network.name()).set("PUBLIC_KEY", public_key).set("PRIVATE_KEY", private_key);
 		return Db.save("ACCOUNTS", "ID", o);
 	}
 	

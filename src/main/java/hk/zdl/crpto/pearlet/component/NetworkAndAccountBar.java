@@ -14,24 +14,27 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.apache.commons.io.IOUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jdesktop.swingx.combobox.EnumComboBoxModel;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
 import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crpto.pearlet.MyToolbar;
+import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crpto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
+import hk.zdl.crpto.pearlet.util.CrptoNetworks;
 import hk.zdl.crpto.pearlet.util.CryptoUtil;
 
 @SuppressWarnings("serial")
 public class NetworkAndAccountBar extends JPanel {
 
 	private final JPanel left = new JPanel(new FlowLayout()), right = new JPanel(new FlowLayout());
-	private final JComboBox<String> network_combobox = new JComboBox<String>(), account_combobox = new JComboBox<String>();
+	private final JComboBox<CrptoNetworks> network_combobox = new JComboBox<>();
+	private final JComboBox<String> account_combobox = new JComboBox<>();
 	private List<Record> accounts = Arrays.asList();
 
 	public NetworkAndAccountBar() {
@@ -62,24 +65,29 @@ public class NetworkAndAccountBar extends JPanel {
 		left.add(manage_network_btn);
 		right.add(manage_account_btn);
 
-		List<String> nws = Arrays.asList();
-		try {
-			nws = IOUtils.readLines(SettingsPanel.class.getClassLoader().getResourceAsStream("networks.txt"), "UTF-8");
-		} catch (IOException e) {
-		}
-		network_combobox.setModel(new ListComboBoxModel<String>(nws));
+		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
 		network_combobox.addActionListener(e -> update_account_combobox());
 
 		manage_network_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.NET)));
 		manage_account_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.ACC)));
+		
+		account_combobox.addActionListener(e->update_current_account());
 
 	}
 
 	@SuppressWarnings("unchecked")
 	private final void update_account_combobox() {
-		var nw = network_combobox.getSelectedItem().toString();
-		List<String> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw)).map(o -> CryptoUtil.getAddress(nw, o.getBytes("PUBLIC_KEY"))).collect(Collectors.toList());
+		CrptoNetworks nw = (CrptoNetworks) network_combobox.getSelectedItem();
+		List<String> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> CryptoUtil.getAddress(nw, o.getBytes("PUBLIC_KEY"))).collect(Collectors.toList());
 		account_combobox.setModel(new ListComboBoxModel<>(l));
+		account_combobox.setEnabled(!l.isEmpty());
+		update_current_account();
+	}
+	
+	private void update_current_account() {
+		CrptoNetworks nw = (CrptoNetworks) network_combobox.getSelectedItem();
+		var acc = String.valueOf(account_combobox.getSelectedItem());
+		EventBus.getDefault().post(new AccountChangeEvent(nw,acc));
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
