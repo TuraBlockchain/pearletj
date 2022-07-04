@@ -1,13 +1,17 @@
 package hk.zdl.crpto.pearlet.util;
 
-import static hk.zdl.crpto.pearlet.util.CrptoNetworks.*;
+import static hk.zdl.crpto.pearlet.util.CrptoNetworks.SIGNUM;
+
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 
+import hk.zdl.crpto.pearlet.persistence.MyDb;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.SignumAddress;
+import signumj.service.NodeService;
 
 public class CryptoUtil {
 	
@@ -55,9 +59,13 @@ public class CryptoUtil {
 		return null;
 	}
 	
-	public static final BigDecimal getBalance(CrptoNetworks network,String address) {
+	public static final BigDecimal getBalance(CrptoNetworks network,String address) throws Exception {
 		if (network.equals(SIGNUM)) {
-			
+			Optional<String> opt = MyDb.get_server_url(network);
+			if(opt.isPresent()){
+				NodeService ns = NodeService.getInstance(opt.get());
+				return ns.getAccount(SignumAddress.fromRs(address)).toFuture().get().getBalance().toSigna();
+			};
 		}
 		throw new UnsupportedOperationException();
 	}
