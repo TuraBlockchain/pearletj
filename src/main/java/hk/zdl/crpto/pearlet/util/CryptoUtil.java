@@ -2,12 +2,15 @@ package hk.zdl.crpto.pearlet.util;
 
 import static hk.zdl.crpto.pearlet.util.CrptoNetworks.SIGNUM;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -66,16 +69,16 @@ public class CryptoUtil {
 
 	public static final BigDecimal getBalance(CrptoNetworks network, String address) throws Exception {
 		if (network.equals(SIGNUM)) {
-			Optional<String> opt = MyDb.get_server_url(network);
+			Optional<String> opt = get_server_url(network);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				try {
 					return ns.getAccount(SignumAddress.fromRs(address)).toFuture().get().getBalance().toSigna();
 				} catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
-					if(e.getCause()!=null) {
-						if(e.getCause().getClass().getName().equals("signumj.entity.response.http.BRSError")) {
+					if (e.getCause() != null) {
+						if (e.getCause().getClass().getName().equals("signumj.entity.response.http.BRSError")) {
 							BRSError e1 = (BRSError) e.getCause();
-							if(e1.getCode()==5) {
+							if (e1.getCode() == 5) {
 								return new BigDecimal(0);
 							}
 						}
@@ -91,7 +94,7 @@ public class CryptoUtil {
 	@SuppressWarnings("unchecked")
 	public static final <E> List<E> getTranscations(CrptoNetworks network, String address) throws Exception {
 		if (network.equals(SIGNUM)) {
-			Optional<String> opt = MyDb.get_server_url(network);
+			Optional<String> opt = get_server_url(network);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				SignumID[] id_arr = new SignumID[] {};
@@ -110,4 +113,52 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
+	public static final SignumID[] getSignumTxID(String address) throws IllegalArgumentException, InterruptedException, ExecutionException {
+		Optional<String> opt = get_server_url(SIGNUM);
+		if (opt.isPresent()) {
+			NodeService ns = NodeService.getInstance(opt.get());
+			SignumID[] id_arr = new SignumID[] {};
+			try {
+				id_arr = ns.getAccountTransactionIDs(SignumAddress.fromRs(address)).toFuture().get();
+			} catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
+				if (e.getCause() != null) {
+					if (e.getCause().getClass().getName().equals("signumj.entity.response.http.BRSError")) {
+						BRSError e1 = (BRSError) e.getCause();
+						if (e1.getCode() == 5) {
+							return new SignumID[] {};
+						}
+					}
+				}
+				throw e;
+			}
+			return id_arr;
+		}
+		return new SignumID[] {};
+	}
+	
+	public static final Transaction getSignumTx(SignumID id) throws InterruptedException, ExecutionException {
+		Optional<String> opt = get_server_url(SIGNUM);
+		if (opt.isPresent()) {
+			NodeService ns = NodeService.getInstance(opt.get());
+			Transaction tx = ns.getTransaction(id).toFuture().get();
+			return tx;
+		}
+		throw new InterruptedException();
+	}
+
+	public static final Optional<String> get_server_url(CrptoNetworks network) {
+		Optional<String> opt = MyDb.get_server_url(network);
+		if (opt.isEmpty()) {
+			List<String> nws = Arrays.asList();
+			try {
+				nws = IOUtils.readLines(CryptoUtil.class.getClassLoader().getResourceAsStream("network/" + network.name().toLowerCase() + ".txt"), "UTF-8");
+			} catch (IOException e) {
+			}
+			if (!nws.isEmpty()) {
+				MyDb.update_server_url(network, nws.get(0));
+				return Optional.of(nws.get(0));
+			}
+		}
+		return opt;
+	}
 }

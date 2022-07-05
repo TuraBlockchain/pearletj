@@ -22,12 +22,14 @@ public class SignumValueCellRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+		setBackground(new Color(0, 175, 175));
 		if (!isSelected) {
-			setBackground(Color.pink);
 			Transaction tx = (Transaction) value;
 			if (tx.getType() == 0) {// Payment
 				if (tx.getRecipient().getFullAddress().equals(address)) {
 					setBackground(new Color(175, 255, 175));
+				}else{
+					setBackground(Color.pink);
 				}
 			}
 		}
@@ -38,7 +40,7 @@ public class SignumValueCellRenderer extends DefaultTableCellRenderer {
 	protected void setValue(Object value) {
 		Transaction tx = (Transaction) value;
 		SignumValue val = tx.getAmount();
-		super.setValue(val);
+		super.setValue(Character.valueOf((char) 0xA7A8)+val.toSigna().toPlainString());
 	}
 
 }

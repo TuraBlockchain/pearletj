@@ -26,7 +26,7 @@ public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
 
 	private int mAngle;
 	private int mFadeCount;
-	private int mFadeLimit = 15;
+	private int mFadeLimit = 20;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -64,7 +64,10 @@ public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
 		float fade = (float) mFadeCount / (float) mFadeLimit;
 		// Gray it out.
 		Composite urComposite = g2.getComposite();
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f * fade));
+		float a = fade / 2;
+		a = Math.min(a, 1);
+		a = Math.max(0, a);
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, a));
 		g2.fillRect(0, 0, w, h);
 		g2.setComposite(urComposite);
 
@@ -105,18 +108,18 @@ public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
 	}
 
 	public void start() {
-		if (mIsRunning) {
-			return;
-		}
 
 		// Run a thread for animation.
 		mIsRunning = true;
 		mIsFadingOut = false;
-		mFadeCount = 0;
 		int fps = 40;
 		int tick = 1000 / fps;
-		mTimer = new Timer(tick, this);
-		mTimer.start();
+		if (mTimer == null) {
+			mTimer = new Timer(tick, this);
+		}
+		if (!mTimer.isRunning()) {
+			mTimer.start();
+		}
 	}
 
 	public void stop() {

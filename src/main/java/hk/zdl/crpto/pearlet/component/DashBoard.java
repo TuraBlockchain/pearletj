@@ -18,7 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -48,6 +47,8 @@ public class DashBoard extends JPanel {
 	private final TableColumnModel table_column_model = new DefaultTableColumnModel();
 	private final DashboardTxProc dbtp = new DashboardTxProc(table_model);
 	private final JTable table = new JTable(table_model, table_column_model);
+
+	private Thread tx_histroy_query = null;
 
 	public DashBoard() {
 		super(new BorderLayout());
@@ -93,9 +94,10 @@ public class DashBoard extends JPanel {
 		table.setShowGrid(true);
 		adjust_table_width();
 		balance_and_tx_panel.add(scrollpane, BorderLayout.CENTER);
-
+		table_model.addTableModelListener(e -> adjust_table_width());
 	}
 
+	@SuppressWarnings("removal")
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
 		String symbol = Util.default_currency_symbol.get(e.network.name());
@@ -106,14 +108,17 @@ public class DashBoard extends JPanel {
 		} else {
 			wlui.start();
 			balance_label.setText("?");
-			Util.submit(() -> {
+			if (tx_histroy_query != null) {
+				tx_histroy_query.stop();
+			}
+			tx_histroy_query = new Thread(() -> {
 				try {
+					wlui.start();
 					table_model.setData(Arrays.asList());
-					SwingUtilities.invokeLater(() -> adjust_table_width());
 					dbtp.update_column_model(e.network, table_column_model, address);
 					dbtp.update_data(e.network, address);
-					SwingUtilities.invokeLater(() -> adjust_table_width());
 					table.updateUI();
+				} catch (ThreadDeath x) {
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 				} finally {
@@ -121,6 +126,9 @@ public class DashBoard extends JPanel {
 				}
 
 			});
+			tx_histroy_query.setPriority(Thread.MIN_PRIORITY);
+			tx_histroy_query.setDaemon(true);
+			tx_histroy_query.start();
 			Util.submit(() -> {
 				try {
 					balance_label.setText(CryptoUtil.getBalance(e.network, address).toPlainString());

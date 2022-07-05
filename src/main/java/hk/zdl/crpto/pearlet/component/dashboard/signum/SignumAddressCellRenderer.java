@@ -12,16 +12,25 @@ public class SignumAddressCellRenderer extends DefaultTableCellRenderer {
 
 	public SignumAddressCellRenderer(String address) {
 		this.address = address;
-		setHorizontalAlignment(SwingConstants.RIGHT);
+		setHorizontalAlignment(SwingConstants.CENTER);
 	}
 
 	@Override
 	protected void setValue(Object value) {
 		Transaction tx = (Transaction) value;
-		String sender = tx.getSender().getFullAddress();
-		String recp = tx.getRecipient().getFullAddress();
+		String sender = "", recp = "";
+		if (tx.getSender() != null) {
+			sender = tx.getSender().getFullAddress();
+		}
+		if (tx.getRecipient() != null) {
+			recp = tx.getRecipient().getFullAddress();
+		}
 		if (sender.equals(address)) {
-			super.setValue(recp);
+			if (recp.isBlank()) {
+				super.setValue("<SELF>");
+			} else {
+				super.setValue(recp);
+			}
 		} else {
 			super.setValue(sender);
 		}

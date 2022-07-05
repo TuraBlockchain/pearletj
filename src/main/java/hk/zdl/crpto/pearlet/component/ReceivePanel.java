@@ -10,6 +10,12 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
+
 @SuppressWarnings("serial")
 public class ReceivePanel extends JPanel {
 
@@ -17,6 +23,7 @@ public class ReceivePanel extends JPanel {
 
 	public ReceivePanel() {
 		super(new FlowLayout());
+		EventBus.getDefault().register(this);
 		var panel = new JPanel(new BorderLayout(5, 5));
 		adr_filed.setMinimumSize(new Dimension(400, 20));
 		adr_filed.setPreferredSize(new Dimension(400, 20));
@@ -28,7 +35,7 @@ public class ReceivePanel extends JPanel {
 		btn.addActionListener(e -> {
 			var s = new StringSelection(adr_filed.getText().trim());
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(s, s);
-			//It works!
+			// It works!
 		});
 	}
 
@@ -36,4 +43,8 @@ public class ReceivePanel extends JPanel {
 		adr_filed.setText(t);
 	}
 
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(AccountChangeEvent e) {
+		setText(e.account);
+	}
 }

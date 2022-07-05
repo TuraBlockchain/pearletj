@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import signumj.entity.response.Transaction;
+
 @SuppressWarnings("serial")
 public class DashboardTxTableModel extends AbstractTableModel {
 
@@ -32,10 +34,23 @@ public class DashboardTxTableModel extends AbstractTableModel {
 	}
 
 	public final void setData(List<Object[]> data) {
-		fireTableRowsDeleted(0, this.data.size());
-		this.data.clear();
+		clearData();
 		this.data.addAll(data);
 		fireTableRowsInserted(0, data.size());
+	}
+
+	public final void clearData() {
+		fireTableRowsDeleted(0, this.data.size());
+		this.data.clear();
+	}
+
+	public final void insertData(Object[] entry) {
+		data.add(entry);
+		fireTableRowsInserted(data.size() - 1, data.size());
+	}
+
+	public final void insertData(Transaction t) {
+		insertData(new Object[] { t, t, t, t, t });
 	}
 
 }
