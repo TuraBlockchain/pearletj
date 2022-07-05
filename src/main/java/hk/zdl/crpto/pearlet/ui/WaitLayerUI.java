@@ -18,8 +18,11 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.plaf.LayerUI;
 
+import com.jthemedetecor.OsThemeDetector;
+
 @SuppressWarnings("serial")
 public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
+	private static final OsThemeDetector otd = OsThemeDetector.getDetector();
 	private boolean mIsRunning;
 	private boolean mIsFadingOut;
 	private Timer mTimer;
@@ -46,6 +49,7 @@ public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
 
 	@Override
 	public void paint(Graphics g, JComponent c) {
+		boolean idDark = otd.isDark();
 		int w = c.getWidth();
 		int h = c.getHeight();
 
@@ -68,6 +72,7 @@ public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
 		a = Math.min(a, 1);
 		a = Math.max(0, a);
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, a));
+		g2.setPaint(idDark ? Color.black : Color.white);
 		g2.fillRect(0, 0, w, h);
 		g2.setComposite(urComposite);
 
@@ -77,10 +82,11 @@ public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
 		int cy = h / 2;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setStroke(new BasicStroke(s / 4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-		g2.setPaint(Color.white);
+		g2.setPaint(Color.gray);
 		g2.rotate(Math.PI * mAngle / 180, cx, cy);
-		for (int i = 0; i < 12; i++) {
-			float scale = (11.0f - (float) i) / 11.0f;
+		int div = 12;
+		for (int i = 0; i < div; i++) {
+			float scale = (div - 1 - (float) i) / (div - 1f);
 			g2.drawLine(cx + s, cy, cx + s * 2, cy);
 			g2.rotate(-Math.PI / 6, cx, cy);
 			float b = scale * fade;

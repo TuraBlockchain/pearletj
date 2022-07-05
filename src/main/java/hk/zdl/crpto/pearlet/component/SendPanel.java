@@ -11,14 +11,18 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JLayer;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -31,33 +35,48 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import hk.zdl.crpto.pearlet.MyToolbar;
+import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crpto.pearlet.ui.WaitLayerUI;
+import hk.zdl.crpto.pearlet.util.CryptoUtil;
+import hk.zdl.crpto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class SendPanel extends JPanel {
 
 	private static final Dimension FIELD_DIMENSION = new Dimension(500, 20);
+	private final JLayer<JPanel> jlayer = new JLayer<>();
+	private final WaitLayerUI wuli = new WaitLayerUI();
+	private final JComboBox<String> acc_combo_box = new JComboBox<>();
+	private final JComboBox<String> token_combo_box = new JComboBox<>();
+	private final JLabel balance_label = new JLabel();
 
 	public SendPanel() {
-		super(new FlowLayout());
+		super(new BorderLayout());
+		EventBus.getDefault().register(this);
+		add(jlayer, BorderLayout.CENTER);
+		var _panel = new JPanel(new FlowLayout());
+		jlayer.setView(_panel);
+		jlayer.setUI(wuli);
 		var panel_1 = new JPanel(new GridBagLayout());
-		add(panel_1);
+		_panel.add(panel_1);
 		var label_1 = new JLabel("Account");
 		panel_1.add(label_1, newGridConst(0, 0, 3, 17));
 		var label_2 = new JLabel("Balance");
-		panel_1.add(label_2, newGridConst(3, 0, 1, 10));
+		label_2.setPreferredSize(new Dimension(100, 20));
+		panel_1.add(label_2, newGridConst(3, 0, 1, 17));
 		var label_3 = new JLabel("Token");
+		label_3.setPreferredSize(new Dimension(100, 20));
 		panel_1.add(label_3, newGridConst(4, 0, 1, 17));
-		var acc_combo_box = new JComboBox<>();
 		acc_combo_box.setPreferredSize(new Dimension(300, 20));
 		panel_1.add(acc_combo_box, newGridConst(0, 1, 3));
-		var balance_label = new JLabel("123456");
-		balance_label.setPreferredSize(new Dimension(100, 20));
-		balance_label.setHorizontalAlignment(SwingConstants.RIGHT);
-		panel_1.add(balance_label, newGridConst(3, 1, 1));
-		var token_combo_box = new JComboBox<>();
+		panel_1.add(balance_label, newGridConst(3, 1, 1, 13));
 		token_combo_box.setPreferredSize(new Dimension(100, 20));
-		panel_1.add(token_combo_box, newGridConst(4, 1));
+		panel_1.add(token_combo_box, newGridConst(4, 1, 1, 13));
 
 		var label_4 = new JLabel("Recipant");
 		panel_1.add(label_4, newGridConst(0, 2, 3, 17));
@@ -121,11 +140,11 @@ public class SendPanel extends JPanel {
 		msg_scr.setPreferredSize(new Dimension(500, 200));
 		panel_1.add(msg_scr, newGridConst(0, 9, 5));
 
-		var label_8 = new JLabel("Enter PIN");
-		panel_1.add(label_8, newGridConst(0, 10, 1, 17));
-		var pw_field = new JPasswordField();
-		pw_field.setPreferredSize(FIELD_DIMENSION);
-		panel_1.add(pw_field, newGridConst(0, 11, 5));
+//		var label_8 = new JLabel("Enter PIN");
+//		panel_1.add(label_8, newGridConst(0, 10, 1, 17));
+//		var pw_field = new JPasswordField();
+//		pw_field.setPreferredSize(FIELD_DIMENSION);
+//		panel_1.add(pw_field, newGridConst(0, 11, 5));
 
 		var send_btn = new JButton("Send", MyToolbar.getIcon("paper-plane-solid.svg"));
 		send_btn.setFont(new Font("Arial Black", Font.PLAIN, 32));
@@ -149,18 +168,32 @@ public class SendPanel extends JPanel {
 				public void keyReleased(KeyEvent e) {
 					int i = msg_area.getText().getBytes().length;
 					label_7.setText(i + "/" + "1000");
-					label_7.setForeground(i > 1000 ? Color.red : Color.black);
+					label_7.setForeground(i > 1000 ? Color.red : label_1.getForeground());
 				}
 			});
 		});
 
 	}
 
-	private static final GridBagConstraints newGridConst(int x, int y) {
-		var a = new GridBagConstraints();
-		a.gridx = x;
-		a.gridy = y;
-		return a;
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(AccountChangeEvent e) {
+		String symbol = Util.default_currency_symbol.get(e.network.name());
+		token_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { symbol }));
+		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { e.account }));
+		if (e.account.equals("null")) {
+			balance_label.setText("0");
+		} else {
+			wuli.start();
+			Util.submit(() -> {
+				try {
+					balance_label.setText(CryptoUtil.getBalance(e.network, e.account).stripTrailingZeros().toPlainString());
+				} catch (Exception x) {
+					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
+				}finally {
+					wuli.stop();
+				}
+			});
+		}
 	}
 
 	private static final GridBagConstraints newGridConst(int x, int y, int width) {

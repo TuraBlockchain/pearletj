@@ -7,12 +7,16 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import com.jthemedetecor.OsThemeDetector;
+
 import signumj.entity.SignumValue;
 import signumj.entity.response.Transaction;
 
 @SuppressWarnings("serial")
 public class SignumValueCellRenderer extends DefaultTableCellRenderer {
 
+	private static final OsThemeDetector otd = OsThemeDetector.getDetector();
+	private static final Color my_cyan = new Color(0, 175, 175), my_green = new Color(175, 255, 175);
 	private final String address;
 
 	public SignumValueCellRenderer(String address) {
@@ -22,14 +26,15 @@ public class SignumValueCellRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-		setBackground(new Color(0, 175, 175));
+		boolean isDark = otd.isDark();
+		setBackground(isDark ? darker(my_cyan) : my_cyan);
 		if (!isSelected) {
 			Transaction tx = (Transaction) value;
 			if (tx.getType() == 0) {// Payment
 				if (tx.getRecipient().getFullAddress().equals(address)) {
-					setBackground(new Color(175, 255, 175));
-				}else{
-					setBackground(Color.pink);
+					setBackground(isDark ? darker(my_green) : my_green);
+				} else {
+					setBackground(isDark ? darker(Color.pink) : Color.pink);
 				}
 			}
 		}
@@ -40,7 +45,12 @@ public class SignumValueCellRenderer extends DefaultTableCellRenderer {
 	protected void setValue(Object value) {
 		Transaction tx = (Transaction) value;
 		SignumValue val = tx.getAmount();
-		super.setValue(Character.valueOf((char) 0xA7A8)+val.toSigna().toPlainString());
+		super.setValue(Character.valueOf((char) 0xA7A8) + val.toSigna().toPlainString());
+	}
+
+	private static final Color darker(Color c) {
+		float factor = 0.4f;
+		return new Color(Math.max((int) (c.getRed() * factor), 0), Math.max((int) (c.getGreen() * factor), 0), Math.max((int) (c.getBlue() * factor), 0), c.getAlpha());
 	}
 
 }

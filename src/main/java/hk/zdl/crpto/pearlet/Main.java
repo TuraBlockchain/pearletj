@@ -1,11 +1,7 @@
 package hk.zdl.crpto.pearlet;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.SplashScreen;
 import java.awt.Taskbar;
 
 import javax.imageio.ImageIO;
@@ -31,6 +27,7 @@ import hk.zdl.crpto.pearlet.component.SettingsPanel;
 import hk.zdl.crpto.pearlet.component.TranscationPanel;
 import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crpto.pearlet.persistence.MyDb;
+import hk.zdl.crpto.pearlet.ui.UIUtil;
 import hk.zdl.crpto.pearlet.util.Util;
 
 public class Main {
@@ -41,7 +38,7 @@ public class Main {
 		System.setProperty("apple.awt.application.appearance", "system");
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 
-		printVersionOnSplashScreen();
+		UIUtil.printVersionOnSplashScreen();
 
 		Taskbar.getTaskbar().setIconImage(ImageIO.read(Main.class.getClassLoader().getResource("app_icon.png")));
 		var otd = OsThemeDetector.getDetector();
@@ -106,18 +103,5 @@ public class Main {
 		Util.submit(MyDb::create_missing_tables);
 	}
 
-	private static void printVersionOnSplashScreen() {
-		String text = Main.class.getPackage().getImplementationVersion();
-		SplashScreen ss = SplashScreen.getSplashScreen();
-		if (ss == null) {
-			return;
-		}
-		Graphics2D g2d = ss.createGraphics();
-		g2d.setPaintMode();
-		g2d.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
-		g2d.setColor(Color.white);
-		g2d.drawString("Version: " + text, 350, 430);
-		ss.update();
-	}
 
 }
