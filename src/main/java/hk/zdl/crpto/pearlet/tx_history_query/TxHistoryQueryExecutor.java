@@ -49,11 +49,10 @@ public class TxHistoryQueryExecutor {
 			setDaemon(true);
 		}
 
-		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
 		public void run() {
 			try {
-				switch(network) {
+				switch (network) {
 				case ROTURA:
 					break;
 				case SIGNUM:
@@ -63,13 +62,19 @@ public class TxHistoryQueryExecutor {
 					break;
 				default:
 					break;
-				
+
 				}
+				send_finish_msg();
+			} catch (InterruptedException e) {
 			} catch (Exception e) {
 				Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
-			}finally {
-				EventBus.getDefault().post(new TxHistoryEvent(network, TxHistoryEvent.Type.FINISH, null));
+				send_finish_msg();
 			}
+		}
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		private void send_finish_msg() {
+			EventBus.getDefault().post(new TxHistoryEvent(network, TxHistoryEvent.Type.FINISH, null));
 		}
 
 	}

@@ -84,9 +84,8 @@ public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
 		g2.setStroke(new BasicStroke(s / 4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		g2.setPaint(Color.gray);
 		g2.rotate(Math.PI * mAngle / 180, cx, cy);
-		int div = 12;
-		for (int i = 0; i < div; i++) {
-			float scale = (div - 1 - (float) i) / (div - 1f);
+		for (int i = 0; i < 12; i++) {
+			float scale = (11f - (float) i) / 11f;
 			g2.drawLine(cx + s, cy, cx + s * 2, cy);
 			g2.rotate(-Math.PI / 6, cx, cy);
 			float b = scale * fade;
@@ -99,40 +98,45 @@ public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if (mIsRunning) {
-			firePropertyChange("tick", 0, 1);
-			mAngle += 2;
-			if (mAngle >= 360) {
-				mAngle = 0;
-			}
-			if (mIsFadingOut) {
-				if (--mFadeCount == 0) {
-					mIsRunning = false;
-					mTimer.stop();
+		synchronized (this) {
+			if (mIsRunning) {
+				firePropertyChange("tick", 0, 1);
+				mAngle += 2;
+				if (mAngle >= 360) {
+					mAngle = 0;
 				}
-			} else if (mFadeCount < mFadeLimit) {
-				mFadeCount++;
+				if (mIsFadingOut) {
+					if (--mFadeCount <= 0) {
+						mIsRunning = false;
+						mTimer.stop();
+					}
+				} else if (mFadeCount < mFadeLimit) {
+					mFadeCount++;
+				}
 			}
 		}
 	}
 
 	public void start() {
-
-		// Run a thread for animation.
-		mIsRunning = true;
-		mIsFadingOut = false;
-		int fps = 40;
-		int tick = 1000 / fps;
-		if (mTimer == null) {
-			mTimer = new Timer(tick, this);
-		}
-		if (!mTimer.isRunning()) {
-			mTimer.start();
+		synchronized (this) {
+			// Run a thread for animation.
+			mIsRunning = true;
+			mIsFadingOut = false;
+			int fps = 40;
+			int tick = 1000 / fps;
+			if (mTimer == null) {
+				mTimer = new Timer(tick, this);
+			}
+			if (!mTimer.isRunning()) {
+				mTimer.start();
+			}
 		}
 	}
 
 	public void stop() {
-		mIsFadingOut = true;
+		synchronized (this) {
+			mIsFadingOut = true;
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
