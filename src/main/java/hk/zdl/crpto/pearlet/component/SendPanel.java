@@ -25,7 +25,6 @@ import javax.swing.JLabel;
 import javax.swing.JLayer;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
@@ -142,7 +141,7 @@ public class SendPanel extends JPanel {
 
 //		var label_8 = new JLabel("Enter PIN");
 //		panel_1.add(label_8, newGridConst(0, 10, 1, 17));
-//		var pw_field = new JPasswordField();
+//		var pw_field = new javax.swing.JPasswordField();
 //		pw_field.setPreferredSize(FIELD_DIMENSION);
 //		panel_1.add(pw_field, newGridConst(0, 11, 5));
 
