@@ -6,6 +6,7 @@ import java.awt.Taskbar;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -38,6 +39,15 @@ public class Main {
 		Taskbar.getTaskbar().setIconImage(ImageIO.read(Main.class.getClassLoader().getResource("app_icon.png")));
 		var otd = OsThemeDetector.getDetector();
 		UIManager.setLookAndFeel(otd.isDark() ? new FlatDarkLaf() : new FlatLightLaf());
+		try {
+			MyDb.getTables();
+		}catch(Throwable x) {
+			while(x.getCause()!=null) {
+				x = x.getCause();
+			}
+			JOptionPane.showMessageDialog(null, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
+		}
 		SwingUtilities.invokeLater(() -> {
 			var frame = new JXFrame(appName);
 			frame.getContentPane().setLayout(new BorderLayout());
