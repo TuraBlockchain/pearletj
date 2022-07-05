@@ -2,6 +2,7 @@ package hk.zdl.crpto.pearlet.component;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +52,8 @@ public class NetworkAndAccountBar extends JPanel {
 		right.add(new JLabel("Account:"));
 		left.add(network_combobox);
 		right.add(account_combobox);
+		network_combobox.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
+		account_combobox.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
 
 		Icon btn_icon = null;
 		try {
@@ -70,8 +73,8 @@ public class NetworkAndAccountBar extends JPanel {
 
 		manage_network_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.NET)));
 		manage_account_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.ACC)));
-		
-		account_combobox.addActionListener(e->update_current_account());
+
+		account_combobox.addActionListener(e -> update_current_account());
 
 	}
 
@@ -83,11 +86,11 @@ public class NetworkAndAccountBar extends JPanel {
 		account_combobox.setEnabled(!l.isEmpty());
 		update_current_account();
 	}
-	
+
 	private void update_current_account() {
 		CrptoNetworks nw = (CrptoNetworks) network_combobox.getSelectedItem();
 		var acc = String.valueOf(account_combobox.getSelectedItem());
-		EventBus.getDefault().post(new AccountChangeEvent(nw,acc));
+		EventBus.getDefault().post(new AccountChangeEvent(nw, acc));
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)

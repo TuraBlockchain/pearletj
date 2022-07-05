@@ -16,6 +16,7 @@ import signumj.crypto.SignumCrypto;
 import signumj.entity.SignumAddress;
 import signumj.entity.SignumID;
 import signumj.entity.response.Transaction;
+import signumj.entity.response.http.BRSError;
 import signumj.service.NodeService;
 
 public class CryptoUtil {
@@ -68,7 +69,19 @@ public class CryptoUtil {
 			Optional<String> opt = MyDb.get_server_url(network);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
-				return ns.getAccount(SignumAddress.fromRs(address)).toFuture().get().getBalance().toSigna();
+				try {
+					return ns.getAccount(SignumAddress.fromRs(address)).toFuture().get().getBalance().toSigna();
+				} catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
+					if(e.getCause()!=null) {
+						if(e.getCause().getClass().getName().equals("signumj.entity.response.http.BRSError")) {
+							BRSError e1 = (BRSError) e.getCause();
+							if(e1.getCode()==5) {
+								return new BigDecimal(0);
+							}
+						}
+					}
+					throw e;
+				}
 			}
 			;
 		}

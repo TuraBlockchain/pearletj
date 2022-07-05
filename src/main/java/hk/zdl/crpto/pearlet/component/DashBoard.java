@@ -5,7 +5,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
@@ -14,6 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -33,6 +37,7 @@ public class DashBoard extends JPanel {
 	private final JPanel token_list_panel = new JPanel(new BorderLayout());
 	private final JLabel currency_label = new JLabel(), balance_label = new JLabel();
 	private final DashboardTxTableModel table_model = new DashboardTxTableModel();
+	private final TableColumnModel table_column_model = new DefaultTableColumnModel();
 	private final DashboardTxProc dbtp = new DashboardTxProc(table_model);
 
 	public DashBoard() {
@@ -62,7 +67,13 @@ public class DashBoard extends JPanel {
 
 		balance_panel.add(balance_inner_panel, BorderLayout.EAST);
 		balance_and_tx_panel.add(balance_panel, BorderLayout.NORTH);
-		var table = new JTable(table_model);
+		var table = new JTable(table_model, table_column_model);
+		for(int i=0;i<table_model.getColumnCount();i++) {
+			var tc = new TableColumn(i,0);
+			tc.setHeaderValue(table_model.getColumnName(i));
+			table_column_model.addColumn(tc);
+		}
+		table.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
 		JScrollPane scrollpane = new JScrollPane(table);
 		balance_and_tx_panel.add(scrollpane, BorderLayout.CENTER);
 		table.getTableHeader().setReorderingAllowed(false);
@@ -81,24 +92,20 @@ public class DashBoard extends JPanel {
 			balance_label.setText("0");
 		} else {
 			balance_label.setText("?");
-			Util.submit(new Callable<Void>() {
-
-				@Override
-				public Void call() throws Exception {
-					try {
-						dbtp.update(e.network, address);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					return null;
+			Util.submit(() -> {
+				try {
+					dbtp.update_column_model(e.network, table_column_model);
+					dbtp.update_data(e.network, address);
+				} catch (Exception x) {
+					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 				}
-			});
-			Util.submit(new Callable<Void>() {
 
-				@Override
-				public Void call() throws Exception {
+			});
+			Util.submit(() -> {
+				try {
 					balance_label.setText(CryptoUtil.getBalance(e.network, address).toPlainString());
-					return null;
+				} catch (Exception x) {
+					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 				}
 			});
 		}
