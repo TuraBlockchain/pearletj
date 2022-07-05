@@ -27,6 +27,7 @@ import hk.zdl.crpto.pearlet.component.SettingsPanel;
 import hk.zdl.crpto.pearlet.component.TranscationPanel;
 import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crpto.pearlet.persistence.MyDb;
+import hk.zdl.crpto.pearlet.tx_history_query.TxHistoryQueryExecutor;
 import hk.zdl.crpto.pearlet.ui.UIUtil;
 import hk.zdl.crpto.pearlet.util.Util;
 
@@ -101,6 +102,7 @@ public class Main {
 			});
 		});
 		Util.submit(MyDb::create_missing_tables);
+		new TxHistoryQueryExecutor();
 	}
 
 

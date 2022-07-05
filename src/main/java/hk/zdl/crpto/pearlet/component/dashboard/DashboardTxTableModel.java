@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import signumj.entity.response.Transaction;
-
 @SuppressWarnings("serial")
 public class DashboardTxTableModel extends AbstractTableModel {
 
@@ -49,8 +47,5 @@ public class DashboardTxTableModel extends AbstractTableModel {
 		fireTableRowsInserted(data.size() - 1, data.size());
 	}
 
-	public final void insertData(Transaction t) {
-		insertData(new Object[] { t, t, t, t, t });
-	}
 
 }

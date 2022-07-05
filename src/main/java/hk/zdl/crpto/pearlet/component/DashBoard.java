@@ -24,9 +24,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import hk.zdl.crpto.pearlet.component.dashboard.DashboardTxProc;
+import hk.zdl.crpto.pearlet.component.dashboard.TxProc;
 import hk.zdl.crpto.pearlet.component.dashboard.DashboardTxTableModel;
 import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crpto.pearlet.component.event.TxHistoryEvent;
 import hk.zdl.crpto.pearlet.ui.UIUtil;
 import hk.zdl.crpto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crpto.pearlet.util.CryptoUtil;
@@ -43,10 +44,7 @@ public class DashBoard extends JPanel {
 	private final JLabel currency_label = new JLabel(), balance_label = new JLabel();
 	private final DashboardTxTableModel table_model = new DashboardTxTableModel();
 	private final TableColumnModel table_column_model = new DefaultTableColumnModel();
-	private final DashboardTxProc dbtp = new DashboardTxProc(table_model);
 	private final JTable table = new JTable(table_model, table_column_model);
-
-	private Thread tx_histroy_query = null;
 
 	public DashBoard() {
 		super(new BorderLayout());
@@ -87,6 +85,7 @@ public class DashBoard extends JPanel {
 		table.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
 		JScrollPane scrollpane = new JScrollPane(table);
 		table.getTableHeader().setReorderingAllowed(false);
+		table.getTableHeader().setResizingAllowed(false);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(true);
@@ -95,7 +94,6 @@ public class DashBoard extends JPanel {
 		table_model.addTableModelListener(e -> UIUtil.adjust_table_width(table, table_column_model));
 	}
 
-	@SuppressWarnings("removal")
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
 		String symbol = Util.default_currency_symbol.get(e.network.name());
@@ -103,13 +101,8 @@ public class DashBoard extends JPanel {
 		if (e.account.equals("null")) {
 			balance_label.setText("0");
 		} else {
-			wuli.start();
 			balance_label.setText("?");
-			if (tx_histroy_query != null) {
-				tx_histroy_query.stop();
-			}
-			tx_histroy_query = new TxTableUpdateThread(e);
-			tx_histroy_query.start();
+			new TxProc().update_column_model(e.network, table_column_model, e.account);
 			Util.submit(() -> {
 				try {
 					balance_label.setText(CryptoUtil.getBalance(e.network, e.account).toPlainString());
@@ -120,32 +113,25 @@ public class DashBoard extends JPanel {
 		}
 	}
 
-	private final class TxTableUpdateThread extends Thread {
-		private final AccountChangeEvent e;
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(TxHistoryEvent<?> e) {
+		switch (e.type) {
+		case START:
+			wuli.start();
+			table_model.clearData();
+			break;
+		case FINISH:
+			wuli.stop();
+			break;
+		case INSERT:
+			Object o = e.data;
+			table_model.insertData(new Object[] { o, o, o, o, o });
+			table.updateUI();
+			break;
+		default:
+			break;
 
-		public TxTableUpdateThread(AccountChangeEvent e) {
-			super(TxTableUpdateThread.class.getSimpleName());
-			this.e = e;
-			setPriority(Thread.MIN_PRIORITY);
-			setDaemon(true);
 		}
-
-		@Override
-		public void run() {
-			try {
-				wuli.start();
-				table_model.clearData();
-				dbtp.update_column_model(e.network, table_column_model, e.account);
-				dbtp.update_data(e.network, e.account);
-				table.updateUI();
-			} catch (ThreadDeath x) {
-			} catch (Exception x) {
-				Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
-			} finally {
-				wuli.stop();
-			}
-		}
-
 	}
 
 }

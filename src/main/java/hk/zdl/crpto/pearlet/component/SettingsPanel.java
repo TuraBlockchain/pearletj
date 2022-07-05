@@ -5,12 +5,15 @@ import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -53,6 +56,7 @@ import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
 import hk.zdl.crpto.pearlet.misc.AccountTableModel;
 import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crpto.pearlet.persistence.MyDb;
+import hk.zdl.crpto.pearlet.ui.UIUtil;
 import hk.zdl.crpto.pearlet.util.CrptoNetworks;
 import hk.zdl.crpto.pearlet.util.CryptoUtil;
 import hk.zdl.crpto.pearlet.util.Util;
@@ -156,12 +160,14 @@ public class SettingsPanel extends JTabbedPane {
 	private static final Component initAccountPanel() {
 		var panel = new JPanel(new BorderLayout());
 		var acc_mable_model = new AccountTableModel();
-		var table_1 = new JTable(acc_mable_model);
-		table_1.getTableHeader().setReorderingAllowed(false);
-		table_1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table_1.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		table_1.setShowGrid(true);
-		var scr_1 = new JScrollPane(table_1);
+		var table = new JTable(acc_mable_model);
+		table.setFont(new Font(Font.MONOSPACED, Font.PLAIN, panel.getFont().getSize()));
+		table.getTableHeader().setReorderingAllowed(false);
+		table.getTableHeader().setResizingAllowed(false);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setShowGrid(true);
+		var scr_1 = new JScrollPane(table);
 		panel.add(scr_1, BorderLayout.CENTER);
 		EventBus.getDefault().register(acc_mable_model);
 
@@ -182,7 +188,7 @@ public class SettingsPanel extends JTabbedPane {
 		watch_account_btn.addActionListener(e -> create_watch_account_dialog(panel));
 
 		del_btn.addActionListener(e -> Util.submit(() -> {
-			int row = table_1.getSelectedRow();
+			int row = table.getSelectedRow();
 			if (row < 0) {
 				return;
 			}
@@ -199,6 +205,15 @@ public class SettingsPanel extends JTabbedPane {
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
 		panel.add(panel_1, BorderLayout.EAST);
+		panel.addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void componentShown(ComponentEvent e) {
+				SwingUtilities.invokeLater(() -> UIUtil.adjust_table_width(table, table.getColumnModel()));
+			}
+
+		});
+		table.getModel().addTableModelListener((e) -> SwingUtilities.invokeLater(() -> UIUtil.adjust_table_width(table, table.getColumnModel())));
 		return panel;
 	}
 

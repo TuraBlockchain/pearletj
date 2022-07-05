@@ -17,8 +17,7 @@ import hk.zdl.crpto.pearlet.util.CryptoUtil;
 @SuppressWarnings("serial")
 public class AccountTableModel extends AbstractTableModel {
 
-	private static final List<String> columnNames = Arrays.asList("Id", "Network", "Address"/** , "Alias", "Balance", "Description" **/
-	);
+	private static final List<String> columnNames = Arrays.asList("Id", "Network", "Address", "Balance", "Alias", "Description");
 	private List<Record> accounts = Arrays.asList();
 
 	@Override
