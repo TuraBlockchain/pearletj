@@ -83,7 +83,10 @@ public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
 			float scale = (11.0f - (float) i) / 11.0f;
 			g2.drawLine(cx + s, cy, cx + s * 2, cy);
 			g2.rotate(-Math.PI / 6, cx, cy);
-			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, scale * fade));
+			float b = scale * fade;
+			b = Math.min(b, 1);
+			b = Math.max(0, b);
+			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, b));
 		}
 
 		g2.dispose();
