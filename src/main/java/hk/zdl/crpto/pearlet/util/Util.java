@@ -1,13 +1,17 @@
 package hk.zdl.crpto.pearlet.util;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
 import com.jfinal.kit.Prop;
@@ -24,11 +28,12 @@ public class Util {
 		return t;
 	});
 
-	public static final Map<String, String> default_currency_symbol = Collections.unmodifiableMap(Stream
-			.of(new String[] { "SIGNUM", String.valueOf((char) 0xA7A8) }, new String[] { "ROTURA", "XRT" }, new String[] { "WEB3J", "ETH" }).map(s -> Collections.singletonMap(s[0], s[1])).reduce(new TreeMap<>(), (x, o) -> {
-				x.putAll(o);
-				return x;
-			}));
+	public static final Map<String, String> default_currency_symbol = Collections
+			.unmodifiableMap(Stream.of(new String[] { "SIGNUM", String.valueOf((char) 0xA7A8) }, new String[] { "ROTURA", "XRT" }, new String[] { "WEB3J", "ETH" })
+					.map(s -> Collections.singletonMap(s[0], s[1])).reduce(new TreeMap<>(), (x, o) -> {
+						x.putAll(o);
+						return x;
+					}));
 
 	public static final Prop getProp() {
 		return PropKit.use("config.txt");

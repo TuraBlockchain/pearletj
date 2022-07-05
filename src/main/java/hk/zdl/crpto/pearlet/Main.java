@@ -1,7 +1,12 @@
 package hk.zdl.crpto.pearlet;
 
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.SplashScreen;
 import java.awt.Taskbar;
 
 import javax.imageio.ImageIO;
@@ -36,13 +41,15 @@ public class Main {
 		System.setProperty("apple.awt.application.appearance", "system");
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 
+		printVersionOnSplashScreen();
+
 		Taskbar.getTaskbar().setIconImage(ImageIO.read(Main.class.getClassLoader().getResource("app_icon.png")));
 		var otd = OsThemeDetector.getDetector();
 		UIManager.setLookAndFeel(otd.isDark() ? new FlatDarkLaf() : new FlatLightLaf());
 		try {
 			MyDb.getTables();
-		}catch(Throwable x) {
-			while(x.getCause()!=null) {
+		} catch (Throwable x) {
+			while (x.getCause() != null) {
 				x = x.getCause();
 			}
 			JOptionPane.showMessageDialog(null, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -94,6 +101,20 @@ public class Main {
 			});
 		});
 		Util.submit(MyDb::create_missing_tables);
+	}
+
+	private static void printVersionOnSplashScreen() {
+		String text = Main.class.getPackage().getImplementationVersion();
+		SplashScreen ss = SplashScreen.getSplashScreen();
+		if (ss == null) {
+			return;
+		}
+		Graphics2D g2d = ss.createGraphics();
+		g2d.setPaintMode();
+		g2d.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
+		g2d.setColor(Color.white);
+		g2d.drawString("Version: " + text, 350, 430);
+		ss.update();
 	}
 
 }

@@ -25,6 +25,7 @@
 					<archive>
 						<manifest>
 							<mainClass>hk.zdl.crpto.pearlet.Main</mainClass>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
 						<manifestEntries>
 							<SplashScreen-Image>splash.png</SplashScreen-Image>
