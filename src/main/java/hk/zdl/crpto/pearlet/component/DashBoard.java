@@ -1,6 +1,7 @@
 package hk.zdl.crpto.pearlet.component;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -15,7 +16,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -39,6 +42,7 @@ public class DashBoard extends JPanel {
 	private final DashboardTxTableModel table_model = new DashboardTxTableModel();
 	private final TableColumnModel table_column_model = new DefaultTableColumnModel();
 	private final DashboardTxProc dbtp = new DashboardTxProc(table_model);
+	private final JTable table = new JTable(table_model, table_column_model);
 
 	public DashBoard() {
 		super(new BorderLayout());
@@ -67,20 +71,19 @@ public class DashBoard extends JPanel {
 
 		balance_panel.add(balance_inner_panel, BorderLayout.EAST);
 		balance_and_tx_panel.add(balance_panel, BorderLayout.NORTH);
-		var table = new JTable(table_model, table_column_model);
-		for(int i=0;i<table_model.getColumnCount();i++) {
-			var tc = new TableColumn(i,0);
+		for (int i = 0; i < table_model.getColumnCount(); i++) {
+			var tc = new TableColumn(i, 0);
 			tc.setHeaderValue(table_model.getColumnName(i));
 			table_column_model.addColumn(tc);
 		}
 		table.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
 		JScrollPane scrollpane = new JScrollPane(table);
-		balance_and_tx_panel.add(scrollpane, BorderLayout.CENTER);
 		table.getTableHeader().setReorderingAllowed(false);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(true);
-
+		adjust_table_width();
+		balance_and_tx_panel.add(scrollpane, BorderLayout.CENTER);
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
@@ -94,8 +97,10 @@ public class DashBoard extends JPanel {
 			balance_label.setText("?");
 			Util.submit(() -> {
 				try {
-					dbtp.update_column_model(e.network, table_column_model);
+					dbtp.update_column_model(e.network, table_column_model, address);
 					dbtp.update_data(e.network, address);
+					SwingUtilities.invokeLater(()->adjust_table_width());
+					table.updateUI();
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 				}
@@ -109,6 +114,24 @@ public class DashBoard extends JPanel {
 				}
 			});
 		}
+	}
+
+	private void adjust_table_width() {
+		int total_width = 0;
+		for (int column = 0; column < table.getColumnCount(); column++) {
+			int width = 100; // Min width
+			for (int row = 0; row < table.getRowCount(); row++) {
+				TableCellRenderer renderer = table.getCellRenderer(row, column);
+				Component comp = table.prepareRenderer(renderer, row, column);
+				width = Math.max(comp.getPreferredSize().width + 1, width);
+			}
+			if (width > 300)
+				width = 300;
+			table_column_model.getColumn(column).setMinWidth(width);
+			table_column_model.getColumn(column).setPreferredWidth(width);
+			total_width +=width;
+		}
+		table.setPreferredScrollableViewportSize(new Dimension(total_width,500));
 	}
 
 }

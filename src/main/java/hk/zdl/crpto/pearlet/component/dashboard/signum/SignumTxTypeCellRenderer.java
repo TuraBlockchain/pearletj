@@ -6,6 +6,8 @@ import java.util.TreeMap;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import signumj.entity.response.Transaction;
+
 @SuppressWarnings("serial")
 public class SignumTxTypeCellRenderer extends DefaultTableCellRenderer {
 	
@@ -19,12 +21,13 @@ public class SignumTxTypeCellRenderer extends DefaultTableCellRenderer {
 	}
 
 	public SignumTxTypeCellRenderer() {
-		setHorizontalAlignment(SwingConstants.RIGHT);
+		setHorizontalAlignment(SwingConstants.CENTER);
 	}
 
 	@Override
 	protected void setValue(Object value) {
-		value = map.get(value);
+		Transaction tx = (Transaction) value;
+		value = map.get(tx.getType());
 		if(value == null) {
 			value = "Unknown";
 		}

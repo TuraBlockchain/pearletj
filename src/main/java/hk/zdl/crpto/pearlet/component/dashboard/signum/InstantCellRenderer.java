@@ -1,11 +1,12 @@
 package hk.zdl.crpto.pearlet.component.dashboard.signum;
 
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.Date;
 
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+
+import signumj.entity.response.Transaction;
 
 @SuppressWarnings("serial")
 public class InstantCellRenderer extends DefaultTableCellRenderer {
@@ -19,8 +20,9 @@ public class InstantCellRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	protected void setValue(Object value) {
-		Instant inst = (Instant) value;
-		setText(sdf.format(new Date(inst.getEpochSecond() * 1000)));
+		Transaction tx = (Transaction) value;
+		Date date = tx.getTimestamp().getAsDate();
+		setText(sdf.format(date));
 	}
 
 }
