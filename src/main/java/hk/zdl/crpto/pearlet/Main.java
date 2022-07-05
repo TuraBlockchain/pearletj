@@ -1,6 +1,5 @@
 package hk.zdl.crpto.pearlet;
 
-import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -22,6 +21,7 @@ import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.jthemedetecor.OsThemeDetector;
 
+import hk.zdl.crpto.pearlet.component.AboutPanel;
 import hk.zdl.crpto.pearlet.component.DashBoard;
 import hk.zdl.crpto.pearlet.component.MessagesPanel;
 import hk.zdl.crpto.pearlet.component.NetworkAndAccountBar;
@@ -72,7 +72,9 @@ public class Main {
 			frame.setPreferredSize(frame_size);
 			frame.setMinimumSize(frame_size);
 			frame.setSize(frame_size);
-			frame.setLocationByPlatform(true);
+			frame.pack();
+//			frame.setLocationByPlatform(true);
+			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
 
 			mfs.put("dashboard", new DashBoard());
@@ -81,6 +83,7 @@ public class Main {
 			mfs.put("rcv", new ReceivePanel());
 			mfs.put("msgs", new MessagesPanel());
 			mfs.put("sets", new SettingsPanel());
+			mfs.put("about", new AboutPanel());
 
 			SwingUtilities.invokeLater(() -> toolbar.clickButton("dashboard"));
 
