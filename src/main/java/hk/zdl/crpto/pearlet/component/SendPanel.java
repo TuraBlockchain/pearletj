@@ -92,7 +92,7 @@ public class SendPanel extends JPanel {
 		var label_6 = new JLabel("Fee");
 		panel_1.add(label_6, newGridConst(0, 6, 3, 17));
 		var fee_field = new JTextField();
-		var fee_panel = new JPanel(new BorderLayout());
+		var fee_panel = new JPanel(new GridLayout(1, 0));
 		fee_panel.setPreferredSize(FIELD_DIMENSION);
 		var fee_button_panel = new JPanel(new GridLayout(1, 0));
 		var fee_btn_cheap = new JToggleButton("Cheap");
@@ -102,8 +102,8 @@ public class SendPanel extends JPanel {
 		Stream.of(fee_btn_cheap, fee_btn_stand, fee_btn_priot).forEach(btn_gp_0::add);
 		Stream.of(fee_btn_cheap, fee_btn_stand, fee_btn_priot).forEach(fee_button_panel::add);
 
-		fee_panel.add(fee_field, BorderLayout.CENTER);
-		fee_panel.add(fee_button_panel, BorderLayout.EAST);
+		fee_panel.add(fee_field);
+		fee_panel.add(fee_button_panel);
 		panel_1.add(fee_panel, newGridConst(0, 7, 5));
 
 		var panel_2 = new JPanel(new BorderLayout());

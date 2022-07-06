@@ -17,7 +17,6 @@ import com.jfinal.kit.PropKit;
 
 import net.harawata.appdirs.AppDirs;
 import net.harawata.appdirs.AppDirsFactory;
-import signumj.crypto.SignumCrypto;
 import signumj.entity.response.Transaction;
 
 public class Util {
