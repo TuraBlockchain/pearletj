@@ -30,6 +30,14 @@ public class RoturaAddress {
 		return public_key;
 	}
 
+	public String getFullAddress() {
+		return address;
+	}
+	
+	public String getExtendedAddress() {
+		return SignumCrypto.getInstance().getAddressFromPublic(public_key).getExtendedAddress().replaceFirst(SignumUtils.getAddressPrefix() + "-", prefix + "-");
+	}
+
 	public String getID() {
 		return SignumCrypto.getInstance().getAddressFromPublic(public_key).getID();
 	}
@@ -37,6 +45,10 @@ public class RoturaAddress {
 	@Override
 	public String toString() {
 		return address;
+	}
+
+	public static final RoturaAddress fromPublicKey(byte[] public_key) {
+		return new RoturaAddress(public_key);
 	}
 
 	public static final RoturaAddress fromPrivateKey(byte[] private_key) {

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
@@ -52,8 +53,7 @@ public class NetworkAndAccountBar extends JPanel {
 		right.add(new JLabel("Account:"));
 		left.add(network_combobox);
 		right.add(account_combobox);
-		network_combobox.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
-		account_combobox.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
+		Stream.of(network_combobox,account_combobox).forEach(o->o.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize())));
 
 		Icon btn_icon = null;
 		try {

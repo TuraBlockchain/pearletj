@@ -56,7 +56,6 @@ public class TxHistoryQueryExecutor {
 				case ROTURA:
 				case SIGNUM:
 					new TxHistoryQueryImpl(network).queryTxHistory(account);
-					System.out.println("MyThread::run()");
 					break;
 				case WEB3J:
 					break;

@@ -11,6 +11,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.math.BigDecimal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -24,13 +25,14 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JLayer;
 import javax.swing.JMenu;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
@@ -40,7 +42,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crpto.pearlet.MyToolbar;
 import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crpto.pearlet.tx.SendTx;
 import hk.zdl.crpto.pearlet.ui.WaitLayerUI;
+import hk.zdl.crpto.pearlet.util.CrptoNetworks;
 import hk.zdl.crpto.pearlet.util.CryptoUtil;
 import hk.zdl.crpto.pearlet.util.Util;
 
@@ -53,6 +57,8 @@ public class SendPanel extends JPanel {
 	private final JComboBox<String> acc_combo_box = new JComboBox<>();
 	private final JComboBox<String> token_combo_box = new JComboBox<>();
 	private final JLabel balance_label = new JLabel();
+	private CrptoNetworks network;
+	private String account;
 
 	public SendPanel() {
 		super(new BorderLayout());
@@ -83,6 +89,8 @@ public class SendPanel extends JPanel {
 		rcv_field.setPreferredSize(FIELD_DIMENSION);
 		panel_1.add(rcv_field, newGridConst(0, 3, 5));
 
+		Stream.of(acc_combo_box, rcv_field).forEach(o -> o.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize())));
+
 		var label_5 = new JLabel("Amount");
 		panel_1.add(label_5, newGridConst(0, 4, 3, 17));
 		var amt_field = new JTextField();
@@ -91,19 +99,14 @@ public class SendPanel extends JPanel {
 
 		var label_6 = new JLabel("Fee");
 		panel_1.add(label_6, newGridConst(0, 6, 3, 17));
-		var fee_field = new JTextField();
+		var fee_field = new JTextField("0.5");
+		fee_field.setHorizontalAlignment(JTextField.RIGHT);
 		var fee_panel = new JPanel(new GridLayout(1, 0));
 		fee_panel.setPreferredSize(FIELD_DIMENSION);
-		var fee_button_panel = new JPanel(new GridLayout(1, 0));
-		var fee_btn_cheap = new JToggleButton("Cheap");
-		var fee_btn_stand = new JToggleButton("Standard");
-		var fee_btn_priot = new JToggleButton("Priority");
-		var btn_gp_0 = new ButtonGroup();
-		Stream.of(fee_btn_cheap, fee_btn_stand, fee_btn_priot).forEach(btn_gp_0::add);
-		Stream.of(fee_btn_cheap, fee_btn_stand, fee_btn_priot).forEach(fee_button_panel::add);
-
-		fee_panel.add(fee_field);
-		fee_panel.add(fee_button_panel);
+		var fee_slider = new JSlider(10, 100, 50);
+		Stream.of(fee_field, fee_slider).forEach(fee_panel::add);
+		fee_field.setEditable(false);
+		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / 100f));
 		panel_1.add(fee_panel, newGridConst(0, 7, 5));
 
 		var panel_2 = new JPanel(new BorderLayout());
@@ -124,6 +127,7 @@ public class SendPanel extends JPanel {
 		var btn_gp_1 = new ButtonGroup();
 		Stream.of(plain_text_option_menu_item, base64_option_menu_item).forEach(btn_gp_1::add);
 
+		msg_option_btn.setEnabled(false);// FIXME
 		msg_option_btn.addActionListener((e) -> msg_option_popup.show(msg_option_btn, 0, 0));
 		panel_3.add(msg_option_btn);
 
@@ -171,11 +175,51 @@ public class SendPanel extends JPanel {
 				}
 			});
 		});
+		send_btn.addActionListener(e -> {
+			if (rcv_field.getText().isBlank()) {
+				JOptionPane.showMessageDialog(getRootPane(), "Please fill in Recipant", null, JOptionPane.INFORMATION_MESSAGE);
+				return;
+			} else if (!CryptoUtil.isValidAddress(network, rcv_field.getText())) {
+				JOptionPane.showMessageDialog(getRootPane(), "Invalid Recipant Address!", null, JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			BigDecimal amount;
+			try {
+				amount = new BigDecimal(amt_field.getText());
+				if (amount.intValue() <= 0) {
+					throw new IllegalArgumentException();
+				}
+			} catch (Exception x) {
+				JOptionPane.showMessageDialog(getRootPane(), "Invalid amount!", null, JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			if (amount.compareTo(new BigDecimal(balance_label.getText())) > 0) {
+				JOptionPane.showMessageDialog(getRootPane(), "Insufficient fund!", null, JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 
+			wuli.start();
+			SendTx send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()));
+			Util.submit(() -> {
+				try {
+					boolean b = Util.submit(send_tx).get();
+					if (!b) {
+						JOptionPane.showMessageDialog(getRootPane(), "Send token failed!", null, JOptionPane.ERROR_MESSAGE);
+					}
+				} catch (Exception x) {
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+				} finally {
+					wuli.stop();
+				}
+			});
+
+		});
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
+		this.network = e.network;
+		this.account = e.account;
 		String symbol = Util.default_currency_symbol.get(e.network.name());
 		token_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { symbol }));
 		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { e.account }));
@@ -188,7 +232,7 @@ public class SendPanel extends JPanel {
 					balance_label.setText(CryptoUtil.getBalance(e.network, e.account).stripTrailingZeros().toPlainString());
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
-				}finally {
+				} finally {
 					wuli.stop();
 				}
 			});

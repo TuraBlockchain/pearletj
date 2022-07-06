@@ -17,6 +17,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crpto.pearlet.ds.RoturaAddress;
 import hk.zdl.crpto.pearlet.persistence.MyDb;
 import hk.zdl.crpto.pearlet.util.CrptoNetworks;
 import hk.zdl.crpto.pearlet.util.Util;
@@ -50,7 +51,6 @@ public class CopyAccountInfoPanel extends JPanel {
 	private void copy_account_id() {
 		switch (network) {
 		case ROTURA:
-			break;
 		case SIGNUM:
 			String id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getID();
 			copy_to_clip_board(id);
@@ -64,11 +64,14 @@ public class CopyAccountInfoPanel extends JPanel {
 	}
 
 	private void copy_extended_address() {
+		String id;
 		switch (network) {
 		case ROTURA:
+			id =  new RoturaAddress(public_key).getExtendedAddress();
+			copy_to_clip_board(id);
 			break;
 		case SIGNUM:
-			String id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getExtendedAddress();
+			id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getExtendedAddress();
 			copy_to_clip_board(id);
 			break;
 		case WEB3J:
@@ -82,7 +85,6 @@ public class CopyAccountInfoPanel extends JPanel {
 	private void copy_public_key() {
 		switch (network) {
 		case ROTURA:
-			break;
 		case SIGNUM:
 			String id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getPublicKeyString().toUpperCase();
 			copy_to_clip_board(id);
@@ -110,6 +112,12 @@ public class CopyAccountInfoPanel extends JPanel {
 		for (var r : l) {
 			if (network.equals(CrptoNetworks.SIGNUM)) {
 				var adr = SignumCrypto.getInstance().getAddressFromPublic(r.getBytes("PUBLIC_KEY"));
+				if (adr.getFullAddress().equals(account)) {
+					public_key = adr.getPublicKey();
+					break;
+				}
+			}else if(network.equals(CrptoNetworks.ROTURA)) {
+				var adr = new RoturaAddress(r.getBytes("PUBLIC_KEY"));
 				if (adr.getFullAddress().equals(account)) {
 					public_key = adr.getPublicKey();
 					break;

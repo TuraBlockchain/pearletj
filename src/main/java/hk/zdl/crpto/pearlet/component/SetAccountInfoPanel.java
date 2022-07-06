@@ -17,6 +17,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JLayer;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 
@@ -56,6 +57,8 @@ public class SetAccountInfoPanel extends JPanel {
 		panel_1.add(label_1, newGridConst(0, 0, 3, 17));
 		acc_combo_box.setPreferredSize(new Dimension(300, 20));
 		panel_1.add(acc_combo_box, newGridConst(0, 1, 3));
+		
+		acc_combo_box.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
 
 		var label_4 = new JLabel("Name");
 		panel_1.add(label_4, newGridConst(0, 2, 3, 17));
@@ -71,19 +74,14 @@ public class SetAccountInfoPanel extends JPanel {
 
 		var label_6 = new JLabel("Fee");
 		panel_1.add(label_6, newGridConst(0, 6, 3, 17));
-		var fee_field = new JTextField();
+		var fee_field = new JTextField("0.5");
+		fee_field.setHorizontalAlignment(JTextField.RIGHT);
 		var fee_panel = new JPanel(new GridLayout(1, 0));
 		fee_panel.setPreferredSize(FIELD_DIMENSION);
-		var fee_button_panel = new JPanel(new GridLayout(1, 0));
-		var fee_btn_cheap = new JToggleButton("Cheap");
-		var fee_btn_stand = new JToggleButton("Standard");
-		var fee_btn_priot = new JToggleButton("Priority");
-		var btn_gp_0 = new ButtonGroup();
-		Stream.of(fee_btn_cheap, fee_btn_stand, fee_btn_priot).forEach(btn_gp_0::add);
-		Stream.of(fee_btn_cheap, fee_btn_stand, fee_btn_priot).forEach(fee_button_panel::add);
-
-		fee_panel.add(fee_field);
-		fee_panel.add(fee_button_panel);
+		var fee_slider = new JSlider(10, 100, 50);
+		Stream.of(fee_field, fee_slider).forEach(fee_panel::add);
+		fee_field.setEditable(false);
+		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / 100f));
 		panel_1.add(fee_panel, newGridConst(0, 7, 5));
 
 		var send_btn = new JButton(MyToolbar.getIcon("paper-plane-solid.svg"));

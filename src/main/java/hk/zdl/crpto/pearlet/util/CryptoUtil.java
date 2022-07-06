@@ -25,6 +25,22 @@ import signumj.service.NodeService;
 
 public class CryptoUtil {
 
+	public static final boolean isValidAddress(CrptoNetworks network, String address) {
+		if (address == null || address.isBlank()) {
+			return false;
+		}
+		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
+			try {
+				String adr = SignumAddress.fromRs(address).getRawAddress();
+				String bdr = address.substring(address.indexOf('-')+1);
+				return adr.equals(bdr);
+			} catch (Exception e) {
+				return false;
+			}
+		}
+		return false;
+	}
+
 	public static final byte[] getPublicKeyFromAddress(CrptoNetworks network, String addr) {
 		if (network.equals(SIGNUM)) {
 			return SignumAddress.fromRs(addr).getPublicKey();

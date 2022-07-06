@@ -3,6 +3,7 @@ package hk.zdl.crpto.pearlet.component;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 
@@ -27,6 +28,7 @@ public class ReceivePanel extends JPanel {
 		var panel = new JPanel(new BorderLayout(5, 5));
 		adr_filed.setMinimumSize(new Dimension(400, 20));
 		adr_filed.setPreferredSize(new Dimension(400, 20));
+		adr_filed.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));		
 		panel.add(adr_filed, BorderLayout.CENTER);
 		var btn = new JButton("Copy Address");
 		panel.add(btn, BorderLayout.EAST);
