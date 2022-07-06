@@ -224,7 +224,6 @@ public class SendPanel extends JPanel {
 				try {
 					if (Util.submit(send_tx).get()) {
 						UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);
-						EventBus.getDefault().post(new AccountChangeEvent(network, account));
 					}else {
 						JOptionPane.showMessageDialog(getRootPane(), "Send token failed!", null, JOptionPane.ERROR_MESSAGE);
 					}

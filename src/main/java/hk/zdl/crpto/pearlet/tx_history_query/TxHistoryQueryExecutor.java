@@ -76,5 +76,12 @@ public class TxHistoryQueryExecutor {
 			EventBus.getDefault().post(new TxHistoryEvent(network, TxHistoryEvent.Type.FINISH, null));
 		}
 
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("MyThread [network=").append(network).append(", account=").append(account).append("]");
+			return builder.toString();
+		}
+
 	}
 }
