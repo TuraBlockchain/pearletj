@@ -18,6 +18,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import com.jthemedetecor.OsThemeDetector;
 
 import hk.zdl.crpto.pearlet.component.AboutPanel;
+import hk.zdl.crpto.pearlet.component.AccountInfoPanel;
 import hk.zdl.crpto.pearlet.component.DashBoard;
 import hk.zdl.crpto.pearlet.component.MessagesPanel;
 import hk.zdl.crpto.pearlet.component.NetworkAndAccountBar;
@@ -79,6 +80,7 @@ public class Main {
 			mfs.put("txs", new TranscationPanel());
 			mfs.put("send", new SendPanel());
 			mfs.put("rcv", new ReceivePanel());
+			mfs.put("acc_info", new AccountInfoPanel());
 			mfs.put("msgs", new MessagesPanel());
 			mfs.put("sets", new SettingsPanel());
 			mfs.put("about", new AboutPanel());

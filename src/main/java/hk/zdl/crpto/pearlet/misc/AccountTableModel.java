@@ -79,10 +79,6 @@ public class AccountTableModel extends AbstractTableModel {
 		}
 		return null;
 	}
-	
-	public byte[] getPublicKey(int rowIndex) {
-		return accounts.get(rowIndex).getBytes("PUBLIC_KEY");
-	}
 
 	public void setAccounts(List<Record> accounts) {
 		sparse.clear();

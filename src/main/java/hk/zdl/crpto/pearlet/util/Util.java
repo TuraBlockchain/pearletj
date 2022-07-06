@@ -87,15 +87,14 @@ public class Util {
 		return false;
 	}
 
-	public static final boolean viewAccountDetail(CrptoNetworks nw, byte[] public_key) {
+	public static final <E> boolean viewAccountDetail(CrptoNetworks nw, E e) {
 		switch (nw) {
 		case ROTURA:
 			break;
 		case SIGNUM:
 			if (Desktop.isDesktopSupported()) {
 				try {
-					String id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getID();
-					Desktop.getDesktop().browse(new URI("https://chain.signum.network/address/" + id));
+					Desktop.getDesktop().browse(new URI("https://chain.signum.network/search/?q=" + e));
 				} catch (Exception x) {
 					return false;
 				}

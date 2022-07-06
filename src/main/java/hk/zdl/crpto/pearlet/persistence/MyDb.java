@@ -98,6 +98,10 @@ public class MyDb {
 		}
 	}
 
+	public static final List<Record> getAccounts(CrptoNetworks network) {
+		return Db.find("select * from ACCOUNTS WHERE NETWORK = ?", network.name());
+	}
+	
 	public static final List<Record> getAccounts() {
 		return Db.find("select * from ACCOUNTS");
 	}
@@ -110,5 +114,6 @@ public class MyDb {
 	public static final boolean deleteAccount(int id) {
 		return Db.deleteById("ACCOUNTS", "ID", id);
 	}
+	
 
 }

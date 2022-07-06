@@ -51,9 +51,10 @@ import hk.zdl.crpto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class AccountSettingsPanel extends JPanel {
-	
+
+	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private final AccountTableModel account_table_model = new AccountTableModel();
-	private final JTable table = buildAccountTable(); 
+	private final JTable table = buildAccountTable();
 
 	public AccountSettingsPanel() {
 		super(new BorderLayout());
@@ -63,19 +64,20 @@ public class AccountSettingsPanel extends JPanel {
 
 		var btn_panel = new JPanel(new GridBagLayout());
 		var create_account_btn = new JButton("Create");
-		btn_panel.add(create_account_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+		btn_panel.add(create_account_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var import_account_btn = new JButton("Import");
-		btn_panel.add(import_account_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+		btn_panel.add(import_account_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var watch_account_btn = new JButton("Watch");
-		btn_panel.add(watch_account_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+		btn_panel.add(watch_account_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var del_btn = new JButton("Delete");
-		btn_panel.add(del_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+		btn_panel.add(del_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 
 		create_account_btn.addActionListener(e -> create_new_account_dialog(this));
 
 		import_account_btn.addActionListener(e -> create_import_account_dialog(this));
 
 		watch_account_btn.addActionListener(e -> create_watch_account_dialog(this));
+		watch_account_btn.setEnabled(false);//FIXME
 
 		del_btn.addActionListener(e -> Util.submit(() -> {
 			int row = table.getSelectedRow();
@@ -110,13 +112,13 @@ public class AccountSettingsPanel extends JPanel {
 				int row = table.rowAtPoint(point);
 				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
 					CrptoNetworks nw = CrptoNetworks.valueOf(account_table_model.getValueAt(row, 1).toString());
-					Util.viewAccountDetail(nw, account_table_model.getPublicKey(row));
+					Util.viewAccountDetail(nw, account_table_model.getValueAt(row, 2));
 				}
 			}
 		});
 
 	}
-	
+
 	private final JTable buildAccountTable() {
 		var table = new JTable(account_table_model);
 		table.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
@@ -141,7 +143,7 @@ public class AccountSettingsPanel extends JPanel {
 		var panel = new JPanel(new GridBagLayout());
 		try {
 			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("icon/" + "cloud-plus-fill.svg")), 64, 64)),
-					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
 		} catch (IOException e) {
 		}
 		var label_1 = new JLabel("Network:");
@@ -149,23 +151,23 @@ public class AccountSettingsPanel extends JPanel {
 		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
 		var label_2 = new JLabel("Text type:");
 		var combobox_1 = new JComboBox<>(new String[] { "HEX", "Base64" });
-		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
-		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
-		panel.add(label_2, new GridBagConstraints(3, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
-		panel.add(combobox_1, new GridBagConstraints(4, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
+		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
+		panel.add(label_2, new GridBagConstraints(3, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
+		panel.add(combobox_1, new GridBagConstraints(4, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
 		var text_area = new JTextArea(5, 30);
 		var scr_pane = new JScrollPane(text_area);
 		scr_pane.setPreferredSize(scr_pane.getSize());
-		panel.add(scr_pane, new GridBagConstraints(1, 1, 4, 3, 0, 0, 17, 1, new Insets(5, 5, 0, 5), 0, 0));
+		panel.add(scr_pane, new GridBagConstraints(1, 1, 4, 3, 0, 0, 17, 1, insets_5, 0, 0));
 		text_area.setEditable(false);
 
 		var btn_1 = new JButton("Random");
 		var btn_2 = new JButton("Copy");
 		var btn_3 = new JButton("OK");
 		var panel_1 = new JPanel(new GridBagLayout());
-		panel_1.add(btn_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
-		panel_1.add(btn_2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
-		panel_1.add(btn_3, new GridBagConstraints(2, 0, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+		panel_1.add(btn_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		panel_1.add(btn_2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		panel_1.add(btn_3, new GridBagConstraints(2, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 
 		panel.add(panel_1, new GridBagConstraints(0, 5, 5, 1, 0, 0, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
 
@@ -236,7 +238,7 @@ public class AccountSettingsPanel extends JPanel {
 		var panel = new JPanel(new GridBagLayout());
 		try {
 			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("icon/" + "wallet_2.svg")), 64, 64)),
-					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
 		} catch (IOException e) {
 		}
 		var label_1 = new JLabel("Network:");
@@ -244,10 +246,10 @@ public class AccountSettingsPanel extends JPanel {
 		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
 		var label_2 = new JLabel("Text type:");
 		var combobox_1 = new JComboBox<>(new String[] { "Phrase", "HEX", "Base64" });
-		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
-		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
-		panel.add(label_2, new GridBagConstraints(3, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
-		panel.add(combobox_1, new GridBagConstraints(4, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
+		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
+		panel.add(label_2, new GridBagConstraints(3, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
+		panel.add(combobox_1, new GridBagConstraints(4, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
 		var text_area = new JTextArea(5, 30);
 		var scr_pane = new JScrollPane(text_area);
 		panel.add(scr_pane, new GridBagConstraints(1, 1, 4, 3, 0, 0, 17, 0, new Insets(5, 5, 0, 5), 0, 0));
@@ -297,14 +299,14 @@ public class AccountSettingsPanel extends JPanel {
 		var panel = new JPanel(new GridBagLayout());
 		try {
 			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("icon/" + "eyeglasses.svg")), 64, 64)),
-					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
 		} catch (IOException e) {
 		}
 		var label_1 = new JLabel("Network:");
 		var network_combobox = new JComboBox<>();
 		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
-		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
-		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
+		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
 		var text_field = new JTextField(30);
 		panel.add(text_field, new GridBagConstraints(1, 1, 4, 3, 0, 0, 10, 1, new Insets(5, 5, 0, 5), 0, 0));
 		var btn_1 = new JButton("OK");
