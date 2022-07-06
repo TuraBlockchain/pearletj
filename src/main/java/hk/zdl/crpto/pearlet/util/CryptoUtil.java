@@ -122,6 +122,30 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 	
+
+	public static byte[] generateTransactionWithMessage(CrptoNetworks nw, String recipient, byte[] public_key, BigDecimal amount, BigDecimal fee,String message) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440,message, null).blockingGet();
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+
+	public static byte[] generateTransactionWithMessage(CrptoNetworks nw, String recipient, byte[] public_key, BigDecimal amount, BigDecimal fee,byte[] message) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440,message, null).blockingGet();
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+	
+	
 	public static byte[] signTransaction(CrptoNetworks nw, byte[] privateKey, byte[] unsignedTransaction) {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			return SignumCrypto.getInstance().signTransaction(privateKey, unsignedTransaction);

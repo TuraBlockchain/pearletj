@@ -37,6 +37,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import org.bouncycastle.util.encoders.Base64;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -119,6 +120,7 @@ public class SendPanel extends JPanel {
 		var msg_option_btn = new JButton("↓");
 		var msg_option_popup = new JPopupMenu();
 		var eny_msg_menu_item = new JCheckBoxMenuItem("Encrypt");
+		eny_msg_menu_item.setEnabled(false);//FIXME
 		msg_option_popup.add(eny_msg_menu_item);
 		var eny_msg_sub_menu = new JMenu("Send as");
 		msg_option_popup.add(eny_msg_sub_menu);
@@ -129,7 +131,6 @@ public class SendPanel extends JPanel {
 		var btn_gp_1 = new ButtonGroup();
 		Stream.of(plain_text_option_menu_item, base64_option_menu_item).forEach(btn_gp_1::add);
 
-		msg_option_btn.setEnabled(false);// FIXME
 		msg_option_btn.addActionListener((e) -> msg_option_popup.show(msg_option_btn, 0, 0));
 		panel_3.add(msg_option_btn);
 
@@ -194,8 +195,31 @@ public class SendPanel extends JPanel {
 				return;
 			}
 
-			wuli.start();
 			SendTx send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()));
+			if(msg_chk_box.isSelected()) {
+				if(plain_text_option_menu_item.isSelected()) {
+					String str = msg_area.getText().trim();
+					if(str.getBytes().length>1000) {
+						JOptionPane.showMessageDialog(getRootPane(), "Message toooooo looooong!", null, JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					send_tx.setMessage(str);
+				}else if(base64_option_menu_item.isSelected()){
+					byte[] bArr;
+					try {
+						bArr = Base64.decode(msg_area.getText().trim());
+					} catch (Exception x) {
+						JOptionPane.showMessageDialog(getRootPane(), "Message is not valid base64 data!", null, JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					if(bArr.length>1000) {
+						JOptionPane.showMessageDialog(getRootPane(), "Message toooooo looooong!", null, JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					send_tx.setMessage(bArr);
+				}
+			}
+			wuli.start();
 			Util.submit(() -> {
 				try {
 					if (Util.submit(send_tx).get()) {
