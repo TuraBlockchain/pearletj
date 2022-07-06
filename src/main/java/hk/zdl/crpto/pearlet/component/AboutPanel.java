@@ -62,7 +62,7 @@ public class AboutPanel extends JPanel {
 		var panel_2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
 		try {
-			var signum_label = new JLabel(new MyStretchIcon(ImageIO.read(AboutPanel.class.getClassLoader().getResource("icon/" + "Signum_Logo_V1_black.png")), 400, -1));
+			var signum_label = new JLabel(new MyStretchIcon(ImageIO.read(AboutPanel.class.getClassLoader().getResource("icon/" + "Signum_Badge_J.png")), -1, 100));
 			panel_2.add(signum_label);
 		} catch (IOException e) {
 		}

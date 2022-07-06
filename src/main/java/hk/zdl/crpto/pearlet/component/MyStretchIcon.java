@@ -20,8 +20,8 @@ public class MyStretchIcon extends ImageIcon {
 			this.width = width;
 			this.height = (int) (1.0 * width / image.getWidth(null) * image.getHeight(null));
 		} else if (width < 0) {
-			this.height = width;
-			this.width = (int) (1.0 * width / image.getHeight(null) * image.getWidth(null));
+			this.height = height;
+			this.width = (int) (1.0 * height / image.getHeight(null) * image.getWidth(null));
 		} else {
 			this.width = width;
 			this.height = height;
@@ -46,6 +46,7 @@ public class MyStretchIcon extends ImageIcon {
 		}
 		ImageObserver io = getImageObserver();
 		Graphics2D g2d = (Graphics2D) g;
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
 		g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 		g2d.drawImage(image, x, y, width, height, io == null ? c : io);
