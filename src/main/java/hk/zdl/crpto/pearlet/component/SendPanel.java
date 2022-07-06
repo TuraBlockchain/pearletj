@@ -9,6 +9,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.TrayIcon.MessageType;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.math.BigDecimal;
@@ -43,6 +44,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import hk.zdl.crpto.pearlet.MyToolbar;
 import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crpto.pearlet.tx.SendTx;
+import hk.zdl.crpto.pearlet.ui.UIUtil;
 import hk.zdl.crpto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crpto.pearlet.util.CrptoNetworks;
 import hk.zdl.crpto.pearlet.util.CryptoUtil;
@@ -99,14 +101,14 @@ public class SendPanel extends JPanel {
 
 		var label_6 = new JLabel("Fee");
 		panel_1.add(label_6, newGridConst(0, 6, 3, 17));
-		var fee_field = new JTextField("0.5");
+		var fee_field = new JTextField("0.05");
 		fee_field.setHorizontalAlignment(JTextField.RIGHT);
 		var fee_panel = new JPanel(new GridLayout(1, 0));
 		fee_panel.setPreferredSize(FIELD_DIMENSION);
 		var fee_slider = new JSlider(10, 100, 50);
 		Stream.of(fee_field, fee_slider).forEach(fee_panel::add);
 		fee_field.setEditable(false);
-		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / 100f));
+		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / 1000f));
 		panel_1.add(fee_panel, newGridConst(0, 7, 5));
 
 		var panel_2 = new JPanel(new BorderLayout());
@@ -142,12 +144,6 @@ public class SendPanel extends JPanel {
 		var msg_scr = new JScrollPane(msg_area);
 		msg_scr.setPreferredSize(new Dimension(500, 200));
 		panel_1.add(msg_scr, newGridConst(0, 9, 5));
-
-//		var label_8 = new JLabel("Enter PIN");
-//		panel_1.add(label_8, newGridConst(0, 10, 1, 17));
-//		var pw_field = new javax.swing.JPasswordField();
-//		pw_field.setPreferredSize(FIELD_DIMENSION);
-//		panel_1.add(pw_field, newGridConst(0, 11, 5));
 
 		var send_btn = new JButton("Send", MyToolbar.getIcon("paper-plane-solid.svg"));
 		send_btn.setFont(new Font("Arial Black", Font.PLAIN, 32));
@@ -186,7 +182,7 @@ public class SendPanel extends JPanel {
 			BigDecimal amount;
 			try {
 				amount = new BigDecimal(amt_field.getText());
-				if (amount.intValue() <= 0) {
+				if (amount.doubleValue() <= 0) {
 					throw new IllegalArgumentException();
 				}
 			} catch (Exception x) {
@@ -202,8 +198,10 @@ public class SendPanel extends JPanel {
 			SendTx send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()));
 			Util.submit(() -> {
 				try {
-					boolean b = Util.submit(send_tx).get();
-					if (!b) {
+					if (Util.submit(send_tx).get()) {
+						UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);
+						EventBus.getDefault().post(new AccountChangeEvent(network, account));
+					}else {
 						JOptionPane.showMessageDialog(getRootPane(), "Send token failed!", null, JOptionPane.ERROR_MESSAGE);
 					}
 				} catch (Exception x) {

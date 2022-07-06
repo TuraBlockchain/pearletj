@@ -19,6 +19,7 @@ import hk.zdl.crpto.pearlet.persistence.MyDb;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.SignumAddress;
 import signumj.entity.SignumID;
+import signumj.entity.SignumValue;
 import signumj.entity.response.Transaction;
 import signumj.entity.response.http.BRSError;
 import signumj.service.NodeService;
@@ -32,7 +33,7 @@ public class CryptoUtil {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
 			try {
 				String adr = SignumAddress.fromRs(address).getRawAddress();
-				String bdr = address.substring(address.indexOf('-')+1);
+				String bdr = address.substring(address.indexOf('-') + 1);
 				return adr.equals(bdr);
 			} catch (Exception e) {
 				return false;
@@ -106,6 +107,35 @@ public class CryptoUtil {
 				}
 			}
 			;
+		}
+		throw new UnsupportedOperationException();
+	}
+
+	public static byte[] generateTransaction(CrptoNetworks nw, String recipient, byte[] public_key, BigDecimal amount, BigDecimal fee) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				return ns.generateTransaction(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440, null).blockingGet();
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+	
+	public static byte[] signTransaction(CrptoNetworks nw, byte[] privateKey, byte[] unsignedTransaction) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			return SignumCrypto.getInstance().signTransaction(privateKey, unsignedTransaction);
+		}
+		throw new UnsupportedOperationException();
+	}
+	
+	public static Object broadcastTransaction(CrptoNetworks nw, byte[] signedTransactionBytes) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				return ns.broadcastTransaction(signedTransactionBytes).blockingGet();
+			}
 		}
 		throw new UnsupportedOperationException();
 	}

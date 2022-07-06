@@ -2,6 +2,8 @@ package hk.zdl.crpto.pearlet.component.dashboard;
 
 import javax.swing.table.TableColumnModel;
 
+import hk.zdl.crpto.pearlet.component.dashboard.rotura.RoturaAddressCellRenderer;
+import hk.zdl.crpto.pearlet.component.dashboard.rotura.RoturaValueCellRenderer;
 import hk.zdl.crpto.pearlet.component.dashboard.signum.InstantCellRenderer;
 import hk.zdl.crpto.pearlet.component.dashboard.signum.SignumAddressCellRenderer;
 import hk.zdl.crpto.pearlet.component.dashboard.signum.SignumTxTypeCellRenderer;
@@ -14,6 +16,12 @@ public class TxProc {
 	public void update_column_model(CrptoNetworks network, TableColumnModel model, String address){
 		switch (network) {
 		case ROTURA:
+			model.getColumn(0).setCellRenderer(new TxIdCellrenderer());
+			model.getColumn(1).setCellRenderer(new InstantCellRenderer());
+			model.getColumn(2).setCellRenderer(new SignumTxTypeCellRenderer());
+			model.getColumn(3).setCellRenderer(new RoturaValueCellRenderer(address));
+			model.getColumn(4).setCellRenderer(new RoturaAddressCellRenderer(address));
+			break;
 		case SIGNUM:
 			model.getColumn(0).setCellRenderer(new TxIdCellrenderer());
 			model.getColumn(1).setCellRenderer(new InstantCellRenderer());

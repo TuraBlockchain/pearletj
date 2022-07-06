@@ -74,14 +74,14 @@ public class SetAccountInfoPanel extends JPanel {
 
 		var label_6 = new JLabel("Fee");
 		panel_1.add(label_6, newGridConst(0, 6, 3, 17));
-		var fee_field = new JTextField("0.5");
+		var fee_field = new JTextField("0.05");
 		fee_field.setHorizontalAlignment(JTextField.RIGHT);
 		var fee_panel = new JPanel(new GridLayout(1, 0));
 		fee_panel.setPreferredSize(FIELD_DIMENSION);
 		var fee_slider = new JSlider(10, 100, 50);
 		Stream.of(fee_field, fee_slider).forEach(fee_panel::add);
 		fee_field.setEditable(false);
-		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / 100f));
+		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / 1000f));
 		panel_1.add(fee_panel, newGridConst(0, 7, 5));
 
 		var send_btn = new JButton(MyToolbar.getIcon("paper-plane-solid.svg"));

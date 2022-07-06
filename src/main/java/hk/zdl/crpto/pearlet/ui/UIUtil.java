@@ -5,7 +5,11 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.SplashScreen;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.awt.TrayIcon.MessageType;
 
+import javax.imageio.ImageIO;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -13,6 +17,17 @@ import javax.swing.table.TableColumnModel;
 import hk.zdl.crpto.pearlet.Main;
 
 public class UIUtil {
+	
+	private static TrayIcon trayIcon;
+	static {
+		try {
+			trayIcon = new TrayIcon(ImageIO.read(UIUtil.class.getClassLoader().getResource("app_icon.png")));
+			trayIcon.setImageAutoSize(true);
+			SystemTray.getSystemTray().add(trayIcon);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static final void adjust_table_width(JTable table, TableColumnModel table_column_model) {
 		for (int column = 0; column < table.getColumnCount(); column++) {
@@ -41,5 +56,8 @@ public class UIUtil {
 		g.drawString("Version: " + text, 350, 430);
 		ss.update();
 		g.dispose();
+	}
+	public static void displayMessage(String caption, String text, MessageType messageType) {
+		trayIcon.displayMessage(caption, text, messageType);
 	}
 }
