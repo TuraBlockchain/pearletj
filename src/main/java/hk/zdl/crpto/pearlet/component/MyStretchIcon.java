@@ -2,7 +2,9 @@ package hk.zdl.crpto.pearlet.component;
 
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.image.ImageObserver;
 
 import javax.swing.ImageIcon;
@@ -42,8 +44,10 @@ public class MyStretchIcon extends ImageIcon {
 		if (image == null) {
 			return;
 		}
-
 		ImageObserver io = getImageObserver();
-		g.drawImage(image, x, y, width, height, io == null ? c : io);
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+		g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+		g2d.drawImage(image, x, y, width, height, io == null ? c : io);
 	}
 }
