@@ -6,12 +6,10 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -43,7 +41,7 @@ public class AboutPanel extends JPanel {
 		var appVersionLabel = new JLabel("Version: " + appVer);
 		appVersionLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
 		panel_0.add(appVersionLabel, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
-		var authorNameLabel = new JLabel("Author: " + Util.getProp().get("appAuthor"));
+		var authorNameLabel = new JLabel("Author: " + Util.getProp().get("authorFullName"));
 		authorNameLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
 		panel_0.add(authorNameLabel, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
 
@@ -52,7 +50,7 @@ public class AboutPanel extends JPanel {
 		var poweredby_label = new JLabel("Powered By:");
 		poweredby_label.setFont(new Font(Font.MONOSPACED, Font.BOLD, 20));
 		poweredby_label.setHorizontalAlignment(SwingConstants.LEFT);
-		poweredby_label.setBorder(BorderFactory.createEmptyBorder(0,10,0,0));
+		poweredby_label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
 		var panel_1 = new JPanel(new BorderLayout());
 		panel_1.add(poweredby_label, BorderLayout.NORTH);
@@ -65,9 +63,7 @@ public class AboutPanel extends JPanel {
 		var panel_2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
 		try {
-			BufferedImage img = ImageIO.read(MyToolbar.class.getClassLoader().getResource("icon/" + "Signum_Logo_V1_black.svg"));
-			img = img.getSubimage(0, 150, 400, 100);
-			var signum_label = new JLabel(new ImageIcon(img));
+			var signum_label = new JLabel(new MyStretchIcon(ImageIO.read(AboutPanel.class.getClassLoader().getResource("icon/" + "Signum_Logo_V1_black.png")), 400, -1));
 			panel_2.add(signum_label);
 		} catch (IOException e) {
 		}

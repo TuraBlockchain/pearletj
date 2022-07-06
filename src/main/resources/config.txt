@@ -3,5 +3,7 @@ appVersion = 1.0.0
 appAuthor = zdl
 dbName = db
 
+authorFullName = David Zhang
+
 default_window_width = 800
 default_window_height = 600

@@ -14,8 +14,16 @@ public class MyStretchIcon extends ImageIcon {
 
 	public MyStretchIcon(Image image, int width, int height) {
 		super(image);
-		this.width = width;
-		this.height = height;
+		if (height < 0) {
+			this.width = width;
+			this.height = (int) (1.0 * width / image.getWidth(null) * image.getHeight(null));
+		} else if (width < 0) {
+			this.height = width;
+			this.width = (int) (1.0 * width / image.getHeight(null) * image.getWidth(null));
+		} else {
+			this.width = width;
+			this.height = height;
+		}
 	}
 
 	@Override
