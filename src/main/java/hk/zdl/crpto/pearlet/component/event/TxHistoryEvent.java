@@ -13,7 +13,6 @@ public class TxHistoryEvent<E> {
 	public final E data;
 
 	public TxHistoryEvent(CrptoNetworks network, Type type, E data) {
-		super();
 		this.network = network;
 		this.type = type;
 		this.data = data;

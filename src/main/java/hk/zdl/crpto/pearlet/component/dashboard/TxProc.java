@@ -14,7 +14,6 @@ public class TxProc {
 	public void update_column_model(CrptoNetworks network, TableColumnModel model, String address){
 		switch (network) {
 		case ROTURA:
-			break;
 		case SIGNUM:
 			model.getColumn(0).setCellRenderer(new TxIdCellrenderer());
 			model.getColumn(1).setCellRenderer(new InstantCellRenderer());

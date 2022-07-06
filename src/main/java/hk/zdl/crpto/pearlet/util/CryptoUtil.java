@@ -1,10 +1,10 @@
 package hk.zdl.crpto.pearlet.util;
 
+import static hk.zdl.crpto.pearlet.util.CrptoNetworks.ROTURA;
 import static hk.zdl.crpto.pearlet.util.CrptoNetworks.SIGNUM;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +14,7 @@ import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 
+import hk.zdl.crpto.pearlet.ds.RoturaAddress;
 import hk.zdl.crpto.pearlet.persistence.MyDb;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.SignumAddress;
@@ -32,7 +33,7 @@ public class CryptoUtil {
 	}
 
 	public static final byte[] getPublicKey(CrptoNetworks network, String type, String text) {
-		if (network.equals(SIGNUM)) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
 			if (type.equalsIgnoreCase("phrase")) {
 				return SignumCrypto.getInstance().getPublicKey(text);
 			}
@@ -41,7 +42,7 @@ public class CryptoUtil {
 	}
 
 	public static final byte[] getPrivateKey(CrptoNetworks network, String type, String text) {
-		if (network.equals(SIGNUM)) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
 			if (type.equalsIgnoreCase("phrase")) {
 				return SignumCrypto.getInstance().getPrivateKey(text);
 			} else if (type.equalsIgnoreCase("base64")) {
@@ -54,7 +55,7 @@ public class CryptoUtil {
 	}
 
 	public static final byte[] getPublicKey(CrptoNetworks network, byte[] private_key) {
-		if (network.equals(SIGNUM)) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
 			return SignumCrypto.getInstance().getPublicKey(private_key);
 		}
 		throw new UnsupportedOperationException();
@@ -63,12 +64,14 @@ public class CryptoUtil {
 	public static final String getAddress(CrptoNetworks network, byte[] public_key) {
 		if (network.equals(SIGNUM)) {
 			return SignumCrypto.getInstance().getAddressFromPublic(public_key).getFullAddress();
+		} else if (network.equals(ROTURA)) {
+			return new RoturaAddress(public_key).toString();
 		}
 		return null;
 	}
 
 	public static final BigDecimal getBalance(CrptoNetworks network, String address) throws Exception {
-		if (network.equals(SIGNUM)) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
 			Optional<String> opt = get_server_url(network);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
@@ -91,30 +94,8 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	@SuppressWarnings("unchecked")
-	public static final <E> List<E> getTranscations(CrptoNetworks network, String address) throws Exception {
-		if (network.equals(SIGNUM)) {
-			Optional<String> opt = get_server_url(network);
-			if (opt.isPresent()) {
-				NodeService ns = NodeService.getInstance(opt.get());
-				SignumID[] id_arr = new SignumID[] {};
-				try {
-					id_arr = ns.getAccountTransactionIDs(SignumAddress.fromRs(address)).toFuture().get();
-				} catch (Exception e) {
-				}
-				List<Transaction> list = new ArrayList<>();
-				for (int i = 0; i < id_arr.length; i++) {
-					Transaction tx = ns.getTransaction(id_arr[i]).toFuture().get();
-					list.add(tx);
-				}
-				return (List<E>) list;
-			}
-		}
-		throw new UnsupportedOperationException();
-	}
-
-	public static final SignumID[] getSignumTxID(String address) throws IllegalArgumentException, InterruptedException, ExecutionException {
-		Optional<String> opt = get_server_url(SIGNUM);
+	public static final SignumID[] getSignumTxID(CrptoNetworks nw, String address) throws IllegalArgumentException, InterruptedException, ExecutionException {
+		Optional<String> opt = get_server_url(nw);
 		if (opt.isPresent()) {
 			NodeService ns = NodeService.getInstance(opt.get());
 			SignumID[] id_arr = new SignumID[] {};
@@ -135,9 +116,9 @@ public class CryptoUtil {
 		}
 		return new SignumID[] {};
 	}
-	
-	public static final Transaction getSignumTx(SignumID id) throws InterruptedException, ExecutionException {
-		Optional<String> opt = get_server_url(SIGNUM);
+
+	public static final Transaction getSignumTx(CrptoNetworks nw, SignumID id) throws InterruptedException, ExecutionException {
+		Optional<String> opt = get_server_url(nw);
 		if (opt.isPresent()) {
 			NodeService ns = NodeService.getInstance(opt.get());
 			Transaction tx = ns.getTransaction(id).toFuture().get();

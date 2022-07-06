@@ -8,14 +8,20 @@ import hk.zdl.crpto.pearlet.util.CryptoUtil;
 import signumj.entity.SignumID;
 import signumj.entity.response.Transaction;
 
-public class SignumTxHistoryQuery implements TxHistoryQuery {
+public class TxHistoryQueryImpl implements TxHistoryQuery {
+	
+	private final CrptoNetworks nw;
+
+	public TxHistoryQueryImpl(CrptoNetworks nw) {
+		this.nw = nw;
+	}
 
 	@Override
 	public void queryTxHistory(String address) throws Exception {
-		SignumID[] tx_id_arr = CryptoUtil.getSignumTxID(address);
+		SignumID[] tx_id_arr = CryptoUtil.getSignumTxID(nw,address);
 		for (SignumID id : tx_id_arr) {
-			Transaction tx = CryptoUtil.getSignumTx(id);
-			EventBus.getDefault().post(new TxHistoryEvent<Transaction>(CrptoNetworks.SIGNUM, TxHistoryEvent.Type.INSERT, tx));
+			Transaction tx = CryptoUtil.getSignumTx(nw,id);
+			EventBus.getDefault().post(new TxHistoryEvent<Transaction>(nw, TxHistoryEvent.Type.INSERT, tx));
 		}
 
 	}

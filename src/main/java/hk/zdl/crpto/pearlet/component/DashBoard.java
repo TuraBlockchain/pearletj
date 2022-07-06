@@ -121,7 +121,7 @@ public class DashBoard extends JPanel {
 			new TxProc().update_column_model(e.network, table_column_model, e.account);
 			Util.submit(() -> {
 				try {
-					balance_label.setText(CryptoUtil.getBalance(e.network, e.account).toPlainString());
+					balance_label.setText(CryptoUtil.getBalance(e.network, e.account).stripTrailingZeros().toPlainString());
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 				}
