@@ -5,6 +5,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -25,11 +28,12 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crpto.pearlet.component.dashboard.TxProc;
-import hk.zdl.crpto.pearlet.component.dashboard.DashboardTxTableModel;
+import hk.zdl.crpto.pearlet.component.dashboard.TxTableModel;
 import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crpto.pearlet.component.event.TxHistoryEvent;
 import hk.zdl.crpto.pearlet.ui.UIUtil;
 import hk.zdl.crpto.pearlet.ui.WaitLayerUI;
+import hk.zdl.crpto.pearlet.util.CrptoNetworks;
 import hk.zdl.crpto.pearlet.util.CryptoUtil;
 import hk.zdl.crpto.pearlet.util.Util;
 
@@ -42,9 +46,10 @@ public class DashBoard extends JPanel {
 	private final JPanel token_list_inner_panel = new JPanel(new GridLayout(0, 1));
 	private final JPanel token_list_panel = new JPanel(new BorderLayout());
 	private final JLabel currency_label = new JLabel(), balance_label = new JLabel();
-	private final DashboardTxTableModel table_model = new DashboardTxTableModel();
+	private final TxTableModel table_model = new TxTableModel();
 	private final TableColumnModel table_column_model = new DefaultTableColumnModel();
 	private final JTable table = new JTable(table_model, table_column_model);
+	private CrptoNetworks nw;
 
 	public DashBoard() {
 		super(new BorderLayout());
@@ -92,11 +97,22 @@ public class DashBoard extends JPanel {
 		UIUtil.adjust_table_width(table, table_column_model);
 		balance_and_tx_panel.add(scrollpane, BorderLayout.CENTER);
 		table_model.addTableModelListener(e -> UIUtil.adjust_table_width(table, table_column_model));
+		table.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent mouseEvent) {
+				Point point = mouseEvent.getPoint();
+				int row = table.rowAtPoint(point);
+				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
+					Util.viewTxDetail(nw, table_model.getValueAt(row, 0));
+				}
+			}
+		});
+
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
-		String symbol = Util.default_currency_symbol.get(e.network.name());
+		this.nw = e.network;
+		String symbol = Util.default_currency_symbol.get(nw.name());
 		currency_label.setText(symbol);
 		if (e.account.equals("null")) {
 			balance_label.setText("0");

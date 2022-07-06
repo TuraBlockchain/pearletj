@@ -8,10 +8,13 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -48,20 +51,15 @@ import hk.zdl.crpto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class AccountSettingsPanel extends JPanel {
+	
+	private final AccountTableModel account_table_model = new AccountTableModel();
+	private final JTable table = buildAccountTable(); 
 
 	public AccountSettingsPanel() {
 		super(new BorderLayout());
-		var account_table_model = new AccountTableModel();
-		var table = new JTable(account_table_model);
-		table.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
-		table.getTableHeader().setReorderingAllowed(false);
-		table.getTableHeader().setResizingAllowed(false);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setShowGrid(true);
+		EventBus.getDefault().register(account_table_model);
 		var scr_1 = new JScrollPane(table);
 		add(scr_1, BorderLayout.CENTER);
-		EventBus.getDefault().register(account_table_model);
 
 		var btn_panel = new JPanel(new GridBagLayout());
 		var create_account_btn = new JButton("Create");
@@ -106,6 +104,28 @@ public class AccountSettingsPanel extends JPanel {
 
 		});
 		table.getModel().addTableModelListener((e) -> SwingUtilities.invokeLater(() -> UIUtil.adjust_table_width(table, table.getColumnModel())));
+		table.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent mouseEvent) {
+				Point point = mouseEvent.getPoint();
+				int row = table.rowAtPoint(point);
+				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
+					CrptoNetworks nw = CrptoNetworks.valueOf(account_table_model.getValueAt(row, 1).toString());
+					Util.viewAccountDetail(nw, account_table_model.getPublicKey(row));
+				}
+			}
+		});
+
+	}
+	
+	private final JTable buildAccountTable() {
+		var table = new JTable(account_table_model);
+		table.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
+		table.getTableHeader().setReorderingAllowed(false);
+		table.getTableHeader().setResizingAllowed(false);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setShowGrid(true);
+		return table;
 	}
 
 	private static final void reload_accounts() {

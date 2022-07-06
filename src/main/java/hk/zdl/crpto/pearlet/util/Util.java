@@ -1,6 +1,8 @@
 package hk.zdl.crpto.pearlet.util;
 
+import java.awt.Desktop;
 import java.io.File;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
@@ -15,6 +17,8 @@ import com.jfinal.kit.PropKit;
 
 import net.harawata.appdirs.AppDirs;
 import net.harawata.appdirs.AppDirsFactory;
+import signumj.crypto.SignumCrypto;
+import signumj.entity.response.Transaction;
 
 public class Util {
 
@@ -56,6 +60,56 @@ public class Util {
 	public static final Future<?> submit(Runnable task) {
 		return es.submit(task);
 	}
-	
+
+	public static final <E> boolean viewTxDetail(CrptoNetworks nw, E e) {
+		switch (nw) {
+		case ROTURA:
+			break;
+		case SIGNUM:
+			if (Desktop.isDesktopSupported()) {
+				try {
+					Transaction tx = (Transaction) e;
+					String tx_id = tx.getId().toString();
+					Desktop.getDesktop().browse(new URI("https://chain.signum.network/tx/" + tx_id));
+				} catch (Exception x) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+			break;
+		case WEB3J:
+			break;
+		default:
+			break;
+
+		}
+		return false;
+	}
+
+	public static final boolean viewAccountDetail(CrptoNetworks nw, byte[] public_key) {
+		switch (nw) {
+		case ROTURA:
+			break;
+		case SIGNUM:
+			if (Desktop.isDesktopSupported()) {
+				try {
+					String id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getID();
+					Desktop.getDesktop().browse(new URI("https://chain.signum.network/address/" + id));
+				} catch (Exception x) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+			break;
+		case WEB3J:
+			break;
+		default:
+			break;
+
+		}
+		return false;
+	}
 
 }

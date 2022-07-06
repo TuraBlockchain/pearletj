@@ -18,11 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.plaf.LayerUI;
 
-import com.jthemedetecor.OsThemeDetector;
-
 @SuppressWarnings("serial")
 public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
-	private static final OsThemeDetector otd = OsThemeDetector.getDetector();
 	private boolean mIsRunning;
 	private boolean mIsFadingOut;
 	private Timer mTimer;
@@ -49,7 +46,6 @@ public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
 
 	@Override
 	public void paint(Graphics g, JComponent c) {
-		boolean idDark = otd.isDark();
 		int w = c.getWidth();
 		int h = c.getHeight();
 
@@ -72,7 +68,7 @@ public class WaitLayerUI extends LayerUI<JPanel> implements ActionListener {
 		a = Math.min(a, 1);
 		a = Math.max(0, a);
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, a));
-		g2.setPaint(idDark ? Color.black : Color.white);
+		g2.setPaint(c.getBackground());
 		g2.fillRect(0, 0, w, h);
 		g2.setComposite(urComposite);
 

@@ -6,7 +6,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 @SuppressWarnings("serial")
-public class DashboardTxTableModel extends AbstractTableModel {
+public class TxTableModel extends AbstractTableModel {
 
 	private static final String[] columnNames = new String[] { "Tx id", "Date", "Type", "Amount", "Account" };
 	private final List<Object[]> data = new ArrayList<>();

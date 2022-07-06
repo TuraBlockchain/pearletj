@@ -3,6 +3,9 @@ package hk.zdl.crpto.pearlet.component;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -19,20 +22,23 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import hk.zdl.crpto.pearlet.component.dashboard.DashboardTxTableModel;
+import hk.zdl.crpto.pearlet.component.dashboard.TxTableModel;
 import hk.zdl.crpto.pearlet.component.dashboard.TxProc;
 import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crpto.pearlet.component.event.TxHistoryEvent;
 import hk.zdl.crpto.pearlet.ui.UIUtil;
 import hk.zdl.crpto.pearlet.ui.WaitLayerUI;
+import hk.zdl.crpto.pearlet.util.CrptoNetworks;
+import hk.zdl.crpto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class TranscationPanel extends JPanel {
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final WaitLayerUI wuli = new WaitLayerUI();
-	private final DashboardTxTableModel table_model = new DashboardTxTableModel();
+	private final TxTableModel table_model = new TxTableModel();
 	private final TableColumnModel table_column_model = new DefaultTableColumnModel();
 	private final JTable table = new JTable(table_model, table_column_model);
+	private CrptoNetworks nw;
 
 	public TranscationPanel() {
 		super(new BorderLayout());
@@ -63,11 +69,20 @@ public class TranscationPanel extends JPanel {
 
 		UIUtil.adjust_table_width(table, table_column_model);
 		table_model.addTableModelListener(e -> UIUtil.adjust_table_width(table, table_column_model));
-
+		table.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent mouseEvent) {
+				Point point = mouseEvent.getPoint();
+				int row = table.rowAtPoint(point);
+				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
+					Util.viewTxDetail(nw, table_model.getValueAt(row, 0));
+				}
+			}
+		});
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
+		this.nw = e.network;
 		if (e.account.equals("null")) {
 			return;
 		}
