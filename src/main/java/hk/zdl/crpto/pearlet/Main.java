@@ -3,6 +3,7 @@ package hk.zdl.crpto.pearlet;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Taskbar;
+import java.util.concurrent.Callable;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -42,7 +43,15 @@ public class Main {
 
 		UIUtil.printVersionOnSplashScreen();
 
-		Taskbar.getTaskbar().setIconImage(ImageIO.read(Main.class.getClassLoader().getResource("app_icon.png")));
+		Util.submit(new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				Taskbar.getTaskbar().setIconImage(ImageIO.read(Util.getResource("app_icon.png")));
+				return null;
+			}
+
+		});
 		var otd = OsThemeDetector.getDetector();
 		UIManager.setLookAndFeel(otd.isDark() ? new FlatDarkLaf() : new FlatLightLaf());
 		try {
@@ -106,6 +115,5 @@ public class Main {
 		Util.submit(MyDb::create_missing_tables);
 		new TxHistoryQueryExecutor();
 	}
-
 
 }

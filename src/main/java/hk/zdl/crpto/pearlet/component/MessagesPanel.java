@@ -16,7 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
 
-import hk.zdl.crpto.pearlet.MyToolbar;
+import hk.zdl.crpto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class MessagesPanel extends JSplitPane {
@@ -39,7 +39,7 @@ public class MessagesPanel extends JSplitPane {
 	private static final Component getDefaultRightComponent() {
 		var my_panel = new JPanel(new GridBagLayout());
 		try {
-			var my_icon = new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("toolbar/" + "chat-text.svg")), 256, 256);
+			var my_icon = new MyStretchIcon(ImageIO.read(Util.getResource("toolbar/" + "chat-text.svg")), 256, 256);
 			my_panel.add(new JLabel(my_icon), new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, new Insets(0, 0, 0, 0), 0, 0));
 		} catch (IOException e) {
 		}

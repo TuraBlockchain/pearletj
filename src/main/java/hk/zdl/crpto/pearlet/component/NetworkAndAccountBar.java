@@ -24,12 +24,12 @@ import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
 import com.jfinal.plugin.activerecord.Record;
 
-import hk.zdl.crpto.pearlet.MyToolbar;
 import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crpto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
 import hk.zdl.crpto.pearlet.util.CrptoNetworks;
 import hk.zdl.crpto.pearlet.util.CryptoUtil;
+import hk.zdl.crpto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class NetworkAndAccountBar extends JPanel {
@@ -57,7 +57,7 @@ public class NetworkAndAccountBar extends JPanel {
 
 		Icon btn_icon = null;
 		try {
-			btn_icon = new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("toolbar/" + "screwdriver-wrench-solid.svg")), 24, 24);
+			btn_icon = new MyStretchIcon(ImageIO.read(Util.getResource("toolbar/" + "screwdriver-wrench-solid.svg")), 24, 24);
 		} catch (IOException e) {
 		}
 		var manage_network_btn = new JButton(btn_icon);

@@ -51,6 +51,9 @@ public class TxHistoryQueryExecutor {
 
 		@Override
 		public void run() {
+			if ("null".equals(account)) {
+				return;
+			}
 			try {
 				switch (network) {
 				case ROTURA:

@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
@@ -27,6 +29,7 @@ import com.formdev.flatlaf.extras.FlatDesktop.QuitResponse;
 
 import hk.zdl.crpto.pearlet.component.MyStretchIcon;
 import hk.zdl.crpto.pearlet.component.event.SettingsPanelEvent;
+import hk.zdl.crpto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class MyToolbar extends JScrollPane {
@@ -52,7 +55,7 @@ public class MyToolbar extends JScrollPane {
 
 	private void init_buttons() {
 		var btn_gp = new ButtonGroup();
-		JSONArray jarr = new JSONArray(new JSONTokener(getClass().getClassLoader().getResourceAsStream("toolbar.json")));
+		JSONArray jarr = new JSONArray(new JSONTokener(Util.getResourceAsStream("toolbar.json")));
 		for (int i = 0; i < jarr.length(); i++) {
 			String id = jarr.getJSONObject(i).getString("id");
 			String text = jarr.getJSONObject(i).getString("text");
@@ -88,9 +91,9 @@ public class MyToolbar extends JScrollPane {
 
 	public static final Icon getIcon(String str) {
 		try {
-			return new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("toolbar/" + str)), 32, 32);
+			return new MyStretchIcon(ImageIO.read(Util.getResource("toolbar/" + str)), 32, 32);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logger.getLogger(MyToolbar.class.getName()).log(Level.WARNING, e.getMessage(), e);
 			return null;
 		}
 	}

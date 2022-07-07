@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.io.IOUtils;
@@ -17,6 +18,7 @@ import org.bouncycastle.util.encoders.Hex;
 import hk.zdl.crpto.pearlet.ds.RoturaAddress;
 import hk.zdl.crpto.pearlet.persistence.MyDb;
 import signumj.crypto.SignumCrypto;
+import signumj.entity.EncryptedMessage;
 import signumj.entity.SignumAddress;
 import signumj.entity.SignumID;
 import signumj.entity.SignumValue;
@@ -121,38 +123,51 @@ public class CryptoUtil {
 		}
 		throw new UnsupportedOperationException();
 	}
-	
 
-	public static byte[] generateTransactionWithMessage(CrptoNetworks nw, String recipient, byte[] public_key, BigDecimal amount, BigDecimal fee,String message) {
+	public static byte[] generateTransactionWithEncryptedMessage(CrptoNetworks nw, String recipient, byte[] public_key, BigDecimal amount, BigDecimal fee, byte[] message, boolean isText) {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
-				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440,message, null).blockingGet();
+				byte[] nounce = new byte[32];// must be 32
+				new Random().nextBytes(nounce);
+				EncryptedMessage emsg = new EncryptedMessage(message, nounce, isText);
+				return ns.generateTransactionWithEncryptedMessage(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440, emsg, null)
+						.blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
 	}
 
-	public static byte[] generateTransactionWithMessage(CrptoNetworks nw, String recipient, byte[] public_key, BigDecimal amount, BigDecimal fee,byte[] message) {
+	public static byte[] generateTransactionWithMessage(CrptoNetworks nw, String recipient, byte[] public_key, BigDecimal amount, BigDecimal fee, String message) {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
-				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440,message, null).blockingGet();
+				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440, message, null).blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
 	}
-	
-	
+
+	public static byte[] generateTransactionWithMessage(CrptoNetworks nw, String recipient, byte[] public_key, BigDecimal amount, BigDecimal fee, byte[] message) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440, message, null).blockingGet();
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+
 	public static byte[] signTransaction(CrptoNetworks nw, byte[] privateKey, byte[] unsignedTransaction) {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			return SignumCrypto.getInstance().signTransaction(privateKey, unsignedTransaction);
 		}
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public static Object broadcastTransaction(CrptoNetworks nw, byte[] signedTransactionBytes) {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			Optional<String> opt = get_server_url(nw);
@@ -202,7 +217,7 @@ public class CryptoUtil {
 		if (opt.isEmpty()) {
 			List<String> nws = Arrays.asList();
 			try {
-				nws = IOUtils.readLines(CryptoUtil.class.getClassLoader().getResourceAsStream("network/" + network.name().toLowerCase() + ".txt"), "UTF-8");
+				nws = IOUtils.readLines(Util.getResourceAsStream("network/" + network.name().toLowerCase() + ".txt"), "UTF-8");
 			} catch (IOException e) {
 			}
 			if (!nws.isEmpty()) {

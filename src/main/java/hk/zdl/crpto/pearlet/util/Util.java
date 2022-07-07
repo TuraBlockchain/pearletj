@@ -2,7 +2,9 @@ package hk.zdl.crpto.pearlet.util;
 
 import java.awt.Desktop;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
@@ -50,6 +52,14 @@ public class Util {
 		user_dir = user_dir.replace('\\', '/');
 		String db_url = "jdbc:derby:directory:" + user_dir + ";create=true";
 		return db_url;
+	}
+	
+	public static final InputStream getResourceAsStream(String path) {
+		return Util.class.getClassLoader().getResourceAsStream(path);
+	}
+
+	public static final URL getResource(String path) {
+		return Util.class.getClassLoader().getResource(path);
 	}
 
 	public static final <T> Future<T> submit(Callable<T> task) {

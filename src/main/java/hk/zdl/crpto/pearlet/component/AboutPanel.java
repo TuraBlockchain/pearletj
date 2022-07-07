@@ -25,7 +25,7 @@ public class AboutPanel extends JPanel {
 		var panel_0 = new JPanel(new GridBagLayout());
 		var icon = new JLabel();
 		try {
-			icon.setIcon(new MyStretchIcon(ImageIO.read(AboutPanel.class.getClassLoader().getResource("app_icon.png")), 128, -1));
+			icon.setIcon(new MyStretchIcon(ImageIO.read(Util.getResource("app_icon.png")), 128, -1));
 		} catch (IOException e) {
 		}
 		var insets_5 = new Insets(5, 5, 5, 5);
@@ -62,7 +62,7 @@ public class AboutPanel extends JPanel {
 		var panel_2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
 		try {
-			var signum_label = new JLabel(new MyStretchIcon(ImageIO.read(AboutPanel.class.getClassLoader().getResource("icon/" + "Signum_Badge_J.png")), -1, 100));
+			var signum_label = new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "Signum_Badge_J.png")), -1, 100));
 			panel_2.add(signum_label);
 		} catch (IOException e) {
 		}

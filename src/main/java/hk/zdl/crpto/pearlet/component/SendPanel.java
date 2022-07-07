@@ -120,7 +120,6 @@ public class SendPanel extends JPanel {
 		var msg_option_btn = new JButton("↓");
 		var msg_option_popup = new JPopupMenu();
 		var eny_msg_menu_item = new JCheckBoxMenuItem("Encrypt");
-		eny_msg_menu_item.setEnabled(false);//FIXME
 		msg_option_popup.add(eny_msg_menu_item);
 		var eny_msg_sub_menu = new JMenu("Send as");
 		msg_option_popup.add(eny_msg_sub_menu);
@@ -197,6 +196,7 @@ public class SendPanel extends JPanel {
 
 			SendTx send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()));
 			if(msg_chk_box.isSelected()) {
+				send_tx.setEncrypted(eny_msg_menu_item.isSelected());
 				if(plain_text_option_menu_item.isSelected()) {
 					String str = msg_area.getText().trim();
 					if(str.getBytes().length>1000) {
@@ -229,6 +229,7 @@ public class SendPanel extends JPanel {
 					}
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), null, JOptionPane.ERROR_MESSAGE);
 				} finally {
 					wuli.stop();
 				}

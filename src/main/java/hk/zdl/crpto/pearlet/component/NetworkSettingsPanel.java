@@ -61,7 +61,7 @@ public class NetworkSettingsPanel extends JPanel {
 		panel.add(btn, new GridBagConstraints(3, 1, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
 		List<String> nws = Arrays.asList();
 		try {
-			nws = IOUtils.readLines(SettingsPanel.class.getClassLoader().getResourceAsStream("network/" + network_name.name().toLowerCase() + ".txt"), "UTF-8");
+			nws = IOUtils.readLines(Util.getResourceAsStream("network/" + network_name.name().toLowerCase() + ".txt"), "UTF-8");
 		} catch (IOException e) {
 		}
 		combo_box.setModel(new ListComboBoxModel<String>(nws));
@@ -100,7 +100,7 @@ public class NetworkSettingsPanel extends JPanel {
 		IndepandentWindows.add(dialog);
 		var panel_1 = new JPanel(new GridBagLayout());
 		try {
-			panel_1.add(new JLabel(new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("icon/" + "key_1.svg")), 64, 64)),
+			panel_1.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "key_1.svg")), 64, 64)),
 					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
 		} catch (IOException e) {
 		}

@@ -142,7 +142,7 @@ public class AccountSettingsPanel extends JPanel {
 		IndepandentWindows.add(dialog);
 		var panel = new JPanel(new GridBagLayout());
 		try {
-			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("icon/" + "cloud-plus-fill.svg")), 64, 64)),
+			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "cloud-plus-fill.svg")), 64, 64)),
 					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
 		} catch (IOException e) {
 		}
@@ -237,7 +237,7 @@ public class AccountSettingsPanel extends JPanel {
 		IndepandentWindows.add(dialog);
 		var panel = new JPanel(new GridBagLayout());
 		try {
-			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("icon/" + "wallet_2.svg")), 64, 64)),
+			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "wallet_2.svg")), 64, 64)),
 					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
 		} catch (IOException e) {
 		}
@@ -298,7 +298,7 @@ public class AccountSettingsPanel extends JPanel {
 		IndepandentWindows.add(dialog);
 		var panel = new JPanel(new GridBagLayout());
 		try {
-			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(MyToolbar.class.getClassLoader().getResource("icon/" + "eyeglasses.svg")), 64, 64)),
+			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "eyeglasses.svg")), 64, 64)),
 					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
 		} catch (IOException e) {
 		}
