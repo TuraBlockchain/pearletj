@@ -24,6 +24,14 @@ public class MyDb {
 		arp.setDialect(new AnsiSqlDialect());
 		dp.start();
 		arp.start();
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+
+			@Override
+			public void run() {
+				arp.stop();
+				dp.stop();
+			}
+		});
 	}
 
 	public static final List<String> getTables() {

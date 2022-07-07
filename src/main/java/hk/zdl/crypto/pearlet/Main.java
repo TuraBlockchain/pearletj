@@ -30,17 +30,16 @@ import hk.zdl.crypto.pearlet.component.TranscationPanel;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.tx_history_query.TxHistoryQueryExecutor;
+import hk.zdl.crypto.pearlet.ui.AquaMagic;
+import hk.zdl.crypto.pearlet.ui.GnomeMagic;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class Main {
 
 	public static void main(String[] args) throws Throwable {
-		var appName = Util.getProp().get("appName");
-		System.setProperty("apple.awt.application.name", appName);
-		System.setProperty("apple.awt.application.appearance", "system");
-		System.setProperty("apple.laf.useScreenMenuBar", "true");
-
+		GnomeMagic.do_trick();
+		AquaMagic.do_trick();
 		UIUtil.printVersionOnSplashScreen();
 
 		Util.submit(new Callable<Void>() {
@@ -64,6 +63,7 @@ public class Main {
 			System.exit(1);
 		}
 		SwingUtilities.invokeLater(() -> {
+			var appName = Util.getProp().get("appName");
 			var frame = new JXFrame(appName);
 			frame.getContentPane().setLayout(new BorderLayout());
 			var panel1 = new JPanel(new BorderLayout());
