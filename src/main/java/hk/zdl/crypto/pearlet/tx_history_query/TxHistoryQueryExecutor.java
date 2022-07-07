@@ -51,25 +51,29 @@ public class TxHistoryQueryExecutor {
 
 		@Override
 		public void run() {
+			boolean is_finished = false;
 			if ("null".equals(account)) {
-				return;
-			}
-			try {
-				switch (network) {
-				case ROTURA:
-				case SIGNUM:
-					new TxHistoryQueryImpl(network).queryTxHistory(account);
-					break;
-				case WEB3J:
-					break;
-				default:
-					break;
+				is_finished = true;
+			} else
+				try {
+					switch (network) {
+					case ROTURA:
+					case SIGNUM:
+						new TxHistoryQueryImpl(network).queryTxHistory(account);
+						break;
+					case WEB3J:
+						break;
+					default:
+						break;
 
+					}
+					is_finished = true;
+				} catch (InterruptedException e) {
+				} catch (Exception e) {
+					Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+					is_finished = true;
 				}
-				send_finish_msg();
-			} catch (InterruptedException e) {
-			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+			if (is_finished) {
 				send_finish_msg();
 			}
 		}
