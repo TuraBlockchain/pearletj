@@ -86,7 +86,7 @@ public class SetAccountInfoPanel extends JPanel {
 
 		var send_btn = new JButton(MyToolbar.getIcon("paper-plane-solid.svg"));
 		panel_1.add(send_btn, new GridBagConstraints(4, 0, 1, 3, 0, 0, 10, 1, new Insets(5, 5, 5, 0), 0, 0));
-
+		send_btn.setEnabled(false);//FIXME
 	}
 
 	private static final GridBagConstraints newGridConst(int x, int y, int width) {

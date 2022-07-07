@@ -39,7 +39,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.java_websocket.util.Base64;
 import org.jdesktop.swingx.combobox.EnumComboBoxModel;
 
-import hk.zdl.crpto.pearlet.MyToolbar;
 import hk.zdl.crpto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crpto.pearlet.misc.AccountTableModel;
 import hk.zdl.crpto.pearlet.misc.IndepandentWindows;
@@ -226,6 +225,7 @@ public class AccountSettingsPanel extends JPanel {
 			}
 
 		});
+		
 		dialog.setVisible(true);
 	}
 
