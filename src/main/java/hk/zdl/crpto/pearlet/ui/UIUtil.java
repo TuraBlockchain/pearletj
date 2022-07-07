@@ -10,18 +10,24 @@ import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import hk.zdl.crpto.pearlet.Main;
-import hk.zdl.crpto.pearlet.util.Util;
 
 public class UIUtil {
-
-	private static Object trayIcon = null;
-	private static boolean fail_to_load_trayIcon = false;
+	
+//	private static TrayIcon trayIcon;
+//	static {
+//		try {
+//			trayIcon = new TrayIcon(ImageIO.read(UIUtil.class.getClassLoader().getResource("app_icon.png")));
+//			trayIcon.setImageAutoSize(true);
+//			SystemTray.getSystemTray().add(trayIcon);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	public static final void adjust_table_width(JTable table, TableColumnModel table_column_model) {
 		for (int column = 0; column < table.getColumnCount(); column++) {
@@ -37,14 +43,9 @@ public class UIUtil {
 			table_column_model.getColumn(column).setPreferredWidth(width);
 		}
 	}
-
 	public static final void printVersionOnSplashScreen() {
 		String text = Main.class.getPackage().getImplementationVersion();
-		SplashScreen ss = null;
-		try {
-			ss = SplashScreen.getSplashScreen();
-		} catch (Throwable e) {
-		}
+		SplashScreen ss = SplashScreen.getSplashScreen();
 		if (ss == null) {
 			return;
 		}
@@ -56,41 +57,8 @@ public class UIUtil {
 		ss.update();
 		g.dispose();
 	}
-
-	public static void displayMessage(String caption, String text, MessageType messageType) {
-		if (SystemTray.isSupported()) {
-			if (trayIcon == null && !fail_to_load_trayIcon) {
-				try {
-					trayIcon = new TrayIcon(ImageIO.read(Util.getResource("app_icon.png")));
-					((TrayIcon) trayIcon).setImageAutoSize(true);
-					SystemTray.getSystemTray().add((TrayIcon) trayIcon);
-				} catch (Throwable e) {
-					fail_to_load_trayIcon = true;
-				}
-			}
-			if (trayIcon != null) {
-				((TrayIcon) trayIcon).displayMessage(caption, text, messageType);
-			}
-		} else {
-			int msg_type = 0;
-			switch (messageType) {
-			case ERROR:
-				msg_type = JOptionPane.ERROR_MESSAGE;
-				break;
-			case INFO:
-				msg_type = JOptionPane.INFORMATION_MESSAGE;
-				break;
-			case NONE:
-				msg_type = JOptionPane.PLAIN_MESSAGE;
-				break;
-			case WARNING:
-				msg_type = JOptionPane.WARNING_MESSAGE;
-				break;
-			default:
-				break;
-
-			}
-			JOptionPane.showMessageDialog(null, text, caption, msg_type);
-		}
-	}
+	
+//	public static void displayMessage(String caption, String text, MessageType messageType) {
+//		trayIcon.displayMessage(caption, text, messageType);
+//	}
 }

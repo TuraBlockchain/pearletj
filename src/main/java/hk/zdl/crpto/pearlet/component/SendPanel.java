@@ -9,7 +9,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.TrayIcon.MessageType;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.math.BigDecimal;
@@ -45,7 +44,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import hk.zdl.crpto.pearlet.MyToolbar;
 import hk.zdl.crpto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crpto.pearlet.tx.SendTx;
-import hk.zdl.crpto.pearlet.ui.UIUtil;
 import hk.zdl.crpto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crpto.pearlet.util.CrptoNetworks;
 import hk.zdl.crpto.pearlet.util.CryptoUtil;
@@ -223,7 +221,8 @@ public class SendPanel extends JPanel {
 			Util.submit(() -> {
 				try {
 					if (Util.submit(send_tx).get()) {
-						UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);
+//						UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);
+						JOptionPane.showMessageDialog(getRootPane(), "Send token succeed!", null, JOptionPane.INFORMATION_MESSAGE);
 					}else {
 						JOptionPane.showMessageDialog(getRootPane(), "Send token failed!", null, JOptionPane.ERROR_MESSAGE);
 					}
