@@ -219,10 +219,10 @@ public class SendPanel extends JPanel {
 			}
 			wuli.start();
 			Util.submit(() -> {
+				boolean b = false;
 				try {
 					if (Util.submit(send_tx).get()) {
-//						UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);
-						JOptionPane.showMessageDialog(getRootPane(), "Send token succeed!", null, JOptionPane.INFORMATION_MESSAGE);
+						b = true;
 					}else {
 						JOptionPane.showMessageDialog(getRootPane(), "Send token failed!", null, JOptionPane.ERROR_MESSAGE);
 					}
@@ -231,6 +231,10 @@ public class SendPanel extends JPanel {
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), null, JOptionPane.ERROR_MESSAGE);
 				} finally {
 					wuli.stop();
+				}
+				if(b) {
+//					UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);
+					JOptionPane.showMessageDialog(getRootPane(), "Send token succeed!", null, JOptionPane.INFORMATION_MESSAGE);
 				}
 			});
 
