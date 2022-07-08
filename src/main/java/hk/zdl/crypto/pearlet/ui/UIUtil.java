@@ -23,13 +23,6 @@ public class UIUtil {
 	private static final String os = System.getProperty("os.name");
 	private static TrayIcon trayIcon;
 	static {
-		try {
-			trayIcon = new TrayIcon(ImageIO.read(UIUtil.class.getClassLoader().getResource("app_icon.png")));
-			trayIcon.setImageAutoSize(true);
-			SystemTray.getSystemTray().add(trayIcon);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	public static final void adjust_table_width(JTable table, TableColumnModel table_column_model) {
@@ -74,8 +67,22 @@ public class UIUtil {
 			} catch (IOException e) {
 			}
 		} else if (SystemTray.isSupported()) {
-			trayIcon.displayMessage(title, message, messageType);
-		}else {
+			if (trayIcon == null) {
+				try {
+					trayIcon = new TrayIcon(ImageIO.read(UIUtil.class.getClassLoader().getResource("app_icon.png")));
+					trayIcon.setImageAutoSize(true);
+					SystemTray.getSystemTray().add(trayIcon);
+				} catch (Exception e) {
+				}
+			}
+			if (trayIcon != null) {
+				if(messageType==null) {
+					messageType = MessageType.INFO;
+				}
+				trayIcon.displayMessage(title, message, messageType);
+//				SystemTray.getSystemTray().remove(trayIcon);
+			}
+		} else {
 			JOptionPane.showMessageDialog(null, message, title, JOptionPane.INFORMATION_MESSAGE);
 		}
 	}

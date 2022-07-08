@@ -22,7 +22,10 @@ public class InstantCellRenderer extends DefaultTableCellRenderer {
 	protected void setValue(Object value) {
 		Transaction tx = (Transaction) value;
 		Date date = tx.getTimestamp().getAsDate();
-		setText(sdf.format(date));
+		try {
+			setText(sdf.format(date));
+		} catch (Exception e) {
+		}
 	}
 
 }

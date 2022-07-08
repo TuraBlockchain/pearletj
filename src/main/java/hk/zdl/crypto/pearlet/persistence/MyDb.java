@@ -1,5 +1,13 @@
 package hk.zdl.crypto.pearlet.persistence;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +22,8 @@ import com.jfinal.plugin.c3p0.C3p0Plugin;
 
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
+import signumj.entity.SignumID;
+import signumj.entity.response.Transaction;
 
 public class MyDb {
 
@@ -121,6 +131,40 @@ public class MyDb {
 
 	public static final boolean deleteAccount(int id) {
 		return Db.deleteById("ACCOUNTS", "ID", id);
+	}
+
+	public static final void putSignumTx(CrptoNetworks nw, Transaction tx) {
+		long id = tx.getId().getSignedLongId();
+		var baos = new ByteArrayOutputStream(10240);
+		try {
+			var oos = new ObjectOutputStream(baos);
+			oos.writeObject(tx);
+			oos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		byte[] bArr = baos.toByteArray();
+		Db.save("SIGNUM_TX", "ID", new Record().set("id", id).set("network", nw.name()).set("content", bArr));
+	}
+
+	public static final Optional<Transaction> getSignumTxFromLocal(CrptoNetworks nw, SignumID id) throws Exception {
+		Connection conn = Db.use().getConfig().getConnection();
+		PreparedStatement pst = conn.prepareStatement("SELECT CONTENT FROM APP.SIGNUM_TX WHERE NETWORK = ? AND ID = ?");
+		Db.use().getConfig().getDialect().fillStatement(pst, nw.name(), id.getSignedLongId());
+		ResultSet rs = pst.executeQuery();
+		if (rs.next()) {
+			InputStream in = rs.getBinaryStream(1);
+			ObjectInputStream ois = new ObjectInputStream(in);
+			Transaction tx =  (Transaction) ois.readObject();
+			ois.close();
+			in.close();
+			rs.close();
+			conn.close();
+			Optional<Transaction> o_tx = Optional.of(tx);
+			return o_tx;
+		} else {
+			return Optional.empty();
+		}
 	}
 
 }

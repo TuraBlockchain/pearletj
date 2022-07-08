@@ -5,6 +5,7 @@ import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +28,7 @@ import signumj.entity.response.http.BRSError;
 import signumj.service.NodeService;
 
 public class CryptoUtil {
+	
 
 	public static final boolean isValidAddress(CrptoNetworks network, String address) {
 		if (address == null || address.isBlank()) {
@@ -203,15 +205,28 @@ public class CryptoUtil {
 	}
 
 	public static final Transaction getSignumTx(CrptoNetworks nw, SignumID id) throws InterruptedException, ExecutionException {
-		Optional<String> opt = get_server_url(nw);
-		if (opt.isPresent()) {
-			NodeService ns = NodeService.getInstance(opt.get());
-			Transaction tx = ns.getTransaction(id).toFuture().get();
-			return tx;
+		Optional<Transaction> o_tx = Optional.empty();
+		try {
+			o_tx = MyDb.getSignumTxFromLocal(nw,id);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if(o_tx.isPresent()) {
+			return o_tx.get();
+		}else {
+			Optional<String> opt = get_server_url(nw);
+			if (get_server_url(nw).isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				Transaction tx = ns.getTransaction(id).toFuture().get();
+				if(tx!=null) {
+					MyDb.putSignumTx(nw,tx);
+				}
+				return tx;
+			}
 		}
 		throw new InterruptedException();
 	}
-
+	
 	public static final Optional<String> get_server_url(CrptoNetworks network) {
 		Optional<String> opt = MyDb.get_server_url(network);
 		if (opt.isEmpty()) {
@@ -227,4 +242,5 @@ public class CryptoUtil {
 		}
 		return opt;
 	}
+	
 }
