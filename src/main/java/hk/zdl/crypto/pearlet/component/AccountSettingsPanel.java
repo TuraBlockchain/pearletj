@@ -1,51 +1,38 @@
 package hk.zdl.crypto.pearlet.component;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.util.Random;
+import java.util.stream.Stream;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
 
 import org.greenrobot.eventbus.EventBus;
-import org.java_websocket.util.Base64;
-import org.jdesktop.swingx.combobox.EnumComboBoxModel;
 
+import hk.zdl.crypto.pearlet.component.account_settings.CreateSignumAccount;
+import hk.zdl.crypto.pearlet.component.account_settings.ImportSignumAccount;
+import hk.zdl.crypto.pearlet.component.account_settings.WatchSignumAccount;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
-import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
-import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
@@ -71,12 +58,26 @@ public class AccountSettingsPanel extends JPanel {
 		var del_btn = new JButton("Delete");
 		btn_panel.add(del_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 
-		create_account_btn.addActionListener(e -> create_new_account_dialog(this));
+		var create_acc_menu = new JPopupMenu();
+		var create_acc_signum = new JMenuItem("Signum");
+		var create_acc_rotura = new JMenuItem("Rotura");
+		var create_acc_web3j = new JMenuItem("Web3j");
+		Stream.of(create_acc_signum, create_acc_rotura, create_acc_web3j).forEach(create_acc_menu::add);
 
-		import_account_btn.addActionListener(e -> create_import_account_dialog(this));
+		create_account_btn.addActionListener(e -> create_acc_menu.show(create_account_btn, 0, 0));
+		create_acc_signum.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this,CrptoNetworks.SIGNUM));
+		create_acc_rotura.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this,CrptoNetworks.ROTURA));
 
-		watch_account_btn.addActionListener(e -> create_watch_account_dialog(this));
-		watch_account_btn.setEnabled(false);//FIXME
+		var import_acc_menu = new JPopupMenu();
+		var import_from_text = new JMenuItem("From Text...");
+		var import_from_file = new JMenuItem("From File...");
+		Stream.of(import_from_text, import_from_file).forEach(import_acc_menu::add);
+		
+		import_account_btn.addActionListener(e -> import_acc_menu.show(import_account_btn, 0, 0));
+		import_from_text.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this));
+
+		watch_account_btn.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this));
+		watch_account_btn.setEnabled(false);// FIXME
 
 		del_btn.addActionListener(e -> Util.submit(() -> {
 			int row = table.getSelectedRow();
@@ -133,218 +134,5 @@ public class AccountSettingsPanel extends JPanel {
 		Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 	}
 
-	@SuppressWarnings("unchecked")
-	private static final void create_new_account_dialog(Component c) {
-		var w = SwingUtilities.getWindowAncestor(c);
-		var dialog = new JDialog(w, "Create New Account", Dialog.ModalityType.APPLICATION_MODAL);
-		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		IndepandentWindows.add(dialog);
-		var panel = new JPanel(new GridBagLayout());
-		try {
-			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "cloud-plus-fill.svg")), 64, 64)),
-					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
-		} catch (IOException e) {
-		}
-		var label_1 = new JLabel("Network:");
-		var network_combobox = new JComboBox<>();
-		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
-		var label_2 = new JLabel("Text type:");
-		var combobox_1 = new JComboBox<>(new String[] { "HEX", "Base64" });
-		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
-		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
-		panel.add(label_2, new GridBagConstraints(3, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
-		panel.add(combobox_1, new GridBagConstraints(4, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
-		var text_area = new JTextArea(5, 30);
-		var scr_pane = new JScrollPane(text_area);
-		scr_pane.setPreferredSize(scr_pane.getSize());
-		panel.add(scr_pane, new GridBagConstraints(1, 1, 4, 3, 0, 0, 17, 1, insets_5, 0, 0));
-		text_area.setEditable(false);
-
-		var btn_1 = new JButton("Random");
-		var btn_2 = new JButton("Copy");
-		var btn_3 = new JButton("OK");
-		var panel_1 = new JPanel(new GridBagLayout());
-		panel_1.add(btn_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
-		panel_1.add(btn_2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
-		panel_1.add(btn_3, new GridBagConstraints(2, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
-
-		panel.add(panel_1, new GridBagConstraints(0, 5, 5, 1, 0, 0, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
-
-		btn_1.addActionListener(e -> {
-			byte[] bArr = new byte[32];
-			new Random().nextBytes(bArr);
-			if (combobox_1.getSelectedItem().toString().equals("HEX")) {
-				StringBuilder sb = new StringBuilder();
-				for (byte b : bArr) {
-					sb.append(String.format("%02X", b));
-					sb.append(' ');
-				}
-				String s = sb.toString().trim();
-				text_area.setText(s);
-			} else if (combobox_1.getSelectedItem().toString().equals("Base64")) {
-				text_area.setText(Base64.encodeBytes(bArr));
-			}
-		});
-		btn_2.addActionListener(e -> {
-			var s = new StringSelection(text_area.getText().trim());
-			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(s, s);
-		});
-		btn_3.addActionListener(e -> Util.submit(() -> {
-			CrptoNetworks nw = CrptoNetworks.valueOf(network_combobox.getSelectedItem().toString());
-			String type = combobox_1.getSelectedItem().toString();
-			String text = text_area.getText().trim();
-
-			boolean b = false;
-			byte[] public_key, private_key;
-			try {
-				private_key = CryptoUtil.getPrivateKey(nw, type, text);
-				public_key = CryptoUtil.getPublicKey(nw, private_key);
-				b = MyDb.insertAccount(nw, public_key, private_key);
-			} catch (Exception x) {
-				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-
-			if (b) {
-				dialog.dispose();
-				reload_accounts();
-			} else {
-				JOptionPane.showMessageDialog(dialog, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
-			}
-		}));
-
-		dialog.add(panel);
-		dialog.pack();
-		dialog.setResizable(false);
-		dialog.setLocationRelativeTo(w);
-		dialog.addWindowListener(new WindowAdapter() {
-
-			@Override
-			public void windowOpened(WindowEvent e) {
-				btn_1.doClick();
-			}
-
-		});
-		
-		dialog.setVisible(true);
-	}
-
-	@SuppressWarnings("unchecked")
-	private static final void create_import_account_dialog(Component c) {
-		var w = SwingUtilities.getWindowAncestor(c);
-		var dialog = new JDialog(w, "Import Existing Account", Dialog.ModalityType.APPLICATION_MODAL);
-		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		IndepandentWindows.add(dialog);
-		var panel = new JPanel(new GridBagLayout());
-		try {
-			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "wallet_2.svg")), 64, 64)),
-					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
-		} catch (IOException e) {
-		}
-		var label_1 = new JLabel("Network:");
-		var network_combobox = new JComboBox<>();
-		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
-		var label_2 = new JLabel("Text type:");
-		var combobox_1 = new JComboBox<>(new String[] { "Phrase", "HEX", "Base64" });
-		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
-		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
-		panel.add(label_2, new GridBagConstraints(3, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
-		panel.add(combobox_1, new GridBagConstraints(4, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
-		var text_area = new JTextArea(5, 30);
-		var scr_pane = new JScrollPane(text_area);
-		panel.add(scr_pane, new GridBagConstraints(1, 1, 4, 3, 0, 0, 17, 0, new Insets(5, 5, 0, 5), 0, 0));
-		var btn_1 = new JButton("OK");
-		btn_1.addActionListener(e -> Util.submit(() -> {
-			CrptoNetworks nw = CrptoNetworks.valueOf(network_combobox.getSelectedItem().toString());
-			String type = combobox_1.getSelectedItem().toString();
-			String text = text_area.getText().trim();
-
-			boolean b = false;
-			byte[] public_key, private_key;
-			try {
-				private_key = CryptoUtil.getPrivateKey(nw, type, text);
-				public_key = CryptoUtil.getPublicKey(nw, private_key);
-				b = MyDb.insertAccount(nw, public_key, private_key);
-			} catch (Exception x) {
-				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-
-			if (b) {
-				dialog.dispose();
-				reload_accounts();
-			} else {
-				JOptionPane.showMessageDialog(dialog, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
-			}
-		}));
-		var panel_1 = new JPanel(new BorderLayout());
-		panel_1.add(panel, BorderLayout.CENTER);
-		var panel_2 = new JPanel(new FlowLayout());
-		panel_2.add(btn_1);
-		panel_1.add(panel_2, BorderLayout.SOUTH);
-
-		dialog.add(panel_1);
-		dialog.pack();
-		dialog.setResizable(false);
-		dialog.setLocationRelativeTo(w);
-		dialog.setVisible(true);
-	}
-
-	@SuppressWarnings("unchecked")
-	private static final void create_watch_account_dialog(Component c) {
-		var w = SwingUtilities.getWindowAncestor(c);
-		var dialog = new JDialog(w, "Watch Account", Dialog.ModalityType.APPLICATION_MODAL);
-		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		IndepandentWindows.add(dialog);
-		var panel = new JPanel(new GridBagLayout());
-		try {
-			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "eyeglasses.svg")), 64, 64)),
-					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
-		} catch (IOException e) {
-		}
-		var label_1 = new JLabel("Network:");
-		var network_combobox = new JComboBox<>();
-		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
-		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
-		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
-		var text_field = new JTextField(30);
-		panel.add(text_field, new GridBagConstraints(1, 1, 4, 3, 0, 0, 10, 1, new Insets(5, 5, 0, 5), 0, 0));
-		var btn_1 = new JButton("OK");
-		btn_1.addActionListener(e -> Util.submit(() -> {
-			CrptoNetworks nw = CrptoNetworks.valueOf(network_combobox.getSelectedItem().toString());
-			String text = text_field.getText().trim();
-
-			boolean b = false;
-			byte[] public_key, private_key = new byte[] {};
-			try {
-				public_key = CryptoUtil.getPublicKeyFromAddress(nw, text);
-				if (public_key == null) {
-					throw new Exception("Reed-Solomon address does not contain public key");
-				}
-				b = MyDb.insertAccount(nw, public_key, private_key);
-			} catch (Exception x) {
-				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-
-			if (b) {
-				dialog.dispose();
-				reload_accounts();
-			} else {
-				JOptionPane.showMessageDialog(dialog, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
-			}
-		}));
-		var panel_1 = new JPanel(new BorderLayout());
-		panel_1.add(panel, BorderLayout.CENTER);
-		var panel_2 = new JPanel(new FlowLayout());
-		panel_2.add(btn_1);
-		panel_1.add(panel_2, BorderLayout.SOUTH);
-
-		dialog.add(panel_1);
-		dialog.pack();
-		dialog.setResizable(false);
-		dialog.setLocationRelativeTo(w);
-		dialog.setVisible(true);
-	}
 
 }

@@ -59,18 +59,22 @@ public class AboutPanel extends JPanel {
 		scr.setBorder(BorderFactory.createEmptyBorder());
 		panel_1.add(scr, BorderLayout.CENTER);
 
-		var panel_2 = new JPanel(new FlowLayout(FlowLayout.LEFT,20,5));
+		var badge_panel = new JPanel(new FlowLayout(FlowLayout.LEFT,20,5));
+		scr.setViewportView(badge_panel);
 
 		try {
-			panel_2.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "Signum_Badge_J.png")), -1, 100)));
+			var x = new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "Signum_Badge_J.png")), -1, 100));
+			x.setToolTipText("SignumJ");
+			badge_panel.add(x);
 		} catch (IOException e) {
 		}
 		try {
-			panel_2.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "web3j_logo.png")), -1, 100)));
+			var x = new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "web3j_logo.png")), -1, 100));
+			x.setToolTipText("Web3j");
+			badge_panel.add(x);
 		} catch (IOException e) {
 		}
 
-		scr.setViewportView(panel_2);
 
 	}
 }
