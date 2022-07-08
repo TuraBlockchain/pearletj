@@ -32,6 +32,7 @@ import hk.zdl.crypto.pearlet.component.account_settings.signum.WatchSignumAccoun
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.CreateWeb3JAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.ImportWeb3JAccountFromFile;
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.ImportWeb3JAccountFromText;
+import hk.zdl.crypto.pearlet.component.account_settings.web3j.WatchWeb3JAccount;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
@@ -87,9 +88,17 @@ public class AccountSettingsPanel extends JPanel {
 		import_acc_rotura.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.ROTURA));
 		import_from_text.addActionListener(e -> ImportWeb3JAccountFromText.create_import_account_dialog(this));
 		import_from_file.addActionListener(e -> ImportWeb3JAccountFromFile.create_import_account_dialog(this));
+		
+		var watch_acc_menu = new JPopupMenu();
+		var watch_acc_signum = new JMenuItem("Signum");
+		var watch_acc_rotura = new JMenuItem("Rotura");
+		var watch_acc_web3j = new JMenuItem("Web3j");
+		Stream.of(watch_acc_signum, watch_acc_rotura,watch_acc_web3j).forEach(watch_acc_menu::add);
+		watch_acc_signum.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this, CrptoNetworks.SIGNUM));
+		watch_acc_rotura.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this, CrptoNetworks.ROTURA));
+		watch_acc_web3j.addActionListener(e -> WatchWeb3JAccount.create_watch_account_dialog(this));
 
-		watch_account_btn.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this));
-		watch_account_btn.setEnabled(false);// FIXME
+		watch_account_btn.addActionListener(e -> watch_acc_menu.show(watch_account_btn, 0, 0));
 
 		del_btn.addActionListener(e -> Util.submit(() -> {
 			int row = table.getSelectedRow();

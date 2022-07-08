@@ -120,6 +120,11 @@ public class MyDb {
 		return Db.find("select * from ACCOUNTS WHERE NETWORK = ?", network.name());
 	}
 
+	public static final Optional<Record> getAccount(CrptoNetworks network, String address) {
+		Record r = Db.findFirst("select * from ACCOUNTS WHERE NETWORK = ? AND ADDRESS = ?", network.name(), address);
+		return r == null ? Optional.empty() : Optional.of(r);
+	}
+
 	public static final List<Record> getAccounts() {
 		return Db.find("select * from ACCOUNTS");
 	}

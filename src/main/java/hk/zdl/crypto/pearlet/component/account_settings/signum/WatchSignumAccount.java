@@ -19,7 +19,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import org.greenrobot.eventbus.EventBus;
-import org.jdesktop.swingx.combobox.EnumComboBoxModel;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
@@ -32,8 +31,7 @@ import hk.zdl.crypto.pearlet.util.Util;
 public class WatchSignumAccount {
 
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
-	@SuppressWarnings({ "unchecked" })
-	public static final void create_watch_account_dialog(Component c) {
+	public static final void create_watch_account_dialog(Component c, CrptoNetworks nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		var dialog = new JDialog(w, "Watch Account", Dialog.ModalityType.APPLICATION_MODAL);
 		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -41,15 +39,14 @@ public class WatchSignumAccount {
 		var panel = new JPanel(new GridBagLayout());
 		panel.add(new JLabel(UIUtil.getStretchIcon("icon/" + "eyeglasses.svg", 64, 64)), new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
 		var label_1 = new JLabel("Network:");
-		var network_combobox = new JComboBox<>();
-		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
+		var network_combobox = new JComboBox<>(new CrptoNetworks[] {nw});
+		network_combobox.setEnabled(false);
 		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
 		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
 		var text_field = new JTextField(30);
 		panel.add(text_field, new GridBagConstraints(1, 1, 4, 3, 0, 0, 10, 1, new Insets(5, 5, 0, 5), 0, 0));
 		var btn_1 = new JButton("OK");
 		btn_1.addActionListener(e -> Util.submit(() -> {
-			CrptoNetworks nw = CrptoNetworks.valueOf(network_combobox.getSelectedItem().toString());
 			String text = text_field.getText().trim();
 
 			boolean b = false;

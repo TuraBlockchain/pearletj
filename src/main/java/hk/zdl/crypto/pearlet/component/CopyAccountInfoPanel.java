@@ -3,8 +3,10 @@ package hk.zdl.crypto.pearlet.component;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
@@ -19,12 +21,15 @@ import com.jfinal.plugin.activerecord.Record;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.*;
+
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.crypto.SignumCrypto;
 
 @SuppressWarnings("serial")
 public class CopyAccountInfoPanel extends JPanel {
+	private JButton btn_0, btn_1, btn_2, btn_3,btn_4;
 	private List<JButton> btns = new LinkedList<>();
 	private CrptoNetworks network;
 	private String account;
@@ -33,11 +38,11 @@ public class CopyAccountInfoPanel extends JPanel {
 	public CopyAccountInfoPanel() {
 		super(new FlowLayout());
 		EventBus.getDefault().register(this);
-		var btn_0 = new JButton("Account ID");
-		var btn_1 = new JButton("Address");
-		var btn_2 = new JButton("Extended Address");
-		var btn_3 = new JButton("Public Key");
-		var btn_4 = new JButton("More...");
+		btn_0 = new JButton("Account ID");
+		btn_1 = new JButton("Address");
+		btn_2 = new JButton("Extended Address");
+		btn_3 = new JButton("Public Key");
+		btn_4 = new JButton("More...");
 		Stream.of(btn_0, btn_1, btn_2, btn_3,btn_4).forEach(btns::add);
 		btns.stream().forEach(this::add);
 
@@ -49,13 +54,16 @@ public class CopyAccountInfoPanel extends JPanel {
 	}
 
 	private void copy_account_id() {
+		String id = "";
 		switch (network) {
 		case ROTURA:
 		case SIGNUM:
-			String id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getID();
+			id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getID();
 			copy_to_clip_board(id);
 			break;
 		case WEB3J:
+			id = MyDb.getAccount(network, account).get().getStr("ADDRESS");
+			copy_to_clip_board(id);
 			break;
 		default:
 			break;
@@ -64,7 +72,7 @@ public class CopyAccountInfoPanel extends JPanel {
 	}
 
 	private void copy_extended_address() {
-		String id;
+		String id = "";
 		switch (network) {
 		case ROTURA:
 			id =  new RoturaAddress(public_key).getExtendedAddress();
@@ -75,6 +83,8 @@ public class CopyAccountInfoPanel extends JPanel {
 			copy_to_clip_board(id);
 			break;
 		case WEB3J:
+			id = MyDb.getAccount(network, account).get().getStr("ADDRESS");
+			copy_to_clip_board(id);
 			break;
 		default:
 			break;
@@ -83,13 +93,16 @@ public class CopyAccountInfoPanel extends JPanel {
 	}
 
 	private void copy_public_key() {
+		String id = "";
 		switch (network) {
 		case ROTURA:
 		case SIGNUM:
-			String id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getPublicKeyString().toUpperCase();
+			id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getPublicKeyString().toUpperCase();
 			copy_to_clip_board(id);
 			break;
 		case WEB3J:
+			id = MyDb.getAccount(network, account).get().getStr("ADDRESS");
+			copy_to_clip_board(id);
 			break;
 		default:
 			break;
@@ -106,24 +119,15 @@ public class CopyAccountInfoPanel extends JPanel {
 	public void onMessage(AccountChangeEvent e) {
 		this.network = e.network;
 		this.account = e.account;
-
-		public_key = null;
-		List<Record> l = MyDb.getAccounts(network);
-		for (var r : l) {
-			if (network.equals(CrptoNetworks.SIGNUM)) {
-				var adr = SignumCrypto.getInstance().getAddressFromPublic(r.getBytes("PUBLIC_KEY"));
-				if (adr.getFullAddress().equals(account)) {
-					public_key = adr.getPublicKey();
-					break;
-				}
-			}else if(network.equals(CrptoNetworks.ROTURA)) {
-				var adr = new RoturaAddress(r.getBytes("PUBLIC_KEY"));
-				if (adr.getFullAddress().equals(account)) {
-					public_key = adr.getPublicKey();
-					break;
-				}
-			}
+		Optional<Record> opt_r = MyDb.getAccount(network, account);
+		if(opt_r.isPresent()) {
+			public_key = opt_r.get().getBytes("PUBLIC_KEY");
 		}
-		btns.stream().forEach(o -> o.setEnabled(public_key != null));
+		if(WEB3J.equals(network)) {
+			btn_1.setEnabled(true);
+			Stream.of(btn_0, btn_2, btn_3,btn_4).forEach(x->x.setEnabled(false));
+		}else {
+			btns.stream().forEach(o -> o.setEnabled(public_key != null));
+		}
 	}
 }

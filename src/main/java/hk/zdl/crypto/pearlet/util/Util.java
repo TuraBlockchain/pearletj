@@ -112,6 +112,15 @@ public class Util {
 			}
 			break;
 		case WEB3J:
+			if (Desktop.isDesktopSupported()) {
+				try {
+					Desktop.getDesktop().browse(new URI("https://www.blockchain.com/eth/address/" + e));
+				} catch (Exception x) {
+					return false;
+				}
+			} else {
+				return false;
+			}
 			break;
 		default:
 			break;
