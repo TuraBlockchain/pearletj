@@ -12,9 +12,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import org.web3j.crypto.ECKeyPair;
-import org.web3j.utils.Numeric;
-
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
@@ -127,12 +124,12 @@ public class MyDb {
 		return Db.find("select * from ACCOUNTS");
 	}
 
-	public static final boolean insertAccount(ECKeyPair eckp) {
-		return insertAccount(CrptoNetworks.WEB3J, Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
-	}
-
-	public static final boolean insertAccount(CrptoNetworks network, byte[] public_key, byte[] private_key) {
-		var o = new Record().set("NETWORK", network.name()).set("PUBLIC_KEY", public_key).set("PRIVATE_KEY", private_key);
+	public static final boolean insertAccount(CrptoNetworks network, String address, byte[] public_key, byte[] private_key) {
+		int i = Db.queryInt("SELECT COUNT(*) FROM ACCOUNTS WHERE NETWORK = ? AND ADDRESS = ?", network.name(), address);
+		if (i > 0) {
+			return false;
+		}
+		var o = new Record().set("NETWORK", network.name()).set("ADDRESS", address).set("PUBLIC_KEY", public_key).set("PRIVATE_KEY", private_key);
 		return Db.save("ACCOUNTS", "ID", o);
 	}
 

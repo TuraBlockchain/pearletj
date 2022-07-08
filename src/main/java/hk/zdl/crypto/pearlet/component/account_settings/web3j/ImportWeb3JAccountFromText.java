@@ -18,10 +18,12 @@ import org.greenrobot.eventbus.EventBus;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.WalletUtils;
+import org.web3j.utils.Numeric;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class ImportWeb3JAccountFromText {
@@ -77,12 +79,12 @@ public class ImportWeb3JAccountFromText {
 			
 		}
 		ECKeyPair eckp = cred.getEcKeyPair();
-		boolean b = MyDb.insertAccount(eckp);
+		boolean b = MyDb.insertAccount(CrptoNetworks.WEB3J, cred.getAddress(), Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
 		if(b) {
 			UIUtil.displayMessage("Import Account", "done!", null);
 			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 		}else {
-			JOptionPane.showMessageDialog(w, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 
 	}

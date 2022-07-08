@@ -59,7 +59,7 @@ public class WatchSignumAccount {
 				if (public_key == null) {
 					throw new Exception("Reed-Solomon address does not contain public key");
 				}
-				b = MyDb.insertAccount(nw, public_key, private_key);
+				b = MyDb.insertAccount(nw, CryptoUtil.getAddress(nw, public_key),public_key, private_key);
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				return;
@@ -69,7 +69,7 @@ public class WatchSignumAccount {
 				dialog.dispose();
 				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 			} else {
-				JOptionPane.showMessageDialog(dialog, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(dialog, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}));
 		var panel_1 = new JPanel(new BorderLayout());

@@ -16,12 +16,15 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import org.greenrobot.eventbus.EventBus;
+import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.WalletUtils;
+import org.web3j.utils.Numeric;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class CreateWeb3JAccount {
@@ -40,7 +43,7 @@ public class CreateWeb3JAccount {
 
 		var mm_label = new JLabel("Enter your mnemonic:");
 		var tx_field = new JTextArea(5, 20);
-		var sc_panee = new JScrollPane(tx_field,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		var sc_panee = new JScrollPane(tx_field, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		panel.add(mm_label, new GridBagConstraints(0, 1, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		panel.add(sc_panee, new GridBagConstraints(0, 2, 2, 1, 0, 0, 17, 1, insets_5, 0, 0));
 
@@ -59,21 +62,23 @@ public class CreateWeb3JAccount {
 			file_dialog.setDragEnabled(false);
 			file_dialog.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			i = file_dialog.showSaveDialog(w);
-			if (i == JFileChooser.APPROVE_OPTION) {
-				try {
-					WalletUtils.generateBip39WalletFromMnemonic(new String(pw_field.getPassword()), tx_field.getText().trim(), file_dialog.getSelectedFile());
-				} catch (Exception e) {
-					JOptionPane.showMessageDialog(w, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				ECKeyPair eckp = WalletUtils.loadBip39Credentials(new String(pw_field.getPassword()), tx_field.getText().trim()).getEcKeyPair();
-				boolean b = MyDb.insertAccount(eckp);
-				if(b) {
-					UIUtil.displayMessage("Create Account", "done!", null);
-					Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
-				}else {
-					JOptionPane.showMessageDialog(w, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
-				}
+			if (i != JFileChooser.APPROVE_OPTION) {
+				return;
+			}
+			try {
+				WalletUtils.generateBip39WalletFromMnemonic(new String(pw_field.getPassword()), tx_field.getText().trim(), file_dialog.getSelectedFile());
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(w, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			Credentials cred = WalletUtils.loadBip39Credentials(new String(pw_field.getPassword()), tx_field.getText().trim());
+			ECKeyPair eckp = cred.getEcKeyPair();
+			boolean b = MyDb.insertAccount(CrptoNetworks.WEB3J, cred.getAddress(),Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
+			if (b) {
+				UIUtil.displayMessage("Create Account", "done!", null);
+				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+			} else {
+				JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}

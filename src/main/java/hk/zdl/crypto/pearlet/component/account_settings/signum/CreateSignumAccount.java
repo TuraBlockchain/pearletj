@@ -96,7 +96,7 @@ public class CreateSignumAccount {
 			try {
 				private_key = CryptoUtil.getPrivateKey(nw, type, text);
 				public_key = CryptoUtil.getPublicKey(nw, private_key);
-				b = MyDb.insertAccount(nw, public_key, private_key);
+				b = MyDb.insertAccount(nw, CryptoUtil.getAddress(nw, public_key),public_key, private_key);
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				return;
@@ -107,7 +107,7 @@ public class CreateSignumAccount {
 				UIUtil.displayMessage("Create Account", "done!", null);
 				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 			} else {
-				JOptionPane.showMessageDialog(dialog, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(dialog, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}));
 		combobox_1.addActionListener((e) -> btn_1.doClick());

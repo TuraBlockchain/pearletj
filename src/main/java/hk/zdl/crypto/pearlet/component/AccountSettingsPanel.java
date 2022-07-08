@@ -30,6 +30,7 @@ import hk.zdl.crypto.pearlet.component.account_settings.signum.CreateSignumAccou
 import hk.zdl.crypto.pearlet.component.account_settings.signum.ImportSignumAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.signum.WatchSignumAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.CreateWeb3JAccount;
+import hk.zdl.crypto.pearlet.component.account_settings.web3j.ImportWeb3JAccountFromFile;
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.ImportWeb3JAccountFromText;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
@@ -85,6 +86,7 @@ public class AccountSettingsPanel extends JPanel {
 		import_acc_signum.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.SIGNUM));
 		import_acc_rotura.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.ROTURA));
 		import_from_text.addActionListener(e -> ImportWeb3JAccountFromText.create_import_account_dialog(this));
+		import_from_file.addActionListener(e -> ImportWeb3JAccountFromFile.create_import_account_dialog(this));
 
 		watch_account_btn.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this));
 		watch_account_btn.setEnabled(false);// FIXME

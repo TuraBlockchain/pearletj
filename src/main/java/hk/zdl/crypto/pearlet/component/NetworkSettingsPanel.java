@@ -1,7 +1,6 @@
 package hk.zdl.crypto.pearlet.component;
 
 import java.awt.Component;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -17,7 +16,6 @@ import java.util.stream.Stream;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -25,12 +23,10 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
 
 import org.apache.commons.io.IOUtils;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
-import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
@@ -95,32 +91,23 @@ public class NetworkSettingsPanel extends JPanel {
 
 	private static final void createWeb3jAuthDialog(Component c) {
 		var w = SwingUtilities.getWindowAncestor(c);
-		var dialog = new JDialog(w, "Enter Project ID & Secret", Dialog.ModalityType.APPLICATION_MODAL);
-		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		IndepandentWindows.add(dialog);
 		var panel_1 = new JPanel(new GridBagLayout());
-		panel_1.add(new JLabel(UIUtil.getStretchIcon("icon/" + "key_1.svg", 64, 64)), new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
-		panel_1.add(new JLabel("Project ID:"), new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
+		panel_1.add(new JLabel("Project ID:"), new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
 		var id_field = new JTextField("<Your ID here>", 30);
-		panel_1.add(id_field, new GridBagConstraints(1, 1, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
-		panel_1.add(new JLabel("Project Secret:"), new GridBagConstraints(1, 2, 1, 1, 0, 0, 17, 0, new Insets(0, 0, 5, 0), 0, 0));
+		panel_1.add(id_field, new GridBagConstraints(0, 1, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
+		panel_1.add(new JLabel("Project Secret:"), new GridBagConstraints(0, 2, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 0), 0, 0));
 		var scret_field = new JPasswordField("unchanged", 30);
-		panel_1.add(scret_field, new GridBagConstraints(1, 3, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
-		var btn_1 = new JButton("OK");
-		btn_1.addActionListener(e -> Util.submit(() -> {
-			boolean b = MyDb.update_webj_auth(id_field.getText(), new String(scret_field.getPassword()));
-			if (b) {
-				dialog.dispose();
-				CryptoUtil.clear_web3j();
-			}
-		}));
-		Util.submit(() -> MyDb.get_webj_auth().ifPresent(r -> id_field.setText(r.getStr("MYAUTH"))));
-		panel_1.add(btn_1, new GridBagConstraints(0, 4, 2, 1, 0, 0, 10, 0, new Insets(5, 5, 10, 5), 0, 0));
-		dialog.add(panel_1);
-		dialog.pack();
-		dialog.setResizable(false);
-		dialog.setLocationRelativeTo(w);
-		dialog.setVisible(true);
+		panel_1.add(scret_field, new GridBagConstraints(0, 3, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
+		MyDb.get_webj_auth().ifPresent(r -> id_field.setText(r.getStr("MYAUTH")));
+
+		int i = JOptionPane.showConfirmDialog(w, panel_1, "Enter Project ID & Secret", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, UIUtil.getStretchIcon("icon/" + "key_1.svg", 64, 64));
+		if (i != JOptionPane.OK_OPTION) {
+			return;
+		}
+		boolean b = MyDb.update_webj_auth(id_field.getText(), new String(scret_field.getPassword()));
+		if (b) {
+			CryptoUtil.clear_web3j();
+		}
 	}
 
 }
