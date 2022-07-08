@@ -59,11 +59,14 @@ public class AboutPanel extends JPanel {
 		scr.setBorder(BorderFactory.createEmptyBorder());
 		panel_1.add(scr, BorderLayout.CENTER);
 
-		var panel_2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		var panel_2 = new JPanel(new FlowLayout(FlowLayout.LEFT,20,5));
 
 		try {
-			var signum_label = new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "Signum_Badge_J.png")), -1, 100));
-			panel_2.add(signum_label);
+			panel_2.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "Signum_Badge_J.png")), -1, 100)));
+		} catch (IOException e) {
+		}
+		try {
+			panel_2.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "web3j_logo.png")), -1, 100)));
 		} catch (IOException e) {
 		}
 
