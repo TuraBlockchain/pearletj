@@ -17,6 +17,8 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import hk.zdl.crypto.pearlet.Main;
+import hk.zdl.crypto.pearlet.component.MyStretchIcon;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class UIUtil {
 
@@ -55,7 +57,15 @@ public class UIUtil {
 		g.dispose();
 	}
 
-	public static void displayMessage(String title, String message, MessageType messageType) {
+	public static final MyStretchIcon getStretchIcon(String path, int w, int h) {
+		try {
+			return  new MyStretchIcon(ImageIO.read(Util.getResource(path)), w, h);
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	public static final void displayMessage(String title, String message, MessageType messageType) {
 		if (os.contains("Linux")) {
 			try {
 				new ProcessBuilder("zenity", "--notification", "--title=" + title, "--text=" + message).start();
@@ -76,7 +86,7 @@ public class UIUtil {
 				}
 			}
 			if (trayIcon != null) {
-				if(messageType==null) {
+				if (messageType == null) {
 					messageType = MessageType.INFO;
 				}
 				trayIcon.displayMessage(title, message, messageType);

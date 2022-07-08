@@ -3,14 +3,10 @@ package hk.zdl.crypto.pearlet;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.GridLayout;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JPanel;
@@ -27,8 +23,8 @@ import org.json.JSONTokener;
 import com.formdev.flatlaf.extras.FlatDesktop;
 import com.formdev.flatlaf.extras.FlatDesktop.QuitResponse;
 
-import hk.zdl.crypto.pearlet.component.MyStretchIcon;
 import hk.zdl.crypto.pearlet.component.event.SettingsPanelEvent;
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
@@ -90,11 +86,6 @@ public class MyToolbar extends JScrollPane {
 	}
 
 	public static final Icon getIcon(String str) {
-		try {
-			return new MyStretchIcon(ImageIO.read(Util.getResource("toolbar/" + str)), 32, 32);
-		} catch (IOException e) {
-			Logger.getLogger(MyToolbar.class.getName()).log(Level.WARNING, e.getMessage(), e);
-			return null;
-		}
+		return  UIUtil.getStretchIcon("toolbar/" + str, 32, 32);
 	}
 }

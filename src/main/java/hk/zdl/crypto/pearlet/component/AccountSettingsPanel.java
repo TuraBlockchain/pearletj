@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -29,6 +30,7 @@ import hk.zdl.crypto.pearlet.component.account_settings.signum.CreateSignumAccou
 import hk.zdl.crypto.pearlet.component.account_settings.signum.ImportSignumAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.signum.WatchSignumAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.CreateWeb3JAccount;
+import hk.zdl.crypto.pearlet.component.account_settings.web3j.ImportWeb3JAccountFromText;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
@@ -71,12 +73,18 @@ public class AccountSettingsPanel extends JPanel {
 		create_acc_rotura.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this, CrptoNetworks.ROTURA));
 
 		var import_acc_menu = new JPopupMenu();
+		var import_acc_signum = new JMenuItem("Signum");
+		var import_acc_rotura = new JMenuItem("Rotura");
+		var import_acc_web3j = new JMenu("Web3j");
 		var import_from_text = new JMenuItem("From Text...");
 		var import_from_file = new JMenuItem("From File...");
-		Stream.of(import_from_text, import_from_file).forEach(import_acc_menu::add);
+		Stream.of(import_acc_signum, import_acc_rotura,import_acc_web3j).forEach(import_acc_menu::add);
+		Stream.of(import_from_text, import_from_file).forEach(import_acc_web3j::add);
 
 		import_account_btn.addActionListener(e -> import_acc_menu.show(import_account_btn, 0, 0));
-		import_from_text.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this));
+		import_acc_signum.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.SIGNUM));
+		import_acc_rotura.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.ROTURA));
+		import_from_text.addActionListener(e -> ImportWeb3JAccountFromText.create_import_account_dialog(this));
 
 		watch_account_btn.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this));
 		watch_account_btn.setEnabled(false);// FIXME

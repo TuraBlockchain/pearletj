@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
@@ -59,22 +60,16 @@ public class AboutPanel extends JPanel {
 		scr.setBorder(BorderFactory.createEmptyBorder());
 		panel_1.add(scr, BorderLayout.CENTER);
 
-		var badge_panel = new JPanel(new FlowLayout(FlowLayout.LEFT,20,5));
+		var badge_panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
 		scr.setViewportView(badge_panel);
 
-		try {
-			var x = new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "Signum_Badge_J.png")), -1, 100));
-			x.setToolTipText("SignumJ");
-			badge_panel.add(x);
-		} catch (IOException e) {
-		}
-		try {
-			var x = new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "web3j_logo.png")), -1, 100));
-			x.setToolTipText("Web3j");
-			badge_panel.add(x);
-		} catch (IOException e) {
-		}
+		var sj_label = new JLabel(UIUtil.getStretchIcon("icon/" + "Signum_Badge_J.png", -1, 100));
+		sj_label.setToolTipText("SignumJ");
+		badge_panel.add(sj_label);
 
+		var wj_label = new JLabel(UIUtil.getStretchIcon("icon/" + "web3j_logo.png", -1, 100));
+		wj_label.setToolTipText("Web3j");
+		badge_panel.add(wj_label);
 
 	}
 }

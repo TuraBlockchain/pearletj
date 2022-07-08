@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -31,9 +30,9 @@ import javax.swing.WindowConstants;
 import org.apache.commons.io.IOUtils;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
-import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -100,11 +99,7 @@ public class NetworkSettingsPanel extends JPanel {
 		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		IndepandentWindows.add(dialog);
 		var panel_1 = new JPanel(new GridBagLayout());
-		try {
-			panel_1.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "key_1.svg")), 64, 64)),
-					new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
-		} catch (IOException e) {
-		}
+		panel_1.add(new JLabel(UIUtil.getStretchIcon("icon/" + "key_1.svg", 64, 64)), new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
 		panel_1.add(new JLabel("Project ID:"), new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
 		var id_field = new JTextField("<Your ID here>", 30);
 		panel_1.add(id_field, new GridBagConstraints(1, 1, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));

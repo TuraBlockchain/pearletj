@@ -9,10 +9,8 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.util.Random;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -27,7 +25,6 @@ import javax.swing.WindowConstants;
 import org.greenrobot.eventbus.EventBus;
 import org.java_websocket.util.Base64;
 
-import hk.zdl.crypto.pearlet.component.MyStretchIcon;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
@@ -45,10 +42,7 @@ public class CreateSignumAccount {
 		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		IndepandentWindows.add(dialog);
 		var panel = new JPanel(new GridBagLayout());
-		try {
-			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "cloud-plus-fill.svg")), 64, 64)), new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
-		} catch (IOException e) {
-		}
+		panel.add(new JLabel(UIUtil.getStretchIcon("icon/" + "cloud-plus-fill.svg", 64, 64)), new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
 		var label_1 = new JLabel("Network:");
 		var network_combobox = new JComboBox<>(new Object[] { nw });
 		network_combobox.setEnabled(false);

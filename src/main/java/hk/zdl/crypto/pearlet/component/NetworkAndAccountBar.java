@@ -3,13 +3,11 @@ package hk.zdl.crypto.pearlet.component;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -27,9 +25,9 @@ import com.jfinal.plugin.activerecord.Record;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.SettingsPanelEvent;
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
-import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class NetworkAndAccountBar extends JPanel {
@@ -56,10 +54,7 @@ public class NetworkAndAccountBar extends JPanel {
 		Stream.of(network_combobox,account_combobox).forEach(o->o.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize())));
 
 		Icon btn_icon = null;
-		try {
-			btn_icon = new MyStretchIcon(ImageIO.read(Util.getResource("toolbar/" + "screwdriver-wrench-solid.svg")), 24, 24);
-		} catch (IOException e) {
-		}
+		btn_icon =  UIUtil.getStretchIcon("toolbar/" + "screwdriver-wrench-solid.svg", 24, 24);
 		var manage_network_btn = new JButton(btn_icon);
 		var manage_account_btn = new JButton(btn_icon);
 		manage_network_btn.setToolTipText("Manage Networks");

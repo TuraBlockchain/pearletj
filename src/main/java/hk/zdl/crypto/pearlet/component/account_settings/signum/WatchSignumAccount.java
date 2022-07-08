@@ -7,9 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -23,10 +21,10 @@ import javax.swing.WindowConstants;
 import org.greenrobot.eventbus.EventBus;
 import org.jdesktop.swingx.combobox.EnumComboBoxModel;
 
-import hk.zdl.crypto.pearlet.component.MyStretchIcon;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -41,10 +39,7 @@ public class WatchSignumAccount {
 		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		IndepandentWindows.add(dialog);
 		var panel = new JPanel(new GridBagLayout());
-		try {
-			panel.add(new JLabel(new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "eyeglasses.svg")), 64, 64)), new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
-		} catch (IOException e) {
-		}
+		panel.add(new JLabel(UIUtil.getStretchIcon("icon/" + "eyeglasses.svg", 64, 64)), new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
 		var label_1 = new JLabel("Network:");
 		var network_combobox = new JComboBox<>();
 		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));

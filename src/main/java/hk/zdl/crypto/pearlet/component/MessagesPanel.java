@@ -6,9 +6,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,7 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
 
-import hk.zdl.crypto.pearlet.util.Util;
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 
 @SuppressWarnings("serial")
 public class MessagesPanel extends JSplitPane {
@@ -38,11 +36,8 @@ public class MessagesPanel extends JSplitPane {
 
 	private static final Component getDefaultRightComponent() {
 		var my_panel = new JPanel(new GridBagLayout());
-		try {
-			var my_icon = new MyStretchIcon(ImageIO.read(Util.getResource("toolbar/" + "chat-text.svg")), 256, 256);
-			my_panel.add(new JLabel(my_icon), new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, new Insets(0, 0, 0, 0), 0, 0));
-		} catch (IOException e) {
-		}
+		var my_icon =  UIUtil.getStretchIcon("toolbar/" + "chat-text.svg", 256, 256);
+		my_panel.add(new JLabel(my_icon), new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, new Insets(0, 0, 0, 0), 0, 0));
 		var label_0 = new JLabel("Messages");
 		label_0.setFont(new Font("Arial Black", Font.PLAIN, 28));
 		label_0.setHorizontalAlignment(SwingConstants.CENTER);

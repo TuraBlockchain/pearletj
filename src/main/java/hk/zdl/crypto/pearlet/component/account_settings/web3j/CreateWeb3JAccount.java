@@ -4,9 +4,7 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -21,7 +19,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.WalletUtils;
 
-import hk.zdl.crypto.pearlet.component.MyStretchIcon;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
@@ -33,12 +30,7 @@ public class CreateWeb3JAccount {
 
 	public static final void create_new_account_dialog(Component c) {
 		var w = SwingUtilities.getWindowAncestor(c);
-		Icon icon = null;
-		try {
-			icon = new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "cloud-plus-fill.svg")), 64, 64);
-		} catch (IOException e1) {
-		}
-
+		Icon icon = UIUtil.getStretchIcon("icon/" + "cloud-plus-fill.svg", 64, 64);
 		var panel = new JPanel(new GridBagLayout());
 
 		var pw_label = new JLabel("Enter password for wallet:");
