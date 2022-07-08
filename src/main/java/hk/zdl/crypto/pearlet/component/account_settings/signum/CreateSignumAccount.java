@@ -1,4 +1,4 @@
-package hk.zdl.crypto.pearlet.component.account_settings;
+package hk.zdl.crypto.pearlet.component.account_settings.signum;
 
 import java.awt.Component;
 import java.awt.Dialog;

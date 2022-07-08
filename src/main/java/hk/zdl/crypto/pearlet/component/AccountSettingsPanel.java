@@ -25,9 +25,9 @@ import javax.swing.SwingUtilities;
 
 import org.greenrobot.eventbus.EventBus;
 
-import hk.zdl.crypto.pearlet.component.account_settings.CreateSignumAccount;
-import hk.zdl.crypto.pearlet.component.account_settings.ImportSignumAccount;
-import hk.zdl.crypto.pearlet.component.account_settings.WatchSignumAccount;
+import hk.zdl.crypto.pearlet.component.account_settings.signum.CreateSignumAccount;
+import hk.zdl.crypto.pearlet.component.account_settings.signum.ImportSignumAccount;
+import hk.zdl.crypto.pearlet.component.account_settings.signum.WatchSignumAccount;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
