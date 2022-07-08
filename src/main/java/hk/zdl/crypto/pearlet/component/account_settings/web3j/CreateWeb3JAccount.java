@@ -40,7 +40,7 @@ public class CreateWeb3JAccount {
 
 		var mm_label = new JLabel("Enter your mnemonic:");
 		var tx_field = new JTextArea(5, 20);
-		var sc_panee = new JScrollPane(tx_field);
+		var sc_panee = new JScrollPane(tx_field,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		panel.add(mm_label, new GridBagConstraints(0, 1, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		panel.add(sc_panee, new GridBagConstraints(0, 2, 2, 1, 0, 0, 17, 1, insets_5, 0, 0));
 

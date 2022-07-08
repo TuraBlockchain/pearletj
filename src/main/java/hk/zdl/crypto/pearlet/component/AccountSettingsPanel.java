@@ -76,8 +76,8 @@ public class AccountSettingsPanel extends JPanel {
 		var import_acc_signum = new JMenuItem("Signum");
 		var import_acc_rotura = new JMenuItem("Rotura");
 		var import_acc_web3j = new JMenu("Web3j");
-		var import_from_text = new JMenuItem("From Text...");
-		var import_from_file = new JMenuItem("From File...");
+		var import_from_text = new JMenuItem("From Mnemonic ...");
+		var import_from_file = new JMenuItem("From JSON File ...");
 		Stream.of(import_acc_signum, import_acc_rotura,import_acc_web3j).forEach(import_acc_menu::add);
 		Stream.of(import_from_text, import_from_file).forEach(import_acc_web3j::add);
 
