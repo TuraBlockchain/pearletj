@@ -2,6 +2,7 @@ package hk.zdl.crypto.pearlet;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.Taskbar;
 import java.util.concurrent.Callable;
 
@@ -41,12 +42,13 @@ public class Main {
 		GnomeMagic.do_trick();
 		AquaMagic.do_trick();
 		UIUtil.printVersionOnSplashScreen();
+		Image app_icon = ImageIO.read(Util.getResource("app_icon.png"));
 
 		Util.submit(new Callable<Void>() {
 
 			@Override
 			public Void call() throws Exception {
-				Taskbar.getTaskbar().setIconImage(ImageIO.read(Util.getResource("app_icon.png")));
+				Taskbar.getTaskbar().setIconImage(app_icon);
 				return null;
 			}
 
@@ -65,6 +67,7 @@ public class Main {
 		SwingUtilities.invokeLater(() -> {
 			var appName = Util.getProp().get("appName");
 			var frame = new JXFrame(appName);
+			frame.setIconImage(app_icon);
 			frame.getContentPane().setLayout(new BorderLayout());
 			var panel1 = new JPanel(new BorderLayout());
 			var panel2 = new JPanel();
