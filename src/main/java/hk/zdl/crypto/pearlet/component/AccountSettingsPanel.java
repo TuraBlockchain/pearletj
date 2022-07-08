@@ -28,6 +28,7 @@ import org.greenrobot.eventbus.EventBus;
 import hk.zdl.crypto.pearlet.component.account_settings.signum.CreateSignumAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.signum.ImportSignumAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.signum.WatchSignumAccount;
+import hk.zdl.crypto.pearlet.component.account_settings.web3j.CreateWeb3JAccount;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
@@ -65,14 +66,15 @@ public class AccountSettingsPanel extends JPanel {
 		Stream.of(create_acc_signum, create_acc_rotura, create_acc_web3j).forEach(create_acc_menu::add);
 
 		create_account_btn.addActionListener(e -> create_acc_menu.show(create_account_btn, 0, 0));
-		create_acc_signum.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this,CrptoNetworks.SIGNUM));
-		create_acc_rotura.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this,CrptoNetworks.ROTURA));
+		create_acc_web3j.addActionListener(e -> CreateWeb3JAccount.create_new_account_dialog(this));
+		create_acc_signum.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this, CrptoNetworks.SIGNUM));
+		create_acc_rotura.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this, CrptoNetworks.ROTURA));
 
 		var import_acc_menu = new JPopupMenu();
 		var import_from_text = new JMenuItem("From Text...");
 		var import_from_file = new JMenuItem("From File...");
 		Stream.of(import_from_text, import_from_file).forEach(import_acc_menu::add);
-		
+
 		import_account_btn.addActionListener(e -> import_acc_menu.show(import_account_btn, 0, 0));
 		import_from_text.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this));
 
@@ -133,6 +135,5 @@ public class AccountSettingsPanel extends JPanel {
 	private static final void reload_accounts() {
 		Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 	}
-
 
 }

@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -29,6 +30,7 @@ public class ImportSignumAccount {
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	public static final void create_import_account_dialog(Component c) {
+		var w = SwingUtilities.getWindowAncestor(c);
 		Icon icon = null;
 		try {
 			icon = new MyStretchIcon(ImageIO.read(Util.getResource("icon/" + "wallet_2.svg")), 64, 64);
@@ -47,8 +49,8 @@ public class ImportSignumAccount {
 		var scr_pane = new JScrollPane(text_area);
 		panel.add(scr_pane, new GridBagConstraints(0, 1, 4, 3, 0, 0, 17, 1, new Insets(5, 5, 0, 5), 0, 0));
 
-		int i = JOptionPane.showConfirmDialog(c, panel, "Import Existing Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
-		if(i==JOptionPane.OK_OPTION) {
+		int i = JOptionPane.showConfirmDialog(w, panel, "Import Existing Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
+		if (i == JOptionPane.OK_OPTION) {
 			CrptoNetworks nw = CrptoNetworks.valueOf(network_combobox.getSelectedItem().toString());
 			String type = combobox_1.getSelectedItem().toString();
 			String text = text_area.getText().trim();
@@ -60,14 +62,14 @@ public class ImportSignumAccount {
 				public_key = CryptoUtil.getPublicKey(nw, private_key);
 				b = MyDb.insertAccount(nw, public_key, private_key);
 			} catch (Exception x) {
-				JOptionPane.showMessageDialog(c, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(w, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
 			if (b) {
 				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 			} else {
-				JOptionPane.showMessageDialog(c, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(w, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}

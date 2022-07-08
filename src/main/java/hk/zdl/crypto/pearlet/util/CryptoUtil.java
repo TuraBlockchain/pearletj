@@ -1,10 +1,11 @@
 package hk.zdl.crypto.pearlet.util;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.*;
 import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -14,9 +15,15 @@ import java.util.concurrent.ExecutionException;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameterName;
 
+import com.jfinal.plugin.activerecord.Record;
+import org.web3j.protocol.http.HttpService;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.EncryptedMessage;
 import signumj.entity.SignumAddress;
@@ -27,7 +34,37 @@ import signumj.entity.response.http.BRSError;
 import signumj.service.NodeService;
 
 public class CryptoUtil {
-	
+
+	private static Web3j _web3j;
+
+	private static final synchronized void build_web3j() {
+		String base_url = get_server_url(WEB3J).get();
+		if (!base_url.endsWith("/")) {
+			base_url += "/";
+		}
+		Optional<Record> o = MyDb.get_webj_auth();
+		if (o.isPresent()) {
+			base_url += o.get().getStr("MYAUTH");
+			var httpCredentials = okhttp3.Credentials.basic("", o.get().getStr("SECRET"));
+			var client = new OkHttpClient.Builder().addInterceptor(chain -> {
+				Request request = chain.request();
+				Request authenticatedRequest = request.newBuilder().header("Authorization", httpCredentials).build();
+				return chain.proceed(authenticatedRequest);
+			}).build();
+			_web3j = Web3j.build(new HttpService(base_url, client));
+		}
+	}
+
+	public static final void clear_web3j() {
+		_web3j = null;
+	}
+
+	public static final Optional<Web3j> getWeb3j() {
+		if (_web3j == null) {
+			build_web3j();
+		}
+		return _web3j == null ? Optional.empty() : Optional.of(_web3j);
+	}
 
 	public static final boolean isValidAddress(CrptoNetworks network, String address) {
 		if (address == null || address.isBlank()) {
@@ -86,6 +123,8 @@ public class CryptoUtil {
 			return SignumCrypto.getInstance().getAddressFromPublic(public_key).getFullAddress();
 		} else if (network.equals(ROTURA)) {
 			return new RoturaAddress(public_key).toString();
+		} else if (WEB3J.equals(network)) {
+			return "0x" + org.web3j.crypto.Keys.getAddress(org.web3j.utils.Numeric.toBigInt(public_key));
 		}
 		return null;
 	}
@@ -109,9 +148,14 @@ public class CryptoUtil {
 					throw e;
 				}
 			}
-			;
+		} else if (WEB3J.equals(network)) {
+			if(getWeb3j().isPresent()) {
+				BigInteger wei = getWeb3j().get().ethGetBalance(address, DefaultBlockParameterName.LATEST).send().getBalance();
+				BigDecimal eth = new BigDecimal(wei).divide(new BigDecimal("100000000")).stripTrailingZeros();
+				return eth;
+			}
 		}
-		throw new UnsupportedOperationException();
+		return new BigDecimal("-1");
 	}
 
 	public static byte[] generateTransaction(CrptoNetworks nw, String recipient, byte[] public_key, BigDecimal amount, BigDecimal fee) {
@@ -206,26 +250,26 @@ public class CryptoUtil {
 	public static final Transaction getSignumTx(CrptoNetworks nw, SignumID id) throws InterruptedException, ExecutionException {
 		Optional<Transaction> o_tx = Optional.empty();
 		try {
-			o_tx = MyDb.getSignumTxFromLocal(nw,id);
+			o_tx = MyDb.getSignumTxFromLocal(nw, id);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		if(o_tx.isPresent()) {
+		if (o_tx.isPresent()) {
 			return o_tx.get();
-		}else {
+		} else {
 			Optional<String> opt = get_server_url(nw);
 			if (get_server_url(nw).isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				Transaction tx = ns.getTransaction(id).toFuture().get();
-				if(tx!=null) {
-					MyDb.putSignumTx(nw,tx);
+				if (tx != null) {
+					MyDb.putSignumTx(nw, tx);
 				}
 				return tx;
 			}
 		}
 		throw new InterruptedException();
 	}
-	
+
 	public static final Optional<String> get_server_url(CrptoNetworks network) {
 		Optional<String> opt = MyDb.get_server_url(network);
 		if (opt.isEmpty()) {
@@ -241,5 +285,5 @@ public class CryptoUtil {
 		}
 		return opt;
 	}
-	
+
 }

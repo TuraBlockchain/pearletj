@@ -15,6 +15,8 @@ import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.*;
+
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -128,7 +130,7 @@ public class AccountTableModel extends AbstractTableModel {
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(TxHistoryEvent<?> e) {
 		if (e.type.equals(TxHistoryEvent.Type.INSERT)) {
-			if (e.network.equals(CrptoNetworks.SIGNUM)) {
+			if (Arrays.asList(SIGNUM,ROTURA).contains(e.network)) {
 				Transaction tx = (Transaction) e.data;
 				if (tx.getType() == 1 && tx.getSubtype() == 5) {
 					String address = tx.getSender().getFullAddress();

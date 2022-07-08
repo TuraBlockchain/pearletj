@@ -31,6 +31,7 @@ import hk.zdl.crypto.pearlet.component.MyStretchIcon;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -109,6 +110,7 @@ public class CreateSignumAccount {
 
 			if (b) {
 				dialog.dispose();
+				UIUtil.displayMessage("Create Account", "done!", null);
 				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 			} else {
 				JOptionPane.showMessageDialog(dialog, "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);

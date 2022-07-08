@@ -35,6 +35,7 @@ import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
@@ -115,6 +116,7 @@ public class NetworkSettingsPanel extends JPanel {
 			boolean b = MyDb.update_webj_auth(id_field.getText(), new String(scret_field.getPassword()));
 			if (b) {
 				dialog.dispose();
+				CryptoUtil.clear_web3j();
 			}
 		}));
 		Util.submit(() -> MyDb.get_webj_auth().ifPresent(r -> id_field.setText(r.getStr("MYAUTH"))));

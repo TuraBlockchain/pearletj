@@ -12,6 +12,9 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+import org.web3j.crypto.ECKeyPair;
+import org.web3j.utils.Numeric;
+
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
@@ -93,7 +96,7 @@ public class MyDb {
 	}
 
 	public static final Optional<Record> get_webj_auth() {
-		List<Record> l = Db.find("select MYAUTH from WEBJAUTH");
+		List<Record> l = Db.find("select * from WEBJAUTH");
 		if (l.isEmpty()) {
 			return Optional.empty();
 		} else {
@@ -122,6 +125,10 @@ public class MyDb {
 
 	public static final List<Record> getAccounts() {
 		return Db.find("select * from ACCOUNTS");
+	}
+
+	public static final boolean insertAccount(ECKeyPair eckp) {
+		return insertAccount(CrptoNetworks.WEB3J, Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
 	}
 
 	public static final boolean insertAccount(CrptoNetworks network, byte[] public_key, byte[] private_key) {
@@ -155,7 +162,7 @@ public class MyDb {
 		if (rs.next()) {
 			InputStream in = rs.getBinaryStream(1);
 			ObjectInputStream ois = new ObjectInputStream(in);
-			Transaction tx =  (Transaction) ois.readObject();
+			Transaction tx = (Transaction) ois.readObject();
 			ois.close();
 			in.close();
 			rs.close();
