@@ -40,7 +40,7 @@ import hk.zdl.crypto.pearlet.util.Util;
 @SuppressWarnings("serial")
 public class DashBoard extends JPanel {
 
-	private static Font title_font = new Font("Arial Black", Font.PLAIN, 16);
+	private static Font title_font = new Font("Arial", Font.BOLD, 16);
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final WaitLayerUI wuli = new WaitLayerUI();
 	private final JPanel token_list_inner_panel = new JPanel(new GridLayout(0, 1));
@@ -77,7 +77,8 @@ public class DashBoard extends JPanel {
 		panel1.add(label2);
 		balance_panel.add(panel1, BorderLayout.WEST);
 		var balance_inner_panel = new JPanel(new FlowLayout(0));
-		Stream.of(label1, label2, currency_label, balance_label).forEach(o -> o.setFont(title_font));
+		Stream.of(label1, label2, balance_label).forEach(o -> o.setFont(title_font));
+		currency_label.setFont(new Font(Font.MONOSPACED,title_font.getStyle(),title_font.getSize()));
 		Stream.of(currency_label, balance_label).forEach(balance_inner_panel::add);
 
 		balance_panel.add(balance_inner_panel, BorderLayout.EAST);
