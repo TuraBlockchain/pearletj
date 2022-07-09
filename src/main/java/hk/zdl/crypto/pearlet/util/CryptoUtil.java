@@ -21,6 +21,8 @@ import org.web3j.protocol.core.DefaultBlockParameterName;
 
 import com.jfinal.plugin.activerecord.Record;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.utils.Convert;
+
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import okhttp3.OkHttpClient;
@@ -80,7 +82,7 @@ public class CryptoUtil {
 				return false;
 			}
 		} else if (WEB3J.equals(network)) {
-			return WalletUtils.isValidAddress(address);
+			return address.contains(".") || WalletUtils.isValidAddress(address);
 		}
 		return false;
 	}
@@ -152,9 +154,9 @@ public class CryptoUtil {
 				}
 			}
 		} else if (WEB3J.equals(network)) {
-			if(getWeb3j().isPresent()) {
+			if (getWeb3j().isPresent()) {
 				BigInteger wei = getWeb3j().get().ethGetBalance(address, DefaultBlockParameterName.LATEST).send().getBalance();
-				BigDecimal eth = new BigDecimal(wei).divide(new BigDecimal("1e18")).stripTrailingZeros();
+				BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER).stripTrailingZeros();
 				return eth;
 			}
 		}

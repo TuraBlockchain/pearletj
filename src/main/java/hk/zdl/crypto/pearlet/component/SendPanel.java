@@ -195,10 +195,10 @@ public class SendPanel extends JPanel {
 				JOptionPane.showMessageDialog(getRootPane(), "Invalid amount!", null, JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			if (amount.compareTo(new BigDecimal(balance_label.getText())) > 0) {
-				JOptionPane.showMessageDialog(getRootPane(), "Insufficient fund!", null, JOptionPane.ERROR_MESSAGE);
-				return;
-			}
+//			if (amount.compareTo(new BigDecimal(balance_label.getText())) > 0) {
+//				JOptionPane.showMessageDialog(getRootPane(), "Insufficient fund!", null, JOptionPane.ERROR_MESSAGE);
+//				return;
+//			}
 
 			SendTx send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()));
 			if (msg_chk_box.isSelected()) {
@@ -234,9 +234,12 @@ public class SendPanel extends JPanel {
 					} else {
 						JOptionPane.showMessageDialog(getRootPane(), "Send token failed!", null, JOptionPane.ERROR_MESSAGE);
 					}
-				} catch (Exception x) {
+				} catch (Throwable x) {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), null, JOptionPane.ERROR_MESSAGE);
+					if (x.getClass().equals(java.util.concurrent.ExecutionException.class) && x.getCause() != null) {
+						x = x.getCause();
+					}
+					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
 				} finally {
 					wuli.stop();
 				}

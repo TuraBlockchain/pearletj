@@ -9,6 +9,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.json.JSONObject;
+import org.web3j.utils.Convert;
 
 import com.jthemedetecor.OsThemeDetector;
 
@@ -42,7 +43,7 @@ public class EtherValueCellRenderer extends DefaultTableCellRenderer {
 	@Override
 	protected void setValue(Object value) {
 		JSONObject tx = (JSONObject) value;
-		BigDecimal val = new BigDecimal(tx.getString("value")).divide(new BigDecimal("1e18"));
+		BigDecimal val = Convert.fromWei(new BigDecimal(tx.getString("value")),Convert.Unit.ETHER).stripTrailingZeros();
 		setText(val.stripTrailingZeros().toString());
 	}
 

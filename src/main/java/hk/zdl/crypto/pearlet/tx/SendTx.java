@@ -2,15 +2,25 @@ package hk.zdl.crypto.pearlet.tx;
 
 import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
 import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.Callable;
+
+import org.web3j.crypto.Credentials;
+import org.web3j.crypto.ECKeyPair;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.tx.Transfer;
+import org.web3j.utils.Convert;
+
+import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
-import signumj.crypto.SignumCrypto;
 
 public class SendTx implements Callable<Boolean> {
 
@@ -44,50 +54,52 @@ public class SendTx implements Callable<Boolean> {
 
 	@Override
 	public Boolean call() throws Exception {
-		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
-			byte[] private_key = null;
-			for (var r : MyDb.getAccounts(network)) {
-				byte[] _key = r.getBytes("PRIVATE_KEY");
-				String raw_adr = SignumCrypto.getInstance().getAddressFromPrivate(_key).getRawAddress();
-				if (from.endsWith(raw_adr)) {
-					private_key = _key;
-					break;
-				}
-			}
-			if (private_key == null) {
-				return false;
-			}
-			byte[] public_key = CryptoUtil.getPublicKey(network, private_key);
-			byte[] tx;
-			if (str_message != null && !str_message.isBlank()) {
-				if (str_message.getBytes().length > 1000) {
-					return false;
-				} else {
-					if (isEncrypted) {
-						tx = CryptoUtil.generateTransactionWithEncryptedMessage(network, to, public_key, amount, fee, str_message.getBytes(), true);
+		Optional<Record> o_r = MyDb.getAccount(network, from);
+		if (o_r.isPresent()) {
+			byte[] private_key = o_r.get().getBytes("PRIVATE_KEY");
+			byte[] public_key = o_r.get().getBytes("PUBLIC_KEY");
+			if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
+				byte[] tx;
+				if (str_message != null && !str_message.isBlank()) {
+					if (str_message.getBytes().length > 1000) {
+						return false;
 					} else {
-						tx = CryptoUtil.generateTransactionWithMessage(network, to, public_key, amount, fee, str_message);
+						if (isEncrypted) {
+							tx = CryptoUtil.generateTransactionWithEncryptedMessage(network, to, public_key, amount, fee, str_message.getBytes(), true);
+						} else {
+							tx = CryptoUtil.generateTransactionWithMessage(network, to, public_key, amount, fee, str_message);
+						}
 					}
-				}
-			} else if (bin_message != null) {
-				if (bin_message.length > 1000) {
-					return false;
-				} else {
-					if (isEncrypted) {
-						tx = CryptoUtil.generateTransactionWithEncryptedMessage(network, to, public_key, amount, fee, bin_message, false);
+				} else if (bin_message != null) {
+					if (bin_message.length > 1000) {
+						return false;
 					} else {
-						tx = CryptoUtil.generateTransactionWithMessage(network, to, public_key, amount, fee, bin_message);
+						if (isEncrypted) {
+							tx = CryptoUtil.generateTransactionWithEncryptedMessage(network, to, public_key, amount, fee, bin_message, false);
+						} else {
+							tx = CryptoUtil.generateTransactionWithMessage(network, to, public_key, amount, fee, bin_message);
+						}
 					}
+				} else {
+					tx = CryptoUtil.generateTransaction(network, to, public_key, amount, fee);
 				}
-			} else {
-				tx = CryptoUtil.generateTransaction(network, to, public_key, amount, fee);
-			}
-			byte[] signed_tx = CryptoUtil.signTransaction(network, private_key, tx);
+				byte[] signed_tx = CryptoUtil.signTransaction(network, private_key, tx);
 
-			Object obj = CryptoUtil.broadcastTransaction(network, signed_tx);
-			return obj != null;
+				Object obj = CryptoUtil.broadcastTransaction(network, signed_tx);
+				return obj != null;
+			} else if (WEB3J.equals(network)) {
+				Optional<Web3j> o_j = CryptoUtil.getWeb3j();
+				if (o_j.isPresent()) {
+					Credentials credentials = Credentials.create(ECKeyPair.create(private_key));
+					TransactionReceipt transactionReceipt = Transfer.sendFunds(o_j.get(), credentials, to, amount, Convert.Unit.ETHER).send();
+					System.out.println(transactionReceipt);
+					return true;
+				} else {
+					return false;
+				}
+			}
 		}
-		return true;
+		return false;
 	}
 
 }

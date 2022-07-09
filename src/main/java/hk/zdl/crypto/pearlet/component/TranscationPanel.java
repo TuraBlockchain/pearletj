@@ -103,7 +103,10 @@ public class TranscationPanel extends JPanel {
 		case INSERT:
 			Object o = e.data;
 			table_model.insertData(new Object[] { o, o, o, o, o });
-			table.updateUI();
+			try {
+				table.updateUI();
+			} catch (Exception x) {
+			}
 			break;
 		default:
 			break;
