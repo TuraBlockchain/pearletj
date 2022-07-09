@@ -17,6 +17,7 @@ import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 public class TxHistoryQueryExecutor {
 
 	private final List<MyThread> threads = Collections.synchronizedList(new ArrayList<>());
+	private final EtherTxQuery eth_tx_q = new EtherTxQuery();
 
 	public TxHistoryQueryExecutor() {
 		EventBus.getDefault().register(this);
@@ -59,9 +60,10 @@ public class TxHistoryQueryExecutor {
 					switch (network) {
 					case ROTURA:
 					case SIGNUM:
-						new TxHistoryQueryImpl(network).queryTxHistory(account);
+						new SignumTxHistoryQuery(network).queryTxHistory(account);
 						break;
 					case WEB3J:
+						eth_tx_q.queryTxHistory(account);
 						break;
 					default:
 						break;
