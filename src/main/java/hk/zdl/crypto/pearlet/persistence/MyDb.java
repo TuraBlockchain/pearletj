@@ -116,6 +116,16 @@ public class MyDb {
 		}
 	}
 
+	public static final Optional<Boolean> isWatchAccount(CrptoNetworks network, String address) {
+		Record r = Db.findFirst("select * from ACCOUNTS WHERE NETWORK = ? AND ADDRESS = ?", network.name(), address);
+		if (r == null) {
+			return Optional.empty();
+		} else {
+			byte[] arr = r.getBytes("PRIVATE_KEY");
+			return Optional.of(arr == null || arr.length < 1);
+		}
+	}
+
 	public static final List<Record> getAccounts(CrptoNetworks network) {
 		return Db.find("select * from ACCOUNTS WHERE NETWORK = ?", network.name());
 	}

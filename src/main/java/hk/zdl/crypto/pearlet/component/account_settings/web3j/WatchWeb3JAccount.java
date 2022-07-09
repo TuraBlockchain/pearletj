@@ -7,12 +7,12 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.greenrobot.eventbus.EventBus;
-import org.web3j.crypto.WalletUtils;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class WatchWeb3JAccount {
@@ -25,7 +25,7 @@ public class WatchWeb3JAccount {
 			return;
 		}
 		address = address.trim();
-		if (WalletUtils.isValidAddress(address)) {
+		if (!CryptoUtil.isValidAddress(CrptoNetworks.WEB3J, address)) {
 			if (MyDb.insertAccount(CrptoNetworks.WEB3J, address, new byte[] {}, new byte[] {})) {
 				UIUtil.displayMessage("Watch Account", "done!", null);
 				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));

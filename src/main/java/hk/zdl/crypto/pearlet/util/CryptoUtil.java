@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutionException;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
+import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 
@@ -78,6 +79,8 @@ public class CryptoUtil {
 			} catch (Exception e) {
 				return false;
 			}
+		} else if (WEB3J.equals(network)) {
+			return WalletUtils.isValidAddress(address);
 		}
 		return false;
 	}

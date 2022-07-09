@@ -13,6 +13,7 @@ import java.awt.TrayIcon.MessageType;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -44,6 +45,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.tx.SendTx;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
@@ -60,6 +62,7 @@ public class SendPanel extends JPanel {
 	private final JComboBox<String> acc_combo_box = new JComboBox<>();
 	private final JComboBox<String> token_combo_box = new JComboBox<>();
 	private final JLabel balance_label = new JLabel();
+	private JButton send_btn;
 	private CrptoNetworks network;
 	private String account;
 
@@ -145,9 +148,10 @@ public class SendPanel extends JPanel {
 		msg_scr.setPreferredSize(new Dimension(500, 200));
 		panel_1.add(msg_scr, newGridConst(0, 9, 5));
 
-		var send_btn = new JButton("Send", MyToolbar.getIcon("paper-plane-solid.svg"));
+		send_btn = new JButton("Send", MyToolbar.getIcon("paper-plane-solid.svg"));
 		send_btn.setFont(new Font("Arial Black", Font.PLAIN, 32));
 		send_btn.setMultiClickThreshhold(300);
+		send_btn.setEnabled(false);
 		panel_1.add(send_btn, new GridBagConstraints(0, 12, 5, 1, 0, 0, 10, 0, new Insets(5, 0, 5, 0), 0, 0));
 
 		SwingUtilities.invokeLater(() -> {
@@ -175,9 +179,11 @@ public class SendPanel extends JPanel {
 			if (rcv_field.getText().isBlank()) {
 				JOptionPane.showMessageDialog(getRootPane(), "Please fill in Recipant", null, JOptionPane.INFORMATION_MESSAGE);
 				return;
-			} else if (!CryptoUtil.isValidAddress(network, rcv_field.getText())) {
-				JOptionPane.showMessageDialog(getRootPane(), "Invalid Recipant Address!", null, JOptionPane.ERROR_MESSAGE);
-				return;
+			} else {
+				if (!CryptoUtil.isValidAddress(network, rcv_field.getText())) {
+					JOptionPane.showMessageDialog(getRootPane(), "Invalid Recipant Address!", null, JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 			}
 			BigDecimal amount;
 			try {
@@ -252,6 +258,7 @@ public class SendPanel extends JPanel {
 		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { e.account }));
 		if (e.account.equals("null")) {
 			balance_label.setText("0");
+			send_btn.setEnabled(false);
 		} else {
 			wuli.start();
 			Util.submit(() -> {
@@ -271,6 +278,12 @@ public class SendPanel extends JPanel {
 					wuli.stop();
 				}
 			});
+			Optional<Boolean> o_b = MyDb.isWatchAccount(network, account);
+			if (o_b.isPresent() && o_b.get() == false) {
+				send_btn.setEnabled(true);
+			} else {
+				send_btn.setEnabled(false);
+			}
 		}
 	}
 
