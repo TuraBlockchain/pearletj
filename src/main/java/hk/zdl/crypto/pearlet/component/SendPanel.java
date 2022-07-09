@@ -259,7 +259,7 @@ public class SendPanel extends JPanel {
 		String symbol = Util.default_currency_symbol.get(e.network.name());
 		token_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { symbol }));
 		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { e.account }));
-		if (e.account.equals("null")) {
+		if (e.account == null || e.account.isBlank()) {
 			balance_label.setText("0");
 			send_btn.setEnabled(false);
 		} else {

@@ -30,7 +30,7 @@ public class TxHistoryQueryExecutor {
 		for (MyThread t : threads) {
 			try {
 				t.stop();
-			} catch (Exception x) {
+			} catch (Throwable x) {
 			}
 		}
 		threads.clear();

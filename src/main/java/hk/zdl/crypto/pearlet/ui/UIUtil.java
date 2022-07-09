@@ -35,8 +35,8 @@ public class UIUtil {
 				Component comp = table.prepareRenderer(renderer, row, column);
 				width = Math.max(comp.getPreferredSize().width + 1, width);
 			}
-			if (width > 300)
-				width = 300;
+			if (width > 500)
+				width = 500;
 			table_column_model.getColumn(column).setMinWidth(width);
 			table_column_model.getColumn(column).setPreferredWidth(width);
 		}

@@ -230,6 +230,9 @@ public class CryptoUtil {
 	}
 
 	public static final SignumID[] getSignumTxID(CrptoNetworks nw, String address) throws IllegalArgumentException, InterruptedException, ExecutionException {
+		if (address == null || address.isBlank()) {
+			return new SignumID[0];
+		}
 		Optional<String> opt = get_server_url(nw);
 		if (opt.isPresent()) {
 			NodeService ns = NodeService.getInstance(opt.get());

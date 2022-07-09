@@ -115,7 +115,7 @@ public class DashBoard extends JPanel {
 		this.nw = e.network;
 		String symbol = Util.default_currency_symbol.get(nw.name());
 		currency_label.setText(symbol);
-		if (e.account.equals("null")) {
+		if (e.account == null || e.account.isBlank()) {
 			balance_label.setText("0");
 		} else {
 			balance_label.setText("?");

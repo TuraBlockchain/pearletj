@@ -15,6 +15,8 @@ import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
+import hk.zdl.crypto.pearlet.ens.ENSLookup;
+
 import static hk.zdl.crypto.pearlet.util.CrptoNetworks.*;
 
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
@@ -106,17 +108,40 @@ public class AccountTableModel extends AbstractTableModel {
 			Record r = e.getAccounts().get(i);
 			CrptoNetworks nw = CrptoNetworks.valueOf(r.getStr("NETWORK"));
 			String address = r.getStr("ADDRESS");
-			Util.submit(new MyCallable(nw, address, i));
+			Util.submit(new BalanceQuery(nw, address, i));
+			if (WEB3J.equals(nw)) {
+				Util.submit(new ENSQuery(address, i));
+			}
 		}
 	}
 
-	private final class MyCallable implements Callable<Void> {
+	private final class ENSQuery implements Callable<Void> {
+		private final String address;
+		private final int i;
+
+		public ENSQuery(String address, int i) {
+			this.address = address;
+			this.i = i;
+		}
+
+		@Override
+		public Void call() throws Exception {
+			String str = ENSLookup.reverse_lookup(address);
+			if (str != null) {
+				setValueAt(str, i, 4);
+				fireTableRowsUpdated(i, i);
+			}
+			return null;
+		}
+
+	}
+
+	private final class BalanceQuery implements Callable<Void> {
 		private final CrptoNetworks nw;
 		private final String address;
 		private final int i;
 
-		public MyCallable(CrptoNetworks nw, String address, int i) {
-			super();
+		public BalanceQuery(CrptoNetworks nw, String address, int i) {
 			this.nw = nw;
 			this.address = address;
 			this.i = i;

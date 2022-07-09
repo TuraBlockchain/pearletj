@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,16 +26,18 @@ import com.jfinal.plugin.activerecord.Record;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.SettingsPanelEvent;
+import hk.zdl.crypto.pearlet.ds.AddressWithNickname;
+import hk.zdl.crypto.pearlet.ens.ENSLookup;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
-import hk.zdl.crypto.pearlet.util.CryptoUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class NetworkAndAccountBar extends JPanel {
 
 	private final JPanel left = new JPanel(new FlowLayout()), right = new JPanel(new FlowLayout());
 	private final JComboBox<CrptoNetworks> network_combobox = new JComboBox<>();
-	private final JComboBox<String> account_combobox = new JComboBox<>();
+	private final JComboBox<AddressWithNickname> account_combobox = new JComboBox<>();
 	private List<Record> accounts = Arrays.asList();
 
 	public NetworkAndAccountBar() {
@@ -51,10 +54,10 @@ public class NetworkAndAccountBar extends JPanel {
 		right.add(new JLabel("Account:"));
 		left.add(network_combobox);
 		right.add(account_combobox);
-		Stream.of(network_combobox,account_combobox).forEach(o->o.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize())));
+		Stream.of(network_combobox, account_combobox).forEach(o -> o.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize())));
 
 		Icon btn_icon = null;
-		btn_icon =  UIUtil.getStretchIcon("toolbar/" + "screwdriver-wrench-solid.svg", 24, 24);
+		btn_icon = UIUtil.getStretchIcon("toolbar/" + "screwdriver-wrench-solid.svg", 24, 24);
 		var manage_network_btn = new JButton(btn_icon);
 		var manage_account_btn = new JButton(btn_icon);
 		manage_network_btn.setToolTipText("Manage Networks");
@@ -76,16 +79,42 @@ public class NetworkAndAccountBar extends JPanel {
 	@SuppressWarnings("unchecked")
 	private final void update_account_combobox() {
 		CrptoNetworks nw = (CrptoNetworks) network_combobox.getSelectedItem();
-		List<String> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> o.getStr("ADDRESS")).collect(Collectors.toList());
+		List<AddressWithNickname> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> o.getStr("ADDRESS")).map(o -> new AddressWithNickname(o))
+				.collect(Collectors.toList());
 		account_combobox.setModel(new ListComboBoxModel<>(l));
 		account_combobox.setEnabled(!l.isEmpty());
 		update_current_account();
+		update_nickname(l);
 	}
 
 	private void update_current_account() {
 		CrptoNetworks nw = (CrptoNetworks) network_combobox.getSelectedItem();
-		var acc = String.valueOf(account_combobox.getSelectedItem());
-		EventBus.getDefault().post(new AccountChangeEvent(nw, acc));
+		String str = null;
+		var acc = account_combobox.getSelectedItem();
+		if (acc != null) {
+			str = ((AddressWithNickname) acc).address;
+		}
+		EventBus.getDefault().post(new AccountChangeEvent(nw, str));
+	}
+
+	private void update_nickname(List<AddressWithNickname> l) {
+		Util.submit(new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				for (AddressWithNickname a : l) {
+					String str = ENSLookup.reverse_lookup(a.address);
+					if (str != null) {
+						a.nickname = str;
+						try {
+							account_combobox.updateUI();
+						} catch (Exception e) {
+						}
+					}
+				}
+				return null;
+			}
+		});
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)

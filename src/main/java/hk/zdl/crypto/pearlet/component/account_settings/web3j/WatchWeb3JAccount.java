@@ -25,7 +25,7 @@ public class WatchWeb3JAccount {
 			return;
 		}
 		address = address.trim();
-		if (!CryptoUtil.isValidAddress(CrptoNetworks.WEB3J, address)) {
+		if (CryptoUtil.isValidAddress(CrptoNetworks.WEB3J, address)) {
 			if (MyDb.insertAccount(CrptoNetworks.WEB3J, address, new byte[] {}, new byte[] {})) {
 				UIUtil.displayMessage("Watch Account", "done!", null);
 				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
