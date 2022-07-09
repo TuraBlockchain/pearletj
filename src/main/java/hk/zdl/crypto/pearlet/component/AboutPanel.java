@@ -15,6 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
+import org.json.JSONArray;
+import org.json.JSONTokener;
+
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -62,14 +65,17 @@ public class AboutPanel extends JPanel {
 
 		var badge_panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
 		scr.setViewportView(badge_panel);
-
-		var sj_label = new JLabel(UIUtil.getStretchIcon("icon/" + "Signum_Badge_J.png", -1, 100));
-		sj_label.setToolTipText("SignumJ");
-		badge_panel.add(sj_label);
-
-		var wj_label = new JLabel(UIUtil.getStretchIcon("icon/" + "web3j_logo.png", -1, 100));
-		wj_label.setToolTipText("Web3j");
-		badge_panel.add(wj_label);
-
+		JSONArray jarr = new JSONArray(new JSONTokener(Util.getResourceAsStream("badges.json")));
+		for (int i = 0; i < jarr.length(); i++) {
+			try {
+				String _icon = jarr.getJSONObject(i).getString("icon");
+				String _text = jarr.getJSONObject(i).getString("text");
+				var _label = new JLabel(UIUtil.getStretchIcon("icon/" + _icon, -1, 100));
+				_label.setToolTipText(_text);
+				badge_panel.add(_label);
+			} catch (Exception e) {
+				continue;
+			}
+		}
 	}
 }
