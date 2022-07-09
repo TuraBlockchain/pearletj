@@ -14,6 +14,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
+import org.json.JSONObject;
+
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 
@@ -53,7 +55,7 @@ public class Util {
 		String db_url = "jdbc:derby:directory:" + user_dir + ";create=true";
 		return db_url;
 	}
-	
+
 	public static final InputStream getResourceAsStream(String path) {
 		return Util.class.getClassLoader().getResourceAsStream(path);
 	}
@@ -71,23 +73,28 @@ public class Util {
 	}
 
 	public static final <E> boolean viewTxDetail(CrptoNetworks nw, E e) {
+		if (!Desktop.isDesktopSupported()) {
+			return false;
+		}
 		switch (nw) {
 		case ROTURA:
 			break;
 		case SIGNUM:
-			if (Desktop.isDesktopSupported()) {
-				try {
-					Transaction tx = (Transaction) e;
-					String tx_id = tx.getId().toString();
-					Desktop.getDesktop().browse(new URI("https://chain.signum.network/tx/" + tx_id));
-				} catch (Exception x) {
-					return false;
-				}
-			} else {
+			try {
+				Transaction tx = (Transaction) e;
+				String tx_id = tx.getId().toString();
+				Desktop.getDesktop().browse(new URI("https://chain.signum.network/tx/" + tx_id));
+			} catch (Exception x) {
 				return false;
 			}
 			break;
 		case WEB3J:
+			JSONObject tx = (JSONObject) e;
+			try {
+				Desktop.getDesktop().browse(new URI("https://www.blockchain.com/eth/tx/" + tx.getString("tx_hash")));
+			} catch (Exception x) {
+				return false;
+			}
 			break;
 		default:
 			break;
@@ -97,28 +104,23 @@ public class Util {
 	}
 
 	public static final <E> boolean viewAccountDetail(CrptoNetworks nw, E e) {
+		if (!Desktop.isDesktopSupported()) {
+			return false;
+		}
 		switch (nw) {
 		case ROTURA:
 			break;
 		case SIGNUM:
-			if (Desktop.isDesktopSupported()) {
-				try {
-					Desktop.getDesktop().browse(new URI("https://chain.signum.network/search/?q=" + e));
-				} catch (Exception x) {
-					return false;
-				}
-			} else {
+			try {
+				Desktop.getDesktop().browse(new URI("https://chain.signum.network/search/?q=" + e));
+			} catch (Exception x) {
 				return false;
 			}
 			break;
 		case WEB3J:
-			if (Desktop.isDesktopSupported()) {
-				try {
-					Desktop.getDesktop().browse(new URI("https://www.blockchain.com/eth/address/" + e));
-				} catch (Exception x) {
-					return false;
-				}
-			} else {
+			try {
+				Desktop.getDesktop().browse(new URI("https://www.blockchain.com/eth/address/" + e));
+			} catch (Exception x) {
 				return false;
 			}
 			break;
