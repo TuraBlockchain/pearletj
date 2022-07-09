@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -106,10 +107,7 @@ public class NetworkAndAccountBar extends JPanel {
 					String str = ENSLookup.reverse_lookup(a.address);
 					if (str != null) {
 						a.nickname = str;
-						try {
-							account_combobox.updateUI();
-						} catch (Exception e) {
-						}
+						SwingUtilities.invokeLater(() -> account_combobox.updateUI());
 					}
 				}
 				return null;
