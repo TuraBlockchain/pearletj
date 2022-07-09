@@ -63,10 +63,14 @@ public class AccountTableModel extends AbstractTableModel {
 		} else if (columnIndex == 1) {
 			var o = r.get("NETWORK");
 			var b = r.getBytes("PRIVATE_KEY");
-			if (b.length == 0)
+			if (b == null || b.length == 0)
 				o += " (watch)";
 			return o;
 		} else if (columnIndex == 2) {
+			var b = r.getBytes("PRIVATE_KEY");
+			if (b == null || b.length == 0) {
+				return r.getStr("ADDRESS");
+			}
 			try {
 				CrptoNetworks nw = CrptoNetworks.valueOf(r.getStr("NETWORK"));
 				return CryptoUtil.getAddress(nw, r.getBytes("PUBLIC_KEY"));
@@ -101,7 +105,7 @@ public class AccountTableModel extends AbstractTableModel {
 		for (int i = 0; i < e.getAccounts().size(); i++) {
 			Record r = e.getAccounts().get(i);
 			CrptoNetworks nw = CrptoNetworks.valueOf(r.getStr("NETWORK"));
-			String address = CryptoUtil.getAddress(nw, r.getBytes("PUBLIC_KEY"));
+			String address = r.getStr("ADDRESS");
 			Util.submit(new MyCallable(nw, address, i));
 		}
 	}
@@ -130,7 +134,7 @@ public class AccountTableModel extends AbstractTableModel {
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(TxHistoryEvent<?> e) {
 		if (e.type.equals(TxHistoryEvent.Type.INSERT)) {
-			if (Arrays.asList(SIGNUM,ROTURA).contains(e.network)) {
+			if (Arrays.asList(SIGNUM, ROTURA).contains(e.network)) {
 				Transaction tx = (Transaction) e.data;
 				if (tx.getType() == 1 && tx.getSubtype() == 5) {
 					String address = tx.getSender().getFullAddress();

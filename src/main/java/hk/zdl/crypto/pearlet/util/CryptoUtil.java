@@ -151,7 +151,7 @@ public class CryptoUtil {
 		} else if (WEB3J.equals(network)) {
 			if(getWeb3j().isPresent()) {
 				BigInteger wei = getWeb3j().get().ethGetBalance(address, DefaultBlockParameterName.LATEST).send().getBalance();
-				BigDecimal eth = new BigDecimal(wei).divide(new BigDecimal("100000000")).stripTrailingZeros();
+				BigDecimal eth = new BigDecimal(wei).divide(new BigDecimal("1e18")).stripTrailingZeros();
 				return eth;
 			}
 		}

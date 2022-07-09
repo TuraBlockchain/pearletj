@@ -195,16 +195,16 @@ public class SendPanel extends JPanel {
 			}
 
 			SendTx send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()));
-			if(msg_chk_box.isSelected()) {
+			if (msg_chk_box.isSelected()) {
 				send_tx.setEncrypted(eny_msg_menu_item.isSelected());
-				if(plain_text_option_menu_item.isSelected()) {
+				if (plain_text_option_menu_item.isSelected()) {
 					String str = msg_area.getText().trim();
-					if(str.getBytes().length>1000) {
+					if (str.getBytes().length > 1000) {
 						JOptionPane.showMessageDialog(getRootPane(), "Message toooooo looooong!", null, JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 					send_tx.setMessage(str);
-				}else if(base64_option_menu_item.isSelected()){
+				} else if (base64_option_menu_item.isSelected()) {
 					byte[] bArr;
 					try {
 						bArr = Base64.decode(msg_area.getText().trim());
@@ -212,7 +212,7 @@ public class SendPanel extends JPanel {
 						JOptionPane.showMessageDialog(getRootPane(), "Message is not valid base64 data!", null, JOptionPane.ERROR_MESSAGE);
 						return;
 					}
-					if(bArr.length>1000) {
+					if (bArr.length > 1000) {
 						JOptionPane.showMessageDialog(getRootPane(), "Message toooooo looooong!", null, JOptionPane.ERROR_MESSAGE);
 						return;
 					}
@@ -225,7 +225,7 @@ public class SendPanel extends JPanel {
 				try {
 					if (Util.submit(send_tx).get()) {
 						b = true;
-					}else {
+					} else {
 						JOptionPane.showMessageDialog(getRootPane(), "Send token failed!", null, JOptionPane.ERROR_MESSAGE);
 					}
 				} catch (Exception x) {
@@ -234,7 +234,7 @@ public class SendPanel extends JPanel {
 				} finally {
 					wuli.stop();
 				}
-				if(b) {
+				if (b) {
 					UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);
 //					JOptionPane.showMessageDialog(getRootPane(), "Send token succeed!", null, JOptionPane.INFORMATION_MESSAGE);
 				}
@@ -256,7 +256,15 @@ public class SendPanel extends JPanel {
 			wuli.start();
 			Util.submit(() -> {
 				try {
-					balance_label.setText(CryptoUtil.getBalance(e.network, e.account).stripTrailingZeros().toPlainString());
+					String raw = CryptoUtil.getBalance(e.network, e.account).stripTrailingZeros().toPlainString();
+					balance_label.setToolTipText(raw);
+					if (raw.substring(raw.indexOf('.') + 1).length() > 3) {
+						int i = raw.indexOf('.') + 1;
+						String s = raw.substring(0, i + 3);
+						balance_label.setText(s);
+					} else {
+						balance_label.setText(raw);
+					}
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 				} finally {

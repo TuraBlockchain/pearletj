@@ -76,7 +76,7 @@ public class NetworkAndAccountBar extends JPanel {
 	@SuppressWarnings("unchecked")
 	private final void update_account_combobox() {
 		CrptoNetworks nw = (CrptoNetworks) network_combobox.getSelectedItem();
-		List<String> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> CryptoUtil.getAddress(nw, o.getBytes("PUBLIC_KEY"))).collect(Collectors.toList());
+		List<String> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> o.getStr("ADDRESS")).collect(Collectors.toList());
 		account_combobox.setModel(new ListComboBoxModel<>(l));
 		account_combobox.setEnabled(!l.isEmpty());
 		update_current_account();

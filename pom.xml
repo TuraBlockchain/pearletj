@@ -49,6 +49,14 @@
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
 		</repository>
+		<repository>
+			<id>jfrog-snapshots</id>
+			<name>oss.jfrog.org</name>
+			<url>https://oss.jfrog.org/libs-snapshot/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 	<dependencies>
 		<!-- local DB -->
