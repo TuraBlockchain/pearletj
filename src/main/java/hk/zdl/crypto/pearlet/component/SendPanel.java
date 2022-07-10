@@ -257,6 +257,8 @@ public class SendPanel extends JPanel {
 		this.network = e.network;
 		this.account = e.account;
 		String symbol = Util.default_currency_symbol.get(e.network.name());
+		balance_label.setText(null);
+		balance_label.setToolTipText(null);
 		token_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { symbol }));
 		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { e.account }));
 		if (e.account == null || e.account.isBlank()) {
@@ -266,7 +268,12 @@ public class SendPanel extends JPanel {
 			wuli.start();
 			Util.submit(() -> {
 				try {
-					String raw = CryptoUtil.getBalance(e.network, e.account).stripTrailingZeros().toPlainString();
+					String raw = "-1";
+					try {
+						raw = CryptoUtil.getBalance(e.network, e.account).stripTrailingZeros().toPlainString();
+					} catch (Exception x) {
+						Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+					}
 					balance_label.setToolTipText(raw);
 					if (raw.substring(raw.indexOf('.') + 1).length() > 3) {
 						int i = raw.indexOf('.') + 1;

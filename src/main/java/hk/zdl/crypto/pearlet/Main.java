@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Taskbar;
+import java.awt.Toolkit;
 import java.util.concurrent.Callable;
 
 import javax.imageio.ImageIO;
@@ -84,9 +85,12 @@ public class Main {
 			frame.setMinimumSize(frame_size);
 			frame.setSize(frame_size);
 			frame.pack();
-//			frame.setLocationByPlatform(true);
 			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			if (screenSize.getWidth() <= frame.getWidth() || screenSize.getHeight() <= frame.getHeight()) {
+				frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			}
 
 			mfs.put("dashboard", new DashBoard());
 			mfs.put("txs", new TranscationPanel());

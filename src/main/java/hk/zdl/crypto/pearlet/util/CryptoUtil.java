@@ -166,9 +166,13 @@ public class CryptoUtil {
 			}
 		} else if (WEB3J.equals(network)) {
 			if (getWeb3j().isPresent()) {
-				BigInteger wei = getWeb3j().get().ethGetBalance(address, DefaultBlockParameterName.LATEST).send().getBalance();
-				BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER).stripTrailingZeros();
-				return eth;
+				try {
+					BigInteger wei = getWeb3j().get().ethGetBalance(address, DefaultBlockParameterName.LATEST).send().getBalance();
+					BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER).stripTrailingZeros();
+					return eth;
+				} catch (IOException e) {
+					return new BigDecimal("-1");
+				}
 			}
 		}
 		return new BigDecimal("-1");

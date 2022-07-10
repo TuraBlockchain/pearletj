@@ -20,7 +20,7 @@ public class WatchWeb3JAccount {
 	public static final void create_watch_account_dialog(Component c) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		Icon icon = UIUtil.getStretchIcon("icon/" + "eyeglasses.svg", 64, 64);
-		String address = String.valueOf(JOptionPane.showInputDialog(w, null, "Watch Account", JOptionPane.PLAIN_MESSAGE, icon, null, null));
+		String address = String.valueOf(JOptionPane.showInputDialog(w, "Please input Ethernum address:", "Watch Account", JOptionPane.PLAIN_MESSAGE, icon, null, null));
 		if ("null".equals(String.valueOf(address)) || address.isBlank()) {
 			return;
 		}

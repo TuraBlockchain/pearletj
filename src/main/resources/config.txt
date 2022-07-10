@@ -5,5 +5,5 @@ dbName = db
 
 authorFullName = David Zhang
 
-default_window_width = 800
-default_window_height = 600
+default_window_width = 1024
+default_window_height = 768
