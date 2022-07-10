@@ -9,6 +9,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
@@ -88,9 +93,21 @@ public class AlisesSearchPanel extends JPanel {
 				JOptionPane.showMessageDialog(getRootPane(), "Cannot load ENS resolver!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			String result = r.resolve(field_1.getText().trim());
-			field_2.setText(result);
-			setIndeterminate(false);
+
+			Future<String> future = Util.submit(new Callable<String>() {
+
+				@Override
+				public String call() throws Exception {
+					return r.resolve(field_1.getText().trim());
+				}});
+			String result = null;
+			try {
+				result = future.get(30, TimeUnit.SECONDS);
+			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			}finally {
+				field_2.setText(result);
+				setIndeterminate(false);
+			}
 		});
 	}
 
@@ -108,9 +125,20 @@ public class AlisesSearchPanel extends JPanel {
 				JOptionPane.showMessageDialog(getRootPane(), "Cannot load ENS resolver!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			String result = r.reverseResolve(field_2.getText().trim());
-			field_1.setText(result);
-			setIndeterminate(false);
+			Future<String> future = Util.submit(new Callable<String>() {
+
+				@Override
+				public String call() throws Exception {
+					return r.reverseResolve(field_2.getText().trim());
+				}});
+			String result = null;
+			try {
+				result = future.get(30, TimeUnit.SECONDS);
+			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			}finally {
+				field_1.setText(result);
+				setIndeterminate(false);
+			}
 		});
 	}
 
