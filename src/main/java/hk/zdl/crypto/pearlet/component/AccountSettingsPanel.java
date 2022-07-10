@@ -22,7 +22,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -37,6 +39,7 @@ import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.ui.WatchAddressCellRenderer;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -137,7 +140,7 @@ public class AccountSettingsPanel extends JPanel {
 				}
 			}
 		});
-
+		
 	}
 
 	private final JTable buildAccountTable() {
@@ -148,6 +151,9 @@ public class AccountSettingsPanel extends JPanel {
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setShowGrid(true);
+		table.getColumnModel().getColumn(2).setCellRenderer(new WatchAddressCellRenderer());
+		table.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer());
+		((DefaultTableCellRenderer)table.getColumnModel().getColumn(3).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
 		return table;
 	}
 

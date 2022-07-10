@@ -1,6 +1,6 @@
 package hk.zdl.crypto.pearlet.component;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.*;
 
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
@@ -125,10 +125,13 @@ public class CopyAccountInfoPanel extends JPanel {
 		if (opt_r.isPresent()) {
 			public_key = opt_r.get().getBytes("PUBLIC_KEY");
 		}
+		btns.stream().forEach(x -> x.setEnabled(true));
 		if (WEB3J.equals(network)) {
-			Stream.of(btn_1, btn_4).forEach(x -> x.setEnabled(true));
 			Stream.of(btn_0, btn_2, btn_3).forEach(x -> x.setEnabled(false));
 		} else {
+			if (ROTURA.equals(network)) {
+				Stream.of(btn_4).forEach(x -> x.setEnabled(false));
+			}
 			Stream.of(btn_2, btn_3).forEach(x -> x.setEnabled(public_key != null && public_key.length > 0));
 		}
 	}

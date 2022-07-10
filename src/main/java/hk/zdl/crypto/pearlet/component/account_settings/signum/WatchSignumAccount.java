@@ -37,6 +37,7 @@ public class WatchSignumAccount {
 				JOptionPane.showMessageDialog(w, "Invalid address!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			} else {
+				address = adr.getFullAddress();
 				public_key = adr.getPublicKey();
 			}
 		} else if (ROTURA.equals(nw)) {
@@ -45,6 +46,7 @@ public class WatchSignumAccount {
 				JOptionPane.showMessageDialog(w, "Invalid address!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			} else {
+				address = adr.getFullAddress();
 				public_key = adr.getPublicKey();
 			}
 		}

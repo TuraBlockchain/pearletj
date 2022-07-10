@@ -63,22 +63,13 @@ public class AccountTableModel extends AbstractTableModel {
 		if (columnIndex == 0) {
 			return r.get("ID");
 		} else if (columnIndex == 1) {
-			var o = r.get("NETWORK");
+			return r.get("NETWORK");
+		} else if (columnIndex == 2) {
+			var o = r.get("ADDRESS");
 			var b = r.getBytes("PRIVATE_KEY");
 			if (b == null || b.length == 0)
-				o += " (watch)";
+				o += ",watch";
 			return o;
-		} else if (columnIndex == 2) {
-			var b = r.getBytes("PRIVATE_KEY");
-			if (b == null || b.length == 0) {
-				return r.getStr("ADDRESS");
-			}
-			try {
-				CrptoNetworks nw = CrptoNetworks.valueOf(r.getStr("NETWORK"));
-				return CryptoUtil.getAddress(nw, r.getBytes("PUBLIC_KEY"));
-			} catch (Exception e) {
-				return null;
-			}
 		} else {
 			List<Integer> l = Arrays.asList(rowIndex, columnIndex);
 			if (sparse.containsKey(l)) {
@@ -167,9 +158,7 @@ public class AccountTableModel extends AbstractTableModel {
 					String aliases = atta.getName();
 					String desc = atta.getDescription();
 					for (int i = 0; i < accounts.size(); i++) {
-						Record r = accounts.get(i);
-						CrptoNetworks nw = CrptoNetworks.valueOf(r.getStr("NETWORK"));
-						String addr = CryptoUtil.getAddress(nw, r.getBytes("PUBLIC_KEY"));
+						String addr = getValueAt(i,2).toString();
 						if (addr.equals(address)) {
 							setValueAt(aliases, i, 4);
 							setValueAt(desc, i, 5);
