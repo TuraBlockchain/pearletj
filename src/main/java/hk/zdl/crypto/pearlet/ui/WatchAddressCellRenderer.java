@@ -35,9 +35,11 @@ public class WatchAddressCellRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	public void paint(Graphics g) {
+		int h = getSize().height;
+		int o = h / 2 - 8;
 		super.paint(g);
 		if (is_watch_account && img != null) {
-			g.drawImage(img, 0, 0, 16, 16, null);
+			g.drawImage(img, o, o, 16, 16, null);
 		}
 	}
 
@@ -47,7 +49,7 @@ public class WatchAddressCellRenderer extends DefaultTableCellRenderer {
 		if (str.endsWith(",watch")) {
 			str = str.replace(",watch", "");
 			is_watch_account = true;
-		}else {
+		} else {
 			is_watch_account = false;
 		}
 		super.setValue(str);
