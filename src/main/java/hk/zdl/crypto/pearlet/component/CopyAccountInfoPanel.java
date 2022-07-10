@@ -25,6 +25,7 @@ import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.crypto.SignumCrypto;
+import signumj.entity.SignumAddress;
 
 @SuppressWarnings("serial")
 public class CopyAccountInfoPanel extends JPanel {
@@ -56,8 +57,10 @@ public class CopyAccountInfoPanel extends JPanel {
 		String id = "";
 		switch (network) {
 		case ROTURA:
+			id = RoturaAddress.fromRs(account).getID();
+			copy_to_clip_board(id);
 		case SIGNUM:
-			id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getID();
+			id = SignumAddress.fromRs(account).getID();
 			copy_to_clip_board(id);
 			break;
 		case WEB3J:
@@ -74,7 +77,7 @@ public class CopyAccountInfoPanel extends JPanel {
 		String id = "";
 		switch (network) {
 		case ROTURA:
-			id = new RoturaAddress(public_key).getExtendedAddress();
+			id = RoturaAddress.fromPublicKey(public_key).getExtendedAddress();
 			copy_to_clip_board(id);
 			break;
 		case SIGNUM:
@@ -126,7 +129,7 @@ public class CopyAccountInfoPanel extends JPanel {
 			Stream.of(btn_1, btn_4).forEach(x -> x.setEnabled(true));
 			Stream.of(btn_0, btn_2, btn_3).forEach(x -> x.setEnabled(false));
 		} else {
-			btns.stream().forEach(o -> o.setEnabled(public_key != null));
+			Stream.of(btn_2, btn_3).forEach(x -> x.setEnabled(public_key != null && public_key.length > 0));
 		}
 	}
 }

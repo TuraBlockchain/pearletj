@@ -1,6 +1,8 @@
 package hk.zdl.crypto.pearlet.ds;
 
 import signumj.crypto.SignumCrypto;
+import signumj.entity.SignumAddress;
+import signumj.entity.SignumID;
 import signumj.util.SignumUtils;
 
 public class RoturaAddress {
@@ -9,21 +11,13 @@ public class RoturaAddress {
 	static {
 		SignumUtils.addAddressPrefix(prefix);
 	}
-
-	private String address;
+	private final String address;
+	private final SignumID numericID;
 	private byte[] public_key;
 
-	public RoturaAddress(String address) {
-		if (address.startsWith(prefix + "-") && address.length() == prefix.length() + 21) {
-			this.address = address;
-		} else {
-			throw new IllegalArgumentException();
-		}
-	}
-
-	public RoturaAddress(byte[] public_key) {
-		this.public_key = public_key;
-		address = SignumCrypto.getInstance().getAddressFromPublic(public_key).getFullAddress().replaceFirst(SignumUtils.getAddressPrefix() + "-", prefix + "-");
+	private RoturaAddress(SignumID burstID) {
+		this.numericID = burstID;
+		this.address = SignumCrypto.getInstance().rsEncode(numericID);
 	}
 
 	public byte[] getPublicKey() {
@@ -31,11 +25,19 @@ public class RoturaAddress {
 	}
 
 	public String getFullAddress() {
-		return address;
+		if (address == null || address.length() == 0) {
+			return "";
+		} else {
+			return getAddressPrefix() + "-" + address;
+		}
 	}
-	
+
+	public static final String getAddressPrefix() {
+		return prefix;
+	}
+
 	public String getExtendedAddress() {
-		return SignumCrypto.getInstance().getAddressFromPublic(public_key).getExtendedAddress().replaceFirst(SignumUtils.getAddressPrefix() + "-", prefix + "-");
+		return SignumCrypto.getInstance().getAddressFromPublic(public_key).getExtendedAddress().replaceFirst(SignumUtils.getAddressPrefix() + "-", getAddressPrefix() + "-");
 	}
 
 	public String getID() {
@@ -44,19 +46,49 @@ public class RoturaAddress {
 
 	@Override
 	public String toString() {
-		return address;
+		return getFullAddress();
+	}
+
+	public static RoturaAddress fromId(SignumID burstID) {
+		return new RoturaAddress(burstID);
+	}
+
+	public static RoturaAddress fromId(long signedLongId) {
+		return new RoturaAddress(SignumID.fromLong(signedLongId));
+	}
+
+	public static RoturaAddress fromId(String unsignedLongId) {
+		return new RoturaAddress(SignumID.fromLong(unsignedLongId));
+	}
+
+	public static RoturaAddress fromRs(String RS) throws IllegalArgumentException {
+		return new RoturaAddress(SignumAddress.fromRs(RS).getSignumID());
+	}
+
+	public static RoturaAddress fromEither(String input) {
+		if (input == null)
+			return null;
+		try {
+			return RoturaAddress.fromId(SignumID.fromLong(input));
+		} catch (IllegalArgumentException e1) {
+			try {
+				return RoturaAddress.fromRs(input);
+			} catch (IllegalArgumentException e2) {
+				return null;
+			}
+		}
 	}
 
 	public static final RoturaAddress fromPublicKey(byte[] public_key) {
-		return new RoturaAddress(public_key);
+		return new RoturaAddress(SignumCrypto.getInstance().getAddressFromPublic(public_key).getSignumID());
 	}
 
 	public static final RoturaAddress fromPrivateKey(byte[] private_key) {
-		return new RoturaAddress(SignumCrypto.getInstance().getPublicKey(private_key));
+		return new RoturaAddress(SignumCrypto.getInstance().getAddressFromPrivate(private_key).getSignumID());
 	}
 
 	public static final RoturaAddress fromPassPhase(String passphase) {
-		return new RoturaAddress(SignumCrypto.getInstance().getPublicKey(SignumCrypto.getInstance().getPrivateKey(passphase)));
+		return new RoturaAddress(SignumCrypto.getInstance().getAddressFromPassphrase(passphase).getSignumID());
 	}
 
 }

@@ -1,11 +1,14 @@
 package hk.zdl.crypto.pearlet.util;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.*;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
 import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -15,18 +18,22 @@ import java.util.concurrent.ExecutionException;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
-
-import com.jfinal.plugin.activerecord.Record;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Convert;
 
+import com.jfinal.plugin.activerecord.Record;
+
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.EncryptedMessage;
 import signumj.entity.SignumAddress;
@@ -56,6 +63,10 @@ public class CryptoUtil {
 			}).build();
 			_web3j = Web3j.build(new HttpService(base_url, client));
 		}
+	}
+
+	static {
+		RoturaAddress.getAddressPrefix();
 	}
 
 	public static final void clear_web3j() {
@@ -127,7 +138,7 @@ public class CryptoUtil {
 		if (network.equals(SIGNUM)) {
 			return SignumCrypto.getInstance().getAddressFromPublic(public_key).getFullAddress();
 		} else if (network.equals(ROTURA)) {
-			return new RoturaAddress(public_key).toString();
+			return RoturaAddress.fromPublicKey(public_key).toString();
 		} else if (WEB3J.equals(network)) {
 			return "0x" + org.web3j.crypto.Keys.getAddress(org.web3j.utils.Numeric.toBigInt(public_key));
 		}
@@ -206,6 +217,52 @@ public class CryptoUtil {
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440, message, null).blockingGet();
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+
+	public static EncryptedMessage encryptTextMessage(CrptoNetworks nw, byte[] their_public_key, byte[] my_private_key, byte[] message, boolean messageIsText) throws Exception {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			EncryptedMessage e_msg;
+			if (messageIsText) {
+				e_msg = SignumCrypto.getInstance().encryptTextMessage(new String(message), my_private_key, their_public_key);
+			} else {
+				e_msg = SignumCrypto.getInstance().encryptBytesMessage(message, my_private_key, their_public_key);
+			}
+			return e_msg;
+		}
+		throw new UnsupportedOperationException();
+	}
+
+	public static byte[] generateTransactionWithEncryptedMessage(CrptoNetworks nw, String recipient, byte[] senderPublicKey, BigDecimal fee, EncryptedMessage message) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				return ns.generateTransactionWithEncryptedMessage(SignumAddress.fromEither(recipient), senderPublicKey, SignumValue.fromSigna(fee), 1440, message, "").blockingGet();
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+
+	public static byte[] sendMessage(CrptoNetworks nw, String recipient, byte[] public_key, String message) throws IOException {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				var server_url = opt.get();
+				if (!server_url.endsWith("/")) {
+					server_url += "/";
+				}
+				var client = new OkHttpClient.Builder().build();
+				var request = new Request.Builder().url(server_url + "burst?requestType=sendMessage")
+						.post(RequestBody.create("recipient=" + recipient + "&message=" + URLEncoder.encode(message, Charset.defaultCharset())
+								+ "&deadline=1440&messageIsText=true&feeNQT=2205000&publicKey=" + Hex.toHexString(public_key), MediaType.parse("application/x-www-form-urlencoded")))
+						.build();
+				var response = client.newCall(request).execute();
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+				return bArr;
 			}
 		}
 		throw new UnsupportedOperationException();

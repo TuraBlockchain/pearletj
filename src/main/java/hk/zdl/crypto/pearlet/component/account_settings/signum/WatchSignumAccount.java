@@ -1,85 +1,70 @@
 package hk.zdl.crypto.pearlet.component.account_settings.signum;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
+import java.awt.Component;
+
+import javax.swing.Icon;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
 
 import org.greenrobot.eventbus.EventBus;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
-import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
+import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
+import signumj.entity.SignumAddress;
 
 public class WatchSignumAccount {
 
-	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	public static final void create_watch_account_dialog(Component c, CrptoNetworks nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
-		var dialog = new JDialog(w, "Watch Account", Dialog.ModalityType.APPLICATION_MODAL);
-		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		IndepandentWindows.add(dialog);
-		var panel = new JPanel(new GridBagLayout());
-		panel.add(new JLabel(UIUtil.getStretchIcon("icon/" + "eyeglasses.svg", 64, 64)), new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
-		var label_1 = new JLabel("Network:");
-		var network_combobox = new JComboBox<>(new CrptoNetworks[] {nw});
-		network_combobox.setEnabled(false);
-		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
-		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
-		var text_field = new JTextField(30);
-		panel.add(text_field, new GridBagConstraints(1, 1, 4, 3, 0, 0, 10, 1, new Insets(5, 5, 0, 5), 0, 0));
-		var btn_1 = new JButton("OK");
-		btn_1.addActionListener(e -> Util.submit(() -> {
-			String text = text_field.getText().trim();
-
-			boolean b = false;
-			byte[] public_key, private_key = new byte[] {};
-			try {
-				public_key = CryptoUtil.getPublicKeyFromAddress(nw, text);
-				if (public_key == null) {
-					throw new Exception("Reed-Solomon address does not contain public key");
-				}
-				b = MyDb.insertAccount(nw, CryptoUtil.getAddress(nw, public_key),public_key, private_key);
-			} catch (Exception x) {
-				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		Icon icon = UIUtil.getStretchIcon("icon/" + "eyeglasses.svg", 64, 64);
+		String address = String.valueOf(JOptionPane.showInputDialog(w, "Please input account address or numberic id:", "Watch Account", JOptionPane.PLAIN_MESSAGE, icon, null, null));
+		if ("null".equals(String.valueOf(address)) || address.isBlank()) {
+			return;
+		}
+		address = address.trim();
+		byte[] public_key = null, private_key = new byte[0];
+		if (SIGNUM.equals(nw)) {
+			SignumAddress adr = SignumAddress.fromEither(address);
+			if (adr == null) {
+				JOptionPane.showMessageDialog(w, "Invalid address!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
-			}
-
-			if (b) {
-				dialog.dispose();
-				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 			} else {
-				JOptionPane.showMessageDialog(dialog, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+				public_key = adr.getPublicKey();
 			}
-		}));
-		var panel_1 = new JPanel(new BorderLayout());
-		panel_1.add(panel, BorderLayout.CENTER);
-		var panel_2 = new JPanel(new FlowLayout());
-		panel_2.add(btn_1);
-		panel_1.add(panel_2, BorderLayout.SOUTH);
+		} else if (ROTURA.equals(nw)) {
+			RoturaAddress adr = RoturaAddress.fromEither(address);
+			if (adr == null) {
+				JOptionPane.showMessageDialog(w, "Invalid address!", "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			} else {
+				public_key = adr.getPublicKey();
+			}
+		}
+		if (public_key == null) {
+			public_key = new byte[0];
+		}
+		boolean b = false;
+		try {
+			b = MyDb.insertAccount(nw, address, public_key, private_key);
+		} catch (Exception x) {
+			JOptionPane.showMessageDialog(w, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 
-		dialog.add(panel_1);
-		dialog.pack();
-		dialog.setResizable(false);
-		dialog.setLocationRelativeTo(w);
-		dialog.setVisible(true);
+		if (b) {
+			UIUtil.displayMessage("Watch Account", "done!", null);
+			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+		} else {
+			JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 }
