@@ -43,16 +43,17 @@ public class ReceivePanel extends JPanel {
 
 		@Override
 		public void paint(Graphics g) {
-			if(getIcon()!=null) {
-				Image img = ((ImageIcon)getIcon()).getImage();
+			if (getIcon() != null) {
+				Image img = ((ImageIcon) getIcon()).getImage();
 				int w = getWidth();
 				int h = getHeight();
 				int c = Math.min(w, h);
-				g.drawImage(img, (w-c)/2, (h-c)/2, c, c, null);
-			}else {
+				g.drawImage(img, (w - c) / 2, (h - c) / 2, c, c, null);
+			} else {
 				super.paint(g);
 			}
-		}};
+		}
+	};
 
 	public ReceivePanel() {
 		super(new BorderLayout());
@@ -61,13 +62,13 @@ public class ReceivePanel extends JPanel {
 		var panel_1 = new JPanel(new FlowLayout());
 		adr_filed.setMinimumSize(new Dimension(400, 20));
 		adr_filed.setPreferredSize(new Dimension(400, 20));
-		adr_filed.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));		
+		adr_filed.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
 		panel_0.add(adr_filed, BorderLayout.CENTER);
 		var btn = new JButton("Copy Address");
 		panel_0.add(btn, BorderLayout.EAST);
 		panel_1.add(panel_0);
-		add(panel_1,BorderLayout.NORTH);
-		add(qr_code,BorderLayout.CENTER);
+		add(panel_1, BorderLayout.NORTH);
+		add(qr_code, BorderLayout.CENTER);
 		adr_filed.setEditable(false);
 		qr_code.setHorizontalAlignment(SwingConstants.CENTER);
 		qr_code.setBorder(BorderFactory.createLineBorder(Color.red));
@@ -85,19 +86,22 @@ public class ReceivePanel extends JPanel {
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
 		setText(e.account);
-		if(Arrays.asList(SIGNUM,ROTURA).contains(e.network)) {
+		String qr_str = "";
+		if (Arrays.asList(SIGNUM, ROTURA).contains(e.network)) {
 			JSONObject jobj = new JSONObject();
 			jobj.put("recipient", e.account);
 			String str = Base64.encodeBytes(jobj.toString().getBytes());
-			str = "signum://v1?action=pay&payload=" + str;
-			ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-			QRCode.from(str).to(ImageType.GIF).writeTo(baos);
-			BufferedImage img = null;
-			try {
-				img = ImageIO.read(new ByteArrayInputStream(baos.toByteArray()));
-			} catch (IOException e1) {
-			}
-			qr_code.setIcon(new ImageIcon(img));
+			qr_str = "signum://v1?action=pay&payload=" + str;
+		} else if (WEB3J.equals(e.network)) {
+			qr_str = "ethereum:" + e.account;
 		}
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(5120);
+		QRCode.from(qr_str).to(ImageType.GIF).writeTo(baos);
+		BufferedImage img = null;
+		try {
+			img = ImageIO.read(new ByteArrayInputStream(baos.toByteArray()));
+		} catch (IOException e1) {
+		}
+		qr_code.setIcon(new ImageIcon(img));
 	}
 }
