@@ -1,6 +1,7 @@
 package hk.zdl.crypto.pearlet.component;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -10,13 +11,18 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JLayer;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -33,11 +39,13 @@ import hk.zdl.crypto.pearlet.component.dashboard.TxProc;
 import hk.zdl.crypto.pearlet.component.dashboard.TxTableModel;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
+import hk.zdl.crypto.pearlet.misc.SignumAssertListCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
+import signumj.entity.response.Asset;
 
 @SuppressWarnings("serial")
 public class DashBoard extends JPanel {
@@ -45,7 +53,7 @@ public class DashBoard extends JPanel {
 	private static Font title_font = new Font("Arial", Font.BOLD, 16);
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final WaitLayerUI wuli = new WaitLayerUI();
-	private final JPanel token_list_inner_panel = new JPanel(new GridLayout(0, 1));
+	private final JList<Asset> token_list = new JList<>();
 	private final JLabel currency_label = new JLabel(), balance_label = new JLabel();
 	private final TxTableModel table_model = new TxTableModel();
 	private final TableColumnModel table_column_model = new DefaultTableColumnModel();
@@ -56,23 +64,52 @@ public class DashBoard extends JPanel {
 		super(new BorderLayout());
 		EventBus.getDefault().register(this);
 		add(jlayer, BorderLayout.CENTER);
-		var _panel = new JPanel(new GridBagLayout());
-		jlayer.setView(_panel);
+		var panel_0 = new JPanel(new GridBagLayout());
+		jlayer.setView(panel_0);
 		jlayer.setUI(wuli);
 		var label1 = new JLabel("Tokens:");
-		_panel.add(label1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 1, new Insets(0, 5, 0, 0), 0, 0));
-		var scr_pane = new JScrollPane(token_list_inner_panel);
-		_panel.add(scr_pane, new GridBagConstraints(0, 1, 1, 2, 0, 1, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
+		panel_0.add(label1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, new Insets(0, 5, 0, 0), 0, 0));
+		var scr_pane = new JScrollPane(token_list);
+		scr_pane.setPreferredSize(new Dimension(200, 300));
+		panel_0.add(scr_pane, new GridBagConstraints(0, 1, 1, 2, 0, 1, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
 		var manage_token_list_btn = new JButton("Manage Token List");
-		_panel.add(manage_token_list_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
+		panel_0.add(manage_token_list_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 2, new Insets(5, 5, 5, 5), 0, 0));
 
 		var label2 = new JLabel("Balance:");
-		_panel.add(label2, new GridBagConstraints(1, 0, 1, 1, 1, 0, 17, 1, new Insets(0, 5, 0, 0), 0, 0));
+		panel_0.add(label2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 0, 0), 0, 0));
 		var balance_inner_panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		Stream.of(label1, label2, balance_label).forEach(o -> o.setFont(title_font));
 		currency_label.setFont(new Font(Font.MONOSPACED, title_font.getStyle(), title_font.getSize()));
 		Stream.of(currency_label, balance_label).forEach(balance_inner_panel::add);
-		_panel.add(balance_inner_panel, new GridBagConstraints(2, 0, 1, 1, 1, 0, 13, 1, new Insets(0, 0, 0, 0), 0, 0));
+		panel_0.add(balance_inner_panel, new GridBagConstraints(2, 0, 1, 1, 1, 0, 13, 0, new Insets(0, 0, 0, 0), 0, 0));
+		token_list.setCellRenderer(new SignumAssertListCellRenderer());
+		token_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		var panel_1 = new JPanel(new BorderLayout());
+		var panel_2 = new JPanel(new GridLayout(0, 1));
+		var panel_3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		var desc_label = new JLabel("asset_descption");
+		var asset_balance_label = new JLabel("asset_balance");
+		var asset_name_label = new JLabel("asset_name");
+		panel_2.add(desc_label);
+		panel_2.add(panel_3);
+		panel_3.add(asset_balance_label);
+		panel_3.add(asset_name_label);
+		panel_1.add(panel_2, BorderLayout.NORTH);
+
+		panel_2.setVisible(false);
+
+		token_list.addListSelectionListener(e -> {
+			if(token_list.getSelectedIndex()<0) {
+				panel_2.setVisible(false);
+			}else {
+				Asset a = token_list.getSelectedValuesList().get(0);
+				desc_label.setText(a.getDescription());
+				asset_name_label.setText(a.getName());
+				BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).multiply(new BigDecimal(Math.pow(10, -a.getDecimals())));
+				asset_balance_label.setText(val.toString());
+				panel_2.setVisible(true);
+			}
+		});
 
 		for (int i = 0; i < table_model.getColumnCount(); i++) {
 			var tc = new TableColumn(i, 0);
@@ -87,7 +124,8 @@ public class DashBoard extends JPanel {
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(true);
 		UIUtil.adjust_table_width(table, table_column_model);
-		_panel.add(scrollpane, new GridBagConstraints(1, 1, 2, 3, 1, 1, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
+		panel_0.add(panel_1, new GridBagConstraints(1, 1, 2, 3, 1, 1, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
+		panel_1.add(scrollpane, BorderLayout.CENTER);
 		table_model.addTableModelListener(e -> UIUtil.adjust_table_width(table, table_column_model));
 		table.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent mouseEvent) {
@@ -98,7 +136,6 @@ public class DashBoard extends JPanel {
 				}
 			}
 		});
-
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
@@ -118,6 +155,22 @@ public class DashBoard extends JPanel {
 					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 				}
 			});
+			token_list.setModel(new DefaultComboBoxModel<Asset>());
+			if (Arrays.asList(CrptoNetworks.ROTURA, CrptoNetworks.SIGNUM).contains(nw)) {
+				Util.submit(() -> {
+					try {
+						token_list.setListData(Arrays.asList(CryptoUtil.getAccount(nw, e.account).getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString()))
+								.collect(Collectors.toList()).toArray(new Asset[] {}));
+						if (token_list.getModel().getSize() > 0) {
+							token_list.setSelectedIndex(0);
+						} else {
+							token_list.setSelectedIndex(-1);
+						}
+					} catch (Exception x) {
+						Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
+					}
+				});
+			}
 		}
 	}
 

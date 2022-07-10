@@ -29,7 +29,6 @@ public class WatchSignumAccount {
 		if ("null".equals(String.valueOf(address)) || address.isBlank()) {
 			return;
 		}
-		address = address.trim();
 		byte[] public_key = null, private_key = new byte[0];
 		if (SIGNUM.equals(nw)) {
 			SignumAddress adr = SignumAddress.fromEither(address);
@@ -52,6 +51,10 @@ public class WatchSignumAccount {
 		}
 		if (public_key == null) {
 			public_key = new byte[0];
+			try {
+				public_key = CryptoUtil.getAccount(nw, address).getPublicKey();
+			} catch (Exception e) {
+			}
 		}
 		boolean b = false;
 		try {

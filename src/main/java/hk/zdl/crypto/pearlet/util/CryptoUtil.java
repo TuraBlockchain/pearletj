@@ -39,6 +39,8 @@ import signumj.entity.EncryptedMessage;
 import signumj.entity.SignumAddress;
 import signumj.entity.SignumID;
 import signumj.entity.SignumValue;
+import signumj.entity.response.Account;
+import signumj.entity.response.Asset;
 import signumj.entity.response.Transaction;
 import signumj.entity.response.http.BRSError;
 import signumj.service.NodeService;
@@ -143,6 +145,36 @@ public class CryptoUtil {
 			return "0x" + org.web3j.crypto.Keys.getAddress(org.web3j.utils.Numeric.toBigInt(public_key));
 		}
 		return null;
+	}
+
+	public static final Asset getAsset(CrptoNetworks network, String assetId) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
+			Optional<String> opt = get_server_url(network);
+			if (opt.isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				try {
+					return ns.getAsset(SignumID.fromLong(assetId)).blockingGet();
+				} catch (IllegalArgumentException e) {
+					throw e;
+				}
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+
+	public static final Account getAccount(CrptoNetworks network, String address) throws Exception {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
+			Optional<String> opt = get_server_url(network);
+			if (opt.isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				try {
+					return ns.getAccount(SignumAddress.fromRs(address)).toFuture().get();
+				} catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
+					throw e;
+				}
+			}
+		}
+		throw new UnsupportedOperationException();
 	}
 
 	public static final BigDecimal getBalance(CrptoNetworks network, String address) throws Exception {
@@ -262,6 +294,32 @@ public class CryptoUtil {
 				var request = new Request.Builder().url(server_url + "burst?requestType=sendMessage")
 						.post(RequestBody.create("recipient=" + recipient + "&message=" + URLEncoder.encode(message, Charset.defaultCharset())
 								+ "&deadline=1440&messageIsText=true&feeNQT=2205000&publicKey=" + Hex.toHexString(public_key), MediaType.parse("application/x-www-form-urlencoded")))
+						.build();
+				var response = client.newCall(request).execute();
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+				return bArr;
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+
+	public static byte[] issueAsset(CrptoNetworks nw, String asset_name, String description, int quantityQNT, long feeNQT, byte[] public_key) throws IOException {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			if (feeNQT < 100000000000L) {
+				throw new IllegalArgumentException("not enought fee");
+			}
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				var server_url = opt.get();
+				if (!server_url.endsWith("/")) {
+					server_url += "/";
+				}
+				var client = new OkHttpClient.Builder().build();
+				var request = new Request.Builder().url(server_url + "burst?requestType=issueAsset")
+						.post(RequestBody.create(
+								"name=" + asset_name + "&description=" + description + "&deadline=1440&quantityQNT=" + quantityQNT + "&feeNQT=" + feeNQT + "&publicKey=" + Hex.toHexString(public_key),
+								MediaType.parse("application/x-www-form-urlencoded")))
 						.build();
 				var response = client.newCall(request).execute();
 				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
