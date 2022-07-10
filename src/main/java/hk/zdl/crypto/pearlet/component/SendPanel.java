@@ -257,7 +257,7 @@ public class SendPanel extends JPanel {
 		this.network = e.network;
 		this.account = e.account;
 		String symbol = Util.default_currency_symbol.get(e.network.name());
-		balance_label.setText(null);
+		balance_label.setText("?");
 		balance_label.setToolTipText(null);
 		token_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { symbol }));
 		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { e.account }));

@@ -114,7 +114,6 @@ public class Main {
 				});
 				SwingUtilities.invokeLater(() -> {
 					SwingUtilities.updateComponentTreeUI(frame);
-					mfs.components().forEach(SwingUtilities::updateComponentTreeUI);
 					IndepandentWindows.iterator().forEachRemaining(SwingUtilities::updateComponentTreeUI);
 				});
 			});

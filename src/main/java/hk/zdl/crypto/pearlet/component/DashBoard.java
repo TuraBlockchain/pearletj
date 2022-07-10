@@ -1,8 +1,6 @@
 package hk.zdl.crypto.pearlet.component;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -16,7 +14,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JLayer;
@@ -31,7 +28,6 @@ import javax.swing.table.TableColumnModel;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.web3j.protocol.admin.methods.response.NewAccountIdentifier;
 
 import hk.zdl.crypto.pearlet.component.dashboard.TxProc;
 import hk.zdl.crypto.pearlet.component.dashboard.TxTableModel;
@@ -71,7 +67,7 @@ public class DashBoard extends JPanel {
 		_panel.add(manage_token_list_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
 
 		var label2 = new JLabel("Balance:");
-		_panel.add(label2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 1, new Insets(0, 5, 0, 0), 0, 0));
+		_panel.add(label2, new GridBagConstraints(1, 0, 1, 1, 1, 0, 17, 1, new Insets(0, 5, 0, 0), 0, 0));
 		var balance_inner_panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		Stream.of(label1, label2, balance_label).forEach(o -> o.setFont(title_font));
 		currency_label.setFont(new Font(Font.MONOSPACED, title_font.getStyle(), title_font.getSize()));
