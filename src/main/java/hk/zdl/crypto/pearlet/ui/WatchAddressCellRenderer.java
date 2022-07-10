@@ -23,7 +23,6 @@ public class WatchAddressCellRenderer extends DefaultTableCellRenderer {
 		try {
 			img = ImageIO.read(Util.getResource("icon/" + "eyeglasses.svg"));
 		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 	private boolean is_watch_account = false;

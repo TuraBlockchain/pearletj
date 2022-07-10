@@ -82,10 +82,10 @@ public class NetworkAndAccountBar extends JPanel {
 		CrptoNetworks nw = (CrptoNetworks) network_combobox.getSelectedItem();
 		List<AddressWithNickname> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> o.getStr("ADDRESS")).map(o -> new AddressWithNickname(o))
 				.collect(Collectors.toList());
+		l = l.stream().map(o -> new AddressWithNickname(o.address, ENSLookup.containsKey(o.address) ? ENSLookup.reverse_lookup(o.address) : null)).toList();
 		account_combobox.setModel(new ListComboBoxModel<>(l));
 		account_combobox.setEnabled(!l.isEmpty());
 		update_current_account();
-		update_nickname(l);
 	}
 
 	private void update_current_account() {
@@ -96,23 +96,6 @@ public class NetworkAndAccountBar extends JPanel {
 			str = ((AddressWithNickname) acc).address;
 		}
 		EventBus.getDefault().post(new AccountChangeEvent(nw, str));
-	}
-
-	private void update_nickname(List<AddressWithNickname> l) {
-		Util.submit(new Callable<Void>() {
-
-			@Override
-			public Void call() throws Exception {
-				for (AddressWithNickname a : l) {
-					String str = ENSLookup.reverse_lookup(a.address);
-					if (str != null) {
-						a.nickname = str;
-						SwingUtilities.invokeLater(() -> account_combobox.updateUI());
-					}
-				}
-				return null;
-			}
-		});
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)

@@ -163,6 +163,7 @@ public class AccountTableModel extends AbstractTableModel {
 							setValueAt(aliases, i, 4);
 							setValueAt(desc, i, 5);
 							fireTableRowsUpdated(i, i);
+							ENSLookup.put(address, aliases);
 						}
 					}
 				}

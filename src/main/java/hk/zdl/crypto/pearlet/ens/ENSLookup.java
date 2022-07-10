@@ -28,11 +28,8 @@ public class ENSLookup {
 			result = r.resolve(str);
 		} catch (Throwable e) {
 		}
-		if (result != null) {
-			cache.put(str, result);
-			return result;
-		}
-		return null;
+		cache.put(str, result);
+		return result;
 	}
 	
 	public static final String reverse_lookup(String str){
@@ -48,11 +45,16 @@ public class ENSLookup {
 			result = r.reverseResolve(str);
 		} catch (Throwable e) {
 		}
-		if (result != null) {
-			cache.put(str, result);
-			return result;
-		}
-		return null;
+		cache.put(str, result);
+		return result;
+	}
+
+	public static boolean containsKey(Object key) {
+		return cache.containsKey(key);
+	}
+
+	public static String put(String key, String value) {
+		return cache.put(key, value);
 	}
 
 	private static final synchronized void buildResolverIfAbsent() {
