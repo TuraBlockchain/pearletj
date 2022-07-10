@@ -1,10 +1,14 @@
 package hk.zdl.crypto.pearlet.component;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -12,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JLayer;
@@ -26,6 +31,7 @@ import javax.swing.table.TableColumnModel;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.web3j.protocol.admin.methods.response.NewAccountIdentifier;
 
 import hk.zdl.crypto.pearlet.component.dashboard.TxProc;
 import hk.zdl.crypto.pearlet.component.dashboard.TxTableModel;
@@ -44,7 +50,6 @@ public class DashBoard extends JPanel {
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final WaitLayerUI wuli = new WaitLayerUI();
 	private final JPanel token_list_inner_panel = new JPanel(new GridLayout(0, 1));
-	private final JPanel token_list_panel = new JPanel(new BorderLayout());
 	private final JLabel currency_label = new JLabel(), balance_label = new JLabel();
 	private final TxTableModel table_model = new TxTableModel();
 	private final TableColumnModel table_column_model = new DefaultTableColumnModel();
@@ -55,34 +60,24 @@ public class DashBoard extends JPanel {
 		super(new BorderLayout());
 		EventBus.getDefault().register(this);
 		add(jlayer, BorderLayout.CENTER);
-		var _panel = new JPanel(new BorderLayout());
+		var _panel = new JPanel(new GridBagLayout());
 		jlayer.setView(_panel);
 		jlayer.setUI(wuli);
-		var balance_and_tx_panel = new JPanel(new BorderLayout());
-		_panel.add(token_list_panel, BorderLayout.WEST);
-		_panel.add(balance_and_tx_panel, BorderLayout.CENTER);
-		token_list_panel.setMinimumSize(new Dimension(200, 0));
 		var label1 = new JLabel("Tokens:");
-		var panel0 = new JPanel(new FlowLayout(0));
-		panel0.add(label1);
-		token_list_panel.add(panel0, BorderLayout.NORTH);
-		var manage_token_list_btn = new JButton("Manage Token List");
-		token_list_panel.add(manage_token_list_btn, BorderLayout.SOUTH);
+		_panel.add(label1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 1, new Insets(0, 5, 0, 0), 0, 0));
 		var scr_pane = new JScrollPane(token_list_inner_panel);
-		token_list_panel.add(scr_pane, BorderLayout.CENTER);
+		_panel.add(scr_pane, new GridBagConstraints(0, 1, 1, 2, 0, 1, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
+		var manage_token_list_btn = new JButton("Manage Token List");
+		_panel.add(manage_token_list_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
 
-		var balance_panel = new JPanel(new BorderLayout());
 		var label2 = new JLabel("Balance:");
-		var panel1 = new JPanel(new FlowLayout(0));
-		panel1.add(label2);
-		balance_panel.add(panel1, BorderLayout.WEST);
-		var balance_inner_panel = new JPanel(new FlowLayout(0));
+		_panel.add(label2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 1, new Insets(0, 5, 0, 0), 0, 0));
+		var balance_inner_panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		Stream.of(label1, label2, balance_label).forEach(o -> o.setFont(title_font));
-		currency_label.setFont(new Font(Font.MONOSPACED,title_font.getStyle(),title_font.getSize()));
+		currency_label.setFont(new Font(Font.MONOSPACED, title_font.getStyle(), title_font.getSize()));
 		Stream.of(currency_label, balance_label).forEach(balance_inner_panel::add);
+		_panel.add(balance_inner_panel, new GridBagConstraints(2, 0, 1, 1, 1, 0, 13, 1, new Insets(0, 0, 0, 0), 0, 0));
 
-		balance_panel.add(balance_inner_panel, BorderLayout.EAST);
-		balance_and_tx_panel.add(balance_panel, BorderLayout.NORTH);
 		for (int i = 0; i < table_model.getColumnCount(); i++) {
 			var tc = new TableColumn(i, 0);
 			tc.setHeaderValue(table_model.getColumnName(i));
@@ -96,7 +91,7 @@ public class DashBoard extends JPanel {
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(true);
 		UIUtil.adjust_table_width(table, table_column_model);
-		balance_and_tx_panel.add(scrollpane, BorderLayout.CENTER);
+		_panel.add(scrollpane, new GridBagConstraints(1, 1, 2, 3, 1, 1, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
 		table_model.addTableModelListener(e -> UIUtil.adjust_table_width(table, table_column_model));
 		table.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent mouseEvent) {
