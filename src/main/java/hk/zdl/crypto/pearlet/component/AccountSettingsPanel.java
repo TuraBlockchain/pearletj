@@ -136,7 +136,7 @@ public class AccountSettingsPanel extends JPanel {
 				int row = table.rowAtPoint(point);
 				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
 					CrptoNetworks nw = CrptoNetworks.valueOf(account_table_model.getValueAt(row, 1).toString());
-					Util.viewAccountDetail(nw, account_table_model.getValueAt(row, 2));
+					Util.viewAccountDetail(nw, account_table_model.getValueAt(row, 2).toString().replace(",watch", ""));
 				}
 			}
 		});

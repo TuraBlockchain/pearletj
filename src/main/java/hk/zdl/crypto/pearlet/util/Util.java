@@ -103,7 +103,7 @@ public class Util {
 		return false;
 	}
 
-	public static final <E> boolean viewAccountDetail(CrptoNetworks nw, E e) {
+	public static final boolean viewAccountDetail(CrptoNetworks nw, String e) {
 		if (!Desktop.isDesktopSupported()) {
 			return false;
 		}
