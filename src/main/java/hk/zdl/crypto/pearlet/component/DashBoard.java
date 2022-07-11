@@ -11,6 +11,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -33,6 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -57,6 +59,7 @@ import signumj.entity.response.Asset;
 public class DashBoard extends JPanel {
 
 	private static Font title_font = new Font("Arial", Font.BOLD, 16);
+	private static Font asset_box_font = new Font("Arial", Font.PLAIN, 16);
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final WaitLayerUI wuli = new WaitLayerUI();
 	private final JList<Asset> token_list = new JList<>();
@@ -74,7 +77,7 @@ public class DashBoard extends JPanel {
 		jlayer.setView(panel_0);
 		jlayer.setUI(wuli);
 		var label1 = new JLabel("Tokens:");
-		panel_0.add(label1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, new Insets(0, 5, 0, 0), 0, 0));
+		panel_0.add(label1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, new Insets(0, 20, 0, 0), 0, 0));
 		var scr_pane = new JScrollPane(token_list);
 		scr_pane.setPreferredSize(new Dimension(200, 300));
 		panel_0.add(scr_pane, new GridBagConstraints(0, 1, 1, 2, 0, 1, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
@@ -82,7 +85,7 @@ public class DashBoard extends JPanel {
 		panel_0.add(manage_token_list_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 2, new Insets(5, 5, 5, 5), 0, 0));
 
 		var label2 = new JLabel("Balance:");
-		panel_0.add(label2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 0, 0), 0, 0));
+		panel_0.add(label2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 20, 0, 0), 0, 0));
 		var balance_inner_panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		Stream.of(label1, label2, balance_label).forEach(o -> o.setFont(title_font));
 		currency_label.setFont(new Font(Font.MONOSPACED, title_font.getStyle(), title_font.getSize()));
@@ -90,13 +93,22 @@ public class DashBoard extends JPanel {
 		panel_0.add(balance_inner_panel, new GridBagConstraints(2, 0, 1, 1, 1, 0, 13, 0, new Insets(0, 0, 0, 0), 0, 0));
 		token_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		var panel_1 = new JPanel(new BorderLayout());
-		var panel_2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		var asset_balance_label = new JLabel("asset_balance");
-		var asset_name_label = new JLabel("asset_name");
-		panel_2.add(asset_balance_label);
-		panel_2.add(asset_name_label);
+		var panel_2 = new JPanel(new GridLayout(0, 1));
+		var panel_3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		var panel_4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		var asset_balance_label = new JLabel();
+		var asset_name_label = new JLabel();
+		var asset_id_label_0 = new JLabel("asset id:");
+		var asset_id_label_1 = new JLabel();
+		panel_3.add(asset_balance_label);
+		panel_3.add(asset_name_label);
+		panel_4.add(asset_id_label_0);
+		panel_4.add(asset_id_label_1);
+		panel_2.add(panel_3);
+		panel_2.add(panel_4);
 		panel_1.add(panel_2, BorderLayout.NORTH);
 		panel_2.setVisible(false);
+		Stream.of(asset_balance_label,asset_name_label).forEach(o->o.setFont(asset_box_font));
 		token_list.setCellRenderer(new DefaultListCellRenderer() {
 
 			@Override
@@ -109,11 +121,12 @@ public class DashBoard extends JPanel {
 
 		token_list.addListSelectionListener(e -> {
 			if (token_list.getSelectedIndex() < 0) {
-				panel_2.setVisible(false);
+				panel_3.setVisible(false);
 			} else {
 				Asset a = token_list.getSelectedValuesList().get(0);
+				asset_id_label_1.setText(a.getAssetId().getID());
 				var desc = a.getDescription();
-				panel_2.setBorder(BorderFactory.createTitledBorder(desc));
+				panel_2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()),desc,TitledBorder.LEFT,TitledBorder.TOP,asset_box_font));
 				asset_name_label.setText(a.getName());
 				BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).multiply(new BigDecimal(Math.pow(10, -a.getDecimals())));
 				asset_balance_label.setText(val.toString());
