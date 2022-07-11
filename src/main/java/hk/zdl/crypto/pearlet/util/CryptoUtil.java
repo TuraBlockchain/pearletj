@@ -377,7 +377,7 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	public static byte[] issueAsset(CrptoNetworks nw, String asset_name, String description, int quantityQNT, long feeNQT, byte[] public_key) throws IOException {
+	public static byte[] issueAsset(CrptoNetworks nw, String asset_name, String description, long quantityQNT, long feeNQT, byte[] public_key) throws IOException {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			if (feeNQT < 100000000000L) {
 				throw new IllegalArgumentException("not enought fee");
@@ -396,6 +396,9 @@ public class CryptoUtil {
 						.build();
 				var response = client.newCall(request).execute();
 				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				if(jobj.optInt("errorCode",0)!=0) {
+					throw new IOException(jobj.optString("errorDescription"));
+				}
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 				return bArr;
 			}
