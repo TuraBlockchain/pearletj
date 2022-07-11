@@ -30,7 +30,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JLayer;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -68,6 +70,7 @@ public class DashBoard extends JPanel {
 	private final TableColumnModel table_column_model = new DefaultTableColumnModel();
 	private final JTable table = new JTable(table_model, table_column_model);
 	private CrptoNetworks nw;
+	private String account;
 
 	public DashBoard() {
 		super(new BorderLayout());
@@ -83,6 +86,12 @@ public class DashBoard extends JPanel {
 		panel_0.add(scr_pane, new GridBagConstraints(0, 1, 1, 2, 0, 1, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
 		var manage_token_list_btn = new JButton("Manage Token List");
 		panel_0.add(manage_token_list_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 2, new Insets(5, 5, 5, 5), 0, 0));
+		var manage_token_list_menu = new JPopupMenu();
+		var issue_token_menu_item = new JMenuItem("Issue Token");
+		manage_token_list_menu.add(issue_token_menu_item);
+		manage_token_list_btn.addActionListener(e -> manage_token_list_menu.show(manage_token_list_btn, 0, 0));
+		issue_token_menu_item.addActionListener(e -> Stream.of(new IssueTokenPanel(getRootPane(), nw, account).showConfirmDialog()).filter(Boolean::valueOf).findAny()
+				.ifPresent(o -> EventBus.getDefault().post(new AccountChangeEvent(nw, account))));
 
 		var label2 = new JLabel("Balance:");
 		panel_0.add(label2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 20, 0, 0), 0, 0));
@@ -108,7 +117,7 @@ public class DashBoard extends JPanel {
 		panel_2.add(panel_4);
 		panel_1.add(panel_2, BorderLayout.NORTH);
 		panel_2.setVisible(false);
-		Stream.of(asset_balance_label,asset_name_label).forEach(o->o.setFont(asset_box_font));
+		Stream.of(asset_balance_label, asset_name_label).forEach(o -> o.setFont(asset_box_font));
 		token_list.setCellRenderer(new DefaultListCellRenderer() {
 
 			@Override
@@ -126,7 +135,7 @@ public class DashBoard extends JPanel {
 				Asset a = token_list.getSelectedValuesList().get(0);
 				asset_id_label_1.setText(a.getAssetId().getID());
 				var desc = a.getDescription();
-				panel_2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()),desc,TitledBorder.LEFT,TitledBorder.TOP,asset_box_font));
+				panel_2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()), desc, TitledBorder.LEFT, TitledBorder.TOP, asset_box_font));
 				asset_name_label.setText(a.getName());
 				BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).multiply(new BigDecimal(Math.pow(10, -a.getDecimals())));
 				asset_balance_label.setText(val.toString());
@@ -159,11 +168,13 @@ public class DashBoard extends JPanel {
 				}
 			}
 		});
+
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
 		this.nw = e.network;
+		this.account = e.account;
 		String symbol = Util.default_currency_symbol.get(nw.name());
 		currency_label.setText(symbol);
 		if (e.account == null || e.account.isBlank()) {
