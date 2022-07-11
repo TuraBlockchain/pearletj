@@ -30,6 +30,7 @@ import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import io.reactivex.Single;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -208,6 +209,42 @@ public class CryptoUtil {
 			}
 		}
 		return new BigDecimal("-1");
+	}
+
+	public static byte[] generateTransferAssetTransaction(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				return ns.generateTransferAssetTransaction(senderPublicKey, SignumAddress.fromEither(recipient), SignumID.fromLong(assetId),
+						SignumValue.fromNQT(new BigInteger(quantity.toPlainString())), SignumValue.ZERO, SignumValue.fromSigna(fee), 1440).blockingGet();
+			}
+		}
+		throw new UnsupportedOperationException();
+	};
+
+	public static byte[] generateTransferAssetTransactionWithMessage(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee, byte[] message) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				return ns.generateTransferAssetTransactionWithMessage(senderPublicKey, SignumAddress.fromEither(recipient), SignumID.fromLong(assetId),
+						SignumValue.fromNQT(new BigInteger(quantity.toPlainString())), SignumValue.ZERO, SignumValue.fromSigna(fee), 1440, message).blockingGet();
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+	
+	public static byte[] generateTransferAssetTransactionWithMessage(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee, String message) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				return ns.generateTransferAssetTransactionWithMessage(senderPublicKey, SignumAddress.fromEither(recipient), SignumID.fromLong(assetId),
+						SignumValue.fromNQT(new BigInteger(quantity.toPlainString())), SignumValue.ZERO, SignumValue.fromSigna(fee), 1440, message).blockingGet();
+			}
+		}
+		throw new UnsupportedOperationException();
 	}
 
 	public static byte[] generateTransaction(CrptoNetworks nw, String recipient, byte[] public_key, BigDecimal amount, BigDecimal fee) {

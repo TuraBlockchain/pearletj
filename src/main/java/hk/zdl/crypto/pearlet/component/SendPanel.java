@@ -222,12 +222,16 @@ public class SendPanel extends JPanel {
 				JOptionPane.showMessageDialog(getRootPane(), "Invalid amount!", null, JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-//			if (amount.compareTo(new BigDecimal(balance_label.getText())) > 0) {
-//				JOptionPane.showMessageDialog(getRootPane(), "Insufficient fund!", null, JOptionPane.ERROR_MESSAGE);
-//				return;
-//			}
-
-			SendTx send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()));
+			String asset_id = null;
+			if (token_combo_box.getSelectedIndex() > 0) {
+				Object o = token_combo_box.getSelectedItem();
+				if (o instanceof Asset) {
+					Asset a = (Asset) o;
+					asset_id = a.getAssetId().getID();
+					amount = amount.multiply(new BigDecimal(Math.pow(10, a.getDecimals())));
+				}
+			}
+			SendTx send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()), asset_id);
 			if (msg_chk_box.isSelected()) {
 				send_tx.setEncrypted(eny_msg_menu_item.isSelected());
 				if (plain_text_option_menu_item.isSelected()) {

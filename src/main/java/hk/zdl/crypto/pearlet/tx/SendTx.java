@@ -30,14 +30,15 @@ public class SendTx implements Callable<Boolean> {
 	private boolean isEncrypted = false;
 	private byte[] bin_message;
 	private String str_message;
+	private String asset_id;
 
-	public SendTx(CrptoNetworks network, String from, String to, BigDecimal amount, BigDecimal fee) {
-		super();
+	public SendTx(CrptoNetworks network, String from, String to, BigDecimal amount, BigDecimal fee, String asset_id) {
 		this.network = network;
 		this.from = from;
 		this.to = to;
 		this.amount = amount;
 		this.fee = fee;
+		this.asset_id = asset_id;
 	}
 
 	public void setEncrypted(boolean b) {
@@ -59,29 +60,55 @@ public class SendTx implements Callable<Boolean> {
 			byte[] private_key = o_r.get().getBytes("PRIVATE_KEY");
 			byte[] public_key = o_r.get().getBytes("PUBLIC_KEY");
 			if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
-				byte[] tx;
-				if (str_message != null && !str_message.isBlank()) {
-					if (str_message.getBytes().length > 1000) {
-						return false;
-					} else {
-						if (isEncrypted) {
-							tx = CryptoUtil.generateTransactionWithEncryptedMessage(network, to, public_key, amount, fee, str_message.getBytes(), true);
+				byte[] tx = new byte[0];
+				if (asset_id == null) {
+					if (str_message != null && !str_message.isBlank()) {
+						if (str_message.getBytes().length > 1000) {
+							return false;
 						} else {
-							tx = CryptoUtil.generateTransactionWithMessage(network, to, public_key, amount, fee, str_message);
+							if (isEncrypted) {
+								tx = CryptoUtil.generateTransactionWithEncryptedMessage(network, to, public_key, amount, fee, str_message.getBytes(), true);
+							} else {
+								tx = CryptoUtil.generateTransactionWithMessage(network, to, public_key, amount, fee, str_message);
+							}
 						}
-					}
-				} else if (bin_message != null) {
-					if (bin_message.length > 1000) {
-						return false;
-					} else {
-						if (isEncrypted) {
-							tx = CryptoUtil.generateTransactionWithEncryptedMessage(network, to, public_key, amount, fee, bin_message, false);
+					} else if (bin_message != null) {
+						if (bin_message.length > 1000) {
+							return false;
 						} else {
-							tx = CryptoUtil.generateTransactionWithMessage(network, to, public_key, amount, fee, bin_message);
+							if (isEncrypted) {
+								tx = CryptoUtil.generateTransactionWithEncryptedMessage(network, to, public_key, amount, fee, bin_message, false);
+							} else {
+								tx = CryptoUtil.generateTransactionWithMessage(network, to, public_key, amount, fee, bin_message);
+							}
 						}
+					} else {
+						tx = CryptoUtil.generateTransaction(network, to, public_key, amount, fee);
 					}
 				} else {
-					tx = CryptoUtil.generateTransaction(network, to, public_key, amount, fee);
+					if (str_message != null && !str_message.isBlank()) {
+						if (str_message.getBytes().length > 1000) {
+							return false;
+						} else {
+							if (isEncrypted) {
+//								tx = CryptoUtil.generateTransactionWithEncryptedMessage(network, to, public_key, amount, fee, str_message.getBytes(), true);
+							} else {
+								tx = CryptoUtil.generateTransferAssetTransactionWithMessage(network, public_key, to, asset_id, amount, fee,str_message);
+							}
+						}
+					} else if (bin_message != null) {
+						if (bin_message.length > 1000) {
+							return false;
+						} else {
+							if (isEncrypted) {
+//								tx = CryptoUtil.generateTransactionWithEncryptedMessage(network, to, public_key, amount, fee, bin_message, false);
+							} else {
+								tx = CryptoUtil.generateTransferAssetTransactionWithMessage(network, public_key, to, asset_id, amount, fee,bin_message);
+							}
+						}
+					} else {
+						tx = CryptoUtil.generateTransferAssetTransaction(network, public_key, to, asset_id, amount, fee);
+					}
 				}
 				byte[] signed_tx = CryptoUtil.signTransaction(network, private_key, tx);
 
