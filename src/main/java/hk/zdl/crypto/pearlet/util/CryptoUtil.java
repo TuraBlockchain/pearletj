@@ -30,7 +30,6 @@ import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
-import io.reactivex.Single;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -234,7 +233,7 @@ public class CryptoUtil {
 		}
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public static byte[] generateTransferAssetTransactionWithMessage(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee, String message) {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			Optional<String> opt = get_server_url(nw);
@@ -253,6 +252,22 @@ public class CryptoUtil {
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				return ns.generateTransaction(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440, null).blockingGet();
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+
+	public static byte[] generateTransferAssetTransactionWithEncryptedMessage(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee,
+			byte[] message, boolean isText) {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				NodeService ns = NodeService.getInstance(opt.get());
+				byte[] nounce = new byte[32];// must be 32
+				new Random().nextBytes(nounce);
+				EncryptedMessage emsg = new EncryptedMessage(message, nounce, isText);
+				return ns.generateTransferAssetTransactionWithEncryptedMessage(senderPublicKey, SignumAddress.fromEither(recipient), SignumID.fromLong(assetId),
+						SignumValue.fromNQT(new BigInteger(quantity.toPlainString())), SignumValue.ZERO, SignumValue.fromSigna(fee), 1440, emsg).blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();

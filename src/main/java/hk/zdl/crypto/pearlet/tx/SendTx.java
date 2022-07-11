@@ -91,9 +91,9 @@ public class SendTx implements Callable<Boolean> {
 							return false;
 						} else {
 							if (isEncrypted) {
-//								tx = CryptoUtil.generateTransactionWithEncryptedMessage(network, to, public_key, amount, fee, str_message.getBytes(), true);
+								tx = CryptoUtil.generateTransferAssetTransactionWithEncryptedMessage(network, public_key, to, asset_id, amount, fee, str_message.getBytes(), true);
 							} else {
-								tx = CryptoUtil.generateTransferAssetTransactionWithMessage(network, public_key, to, asset_id, amount, fee,str_message);
+								tx = CryptoUtil.generateTransferAssetTransactionWithMessage(network, public_key, to, asset_id, amount, fee, str_message);
 							}
 						}
 					} else if (bin_message != null) {
@@ -101,9 +101,9 @@ public class SendTx implements Callable<Boolean> {
 							return false;
 						} else {
 							if (isEncrypted) {
-//								tx = CryptoUtil.generateTransactionWithEncryptedMessage(network, to, public_key, amount, fee, bin_message, false);
+								tx = CryptoUtil.generateTransferAssetTransactionWithEncryptedMessage(network, public_key, to, asset_id, amount, fee, bin_message, false);
 							} else {
-								tx = CryptoUtil.generateTransferAssetTransactionWithMessage(network, public_key, to, asset_id, amount, fee,bin_message);
+								tx = CryptoUtil.generateTransferAssetTransactionWithMessage(network, public_key, to, asset_id, amount, fee, bin_message);
 							}
 						}
 					} else {
