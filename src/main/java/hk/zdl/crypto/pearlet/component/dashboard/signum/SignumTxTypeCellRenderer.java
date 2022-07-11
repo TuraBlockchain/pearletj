@@ -15,7 +15,7 @@ public class SignumTxTypeCellRenderer extends DefaultTableCellRenderer {
 
 	static {
 		map.put(0, "Payment");
-		map.put(2, "Token Issuance");
+		map.put(2, "Token");
 		map.put(1, "Message");
 		map.put(20, "Mining");
 		map.put(21, "Escrow");
@@ -33,8 +33,9 @@ public class SignumTxTypeCellRenderer extends DefaultTableCellRenderer {
 		if (value == null) {
 			value = "Unknown";
 		}
-		if (tx.getType() == 1) {
-			switch(tx.getSubtype()) {
+		switch (tx.getType()) {
+		case 1:
+			switch (tx.getSubtype()) {
 			case 0:
 				value = "Message";
 				break;
@@ -45,6 +46,17 @@ public class SignumTxTypeCellRenderer extends DefaultTableCellRenderer {
 				value = "Account Info";
 				break;
 			}
+			break;
+		case 2:
+			switch (tx.getSubtype()) {
+			case 0:
+				value = "Token Issuance";
+				break;
+			case 1:
+				value = "Token Transfer";
+				break;
+			}
+			break;
 		}
 		super.setValue(value);
 	}

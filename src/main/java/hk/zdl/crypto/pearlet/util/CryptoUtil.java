@@ -88,9 +88,7 @@ public class CryptoUtil {
 		}
 		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
 			try {
-				String adr = SignumAddress.fromRs(address).getRawAddress();
-				String bdr = address.substring(address.indexOf('-') + 1);
-				return adr.equals(bdr);
+				return SignumAddress.fromEither(address) != null;
 			} catch (Exception e) {
 				return false;
 			}
@@ -210,13 +208,23 @@ public class CryptoUtil {
 		return new BigDecimal("-1");
 	}
 
-	public static byte[] generateTransferAssetTransaction(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee) {
+	public static byte[] generateTransferAssetTransaction(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee) throws IOException {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
-				NodeService ns = NodeService.getInstance(opt.get());
-				return ns.generateTransferAssetTransaction(senderPublicKey, SignumAddress.fromEither(recipient), SignumID.fromLong(assetId),
-						SignumValue.fromNQT(new BigInteger(quantity.toPlainString())), SignumValue.ZERO, SignumValue.fromSigna(fee), 1440).blockingGet();
+				var server_url = opt.get();
+				if (!server_url.endsWith("/")) {
+					server_url += "/";
+				}
+				var client = new OkHttpClient.Builder().build();
+				var request = new Request.Builder().url(server_url + "burst?requestType=transferAsset")
+						.post(RequestBody.create("asset=" + assetId + "&recipient=" + recipient + "&deadline=1440&quantityQNT=" + quantity.toPlainString() + "&broadcast=false&feeNQT="
+								+ SignumValue.fromSigna(fee).toNQT() + "&publicKey=" + Hex.toHexString(senderPublicKey), MediaType.parse("application/x-www-form-urlencoded")))
+						.build();
+				var response = client.newCall(request).execute();
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+				return bArr;
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -234,13 +242,26 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	public static byte[] generateTransferAssetTransactionWithMessage(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee, String message) {
+	public static byte[] generateTransferAssetTransactionWithMessage(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee, String message)
+			throws IOException {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
-				NodeService ns = NodeService.getInstance(opt.get());
-				return ns.generateTransferAssetTransactionWithMessage(senderPublicKey, SignumAddress.fromEither(recipient), SignumID.fromLong(assetId),
-						SignumValue.fromNQT(new BigInteger(quantity.toPlainString())), SignumValue.ZERO, SignumValue.fromSigna(fee), 1440, message).blockingGet();
+				var server_url = opt.get();
+				if (!server_url.endsWith("/")) {
+					server_url += "/";
+				}
+				var client = new OkHttpClient.Builder().build();
+				var request = new Request.Builder().url(server_url + "burst?requestType=transferAsset")
+						.post(RequestBody.create(
+								"asset=" + assetId + "&recipient=" + recipient + "&deadline=1440&quantityQNT=" + quantity.toPlainString() + "&broadcast=false&feeNQT="
+										+ SignumValue.fromSigna(fee).toNQT() + "&publicKey=" + Hex.toHexString(senderPublicKey) + "&messageIsText=true&message=" + URLEncoder.encode(message, "UTF-8"),
+								MediaType.parse("application/x-www-form-urlencoded")))
+						.build();
+				var response = client.newCall(request).execute();
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+				return bArr;
 			}
 		}
 		throw new UnsupportedOperationException();
