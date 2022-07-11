@@ -6,6 +6,7 @@ import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -18,21 +19,23 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JLayer;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -70,8 +73,8 @@ public class SendPanel extends JPanel {
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final WaitLayerUI wuli = new WaitLayerUI();
 	private final JComboBox<String> acc_combo_box = new JComboBox<>();
-	private final JComboBox<String> token_combo_box = new JComboBox<>();
-	private final Map<String, BigDecimal> asset_balance = new TreeMap<>();
+	private final JComboBox<Object> token_combo_box = new JComboBox<>();
+	private final Map<Object, BigDecimal> asset_balance = new HashMap<>();
 	private final JLabel balance_label = new JLabel();
 	private JButton send_btn;
 	private CrptoNetworks network;
@@ -165,7 +168,18 @@ public class SendPanel extends JPanel {
 		send_btn.setEnabled(false);
 		panel_1.add(send_btn, new GridBagConstraints(0, 12, 5, 1, 0, 0, 10, 0, new Insets(5, 0, 5, 0), 0, 0));
 
-		token_combo_box.addActionListener(e -> updat_balance_label(asset_balance.get(token_combo_box.getSelectedItem().toString())));
+		token_combo_box.addActionListener(e -> updat_balance_label(asset_balance.get(token_combo_box.getSelectedItem())));
+		token_combo_box.setRenderer(new DefaultListCellRenderer() {
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+				if (value instanceof Asset) {
+					value = ((Asset) value).getName();
+				}
+				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				return this;
+			}
+		});
 
 		SwingUtilities.invokeLater(() -> {
 			Stream.of(msg_option_btn, label_7, msg_scr).forEach(o -> o.setVisible(false));
@@ -272,7 +286,7 @@ public class SendPanel extends JPanel {
 		String symbol = Util.default_currency_symbol.get(e.network.name());
 		balance_label.setText("?");
 		balance_label.setToolTipText(null);
-		token_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { symbol }));
+		token_combo_box.setModel(new DefaultComboBoxModel<Object>(new String[] { symbol }));
 		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { e.account }));
 		asset_balance.clear();
 		if (e.account == null || e.account.isBlank()) {
@@ -290,8 +304,8 @@ public class SendPanel extends JPanel {
 						for (AssetBalance ab : account.getAssetBalances()) {
 							Asset a = CryptoUtil.getAsset(e.network, ab.getAssetId().toString());
 							BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).multiply(new BigDecimal(Math.pow(10, -a.getDecimals())));
-							asset_balance.put(a.getName(), val);
-							((DefaultComboBoxModel<String>) token_combo_box.getModel()).addElement(a.getName());
+							asset_balance.put(a, val);
+							((DefaultComboBoxModel<Object>) token_combo_box.getModel()).addElement(a);
 						}
 					} else if (WEB3J.equals(e.network)) {
 						try {

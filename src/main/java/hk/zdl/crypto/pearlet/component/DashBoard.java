@@ -3,13 +3,14 @@ package hk.zdl.crypto.pearlet.component;
 import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
 import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
 import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
+
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -23,6 +24,7 @@ import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JLayer;
@@ -43,7 +45,6 @@ import hk.zdl.crypto.pearlet.component.dashboard.TxProc;
 import hk.zdl.crypto.pearlet.component.dashboard.TxTableModel;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
-import hk.zdl.crypto.pearlet.misc.SignumAssertListCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
@@ -87,7 +88,6 @@ public class DashBoard extends JPanel {
 		currency_label.setFont(new Font(Font.MONOSPACED, title_font.getStyle(), title_font.getSize()));
 		Stream.of(currency_label, balance_label).forEach(balance_inner_panel::add);
 		panel_0.add(balance_inner_panel, new GridBagConstraints(2, 0, 1, 1, 1, 0, 13, 0, new Insets(0, 0, 0, 0), 0, 0));
-		token_list.setCellRenderer(new SignumAssertListCellRenderer());
 		token_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		var panel_1 = new JPanel(new BorderLayout());
 		var panel_2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -96,13 +96,21 @@ public class DashBoard extends JPanel {
 		panel_2.add(asset_balance_label);
 		panel_2.add(asset_name_label);
 		panel_1.add(panel_2, BorderLayout.NORTH);
-
 		panel_2.setVisible(false);
+		token_list.setCellRenderer(new DefaultListCellRenderer() {
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+				Asset a = (Asset) value;
+				super.getListCellRendererComponent(list, a.getName(), index, isSelected, cellHasFocus);
+				return this;
+			}
+		});
 
 		token_list.addListSelectionListener(e -> {
-			if(token_list.getSelectedIndex()<0) {
+			if (token_list.getSelectedIndex() < 0) {
 				panel_2.setVisible(false);
-			}else {
+			} else {
 				Asset a = token_list.getSelectedValuesList().get(0);
 				var desc = a.getDescription();
 				panel_2.setBorder(BorderFactory.createTitledBorder(desc));
@@ -156,8 +164,8 @@ public class DashBoard extends JPanel {
 					try {
 						Account account = CryptoUtil.getAccount(nw, e.account);
 						balance_label.setText(account.getBalance().toSigna().stripTrailingZeros().toPlainString());
-						token_list.setListData(Arrays.asList(account.getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString()))
-								.collect(Collectors.toList()).toArray(new Asset[] {}));
+						token_list.setListData(
+								Arrays.asList(account.getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString())).collect(Collectors.toList()).toArray(new Asset[] {}));
 						if (token_list.getModel().getSize() > 0) {
 							token_list.setSelectedIndex(0);
 						} else {
@@ -165,14 +173,18 @@ public class DashBoard extends JPanel {
 						}
 					} catch (Exception x) {
 						Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
+					} finally {
+						updateUI();
 					}
 				});
-			}else if(WEB3J.equals(e.network)) {
+			} else if (WEB3J.equals(e.network)) {
 				Util.submit(() -> {
 					try {
 						balance_label.setText(CryptoUtil.getBalance(e.network, e.account).stripTrailingZeros().toPlainString());
 					} catch (Exception x) {
 						Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
+					} finally {
+						updateUI();
 					}
 				});
 			}
