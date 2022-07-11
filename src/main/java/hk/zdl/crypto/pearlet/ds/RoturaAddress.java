@@ -20,6 +20,12 @@ public class RoturaAddress {
 		this.address = SignumCrypto.getInstance().rsEncode(numericID);
 	}
 
+	private RoturaAddress(byte[] public_key) {
+		this.public_key = public_key;
+		this.numericID = SignumCrypto.getInstance().getAddressFromPublic(public_key).getSignumID();
+		this.address = SignumCrypto.getInstance().rsEncode(numericID);
+	}
+
 	public byte[] getPublicKey() {
 		return public_key;
 	}
@@ -41,7 +47,7 @@ public class RoturaAddress {
 	}
 
 	public String getID() {
-		return SignumCrypto.getInstance().getAddressFromPublic(public_key).getID();
+		return numericID.getID();
 	}
 
 	@Override
@@ -80,15 +86,17 @@ public class RoturaAddress {
 	}
 
 	public static final RoturaAddress fromPublicKey(byte[] public_key) {
-		return new RoturaAddress(SignumCrypto.getInstance().getAddressFromPublic(public_key).getSignumID());
+		RoturaAddress r = new RoturaAddress(SignumCrypto.getInstance().getAddressFromPublic(public_key).getSignumID());
+		r.public_key = public_key;
+		return r;
 	}
 
 	public static final RoturaAddress fromPrivateKey(byte[] private_key) {
-		return new RoturaAddress(SignumCrypto.getInstance().getAddressFromPrivate(private_key).getSignumID());
+		return fromPublicKey(SignumCrypto.getInstance().getAddressFromPrivate(private_key).getPublicKey());
 	}
 
 	public static final RoturaAddress fromPassPhase(String passphase) {
-		return new RoturaAddress(SignumCrypto.getInstance().getAddressFromPassphrase(passphase).getSignumID());
+		return fromPublicKey(SignumCrypto.getInstance().getAddressFromPassphrase(passphase).getPublicKey());
 	}
 
 }
