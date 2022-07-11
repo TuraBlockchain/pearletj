@@ -1,5 +1,9 @@
 package hk.zdl.crypto.pearlet.component;
 
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -13,7 +17,10 @@ import java.awt.TrayIcon.MessageType;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -52,6 +59,9 @@ import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
+import signumj.entity.response.Account;
+import signumj.entity.response.Asset;
+import signumj.entity.response.AssetBalance;
 
 @SuppressWarnings("serial")
 public class SendPanel extends JPanel {
@@ -61,6 +71,7 @@ public class SendPanel extends JPanel {
 	private final WaitLayerUI wuli = new WaitLayerUI();
 	private final JComboBox<String> acc_combo_box = new JComboBox<>();
 	private final JComboBox<String> token_combo_box = new JComboBox<>();
+	private final Map<String, BigDecimal> asset_balance = new TreeMap<>();
 	private final JLabel balance_label = new JLabel();
 	private JButton send_btn;
 	private CrptoNetworks network;
@@ -153,6 +164,8 @@ public class SendPanel extends JPanel {
 		send_btn.setMultiClickThreshhold(300);
 		send_btn.setEnabled(false);
 		panel_1.add(send_btn, new GridBagConstraints(0, 12, 5, 1, 0, 0, 10, 0, new Insets(5, 0, 5, 0), 0, 0));
+
+		token_combo_box.addActionListener(e -> updat_balance_label(asset_balance.get(token_combo_box.getSelectedItem().toString())));
 
 		SwingUtilities.invokeLater(() -> {
 			Stream.of(msg_option_btn, label_7, msg_scr).forEach(o -> o.setVisible(false));
@@ -261,6 +274,7 @@ public class SendPanel extends JPanel {
 		balance_label.setToolTipText(null);
 		token_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { symbol }));
 		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { e.account }));
+		asset_balance.clear();
 		if (e.account == null || e.account.isBlank()) {
 			balance_label.setText("0");
 			send_btn.setEnabled(false);
@@ -268,19 +282,25 @@ public class SendPanel extends JPanel {
 			wuli.start();
 			Util.submit(() -> {
 				try {
-					String raw = "-1";
-					try {
-						raw = CryptoUtil.getBalance(e.network, e.account).stripTrailingZeros().toPlainString();
-					} catch (Exception x) {
-						Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-					}
-					balance_label.setToolTipText(raw);
-					if (raw.substring(raw.indexOf('.') + 1).length() > 3) {
-						int i = raw.indexOf('.') + 1;
-						String s = raw.substring(0, i + 3);
-						balance_label.setText(s);
-					} else {
-						balance_label.setText(raw);
+					if (Arrays.asList(ROTURA, SIGNUM).contains(e.network)) {
+						Account account = CryptoUtil.getAccount(e.network, e.account);
+						BigDecimal value = account.getBalance().toSigna();
+						asset_balance.put(symbol, value);
+						updat_balance_label(value);
+						for (AssetBalance ab : account.getAssetBalances()) {
+							Asset a = CryptoUtil.getAsset(e.network, ab.getAssetId().toString());
+							BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).multiply(new BigDecimal(Math.pow(10, -a.getDecimals())));
+							asset_balance.put(a.getName(), val);
+							((DefaultComboBoxModel<String>) token_combo_box.getModel()).addElement(a.getName());
+						}
+					} else if (WEB3J.equals(e.network)) {
+						try {
+							BigDecimal value = CryptoUtil.getBalance(e.network, e.account);
+							asset_balance.put(symbol, value);
+							updat_balance_label(value);
+						} catch (Exception x) {
+							Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+						}
 					}
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
@@ -295,6 +315,19 @@ public class SendPanel extends JPanel {
 				send_btn.setEnabled(false);
 			}
 		}
+	}
+
+	private final void updat_balance_label(BigDecimal value) {
+		String raw = value.stripTrailingZeros().toPlainString();
+		String tip = raw;
+		if (raw.contains(".")) {
+			String a = raw.substring(raw.indexOf('.'));
+			if (a.length() > 3) {
+				raw = raw.substring(0, raw.indexOf('.') + 1 + 3);
+			}
+		}
+		balance_label.setText(raw);
+		balance_label.setToolTipText(tip);
 	}
 
 	private static final GridBagConstraints newGridConst(int x, int y, int width) {

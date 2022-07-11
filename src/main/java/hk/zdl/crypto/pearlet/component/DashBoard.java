@@ -1,5 +1,8 @@
 package hk.zdl.crypto.pearlet.component;
 
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -18,6 +21,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -45,6 +49,7 @@ import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
+import signumj.entity.response.Account;
 import signumj.entity.response.Asset;
 
 @SuppressWarnings("serial")
@@ -85,15 +90,11 @@ public class DashBoard extends JPanel {
 		token_list.setCellRenderer(new SignumAssertListCellRenderer());
 		token_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		var panel_1 = new JPanel(new BorderLayout());
-		var panel_2 = new JPanel(new GridLayout(0, 1));
-		var panel_3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		var desc_label = new JLabel("asset_descption");
+		var panel_2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		var asset_balance_label = new JLabel("asset_balance");
 		var asset_name_label = new JLabel("asset_name");
-		panel_2.add(desc_label);
-		panel_2.add(panel_3);
-		panel_3.add(asset_balance_label);
-		panel_3.add(asset_name_label);
+		panel_2.add(asset_balance_label);
+		panel_2.add(asset_name_label);
 		panel_1.add(panel_2, BorderLayout.NORTH);
 
 		panel_2.setVisible(false);
@@ -103,7 +104,8 @@ public class DashBoard extends JPanel {
 				panel_2.setVisible(false);
 			}else {
 				Asset a = token_list.getSelectedValuesList().get(0);
-				desc_label.setText(a.getDescription());
+				var desc = a.getDescription();
+				panel_2.setBorder(BorderFactory.createTitledBorder(desc));
 				asset_name_label.setText(a.getName());
 				BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).multiply(new BigDecimal(Math.pow(10, -a.getDecimals())));
 				asset_balance_label.setText(val.toString());
@@ -148,24 +150,27 @@ public class DashBoard extends JPanel {
 		} else {
 			balance_label.setText("?");
 			new TxProc().update_column_model(e.network, table_column_model, e.account);
-			Util.submit(() -> {
-				try {
-					balance_label.setText(CryptoUtil.getBalance(e.network, e.account).stripTrailingZeros().toPlainString());
-				} catch (Exception x) {
-					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
-				}
-			});
 			token_list.setModel(new DefaultComboBoxModel<Asset>());
-			if (Arrays.asList(CrptoNetworks.ROTURA, CrptoNetworks.SIGNUM).contains(nw)) {
+			if (Arrays.asList(ROTURA, SIGNUM).contains(nw)) {
 				Util.submit(() -> {
 					try {
-						token_list.setListData(Arrays.asList(CryptoUtil.getAccount(nw, e.account).getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString()))
+						Account account = CryptoUtil.getAccount(nw, e.account);
+						balance_label.setText(account.getBalance().toSigna().stripTrailingZeros().toPlainString());
+						token_list.setListData(Arrays.asList(account.getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString()))
 								.collect(Collectors.toList()).toArray(new Asset[] {}));
 						if (token_list.getModel().getSize() > 0) {
 							token_list.setSelectedIndex(0);
 						} else {
 							token_list.setSelectedIndex(-1);
 						}
+					} catch (Exception x) {
+						Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
+					}
+				});
+			}else if(WEB3J.equals(e.network)) {
+				Util.submit(() -> {
+					try {
+						balance_label.setText(CryptoUtil.getBalance(e.network, e.account).stripTrailingZeros().toPlainString());
 					} catch (Exception x) {
 						Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 					}
