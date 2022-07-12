@@ -204,7 +204,7 @@ public class DashBoard extends JPanel {
 			} else if (WEB3J.equals(e.network)) {
 				Util.submit(() -> {
 					try {
-						balance_label.setText(CryptoUtil.getBalance(e.network, e.account).stripTrailingZeros().toPlainString());
+						balance_label.setText(CryptoUtil.getBalance(e.network, e.account).toPlainString());
 					} catch (Exception x) {
 						Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 					} finally {

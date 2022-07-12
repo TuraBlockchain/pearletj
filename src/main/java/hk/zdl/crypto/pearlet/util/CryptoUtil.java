@@ -197,33 +197,27 @@ public class CryptoUtil {
 			}
 		} else if (WEB3J.equals(network)) {
 			if (getWeb3j().isPresent()) {
-				try {
-					BigInteger wei = getWeb3j().get().ethGetBalance(address, DefaultBlockParameterName.LATEST).send().getBalance();
-					BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER).stripTrailingZeros();
-					return eth;
-				} catch (IOException e) {
-					return new BigDecimal("-1");
-				}
+				BigInteger wei = getWeb3j().get().ethGetBalance(address, DefaultBlockParameterName.LATEST).send().getBalance();
+				BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
+				return eth;
 			}else {
-				try {
-					String _key = Util.getProp().get("covalenthq_apikey");
-					OkHttpClient client = new OkHttpClient();
-					Request request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/balances_v2/?quote-currency=ETH&format=JSON&nft=false&no-nft-fetch=true&key=" + _key).build();
-					Response response = client.newCall(request).execute();
-					JSONObject jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-					if(jobj.getBoolean("error")) {
-						throw new Exception();
-					}else {
-						var items = jobj.getJSONObject("data").getJSONArray("items");
-						for(int i=0;i<items.length();i++) {
-							jobj = items.getJSONObject(i);
-							if(jobj.getString("contract_name").equals("Ether")&&jobj.getString("contract_ticker_symbol").equals("ETH")) {
-								return new BigDecimal(jobj.getString("balance"));
-							}
+				String _key = Util.getProp().get("covalenthq_apikey");
+				OkHttpClient client = new OkHttpClient();
+				Request request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/balances_v2/?quote-currency=ETH&format=JSON&nft=false&no-nft-fetch=true&key=" + _key).build();
+				Response response = client.newCall(request).execute();
+				JSONObject jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				if(jobj.getBoolean("error")) {
+					throw new Exception(jobj.getString("error_message"));
+				}else {
+					var items = jobj.getJSONObject("data").getJSONArray("items");
+					for(int i=0;i<items.length();i++) {
+						jobj = items.getJSONObject(i);
+						if(jobj.getString("contract_name").equals("Ether")&&jobj.getString("contract_ticker_symbol").equals("ETH")) {
+							BigInteger wei = new BigInteger(jobj.getString("balance"));
+							BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
+							return eth;
 						}
 					}
-				} catch (IOException e) {
-					return new BigDecimal("-1");
 				}
 			}
 		}
