@@ -81,15 +81,17 @@ public class AccountSettingsPanel extends JPanel {
 		var import_acc_signum = new JMenuItem("Signum");
 		var import_acc_rotura = new JMenuItem("Rotura");
 		var import_acc_web3j = new JMenu("Web3j");
-		var import_from_text = new JMenuItem("From Mnemonic ...");
+		var import_from_prik = new JMenuItem("From Private Key ...");
+		var import_from_mnic = new JMenuItem("From Mnemonic ...");
 		var import_from_file = new JMenuItem("From JSON File ...");
 		Stream.of(import_acc_signum, import_acc_rotura,import_acc_web3j).forEach(import_acc_menu::add);
-		Stream.of(import_from_text, import_from_file).forEach(import_acc_web3j::add);
+		Stream.of(import_from_prik,import_from_mnic, import_from_file).forEach(import_acc_web3j::add);
 
 		import_account_btn.addActionListener(e -> import_acc_menu.show(import_account_btn, 0, 0));
 		import_acc_signum.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.SIGNUM));
 		import_acc_rotura.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.ROTURA));
-		import_from_text.addActionListener(e -> ImportWeb3JAccountFromText.create_import_account_dialog(this));
+		import_from_prik.addActionListener(e -> ImportWeb3JAccountFromText.import_from_private_key(this));
+		import_from_mnic.addActionListener(e -> ImportWeb3JAccountFromText.load_from_mnemonic(this));
 		import_from_file.addActionListener(e -> ImportWeb3JAccountFromFile.create_import_account_dialog(this));
 		
 		var watch_acc_menu = new JPopupMenu();

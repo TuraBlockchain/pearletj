@@ -30,7 +30,51 @@ public class ImportWeb3JAccountFromText {
 
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
-	public static final void create_import_account_dialog(Component c) {
+	public static final void import_from_private_key(Component c) {
+		var w = SwingUtilities.getWindowAncestor(c);
+		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
+		var panel = new JPanel(new GridBagLayout());
+
+		var mm_label = new JLabel("Enter your private key in Hex:");
+		var tx_field = new JTextArea(5, 20);
+		var sc_panee = new JScrollPane(tx_field, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		panel.add(mm_label, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
+		panel.add(sc_panee, new GridBagConstraints(0, 1, 2, 1, 0, 0, 17, 1, insets_5, 0, 0));
+
+		int i = JOptionPane.showConfirmDialog(w, panel, "Create New Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
+		if (i != JOptionPane.OK_OPTION) {
+			return;
+		}
+		String private_key_str = tx_field.getText().trim();
+
+		if (private_key_str.isBlank()) {
+			JOptionPane.showMessageDialog(w, "Private key cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		
+		Credentials cred = null;
+
+		try {
+			cred = Credentials.create(private_key_str);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(w, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		ECKeyPair eckp = cred.getEcKeyPair();
+		boolean b = MyDb.insertAccount(CrptoNetworks.WEB3J, cred.getAddress(), Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
+		if(b) {
+			UIUtil.displayMessage("Import Account", "done!", null);
+			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+		}else {
+			JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+
+	}
+	
+	
+	public static final void load_from_mnemonic(Component c) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var panel = new JPanel(new GridBagLayout());
