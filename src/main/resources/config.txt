@@ -7,3 +7,5 @@ authorFullName = David Zhang
 
 default_window_width = 1024
 default_window_height = 768
+
+covalenthq_apikey = ckey_1f90a230af9d4076a77908c9fa0

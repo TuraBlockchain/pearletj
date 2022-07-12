@@ -7,13 +7,14 @@ import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.util.Util;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class EtherTxQuery {
 
-	private static final String _key = "ckey_1f90a230af9d4076a77908c9fa0";
+	private static final String _key = Util.getProp().get("covalenthq_apikey");
 	private final OkHttpClient client = new OkHttpClient();
 
 	public void queryTxHistory(String address) throws Exception {
