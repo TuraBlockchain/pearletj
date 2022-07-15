@@ -119,7 +119,6 @@ public class SendTx implements Callable<Boolean> {
 				if (o_j.isPresent()) {
 					Credentials credentials = Credentials.create(ECKeyPair.create(private_key));
 					TransactionReceipt transactionReceipt = Transfer.sendFunds(o_j.get(), credentials, to, amount, Convert.Unit.ETHER).send();
-					System.out.println(transactionReceipt);
 					return true;
 				} else {
 					return false;

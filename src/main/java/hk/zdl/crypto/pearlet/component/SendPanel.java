@@ -276,7 +276,8 @@ public class SendPanel extends JPanel {
 				}
 				if (b) {
 					UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);
-//					JOptionPane.showMessageDialog(getRootPane(), "Send token succeed!", null, JOptionPane.INFORMATION_MESSAGE);
+				}else {
+					JOptionPane.showMessageDialog(getRootPane(), "Something went wrong, and token was not sent.", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			});
 
