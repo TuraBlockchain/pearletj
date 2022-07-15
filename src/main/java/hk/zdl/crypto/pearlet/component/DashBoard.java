@@ -156,7 +156,7 @@ public class DashBoard extends JPanel {
 					var desc = a.getDescription();
 					asset_info_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()), desc, TitledBorder.LEFT, TitledBorder.TOP, asset_box_font));
 					asset_name_label.setText(a.getName());
-					BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).multiply(new BigDecimal(Math.pow(10, -a.getDecimals())));
+					BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).divide(BigDecimal.TEN.pow(a.getDecimals()));
 					asset_balance_label.setText(val.toString());
 					asset_info_panel.setVisible(true);
 				} else if (WEB3J.equals(atw.network)) {
