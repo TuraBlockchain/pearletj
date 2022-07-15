@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.web3j.crypto.WalletUtils;
@@ -34,7 +35,6 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.EncryptedMessage;
 import signumj.entity.SignumAddress;
@@ -200,28 +200,33 @@ public class CryptoUtil {
 				BigInteger wei = getWeb3j().get().ethGetBalance(address, DefaultBlockParameterName.LATEST).send().getBalance();
 				BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
 				return eth;
-			}else {
-				String _key = Util.getProp().get("covalenthq_apikey");
-				OkHttpClient client = new OkHttpClient();
-				Request request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/balances_v2/?quote-currency=ETH&format=JSON&nft=false&no-nft-fetch=true&key=" + _key).build();
-				Response response = client.newCall(request).execute();
-				JSONObject jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				if(jobj.getBoolean("error")) {
-					throw new Exception(jobj.getString("error_message"));
-				}else {
-					var items = jobj.getJSONObject("data").getJSONArray("items");
-					for(int i=0;i<items.length();i++) {
-						jobj = items.getJSONObject(i);
-						if(jobj.getString("contract_name").equals("Ether")&&jobj.getString("contract_ticker_symbol").equals("ETH")) {
-							BigInteger wei = new BigInteger(jobj.getString("balance"));
-							BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
-							return eth;
-						}
+			} else {
+				var items = getAccountBalances(address);
+				for (int i = 0; i < items.length(); i++) {
+					var jobj = items.getJSONObject(i);
+					if (jobj.getString("contract_name").equals("Ether") && jobj.getString("contract_ticker_symbol").equals("ETH")) {
+						BigInteger wei = new BigInteger(jobj.getString("balance"));
+						BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
+						return eth;
 					}
 				}
 			}
 		}
 		return new BigDecimal("-1");
+	}
+
+	public static JSONArray getAccountBalances(String address) throws IOException {
+		String _key = Util.getProp().get("covalenthq_apikey");
+		var client = new OkHttpClient();
+		var request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/balances_v2/?quote-currency=ETH&format=JSON&nft=false&no-nft-fetch=true&key=" + _key).build();
+		var response = client.newCall(request).execute();
+		var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+		if (jobj.getBoolean("error")) {
+			throw new IOException(jobj.getString("error_message"));
+		} else {
+			var items = jobj.getJSONObject("data").getJSONArray("items");
+			return items;
+		}
 	}
 
 	public static byte[] generateTransferAssetTransaction(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee) throws IOException {
@@ -412,7 +417,7 @@ public class CryptoUtil {
 						.build();
 				var response = client.newCall(request).execute();
 				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				if(jobj.optInt("errorCode",0)!=0) {
+				if (jobj.optInt("errorCode", 0) != 0) {
 					throw new IOException(jobj.optString("errorDescription"));
 				}
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));

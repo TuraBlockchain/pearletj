@@ -5,6 +5,7 @@ import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
 import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -17,10 +18,13 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
@@ -33,6 +37,7 @@ import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -44,48 +49,56 @@ import javax.swing.table.TableColumnModel;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.utils.Convert;
 
 import hk.zdl.crypto.pearlet.component.dashboard.TxProc;
 import hk.zdl.crypto.pearlet.component.dashboard.TxTableModel;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
+import hk.zdl.crypto.pearlet.ds.AltTokenWrapper;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.response.Account;
-import signumj.entity.response.Asset;
 
 @SuppressWarnings("serial")
 public class DashBoard extends JPanel {
 
 	private static Font title_font = new Font("Arial", Font.BOLD, 16);
 	private static Font asset_box_font = new Font("Arial", Font.PLAIN, 16);
-	private final JLayer<JPanel> jlayer = new JLayer<>();
-	private final WaitLayerUI wuli = new WaitLayerUI();
-	private final JList<Asset> token_list = new JList<>();
+	private final JList<AltTokenWrapper> token_list = new JList<>();
+	private final JScrollPane token_list_scr_pane = new JScrollPane(token_list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	private final JProgressBar token_list_progress_bar = new JProgressBar(JProgressBar.VERTICAL);
+	private final CardLayout token_list_card_layout = new CardLayout();
+	private final JPanel asset_info_panel = new JPanel(new GridLayout(0, 1));
+	private final JPanel token_list_panel = new JPanel(token_list_card_layout);
 	private final JLabel currency_label = new JLabel(), balance_label = new JLabel();
 	private final TxTableModel table_model = new TxTableModel();
 	private final TableColumnModel table_column_model = new DefaultTableColumnModel();
 	private final JTable table = new JTable(table_model, table_column_model);
+	private final JScrollPane table_scroll_pane = new JScrollPane(table);
+	private final WaitLayerUI wuli = new WaitLayerUI();
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private final JLayer<JScrollPane> scroll_pane_layer = new JLayer(table_scroll_pane, wuli);
+	private final JButton manage_token_list_btn = new JButton("Manage Token List");
 	private CrptoNetworks nw;
 	private String account;
 
 	public DashBoard() {
-		super(new BorderLayout());
+		super(new GridBagLayout());
 		EventBus.getDefault().register(this);
-		add(jlayer, BorderLayout.CENTER);
-		var panel_0 = new JPanel(new GridBagLayout());
-		jlayer.setView(panel_0);
-		jlayer.setUI(wuli);
 		var label1 = new JLabel("Tokens:");
-		panel_0.add(label1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, new Insets(0, 20, 0, 0), 0, 0));
-		var scr_pane = new JScrollPane(token_list);
-		scr_pane.setPreferredSize(new Dimension(200, 300));
-		panel_0.add(scr_pane, new GridBagConstraints(0, 1, 1, 2, 0, 1, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
-		var manage_token_list_btn = new JButton("Manage Token List");
-		panel_0.add(manage_token_list_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 2, new Insets(5, 5, 5, 5), 0, 0));
+		add(label1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, new Insets(0, 20, 0, 0), 0, 0));
+		token_list_progress_bar.setIndeterminate(true);
+		token_list_panel.setPreferredSize(new Dimension(200, 300));
+		token_list_panel.add("list", token_list_scr_pane);
+		token_list_panel.add("bar", token_list_progress_bar);
+		token_list_card_layout.show(token_list_panel, "list");
+		add(token_list_panel, new GridBagConstraints(0, 1, 1, 2, 0, 1, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
+		add(manage_token_list_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 2, new Insets(5, 5, 5, 5), 0, 0));
 		var manage_token_list_menu = new JPopupMenu();
 		var issue_token_menu_item = new JMenuItem("Issue Token");
 		manage_token_list_menu.add(issue_token_menu_item);
@@ -94,15 +107,14 @@ public class DashBoard extends JPanel {
 				.ifPresent(o -> EventBus.getDefault().post(new AccountChangeEvent(nw, account))));
 
 		var label2 = new JLabel("Balance:");
-		panel_0.add(label2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 20, 0, 0), 0, 0));
+		add(label2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 20, 0, 0), 0, 0));
 		var balance_inner_panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		Stream.of(label1, label2, balance_label).forEach(o -> o.setFont(title_font));
 		currency_label.setFont(new Font(Font.MONOSPACED, title_font.getStyle(), title_font.getSize()));
 		Stream.of(currency_label, balance_label).forEach(balance_inner_panel::add);
-		panel_0.add(balance_inner_panel, new GridBagConstraints(2, 0, 1, 1, 1, 0, 13, 0, new Insets(0, 0, 0, 0), 0, 0));
+		add(balance_inner_panel, new GridBagConstraints(2, 0, 1, 1, 1, 0, 13, 0, new Insets(0, 0, 0, 0), 0, 0));
 		token_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		var panel_1 = new JPanel(new BorderLayout());
-		var panel_2 = new JPanel(new GridLayout(0, 1));
 		var panel_3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		var panel_4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		var asset_balance_label = new JLabel();
@@ -113,33 +125,52 @@ public class DashBoard extends JPanel {
 		panel_3.add(asset_name_label);
 		panel_4.add(asset_id_label_0);
 		panel_4.add(asset_id_label_1);
-		panel_2.add(panel_3);
-		panel_2.add(panel_4);
-		panel_1.add(panel_2, BorderLayout.NORTH);
-		panel_2.setVisible(false);
+		asset_info_panel.add(panel_3);
+		asset_info_panel.add(panel_4);
+		panel_1.add(asset_info_panel, BorderLayout.NORTH);
+		asset_info_panel.setVisible(false);
 		Stream.of(asset_balance_label, asset_name_label).forEach(o -> o.setFont(asset_box_font));
 		token_list.setCellRenderer(new DefaultListCellRenderer() {
 
 			@Override
 			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-				Asset a = (Asset) value;
-				super.getListCellRendererComponent(list, a.getName(), index, isSelected, cellHasFocus);
+				AltTokenWrapper atw = (AltTokenWrapper) value;
+				if (Arrays.asList(ROTURA, SIGNUM).contains(atw.network)) {
+					super.getListCellRendererComponent(list, atw.asset.getName(), index, isSelected, cellHasFocus);
+				} else if (WEB3J.equals(atw.network)) {
+					String name = atw.jobj.getString("contract_name");
+					super.getListCellRendererComponent(list, name, index, isSelected, cellHasFocus);
+				}
 				return this;
 			}
 		});
 
 		token_list.addListSelectionListener(e -> {
 			if (token_list.getSelectedIndex() < 0) {
-				panel_3.setVisible(false);
+				asset_info_panel.setVisible(false);
 			} else {
-				Asset a = token_list.getSelectedValuesList().get(0);
-				asset_id_label_1.setText(a.getAssetId().getID());
-				var desc = a.getDescription();
-				panel_2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()), desc, TitledBorder.LEFT, TitledBorder.TOP, asset_box_font));
-				asset_name_label.setText(a.getName());
-				BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).multiply(new BigDecimal(Math.pow(10, -a.getDecimals())));
-				asset_balance_label.setText(val.toString());
-				panel_2.setVisible(true);
+				AltTokenWrapper atw = token_list.getSelectedValuesList().get(0);
+				if (Arrays.asList(ROTURA, SIGNUM).contains(atw.network)) {
+					var a = atw.asset;
+					asset_id_label_1.setText(a.getAssetId().getID());
+					var desc = a.getDescription();
+					asset_info_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()), desc, TitledBorder.LEFT, TitledBorder.TOP, asset_box_font));
+					asset_name_label.setText(a.getName());
+					BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).multiply(new BigDecimal(Math.pow(10, -a.getDecimals())));
+					asset_balance_label.setText(val.toString());
+					asset_info_panel.setVisible(true);
+				} else if (WEB3J.equals(atw.network)) {
+					var jobj = atw.jobj;
+					var contract_name = jobj.getString("contract_name");
+					var contract_ticker_symbol = jobj.getString("contract_ticker_symbol");
+					asset_id_label_1.setText(jobj.getString("contract_address"));
+					var desc = contract_name;
+					asset_info_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()), desc, TitledBorder.LEFT, TitledBorder.TOP, asset_box_font));
+					asset_name_label.setText(contract_ticker_symbol);
+					BigDecimal val = new BigDecimal(jobj.getString("balance")).divide(BigDecimal.TEN.pow(jobj.getInt("contract_decimals")));
+					asset_balance_label.setText(val.stripTrailingZeros().toPlainString());
+					asset_info_panel.setVisible(true);
+				}
 			}
 		});
 
@@ -149,15 +180,14 @@ public class DashBoard extends JPanel {
 			table_column_model.addColumn(tc);
 		}
 		table.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
-		JScrollPane scrollpane = new JScrollPane(table);
 		table.getTableHeader().setReorderingAllowed(false);
 		table.getTableHeader().setResizingAllowed(false);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(true);
 		UIUtil.adjust_table_width(table, table_column_model);
-		panel_0.add(panel_1, new GridBagConstraints(1, 1, 2, 3, 1, 1, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
-		panel_1.add(scrollpane, BorderLayout.CENTER);
+		add(panel_1, new GridBagConstraints(1, 1, 2, 3, 1, 1, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
+		panel_1.add(scroll_pane_layer, BorderLayout.CENTER);
 		table_model.addTableModelListener(e -> UIUtil.adjust_table_width(table, table_column_model));
 		table.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent mouseEvent) {
@@ -175,21 +205,23 @@ public class DashBoard extends JPanel {
 	public void onMessage(AccountChangeEvent e) {
 		this.nw = e.network;
 		this.account = e.account;
-		String symbol = Util.default_currency_symbol.get(nw.name());
+		var symbol = Util.default_currency_symbol.get(nw.name());
 		currency_label.setText(symbol);
+		token_list.setModel(new DefaultComboBoxModel<AltTokenWrapper>());
+		asset_info_panel.setVisible(false);
 		if (e.account == null || e.account.isBlank()) {
 			balance_label.setText("0");
 		} else {
 			balance_label.setText("?");
 			new TxProc().update_column_model(e.network, table_column_model, e.account);
-			token_list.setModel(new DefaultComboBoxModel<Asset>());
 			if (Arrays.asList(ROTURA, SIGNUM).contains(nw)) {
 				Util.submit(() -> {
 					try {
+						token_list_card_layout.show(token_list_panel, "bar");
 						Account account = CryptoUtil.getAccount(nw, e.account);
 						balance_label.setText(account.getBalance().toSigna().stripTrailingZeros().toPlainString());
-						token_list.setListData(
-								Arrays.asList(account.getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString())).collect(Collectors.toList()).toArray(new Asset[] {}));
+						token_list.setListData(Arrays.asList(account.getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString())).map(o -> new AltTokenWrapper(nw, o))
+								.toArray((i) -> new AltTokenWrapper[i]));
 						if (token_list.getModel().getSize() > 0) {
 							token_list.setSelectedIndex(0);
 						} else {
@@ -198,21 +230,54 @@ public class DashBoard extends JPanel {
 					} catch (Exception x) {
 						Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 					} finally {
+						token_list_card_layout.show(token_list_panel, "list");
 						updateUI();
 					}
 				});
 			} else if (WEB3J.equals(e.network)) {
 				Util.submit(() -> {
 					try {
-						balance_label.setText(CryptoUtil.getBalance(e.network, e.account).toPlainString());
+						token_list_card_layout.show(token_list_panel, "bar");
+						if(CryptoUtil.getWeb3j().isPresent()) {
+							Util.submit(() -> new Callable<Void>(){
+
+								@Override
+								public Void call() throws Exception {
+									BigInteger wei = CryptoUtil.getWeb3j().get().ethGetBalance(account, DefaultBlockParameterName.LATEST).send().getBalance();
+									BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
+									balance_label.setText(eth.toPlainString());
+									return null;
+								}
+								
+							});
+						}
+						var items = CryptoUtil.getAccountBalances(account);
+						for (int i = 0; i < items.length(); i++) {
+							var jobj = items.getJSONObject(i);
+							if (jobj.getString("contract_name").equals("Ether") && jobj.getString("contract_ticker_symbol").equals("ETH")) {
+								BigInteger wei = new BigInteger(jobj.getString("balance"));
+								BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
+								balance_label.setText(eth.toPlainString());
+								break;
+							}
+						}
+						List<AltTokenWrapper> l = new ArrayList<>(items.length());
+						for (int i = 0; i < items.length(); i++) {
+							var jobj = items.getJSONObject(i);
+							l.add(new AltTokenWrapper(nw, jobj));
+						}
+						token_list.setListData(l.toArray(new AltTokenWrapper[items.length()]));
+
 					} catch (Exception x) {
 						Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 					} finally {
+						token_list_card_layout.show(token_list_panel, "list");
 						updateUI();
 					}
 				});
 			}
 		}
+		manage_token_list_btn.setEnabled(!WEB3J.equals(e.network));
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
