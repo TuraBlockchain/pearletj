@@ -9,6 +9,9 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.io.IOException;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -62,7 +65,7 @@ public class UIUtil {
 
 	public static final MyStretchIcon getStretchIcon(String path, int w, int h) {
 		try {
-			return  new MyStretchIcon(ImageIO.read(Util.getResource(path)), w, h);
+			return new MyStretchIcon(ImageIO.read(Util.getResource(path)), w, h);
 		} catch (IOException e) {
 			return null;
 		}
@@ -93,10 +96,14 @@ public class UIUtil {
 					messageType = MessageType.INFO;
 				}
 				trayIcon.displayMessage(title, message, messageType);
-//				SystemTray.getSystemTray().remove(trayIcon);
 			}
 		} else {
-			JOptionPane.showMessageDialog(null, message, title, JOptionPane.INFORMATION_MESSAGE);
+			Map<MessageType, Integer> map = new EnumMap<>(MessageType.class);
+			map.put(MessageType.NONE, JOptionPane.PLAIN_MESSAGE);
+			map.put(MessageType.WARNING, JOptionPane.WARNING_MESSAGE);
+			map.put(MessageType.INFO, JOptionPane.INFORMATION_MESSAGE);
+			map.put(MessageType.ERROR, JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, message, title, map.get(messageType));
 		}
 	}
 }
