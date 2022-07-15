@@ -70,7 +70,10 @@ import signumj.entity.response.AssetBalance;
 public class SendPanel extends JPanel {
 
 	private static final Dimension FIELD_DIMENSION = new Dimension(500, 20);
+	private final JPanel panel_2 = new JPanel(new BorderLayout());
+	private final JPanel fee_panel = new JPanel(new GridLayout(1, 0));
 	private final JLayer<JPanel> jlayer = new JLayer<>();
+	private final JLabel fee_label = new JLabel("Fee");
 	private final WaitLayerUI wuli = new WaitLayerUI();
 	private final JComboBox<String> acc_combo_box = new JComboBox<>();
 	private final JComboBox<Object> token_combo_box = new JComboBox<>();
@@ -117,11 +120,9 @@ public class SendPanel extends JPanel {
 		amt_field.setPreferredSize(FIELD_DIMENSION);
 		panel_1.add(amt_field, newGridConst(0, 5, 5));
 
-		var label_6 = new JLabel("Fee");
-		panel_1.add(label_6, newGridConst(0, 6, 3, 17));
+		panel_1.add(fee_label, newGridConst(0, 6, 3, 17));
 		var fee_field = new JTextField("0.05");
 		fee_field.setHorizontalAlignment(JTextField.RIGHT);
-		var fee_panel = new JPanel(new GridLayout(1, 0));
 		fee_panel.setPreferredSize(FIELD_DIMENSION);
 		var fee_slider = new JSlider(10, 100, 50);
 		Stream.of(fee_field, fee_slider).forEach(fee_panel::add);
@@ -129,7 +130,6 @@ public class SendPanel extends JPanel {
 		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / 1000f));
 		panel_1.add(fee_panel, newGridConst(0, 7, 5));
 
-		var panel_2 = new JPanel(new BorderLayout());
 		var panel_3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		var msg_chk_box = new JCheckBox("Add a Message");
 		msg_chk_box.setPreferredSize(new Dimension(150, 30));
@@ -276,7 +276,7 @@ public class SendPanel extends JPanel {
 				}
 				if (b) {
 					UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);
-				}else {
+				} else {
 					JOptionPane.showMessageDialog(getRootPane(), "Something went wrong, and token was not sent.", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			});
@@ -334,6 +334,7 @@ public class SendPanel extends JPanel {
 				send_btn.setEnabled(false);
 			}
 		}
+		Stream.of(panel_2, fee_panel, fee_label).forEach(c -> c.setVisible(!WEB3J.equals(e.network)));
 	}
 
 	private final void updat_balance_label(BigDecimal value) {
