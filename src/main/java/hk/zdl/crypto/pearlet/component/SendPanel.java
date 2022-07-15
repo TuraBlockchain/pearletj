@@ -228,7 +228,7 @@ public class SendPanel extends JPanel {
 				if (o instanceof Asset) {
 					Asset a = (Asset) o;
 					asset_id = a.getAssetId().getID();
-					amount = amount.multiply(new BigDecimal(Math.pow(10, a.getDecimals())));
+					amount = amount.multiply(BigDecimal.TEN.pow(a.getDecimals()));
 				}
 			}
 			SendTx send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()), asset_id);
@@ -308,7 +308,7 @@ public class SendPanel extends JPanel {
 						updat_balance_label(value);
 						for (AssetBalance ab : account.getAssetBalances()) {
 							Asset a = CryptoUtil.getAsset(e.network, ab.getAssetId().toString());
-							BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).multiply(new BigDecimal(Math.pow(10, -a.getDecimals())));
+							BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).divide(BigDecimal.TEN.pow(a.getDecimals()));
 							asset_balance.put(a, val);
 							((DefaultComboBoxModel<Object>) token_combo_box.getModel()).addElement(a);
 						}
