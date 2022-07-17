@@ -72,6 +72,33 @@ public class Util {
 		return es.submit(task);
 	}
 
+	public static final <E> boolean viewContractDetail(CrptoNetworks nw, E e) {
+		if (!Desktop.isDesktopSupported()) {
+			return false;
+		}
+		switch (nw) {
+		case ROTURA:
+			break;
+		case SIGNUM:
+			break;
+		case WEB3J:
+			try {
+				var address = ((JSONObject) e).getString("contract_address");
+				if ("0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee".equals(address)) {
+					return false;
+				}
+				Desktop.getDesktop().browse(new URI("https://ethplorer.io/address/" + address + "#pageTab=issuances&tab=tab-issuances"));
+			} catch (Exception x) {
+				return false;
+			}
+			break;
+		default:
+			break;
+
+		}
+		return false;
+	}
+
 	public static final <E> boolean viewTxDetail(CrptoNetworks nw, E e) {
 		if (!Desktop.isDesktopSupported()) {
 			return false;

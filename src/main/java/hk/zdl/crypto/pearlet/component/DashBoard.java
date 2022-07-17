@@ -152,7 +152,7 @@ public class DashBoard extends JPanel {
 			if (token_list.getSelectedIndex() < 0) {
 				asset_info_panel.setVisible(false);
 			} else {
-				AltTokenWrapper atw = token_list.getSelectedValuesList().get(0);
+				AltTokenWrapper atw = token_list.getSelectedValue();
 				if (Arrays.asList(ROTURA, SIGNUM).contains(atw.network)) {
 					var a = atw.asset;
 					asset_id_label_0.setText("asset id:");
@@ -175,6 +175,17 @@ public class DashBoard extends JPanel {
 					BigDecimal val = new BigDecimal(jobj.getString("balance")).divide(BigDecimal.TEN.pow(jobj.getInt("contract_decimals")));
 					asset_balance_label.setText(val.stripTrailingZeros().toPlainString());
 					asset_info_panel.setVisible(true);
+				}
+			}
+		});
+		token_list.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent mouseEvent) {
+				if (mouseEvent.getClickCount() == 2 && token_list.getSelectedIndex()>-1) {
+					AltTokenWrapper atw = token_list.getSelectedValue();
+					if (WEB3J.equals(atw.network)) {
+						var jobj = atw.jobj;
+						Util.viewContractDetail(nw, jobj);
+					}
 				}
 			}
 		});
