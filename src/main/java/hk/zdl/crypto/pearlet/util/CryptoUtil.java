@@ -221,6 +221,8 @@ public class CryptoUtil {
 		var request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/balances_v2/?quote-currency=ETH&format=JSON&nft=false&no-nft-fetch=true&key=" + _key).build();
 		var response = client.newCall(request).execute();
 		var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+		response.body().byteStream().close();
+		response.close();
 		if (jobj.getBoolean("error")) {
 			throw new IOException(jobj.getString("error_message"));
 		} else {

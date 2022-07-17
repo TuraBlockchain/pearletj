@@ -52,6 +52,8 @@ import org.bouncycastle.util.encoders.Base64;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
@@ -175,6 +177,8 @@ public class SendPanel extends JPanel {
 			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				if (value instanceof Asset) {
 					value = ((Asset) value).getName();
+				} else if (value instanceof JSONObject) {
+					value = ((JSONObject) value).getString("contract_name");
 				}
 				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				return this;
@@ -320,6 +324,24 @@ public class SendPanel extends JPanel {
 						} catch (Exception x) {
 							Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 						}
+						Optional<JSONArray> o_arr = MyDb.getETHTokenList(account);
+						if (o_arr.isPresent()) {
+							var jarr = o_arr.get();
+							JSONObject[] arr = new JSONObject[jarr.length()];
+							int j = -1;
+							for (int i = 0; i < arr.length; i++) {
+								var jobj = jarr.getJSONObject(i);
+								arr[i] = jobj;
+								BigDecimal val = new BigDecimal(jobj.getString("balance")).divide(BigDecimal.TEN.pow(jobj.getInt("contract_decimals")));
+								asset_balance.put(jobj, val);
+								if (jobj.getString("contract_name").equals("Ether") && jobj.getString("contract_ticker_symbol").equals("ETH")) {
+									j = i;
+								}
+							}
+							token_combo_box.setModel(new DefaultComboBoxModel<Object>(arr));
+							token_combo_box.setSelectedIndex(j);
+						}
+
 					}
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);

@@ -5,7 +5,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.swing.Icon;
@@ -77,8 +76,7 @@ public class NetworkAndAccountBar extends JPanel {
 	@SuppressWarnings("unchecked")
 	private final void update_account_combobox() {
 		CrptoNetworks nw = (CrptoNetworks) network_combobox.getSelectedItem();
-		List<AddressWithNickname> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> o.getStr("ADDRESS")).map(o -> new AddressWithNickname(o))
-				.collect(Collectors.toList());
+		List<AddressWithNickname> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> o.getStr("ADDRESS")).map(o -> new AddressWithNickname(o)).toList();
 		l = l.stream().map(o -> new AddressWithNickname(o.address, ENSLookup.containsKey(o.address) ? ENSLookup.reverse_lookup(o.address) : null)).toList();
 		account_combobox.setModel(new ListComboBoxModel<>(l));
 		account_combobox.setEnabled(!l.isEmpty());

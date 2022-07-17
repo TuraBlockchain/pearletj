@@ -24,5 +24,7 @@ public class EtherTxQuery {
 			jobj = items.getJSONObject(i);
 			EventBus.getDefault().post(new TxHistoryEvent<JSONObject>(CrptoNetworks.WEB3J, TxHistoryEvent.Type.INSERT, jobj));
 		}
+		response.body().byteStream().close();
+		response.close();
 	}
 }

@@ -11,6 +11,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import org.json.JSONArray;
+import org.json.JSONTokener;
 
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
@@ -152,7 +159,7 @@ public class MyDb {
 		return Db.deleteById("ACCOUNTS", "ID", id);
 	}
 
-	public static final void putSignumTx(CrptoNetworks nw, Transaction tx) {
+	public static final boolean putSignumTx(CrptoNetworks nw, Transaction tx) {
 		long id = tx.getId().getSignedLongId();
 		var baos = new ByteArrayOutputStream(10240);
 		try {
@@ -160,10 +167,10 @@ public class MyDb {
 			oos.writeObject(tx);
 			oos.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logger.getLogger(MyDb.class.getName()).log(Level.WARNING, e.getMessage(), e);
 		}
 		byte[] bArr = baos.toByteArray();
-		Db.save("SIGNUM_TX", "ID", new Record().set("id", id).set("network", nw.name()).set("content", bArr));
+		return Db.save("SIGNUM_TX", "ID", new Record().set("id", id).set("network", nw.name()).set("content", bArr));
 	}
 
 	public static final Optional<Transaction> getSignumTxFromLocal(CrptoNetworks nw, SignumID id) throws Exception {
@@ -186,4 +193,49 @@ public class MyDb {
 		}
 	}
 
+	public static final boolean putETHTokenList(String address, JSONArray jarr) {
+		try {
+			boolean save = false;
+			Record r = Db.findFirst("SELECT * FROM APP.ETH_TOKENS WHERE ADDRESS = ?", address);
+			if (r == null) {
+				r = new Record().set("ADDRESS", address);
+				save = true;
+			}
+			var baos = new ByteArrayOutputStream(10240);
+			var gzos = new GZIPOutputStream(baos, true);
+			gzos.write(jarr.toString().getBytes());
+			gzos.flush();
+			gzos.finish();
+			byte[] bArr = baos.toByteArray();
+			r.set("CONTENT", bArr);
+			if (save) {
+				return Db.save("APP.ETH_TOKENS", "ID", r);
+			} else {
+				return Db.update("APP.ETH_TOKENS", "ID", r);
+			}
+		} catch (Exception e) {
+			Logger.getLogger(MyDb.class.getName()).log(Level.WARNING, e.getMessage(), e);
+		}
+		return false;
+	}
+
+	public static final Optional<JSONArray> getETHTokenList(String address) throws Exception {
+		Connection conn = Db.use().getConfig().getConnection();
+		PreparedStatement pst = conn.prepareStatement("SELECT CONTENT FROM APP.ETH_TOKENS WHERE ADDRESS = ?");
+		Db.use().getConfig().getDialect().fillStatement(pst, address);
+		ResultSet rs = pst.executeQuery();
+		if (rs.next()) {
+			InputStream in = rs.getBinaryStream(1);
+			GZIPInputStream gis = new GZIPInputStream(in);
+			JSONArray jarr = new JSONArray(new JSONTokener(gis));
+			gis.close();
+			in.close();
+			rs.close();
+			conn.close();
+			Optional<JSONArray> o_tx = Optional.of(jarr);
+			return o_tx;
+		} else {
+			return Optional.empty();
+		}
+	}
 }

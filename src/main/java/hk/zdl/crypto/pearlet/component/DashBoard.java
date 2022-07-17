@@ -22,7 +22,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -49,6 +49,7 @@ import javax.swing.table.TableColumnModel;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONArray;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.utils.Convert;
 
@@ -57,6 +58,7 @@ import hk.zdl.crypto.pearlet.component.dashboard.TxTableModel;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
 import hk.zdl.crypto.pearlet.ds.AltTokenWrapper;
+import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
@@ -86,6 +88,7 @@ public class DashBoard extends JPanel {
 	private final JButton manage_token_list_btn = new JButton("Manage Token List");
 	private CrptoNetworks nw;
 	private String account;
+	private Thread token_list_thread = null;
 
 	public DashBoard() {
 		super(new GridBagLayout());
@@ -119,7 +122,7 @@ public class DashBoard extends JPanel {
 		var panel_4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		var asset_balance_label = new JLabel();
 		var asset_name_label = new JLabel();
-		var asset_id_label_0 = new JLabel("asset id:");
+		var asset_id_label_0 = new JLabel();
 		var asset_id_label_1 = new JLabel();
 		panel_3.add(asset_balance_label);
 		panel_3.add(asset_name_label);
@@ -152,6 +155,7 @@ public class DashBoard extends JPanel {
 				AltTokenWrapper atw = token_list.getSelectedValuesList().get(0);
 				if (Arrays.asList(ROTURA, SIGNUM).contains(atw.network)) {
 					var a = atw.asset;
+					asset_id_label_0.setText("asset id:");
 					asset_id_label_1.setText(a.getAssetId().getID());
 					var desc = a.getDescription();
 					asset_info_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()), desc, TitledBorder.LEFT, TitledBorder.TOP, asset_box_font));
@@ -163,6 +167,7 @@ public class DashBoard extends JPanel {
 					var jobj = atw.jobj;
 					var contract_name = jobj.getString("contract_name");
 					var contract_ticker_symbol = jobj.getString("contract_ticker_symbol");
+					asset_id_label_0.setText("contract address:");
 					asset_id_label_1.setText(jobj.getString("contract_address"));
 					var desc = contract_name;
 					asset_info_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()), desc, TitledBorder.LEFT, TitledBorder.TOP, asset_box_font));
@@ -207,17 +212,18 @@ public class DashBoard extends JPanel {
 		this.account = e.account;
 		var symbol = Util.default_currency_symbol.get(nw.name());
 		currency_label.setText(symbol);
+		token_list_card_layout.show(token_list_panel, "bar");
 		token_list.setModel(new DefaultComboBoxModel<AltTokenWrapper>());
 		asset_info_panel.setVisible(false);
 		if (e.account == null || e.account.isBlank()) {
 			balance_label.setText("0");
+			token_list_card_layout.show(token_list_panel, "list");
 		} else {
 			balance_label.setText("?");
 			new TxProc().update_column_model(e.network, table_column_model, e.account);
 			if (Arrays.asList(ROTURA, SIGNUM).contains(nw)) {
 				Util.submit(() -> {
 					try {
-						token_list_card_layout.show(token_list_panel, "bar");
 						Account account = CryptoUtil.getAccount(nw, e.account);
 						balance_label.setText(account.getBalance().toSigna().stripTrailingZeros().toPlainString());
 						token_list.setListData(Arrays.asList(account.getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString())).map(o -> new AltTokenWrapper(nw, o))
@@ -237,47 +243,73 @@ public class DashBoard extends JPanel {
 			} else if (WEB3J.equals(e.network)) {
 				Util.submit(() -> {
 					try {
-						token_list_card_layout.show(token_list_panel, "bar");
 						if(CryptoUtil.getWeb3j().isPresent()) {
-							Util.submit(() -> new Callable<Void>(){
-
-								@Override
-								public Void call() throws Exception {
-									BigInteger wei = CryptoUtil.getWeb3j().get().ethGetBalance(account, DefaultBlockParameterName.LATEST).send().getBalance();
-									BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
-									balance_label.setText(eth.toPlainString());
-									return null;
-								}
-								
-							});
+							BigInteger wei = CryptoUtil.getWeb3j().get().ethGetBalance(account, DefaultBlockParameterName.LATEST).send().getBalance();
+							BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
+							balance_label.setText(eth.toPlainString());
 						}
-						var items = CryptoUtil.getAccountBalances(account);
-						for (int i = 0; i < items.length(); i++) {
-							var jobj = items.getJSONObject(i);
-							if (jobj.getString("contract_name").equals("Ether") && jobj.getString("contract_ticker_symbol").equals("ETH")) {
-								BigInteger wei = new BigInteger(jobj.getString("balance"));
-								BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
-								balance_label.setText(eth.toPlainString());
-								break;
-							}
-						}
-						List<AltTokenWrapper> l = new ArrayList<>(items.length());
-						for (int i = 0; i < items.length(); i++) {
-							var jobj = items.getJSONObject(i);
-							l.add(new AltTokenWrapper(nw, jobj));
-						}
-						token_list.setListData(l.toArray(new AltTokenWrapper[items.length()]));
-
 					} catch (Exception x) {
 						Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 					} finally {
-						token_list_card_layout.show(token_list_panel, "list");
 						updateUI();
 					}
 				});
+				refresh_token_list();
 			}
 		}
 		manage_token_list_btn.setEnabled(!WEB3J.equals(e.network));
+	}
+	
+	@SuppressWarnings("deprecation")
+	private final synchronized void refresh_token_list() {
+		if(token_list_thread != null) {
+			token_list_thread.stop();
+			token_list_thread = null;
+		}
+		token_list_thread = new Thread() {
+
+			@Override
+			public void run() {
+				try {
+					Optional<JSONArray> o_arr = MyDb.getETHTokenList(account);
+					if(o_arr.isPresent()) {
+						update_token_list(o_arr.get());
+					}
+					var items = CryptoUtil.getAccountBalances(account);
+					for (int i = 0; i < items.length(); i++) {
+						var jobj = items.getJSONObject(i);
+						if (jobj.getString("contract_name").equals("Ether") && jobj.getString("contract_ticker_symbol").equals("ETH")) {
+							BigInteger wei = new BigInteger(jobj.getString("balance"));
+							BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
+							balance_label.setText(eth.toPlainString());
+							break;
+						}
+					}
+					update_token_list(items);
+					MyDb.putETHTokenList(account, items);
+				} catch (Exception x) {
+					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
+				} finally {
+					token_list_card_layout.show(token_list_panel, "list");
+					updateUI();
+				}
+
+			}
+			private void update_token_list(JSONArray items) {
+				List<AltTokenWrapper> l = new ArrayList<>(items.length());
+				for (int i = 0; i < items.length(); i++) {
+					var jobj = items.getJSONObject(i);
+					l.add(new AltTokenWrapper(nw, jobj));
+				}
+				int i = token_list.getLeadSelectionIndex();
+				token_list.setListData(l.toArray(new AltTokenWrapper[items.length()]));
+				token_list.setSelectedIndex(Math.min(i, items.length()));
+				token_list_card_layout.show(token_list_panel, "list");
+			}
+		};
+		token_list_thread.setPriority(Thread.MIN_PRIORITY);
+		token_list_thread.setDaemon(true);
+		token_list_thread.start();
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
