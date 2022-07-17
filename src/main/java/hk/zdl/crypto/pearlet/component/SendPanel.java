@@ -227,14 +227,24 @@ public class SendPanel extends JPanel {
 				return;
 			}
 			String asset_id = null;
-			if (token_combo_box.getSelectedIndex() > 0) {
+			if (Arrays.asList(ROTURA, SIGNUM).contains(network)) {
+				if (token_combo_box.getSelectedIndex() > 0) {
+					Object o = token_combo_box.getSelectedItem();
+					if (o instanceof Asset) {
+						Asset a = (Asset) o;
+						asset_id = a.getAssetId().getID();
+						amount = amount.multiply(BigDecimal.TEN.pow(a.getDecimals()));
+					}
+				}
+			} else if (WEB3J.equals(network)) {
 				Object o = token_combo_box.getSelectedItem();
-				if (o instanceof Asset) {
-					Asset a = (Asset) o;
-					asset_id = a.getAssetId().getID();
-					amount = amount.multiply(BigDecimal.TEN.pow(a.getDecimals()));
+				if(o instanceof JSONObject) {
+					var jobj = (JSONObject)o;
+					asset_id = jobj.getString("contract_address");
+					amount = amount.multiply(BigDecimal.TEN.pow(jobj.getInt("contract_decimals")));
 				}
 			}
+			
 			SendTx send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()), asset_id);
 			if (msg_chk_box.isSelected()) {
 				send_tx.setEncrypted(eny_msg_menu_item.isSelected());

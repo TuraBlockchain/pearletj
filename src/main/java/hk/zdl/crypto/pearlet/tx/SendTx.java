@@ -9,11 +9,12 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
+import org.web3j.contracts.eip20.generated.ERC20;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.Transfer;
+import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.utils.Convert;
 
 import com.jfinal.plugin.activerecord.Record;
@@ -118,7 +119,11 @@ public class SendTx implements Callable<Boolean> {
 				Optional<Web3j> o_j = CryptoUtil.getWeb3j();
 				if (o_j.isPresent()) {
 					Credentials credentials = Credentials.create(ECKeyPair.create(private_key));
-					TransactionReceipt transactionReceipt = Transfer.sendFunds(o_j.get(), credentials, to, amount, Convert.Unit.ETHER).send();
+					if (asset_id == null || "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee".equals(asset_id)) {//native ETH
+						Transfer.sendFunds(o_j.get(), credentials, to, amount, Convert.Unit.ETHER).send();
+					}else {//ERC20
+						ERC20.load(asset_id, o_j.get(), credentials, new DefaultGasProvider()).transfer(to, amount.toBigInteger()).send();
+					}
 					return true;
 				} else {
 					return false;
