@@ -1,5 +1,7 @@
 package hk.zdl.crypto.pearlet.tx_history_query;
 
+import java.io.IOException;
+
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -16,15 +18,28 @@ public class EtherTxQuery {
 	private final OkHttpClient client = new OkHttpClient();
 
 	public void queryTxHistory(String address) throws Exception {
-		var request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/transactions_v2/?key=" + _key).build();
-		var response = client.newCall(request).execute();
-		var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-		var items = jobj.getJSONObject("data").getJSONArray("items");
-		for(int i=0;i<items.length();i++) {
-			jobj = items.getJSONObject(i);
-			EventBus.getDefault().post(new TxHistoryEvent<JSONObject>(CrptoNetworks.WEB3J, TxHistoryEvent.Type.INSERT, jobj));
+		if (address == null) {
+			return;
 		}
-		response.body().byteStream().close();
-		response.close();
+		var request = new Request.Builder()
+				.url("https://api.covalenthq.com/v1/1/address/" + address + "/transactions_v2/?key=" + _key).build();
+		var response = client.newCall(request).execute();
+		try {
+			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			if (jobj.getBoolean("error")) {
+				throw new IOException(jobj.getString("error_message"));
+			}
+			var items = jobj.getJSONObject("data").getJSONArray("items");
+			for (int i = 0; i < items.length(); i++) {
+				jobj = items.getJSONObject(i);
+				EventBus.getDefault()
+						.post(new TxHistoryEvent<JSONObject>(CrptoNetworks.WEB3J, TxHistoryEvent.Type.INSERT, jobj));
+			}
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			response.body().byteStream().close();
+			response.close();
+		}
 	}
 }

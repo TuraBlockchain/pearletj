@@ -53,7 +53,7 @@ public class TxHistoryQueryExecutor {
 		@Override
 		public void run() {
 			boolean is_finished = false;
-			if ("null".equals(account)) {
+			if ("null".equals(String.valueOf(account))) {
 				is_finished = true;
 			} else
 				try {
