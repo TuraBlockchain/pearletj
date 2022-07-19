@@ -9,8 +9,10 @@ import java.util.concurrent.Callable;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JLayer;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -30,10 +32,12 @@ import hk.zdl.crypto.pearlet.component.ReceivePanel;
 import hk.zdl.crypto.pearlet.component.SendPanel;
 import hk.zdl.crypto.pearlet.component.SettingsPanel;
 import hk.zdl.crypto.pearlet.component.TranscationPanel;
+import hk.zdl.crypto.pearlet.component.miner.MinerExplorePane;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.tx_history_query.TxHistoryQueryExecutor;
 import hk.zdl.crypto.pearlet.ui.AquaMagic;
+import hk.zdl.crypto.pearlet.ui.CloseableTabbedPaneLayerUI;
 import hk.zdl.crypto.pearlet.ui.GnomeMagic;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -99,6 +103,7 @@ public class Main {
 			mfs.put("rcv", new ReceivePanel());
 			mfs.put("acc_info", new AccountInfoPanel());
 			mfs.put("msgs", new MessagesPanel());
+			mfs.put("miner",new JLayer<JTabbedPane>(new MinerExplorePane(), new CloseableTabbedPaneLayerUI()));
 			mfs.put("alis", new AlisesPanel());
 			mfs.put("sets", new SettingsPanel());
 			mfs.put("about", new AboutPanel());

@@ -150,6 +150,11 @@
 			<artifactId>jfinal</artifactId>
 			<version>5.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>1.5.3</version>
+		</dependency>
 		<!-- svg -->
 		<dependency>
 			<groupId>com.twelvemonkeys.imageio</groupId>
