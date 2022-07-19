@@ -35,6 +35,11 @@
 		"icon": "alt_route_black_48dp.svg"
 	},
 	{
+		"id": "miner",
+		"text": "Miner",
+		"icon": "minecart-loaded.svg"
+	},
+	{
 		"id": "sets",
 		"text": "Settings",
 		"icon": "gear-solid.svg"

@@ -1,13 +1,11 @@
 package hk.zdl.crypto.pearlet.component;
 
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.RenderingHints;
-import java.awt.image.ImageObserver;
+import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
+
+import org.imgscalr.Scalr;
 
 @SuppressWarnings("serial")
 public class MyStretchIcon extends ImageIcon {
@@ -26,6 +24,15 @@ public class MyStretchIcon extends ImageIcon {
 			this.width = width;
 			this.height = height;
 		}
+		BufferedImage scaledImage;
+		if (image instanceof BufferedImage) {
+			scaledImage = (BufferedImage) image;
+		} else {
+			scaledImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
+			scaledImage.getGraphics().drawImage(image, 0, 0, null);
+		}
+		scaledImage = Scalr.resize(scaledImage, Scalr.Method.ULTRA_QUALITY, Scalr.Mode.FIT_EXACT, this.width, this.height);
+		setImage(scaledImage);
 	}
 
 	@Override
@@ -36,19 +43,5 @@ public class MyStretchIcon extends ImageIcon {
 	@Override
 	public int getIconHeight() {
 		return height;
-	}
-
-	@Override
-	public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
-		Image image = getImage();
-		if (image == null) {
-			return;
-		}
-		ImageObserver io = getImageObserver();
-		Graphics2D g2d = (Graphics2D) g;
-		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
-		g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-		g2d.drawImage(image, x, y, width, height, io == null ? c : io);
 	}
 }
