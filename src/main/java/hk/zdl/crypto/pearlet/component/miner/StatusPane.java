@@ -2,7 +2,6 @@ package hk.zdl.crypto.pearlet.component.miner;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -32,8 +31,8 @@ final class StatusPane extends JPanel {
 	 */
 	private static final long serialVersionUID = -5037208846880312003L;
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss.SSSXXX");
-	private static final Font title_font = new Font("Ariel Rounded", Font.PLAIN, 24);
-	private final ChartPanel temp_panel = new ChartPanel(ChartFactory.createBarChart("Temperature(" + (char) 0x2103 + ")", "", "", new DefaultCategoryDataset(), PlotOrientation.HORIZONTAL, true, true, false));
+	private final ChartPanel temp_panel = new ChartPanel(
+			ChartFactory.createBarChart("Temperature(" + (char) 0x2103 + ")", "", "", new DefaultCategoryDataset(), PlotOrientation.HORIZONTAL, true, true, false));
 	private final ChartPanel disk_usage_panel = new ChartPanel(ChartFactory.createPieChart("Disk Usage", new DefaultPieDataset<String>(), true, true, false));
 	private final JPanel mining_detail_panel = new JPanel(new BorderLayout());
 	private final ChartPanel memory_usage_panel = new ChartPanel(ChartFactory.createPieChart("Memory Usage", new DefaultPieDataset<String>(), true, true, false));
@@ -43,12 +42,21 @@ final class StatusPane extends JPanel {
 	public StatusPane() {
 		super(new GridLayout(2, 2));
 		Stream.of(temp_panel, disk_usage_panel, mining_detail_panel, memory_usage_panel).forEach(this::add);
+		Stream.of(temp_panel, disk_usage_panel, memory_usage_panel).forEach(p -> {
+			p.setPopupMenu(null);
+			var chart = p.getChart();
+			var plot = chart.getPlot();
+			var trans = new Color(0, 0, 0, 0);
+			chart.setBackgroundPaint(trans);
+			plot.setBackgroundPaint(trans);
+			plot.setOutlinePaint(null);
+		});
 		init_mining_panel();
 	}
 
 	private void init_mining_panel() {
 		var mining_title_label = new JLabel("Mining");
-		mining_title_label.setFont(title_font);
+		mining_title_label.setFont(temp_panel.getChart().getTitle().getFont());
 		mining_title_label.setHorizontalAlignment(SwingConstants.CENTER);
 		mining_detail_panel.add(mining_title_label, BorderLayout.NORTH);
 		var table = new JTable(mining_table_model) {
@@ -113,9 +121,6 @@ final class StatusPane extends JPanel {
 		dataset.setValue("Plot", plot_size);
 		dataset.setValue("Free", total - used);
 		plot.setDataset(dataset);
-		var trans = new Color(0xFF, 0xFF, 0xFF, 0);
-		chart.setBackgroundPaint(trans);
-		plot.setBackgroundPaint(trans);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -131,10 +136,8 @@ final class StatusPane extends JPanel {
 		dataset.setValue("Used", used);
 		dataset.setValue("Free", free);
 		plot.setDataset(dataset);
-		var trans = new Color(0xFF, 0xFF, 0xFF, 0);
-		chart.setBackgroundPaint(trans);
-		plot.setBackgroundPaint(trans);
 	}
+
 	private void set_temp_panel() {
 		int cpu_temp = status.getInt("CPU Temp");
 		int disk_temp = status.getJSONObject("disk").getInt("temp_cel");
@@ -145,8 +148,5 @@ final class StatusPane extends JPanel {
 		dataset.addValue(disk_temp, "Disk", "");
 		plot.setDataset(dataset);
 		plot.getRangeAxis().setRange(0, 100);
-		var trans = new Color(0xFF, 0xFF, 0xFF, 0);
-		chart.setBackgroundPaint(trans);
-		plot.setBackgroundPaint(trans);
 	}
 }
