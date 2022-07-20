@@ -1,15 +1,18 @@
 package hk.zdl.crypto.pearlet.component.miner;
 
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.stream.Stream;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
@@ -34,8 +37,11 @@ public class MinerAccountSettingsPanel extends JPanel {
 	private String basePath = "";
 
 	public MinerAccountSettingsPanel() {
-		super(new FlowLayout());
-		Stream.of(acc_cbox, add_btn, del_btn).forEach(this::add);
+		super(new GridBagLayout());
+		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Miner Account", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
+		add(acc_cbox, new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.WEST, 1, new Insets(5, 5, 5, 5), 0, 0));
+		add(add_btn, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, 0, new Insets(5, 5, 5, 5), 0, 0));
+		add(del_btn, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, 0, new Insets(5, 5, 5, 5), 0, 0));
 		add_btn.addActionListener(e -> {
 			if (add_account()) {
 				try {

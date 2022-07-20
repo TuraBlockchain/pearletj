@@ -15,6 +15,7 @@ public class MinerSettingsPane extends JPanel {
 	private final MinerAccountSettingsPanel account_settings_panel = new MinerAccountSettingsPanel();
 	private final MinerMiscSettingsPane misc_settings_panel = new MinerMiscSettingsPane();
 	private final MinerPathSettingPanel miner_path_settings_panel = new MinerPathSettingPanel();
+	private final PlotProgressPanel plot_progress_panel = new PlotProgressPanel();
 	
 	public MinerSettingsPane() {
 		super(new GridLayout(2, 2));
@@ -25,6 +26,7 @@ public class MinerSettingsPane extends JPanel {
 		add(account_settings_panel);
 		add(misc_settings_panel);
 		add(miner_path_settings_panel);
+		add(plot_progress_panel);
 	}
 
 	public void setBasePath(String basePath) {
@@ -46,6 +48,7 @@ public class MinerSettingsPane extends JPanel {
 		} catch (Exception e) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
 		}
+		plot_progress_panel.setBasePath(basePath);
 	}
 
 }

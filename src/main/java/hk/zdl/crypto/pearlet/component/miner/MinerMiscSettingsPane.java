@@ -6,11 +6,13 @@ import java.awt.Insets;
 import java.io.IOException;
 import java.net.URL;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
@@ -34,12 +36,13 @@ public class MinerMiscSettingsPane extends JPanel {
 
 	public MinerMiscSettingsPane() {
 		super(new GridBagLayout());
+		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Misc", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
 		var label_1 = new JLabel("Server URL:");
-		add(label_1, new GridBagConstraints(0, 0, 2, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		add(server_url_field, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		add(label_1, new GridBagConstraints(0, 0, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+		add(server_url_field, new GridBagConstraints(0, 1, 1, 1, 1, 0, GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 		add(update_serv_url_btn, new GridBagConstraints(1, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		var label_2 = new JLabel("Restart Miner");
-		add(label_2, new GridBagConstraints(0, 2, 2, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		add(label_2, new GridBagConstraints(0, 2, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 		add(reboot_miner_btn, new GridBagConstraints(0, 3, 2, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		update_serv_url_btn.addActionListener(e -> {
 			try {
