@@ -1,11 +1,13 @@
-package hk.zdl.crypto.pearlet.component.miner;
+package hk.zdl.crypto.pearlet.component.miner.conf;
 
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
@@ -20,7 +22,14 @@ import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
+import org.jdesktop.swingx.combobox.ListComboBoxModel;
+import org.json.JSONArray;
+import org.json.JSONTokener;
+
 import com.jakewharton.byteunits.BinaryByteUnit;
+
+import hk.zdl.crypto.pearlet.component.miner.MinerGridTitleFont;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class PlotProgressPanel extends JPanel {
 
@@ -71,13 +80,26 @@ public class PlotProgressPanel extends JPanel {
 		var label_6 = new JLabel();
 		panel.add(label_6, new GridBagConstraints(1, 4, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
 		slider_1.addChangeListener(e -> {
-			long bytes = slider_1.getValue()*100 * byte_per_nounce;
+			long bytes = slider_1.getValue() * 100 * byte_per_nounce;
 			var strs = new String[] { bytes + " B", BinaryByteUnit.BYTES.toKibibytes(bytes) + " KiB", BinaryByteUnit.BYTES.toMebibytes(bytes) + " MiB",
 					BinaryByteUnit.BYTES.toGibibytes(bytes) + " GiB", toTibibytesString(bytes), };
 			var str = Stream.of(strs).filter(s -> Float.parseFloat(s.split(" ")[0]) < 1024).findFirst().get();
 			label_6.setText(str);
 		});
 		slider_1.getChangeListeners()[0].stateChanged(null);
+		Util.submit(new Callable<Void>() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public Void call() throws Exception {
+				combo_box_1.setModel(new ListComboBoxModel<String>(
+						new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().stream().map(o -> o.toString()).toList()));
+				combo_box_2.setModel(new ListComboBoxModel<String>(
+						new JSONArray(new JSONTokener(new URL(basePath + MinerPathSettingPanel.miner_file_path + "/list").openStream())).toList().stream().map(o -> o.toString()).toList()));
+
+				return null;
+			}
+		});
 
 		int i = JOptionPane.showConfirmDialog(getRootPane(), panel, "Add a Plot", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 	}

@@ -1,4 +1,4 @@
-package hk.zdl.crypto.pearlet.component.miner;
+package hk.zdl.crypto.pearlet.component.miner.conf;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -18,6 +18,7 @@ import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
 import org.json.JSONTokener;
 
+import hk.zdl.crypto.pearlet.component.miner.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;

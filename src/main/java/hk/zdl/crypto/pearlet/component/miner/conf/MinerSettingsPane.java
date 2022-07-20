@@ -1,4 +1,4 @@
-package hk.zdl.crypto.pearlet.component.miner;
+package hk.zdl.crypto.pearlet.component.miner.conf;
 
 import java.awt.GridLayout;
 import java.util.logging.Level;
