@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URL;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -22,13 +23,18 @@ import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import com.jakewharton.byteunits.BinaryByteUnit;
 
 import hk.zdl.crypto.pearlet.component.miner.MinerGridTitleFont;
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class PlotProgressPanel extends JPanel {
@@ -93,15 +99,34 @@ public class PlotProgressPanel extends JPanel {
 			@Override
 			public Void call() throws Exception {
 				combo_box_1.setModel(new ListComboBoxModel<String>(
-						new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().stream().map(o -> o.toString()).toList()));
+						new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().stream().map(String::valueOf).toList()));
 				combo_box_2.setModel(new ListComboBoxModel<String>(
-						new JSONArray(new JSONTokener(new URL(basePath + MinerPathSettingPanel.miner_file_path + "/list").openStream())).toList().stream().map(o -> o.toString()).toList()));
+						new JSONArray(new JSONTokener(new URL(basePath + MinerPathSettingPanel.miner_file_path + "/list").openStream())).toList().stream().map(String::valueOf).toList()));
 
 				return null;
 			}
 		});
 
 		int i = JOptionPane.showConfirmDialog(getRootPane(), panel, "Add a Plot", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (i == JOptionPane.OK_OPTION && combo_box_1.getSelectedIndex() > -1 && combo_box_2.getSelectedIndex() > -1) {
+			try {
+				var httpclient = HttpClients.createDefault();
+				var httpPost = new HttpPost(basePath + plot_path + "/add");
+				var jobj = new JSONObject();
+				jobj.put("id", new BigInteger(combo_box_1.getSelectedItem().toString()));
+				jobj.put("start_nounce", spinner_1.getValue());
+				jobj.put("nounces", slider_1.getValue() * 100);
+				httpPost.setEntity(new StringEntity(jobj.toString()));
+				var response = httpclient.execute(httpPost);
+				response.close();
+				if (response.getStatusLine().getStatusCode() == 200) {
+					UIUtil.displayMessage("Succeed", "Add plot succeed!", null);
+				}
+			} catch (Exception x) {
+				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+			}
+
+		}
 	}
 
 	private String toTibibytesString(long val) {
