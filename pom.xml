@@ -149,6 +149,11 @@
 			<artifactId>appdirs</artifactId>
 			<version>1.2.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.jakewharton.byteunits</groupId>
+			<artifactId>byteunits</artifactId>
+			<version>0.9.1</version>
+		</dependency>
 		<!-- jfinal -->
 		<dependency>
 			<groupId>com.jfinal</groupId>
