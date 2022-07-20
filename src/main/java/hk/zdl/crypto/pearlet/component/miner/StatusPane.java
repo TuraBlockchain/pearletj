@@ -30,14 +30,14 @@ final class StatusPane extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = -5037208846880312003L;
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss.SSSXXX");
-	private final ChartPanel temp_panel = new ChartPanel(
-			ChartFactory.createBarChart("Temperature(" + (char) 0x2103 + ")", "", "", new DefaultCategoryDataset(), PlotOrientation.HORIZONTAL, true, true, false));
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ssXXX");
+	private final ChartPanel temp_panel = new ChartPanel(ChartFactory.createBarChart("Temperature(" + (char) 0x2103 + ")", "", "", new DefaultCategoryDataset(), PlotOrientation.HORIZONTAL, true, true, false));
 	private final ChartPanel disk_usage_panel = new ChartPanel(ChartFactory.createPieChart("Disk Usage", new DefaultPieDataset<String>(), true, true, false));
 	private final JPanel mining_detail_panel = new JPanel(new BorderLayout());
 	private final ChartPanel memory_usage_panel = new ChartPanel(ChartFactory.createPieChart("Memory Usage", new DefaultPieDataset<String>(), true, true, false));
 	private final DefaultTableModel mining_table_model = new DefaultTableModel(5, 2);
 	private JSONObject status;
+	private String basePath = "";
 
 	public StatusPane() {
 		super(new GridLayout(2, 2));
@@ -50,13 +50,14 @@ final class StatusPane extends JPanel {
 			chart.setBackgroundPaint(trans);
 			plot.setBackgroundPaint(trans);
 			plot.setOutlinePaint(null);
+			chart.getTitle().setFont(MinerGridTitleFont.getFont());
 		});
 		init_mining_panel();
 	}
 
 	private void init_mining_panel() {
 		var mining_title_label = new JLabel("Mining");
-		mining_title_label.setFont(temp_panel.getChart().getTitle().getFont());
+		mining_title_label.setFont(MinerGridTitleFont.getFont());
 		mining_title_label.setHorizontalAlignment(SwingConstants.CENTER);
 		mining_detail_panel.add(mining_title_label, BorderLayout.NORTH);
 		var table = new JTable(mining_table_model) {
@@ -148,5 +149,9 @@ final class StatusPane extends JPanel {
 		dataset.addValue(disk_temp, "Disk", "");
 		plot.setDataset(dataset);
 		plot.getRangeAxis().setRange(0, 100);
+	}
+
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
 	}
 }

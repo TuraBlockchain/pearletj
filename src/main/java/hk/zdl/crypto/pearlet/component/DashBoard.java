@@ -141,7 +141,7 @@ public class DashBoard extends JPanel {
 				if (Arrays.asList(ROTURA, SIGNUM).contains(atw.network)) {
 					super.getListCellRendererComponent(list, atw.asset.getName(), index, isSelected, cellHasFocus);
 				} else if (WEB3J.equals(atw.network)) {
-					String name = atw.jobj.getString("contract_name");
+					String name = atw.jobj.optString("contract_name");
 					super.getListCellRendererComponent(list, name, index, isSelected, cellHasFocus);
 				}
 				return this;
@@ -165,10 +165,10 @@ public class DashBoard extends JPanel {
 					asset_info_panel.setVisible(true);
 				} else if (WEB3J.equals(atw.network)) {
 					var jobj = atw.jobj;
-					var contract_name = jobj.getString("contract_name");
-					var contract_ticker_symbol = jobj.getString("contract_ticker_symbol");
+					var contract_name = jobj.optString("contract_name");
+					var contract_ticker_symbol = jobj.optString("contract_ticker_symbol");
 					asset_id_label_0.setText("contract address:");
-					asset_id_label_1.setText(jobj.getString("contract_address"));
+					asset_id_label_1.setText(jobj.optString("contract_address"));
 					var desc = contract_name;
 					asset_info_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()), desc, TitledBorder.LEFT, TitledBorder.TOP, asset_box_font));
 					asset_name_label.setText(contract_ticker_symbol);

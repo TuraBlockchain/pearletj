@@ -135,6 +135,11 @@
 			<version>2.8.0</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.13</version>
+		</dependency>
+		<dependency>
 			<groupId>org.greenrobot</groupId>
 			<artifactId>eventbus-java</artifactId>
 			<version>3.3.1</version>
@@ -143,6 +148,11 @@
 			<groupId>net.harawata</groupId>
 			<artifactId>appdirs</artifactId>
 			<version>1.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jakewharton.byteunits</groupId>
+			<artifactId>byteunits</artifactId>
+			<version>0.9.1</version>
 		</dependency>
 		<!-- jfinal -->
 		<dependency>
