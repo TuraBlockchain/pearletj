@@ -31,7 +31,7 @@ final class StatusPane extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = -5037208846880312003L;
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss.SSSXXX");
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ssXXX");
 	private static final Font title_font = new Font("Ariel Rounded", Font.PLAIN, 24);
 	private final ChartPanel temp_panel = new ChartPanel(ChartFactory.createBarChart("Temperature(" + (char) 0x2103 + ")", "", "", new DefaultCategoryDataset(), PlotOrientation.HORIZONTAL, true, true, false));
 	private final ChartPanel disk_usage_panel = new ChartPanel(ChartFactory.createPieChart("Disk Usage", new DefaultPieDataset<String>(), true, true, false));
@@ -39,6 +39,7 @@ final class StatusPane extends JPanel {
 	private final ChartPanel memory_usage_panel = new ChartPanel(ChartFactory.createPieChart("Memory Usage", new DefaultPieDataset<String>(), true, true, false));
 	private final DefaultTableModel mining_table_model = new DefaultTableModel(5, 2);
 	private JSONObject status;
+	private String basePath = "";
 
 	public StatusPane() {
 		super(new GridLayout(2, 2));
@@ -148,5 +149,9 @@ final class StatusPane extends JPanel {
 		var trans = new Color(0xFF, 0xFF, 0xFF, 0);
 		chart.setBackgroundPaint(trans);
 		plot.setBackgroundPaint(trans);
+	}
+
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
 	}
 }
