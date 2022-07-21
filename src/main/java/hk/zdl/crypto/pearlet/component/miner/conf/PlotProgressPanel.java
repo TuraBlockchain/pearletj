@@ -1,13 +1,12 @@
 package hk.zdl.crypto.pearlet.component.miner.conf;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -19,11 +18,15 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import org.apache.http.client.methods.HttpPost;
@@ -31,7 +34,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -50,20 +52,63 @@ public class PlotProgressPanel extends JPanel {
 	private static final long byte_per_nounce = 262144;
 	public static final String plot_path = "/api/v1/plot";
 	private final JButton add_btn = new JButton("Add a Plot");
-	private final JTable table = new JTable(new PlotTableModel());
+	private final JTable table = new JTable(new Object[][] {}, new Object[] { "Type", "Rate", "Progress", "ETA", "Path" }) {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -7710119472375311686L;
+
+		@Override
+		public boolean isCellEditable(int row, int column) {
+			return false;
+		}
+	};
 
 	private String basePath = "";
 
 	public PlotProgressPanel() {
 		super(new BorderLayout());
 		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Plot", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
+		init_table();
 		add(add_btn, BorderLayout.NORTH);
-		add(table, BorderLayout.CENTER);
+		add(new JScrollPane(table), BorderLayout.CENTER);
 		add_btn.addActionListener(e -> addPlot());
 	}
 
 	public void setBasePath(String basePath) {
 		this.basePath = basePath;
+	}
+	
+	@SuppressWarnings("serial")
+	private void init_table() {
+		table.setFillsViewportHeight(true);
+		table.getTableHeader().setReorderingAllowed(false);
+		table.setColumnSelectionAllowed(false);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		table.setCellSelectionEnabled(false);
+		table.setDragEnabled(false);
+		table.setRowSelectionAllowed(false);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		table.setShowGrid(true);
+		table.getColumnModel().getColumn(2).setCellRenderer(new DefaultTableCellRenderer() {
+			
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				if(value instanceof Float) {
+					var bar = new JProgressBar(0,100);
+					bar.setValue((int) Float.parseFloat(value.toString()));
+					bar.setString(value.toString()+"%");
+					bar.setStringPainted(true);
+					bar.setFont(table.getFont());
+					bar.setBorder(super.getBorder());
+					return bar;
+				}else {
+					return this;
+				}
+			}
+		});
 	}
 
 	private final void addPlot() {
@@ -124,7 +169,7 @@ public class PlotProgressPanel extends JPanel {
 				var response = httpclient.execute(httpPost);
 				response.close();
 				if (response.getStatusLine().getStatusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Add plot succeed!", null);
+					UIUtil.displayMessage("Succeed", "Plot started!", null);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
@@ -144,18 +189,22 @@ public class PlotProgressPanel extends JPanel {
 
 	public void refresh_current_plots() throws Exception {
 		var jarr = new JSONArray(new JSONTokener(new URL(basePath + plot_path + "/list").openStream()));
-	}
-
-	private static final class PlotTableModel extends DefaultTableModel {
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -5679611176730255612L;
-
-		public PlotTableModel() {
-			super(new Object[] { "Type", "Rate", "Progress", "ETA", "Path" }, 0);
+		var model = (DefaultTableModel) table.getModel();
+		model.setRowCount(jarr.length() * 2);
+		for (int i = 0; i < jarr.length(); i++) {
+			int row_1 = i * 2;
+			int row_2 = i * 2 + 1;
+			model.setValueAt("Hash", row_1, 0);
+			model.setValueAt("Write", row_2, 0);
+			var jobj = jarr.getJSONObject(i);
+			model.setValueAt(jobj.get("hash_rate"), row_1, 1);
+			model.setValueAt(jobj.get("write_rate"), row_2, 1);
+			model.setValueAt(jobj.getFloat("hash_progress"), row_1, 2);
+			model.setValueAt(jobj.getFloat("write_progress"), row_2, 2);
+			model.setValueAt(jobj.get("hash_eta"), row_1, 3);
+			model.setValueAt(jobj.get("write_eta"), row_2, 3);
+			model.setValueAt(jobj.get("path"), row_1, 4);
+			model.setValueAt(jobj.get("path"), row_2, 4);
 		}
-
 	}
 }

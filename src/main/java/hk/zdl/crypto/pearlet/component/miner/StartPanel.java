@@ -6,6 +6,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -164,6 +166,15 @@ final class StartPanel extends JPanel {
 				p_bar.setIndeterminate(false);
 			}
 		}));
+		miner_url_field.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					inspect_button.doClick();
+				}
+			}
+		});
 	}
 
 	private void addMinerDetailPane(String base_path) throws Exception {

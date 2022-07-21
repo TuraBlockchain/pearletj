@@ -72,8 +72,7 @@ final class StatusPane extends JPanel {
 				return false;
 			}
 		};
-		var scr = new JScrollPane(table);
-		mining_detail_panel.add(scr, BorderLayout.CENTER);
+		mining_detail_panel.add(new JScrollPane(table), BorderLayout.CENTER);
 		table.getTableHeader().setReorderingAllowed(false);
 		table.setColumnSelectionAllowed(false);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
