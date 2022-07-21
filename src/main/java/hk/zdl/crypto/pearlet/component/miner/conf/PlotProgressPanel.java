@@ -4,8 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -22,12 +24,14 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
 
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -46,7 +50,7 @@ public class PlotProgressPanel extends JPanel {
 	private static final long byte_per_nounce = 262144;
 	public static final String plot_path = "/api/v1/plot";
 	private final JButton add_btn = new JButton("Add a Plot");
-	private final JTable table = new JTable(6, 6);
+	private final JTable table = new JTable(new PlotTableModel());
 
 	private String basePath = "";
 
@@ -136,5 +140,22 @@ public class PlotProgressPanel extends JPanel {
 			str = str.substring(0, i + 4);
 		}
 		return str + " TiB";
+	}
+
+	public void refresh_current_plots() throws Exception {
+		var jarr = new JSONArray(new JSONTokener(new URL(basePath + plot_path + "/list").openStream()));
+	}
+
+	private static final class PlotTableModel extends DefaultTableModel {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -5679611176730255612L;
+
+		public PlotTableModel() {
+			super(new Object[] { "Type", "Rate", "Progress", "ETA", "Path" }, 0);
+		}
+
 	}
 }
