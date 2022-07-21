@@ -52,7 +52,7 @@ public class PlotProgressPanel extends JPanel {
 	private static final long byte_per_nounce = 262144;
 	public static final String plot_path = "/api/v1/plot";
 	private final JButton add_btn = new JButton("Add a Plot");
-	private final JTable table = new JTable(new Object[][] {}, new Object[] { "Type", "Rate", "Progress", "ETA", "Path" }) {
+	private final JTable table = new JTable(new DefaultTableModel(new Object[][] {}, new Object[] { "Type", "Rate", "Progress", "ETA", "Path" })) {
 
 		/**
 		 * 
@@ -79,7 +79,7 @@ public class PlotProgressPanel extends JPanel {
 	public void setBasePath(String basePath) {
 		this.basePath = basePath;
 	}
-	
+
 	@SuppressWarnings("serial")
 	private void init_table() {
 		table.setFillsViewportHeight(true);
@@ -92,19 +92,19 @@ public class PlotProgressPanel extends JPanel {
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setShowGrid(true);
 		table.getColumnModel().getColumn(2).setCellRenderer(new DefaultTableCellRenderer() {
-			
+
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				if(value instanceof Float) {
-					var bar = new JProgressBar(0,100);
+				if (value instanceof Float) {
+					var bar = new JProgressBar(0, 100);
 					bar.setValue((int) Float.parseFloat(value.toString()));
-					bar.setString(value.toString()+"%");
+					bar.setString(value.toString() + "%");
 					bar.setStringPainted(true);
 					bar.setFont(table.getFont());
 					bar.setBorder(super.getBorder());
 					return bar;
-				}else {
+				} else {
 					return this;
 				}
 			}

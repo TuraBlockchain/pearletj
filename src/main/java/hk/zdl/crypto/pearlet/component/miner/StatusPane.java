@@ -1,41 +1,52 @@
 package hk.zdl.crypto.pearlet.component.miner;
 
+import static org.jfree.chart.plot.PlotOrientation.HORIZONTAL;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import javax.swing.JLabel;
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
+import javax.swing.Timer;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.PiePlot;
-import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
-final class StatusPane extends JPanel {
+final class StatusPane extends JPanel implements ActionListener {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5037208846880312003L;
+	public static final String miner_status_path = "/api/v1/status";
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ssXXX");
-	private final ChartPanel temp_panel = new ChartPanel(ChartFactory.createBarChart("Temperature(" + (char) 0x2103 + ")", "", "", new DefaultCategoryDataset(), PlotOrientation.HORIZONTAL, true, true, false));
+	private final ChartPanel temp_panel = new ChartPanel(ChartFactory.createBarChart("Temperature(" + (char) 0x2103 + ")", "", "", new DefaultCategoryDataset(), HORIZONTAL, true, true, false));
 	private final ChartPanel disk_usage_panel = new ChartPanel(ChartFactory.createPieChart("Disk Usage", new DefaultPieDataset<String>(), true, true, false));
-	private final JPanel mining_detail_panel = new JPanel(new BorderLayout());
+	private final JPanel mining_detail_panel = new JPanel(new BorderLayout(5,5));
 	private final ChartPanel memory_usage_panel = new ChartPanel(ChartFactory.createPieChart("Memory Usage", new DefaultPieDataset<String>(), true, true, false));
 	private final DefaultTableModel mining_table_model = new DefaultTableModel(5, 2);
+	private final Timer timer = new Timer((int) TimeUnit.SECONDS.toMillis(10), this);
 	private JSONObject status;
 	private String basePath = "";
 
@@ -53,13 +64,17 @@ final class StatusPane extends JPanel {
 			chart.getTitle().setFont(MinerGridTitleFont.getFont());
 		});
 		init_mining_panel();
+		addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void componentShown(ComponentEvent e) {
+				timer.start();
+			}
+		});
 	}
 
 	private void init_mining_panel() {
-		var mining_title_label = new JLabel("Mining");
-		mining_title_label.setFont(MinerGridTitleFont.getFont());
-		mining_title_label.setHorizontalAlignment(SwingConstants.CENTER);
-		mining_detail_panel.add(mining_title_label, BorderLayout.NORTH);
+		mining_detail_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Mining", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
 		var table = new JTable(mining_table_model) {
 
 			/**
@@ -152,5 +167,18 @@ final class StatusPane extends JPanel {
 
 	public void setBasePath(String basePath) {
 		this.basePath = basePath;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		try {
+			setStatus(new JSONObject(new JSONTokener(new URL(basePath + miner_status_path).openStream())));
+		} catch (Exception x) {
+		}
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		timer.stop();
 	}
 }

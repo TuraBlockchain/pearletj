@@ -12,7 +12,6 @@ public class MinerDetailPane extends JTabbedPane {
 	 * 
 	 */
 	private static final long serialVersionUID = 6324183845145603011L;
-	public static final String miner_status_path = "/api/v1/status";
 
 	private final StatusPane status_pane = new StatusPane();
 	private final MinerSettingsPane settings_pane = new MinerSettingsPane();

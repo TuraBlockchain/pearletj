@@ -25,6 +25,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSpinner;
@@ -131,7 +132,7 @@ final class StartPanel extends JPanel {
 					String base_url = new URL("http", a.getHostAddress(), port, "").toString();
 					addMinerDetailPane(base_url);
 				} catch (Exception x) {
-					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), ERROR_MESSAGE);
 					return;
 				}
 			}));
@@ -148,7 +149,7 @@ final class StartPanel extends JPanel {
 			try {
 				new URL(txt);
 			} catch (Exception x) {
-				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), ERROR_MESSAGE);
 				return;
 			}
 			start_button.setEnabled(false);
@@ -158,7 +159,7 @@ final class StartPanel extends JPanel {
 			try {
 				addMinerDetailPane(txt);
 			} catch (Exception x) {
-				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), ERROR_MESSAGE);
 				return;
 			} finally {
 				start_button.setEnabled(true);
@@ -178,7 +179,7 @@ final class StartPanel extends JPanel {
 	}
 
 	private void addMinerDetailPane(String base_path) throws Exception {
-		var jobj = new JSONObject(new JSONTokener(new URL(base_path + MinerDetailPane.miner_status_path).openStream()));
+		var jobj = new JSONObject(new JSONTokener(new URL(base_path + StatusPane.miner_status_path).openStream()));
 		MinerDetailPane pane = new MinerDetailPane();
 		pane.setBasePath(base_path);
 		pane.setStatus(jobj);
