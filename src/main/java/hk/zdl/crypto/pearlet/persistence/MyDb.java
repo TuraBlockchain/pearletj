@@ -160,6 +160,9 @@ public class MyDb {
 	}
 
 	public static final boolean putSignumTx(CrptoNetworks nw, Transaction tx) {
+		if(!(tx instanceof java.io.Serializable)) {
+			return false;
+		}
 		long id = tx.getId().getSignedLongId();
 		var baos = new ByteArrayOutputStream(10240);
 		try {
@@ -174,6 +177,9 @@ public class MyDb {
 	}
 
 	public static final Optional<Transaction> getSignumTxFromLocal(CrptoNetworks nw, SignumID id) throws Exception {
+		if(!(id instanceof java.io.Serializable)) {
+			return Optional.empty();
+		}
 		Connection conn = Db.use().getConfig().getConnection();
 		PreparedStatement pst = conn.prepareStatement("SELECT CONTENT FROM APP.SIGNUM_TX WHERE NETWORK = ? AND ID = ?");
 		Db.use().getConfig().getDialect().fillStatement(pst, nw.name(), id.getSignedLongId());
