@@ -57,6 +57,11 @@
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>in-project</id>
+			<name>In Project Repo</name>
+			<url>file://${project.basedir}/libs</url>
+		</repository>
 	</repositories>
 	<dependencies>
 		<!-- local DB -->
@@ -153,6 +158,11 @@
 			<groupId>com.jakewharton.byteunits</groupId>
 			<artifactId>byteunits</artifactId>
 			<version>0.9.1</version>
+		</dependency>
+		<dependency>
+			<groupId>jpcap</groupId>
+			<artifactId>jpcap</artifactId>
+			<version>0.01.16</version>
 		</dependency>
 		<!-- jfinal -->
 		<dependency>
