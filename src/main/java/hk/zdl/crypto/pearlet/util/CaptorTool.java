@@ -1,11 +1,17 @@
 package hk.zdl.crypto.pearlet.util;
 
+import java.io.IOException;
 import java.net.Inet4Address;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import jpcap.JpcapCaptor;
@@ -14,6 +20,17 @@ import jpcap.packet.ARPPacket;
 import jpcap.packet.EthernetPacket;
 
 public class CaptorTool {
+	
+	static {
+		String os = System.getProperty("os.name");
+		if(os.contains("Windows")) {
+			try {
+				Files.copy(CaptorTool.class.getClassLoader().getResourceAsStream("lib/jpcap.dll"), Paths.get("./jpcap.dll"), StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+				Logger.getLogger(CaptorTool.class.getName()).log(Level.WARNING, e.getMessage(), e);
+			}
+		}
+	}
 
 	public static final boolean isJCaptorActive() {
 		try {

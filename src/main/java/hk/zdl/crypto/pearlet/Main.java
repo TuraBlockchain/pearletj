@@ -103,7 +103,7 @@ public class Main {
 			mfs.put("rcv", new ReceivePanel());
 			mfs.put("acc_info", new AccountInfoPanel());
 			mfs.put("msgs", new MessagesPanel());
-			mfs.put("miner",new JLayer<JTabbedPane>(new MinerExplorePane(), new CloseableTabbedPaneLayerUI()));
+			mfs.put("miner", new JLayer<JTabbedPane>(new MinerExplorePane(), new CloseableTabbedPaneLayerUI()));
 			mfs.put("alis", new AlisesPanel());
 			mfs.put("sets", new SettingsPanel());
 			mfs.put("about", new AboutPanel());
