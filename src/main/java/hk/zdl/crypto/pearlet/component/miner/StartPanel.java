@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.TrayIcon.MessageType;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
@@ -38,6 +39,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.CaptorTool;
 import hk.zdl.crypto.pearlet.util.Util;
 
 final class StartPanel extends JPanel {
@@ -113,8 +115,14 @@ final class StartPanel extends JPanel {
 			for (int i = 0; i < adrs.length; i++) {
 				try {
 					adrs[i] = (Inet4Address) InetAddress.getByAddress(new byte[] { adr.getAddress()[0], adr.getAddress()[1], adr.getAddress()[2], (byte) (i + 1) });
-				} catch (UnknownHostException e1) {
-					e1.printStackTrace();
+				} catch (UnknownHostException x) {
+				}
+			}
+			if(CaptorTool.isJCaptorActive()) {
+				try {
+					adrs = CaptorTool.filter_online_hosts(adr,adrs, 5000);
+				} catch (Throwable x) {
+					UIUtil.displayMessage("Error", x.getMessage(), MessageType.ERROR);
 				}
 			}
 			Stream.of(adrs).parallel().filter(a -> {
@@ -132,8 +140,7 @@ final class StartPanel extends JPanel {
 					String base_url = new URL("http", a.getHostAddress(), port, "").toString();
 					addMinerDetailPane(base_url);
 				} catch (Exception x) {
-					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), ERROR_MESSAGE);
-					return;
+					UIUtil.displayMessage("Error", x.getMessage(), MessageType.ERROR);
 				}
 			}));
 
