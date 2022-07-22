@@ -29,6 +29,12 @@ public class CaptorTool {
 			} catch (IOException e) {
 				Logger.getLogger(CaptorTool.class.getName()).log(Level.WARNING, e.getMessage(), e);
 			}
+		}else if(os.contains("Mac OS X")) {
+			try {
+				Files.copy(CaptorTool.class.getClassLoader().getResourceAsStream("lib/libjpcap.jnilib"), Paths.get("./libjpcap.jnilib"), StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+				Logger.getLogger(CaptorTool.class.getName()).log(Level.WARNING, e.getMessage(), e);
+			}
 		}
 	}
 
