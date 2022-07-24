@@ -429,6 +429,35 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
+	public static byte[] setAccountInfo(CrptoNetworks nw, String name, String description, long feeNQT, byte[] public_key) throws Exception {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			if (feeNQT < 2205000L) {
+				throw new IllegalArgumentException("not enought fee");
+			}
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				var server_url = opt.get();
+				if (!server_url.endsWith("/")) {
+					server_url += "/";
+				}
+				var client = new OkHttpClient.Builder().build();
+				var request = new Request.Builder().url(server_url + "burst?requestType=setAccountInfo")
+						.post(RequestBody.create(
+								"name=" + name + "&description=" + description + "&deadline=1440&broadcast=false&feeNQT=" + feeNQT + "&publicKey=" + Hex.toHexString(public_key),
+								MediaType.parse("application/x-www-form-urlencoded")))
+						.build();
+				var response = client.newCall(request).execute();
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				if (jobj.optInt("errorCode", 0) != 0) {
+					throw new IOException(jobj.optString("errorDescription"));
+				}
+				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+				return bArr;
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+
 	public static byte[] signTransaction(CrptoNetworks nw, byte[] privateKey, byte[] unsignedTransaction) {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			return SignumCrypto.getInstance().signTransaction(privateKey, unsignedTransaction);
