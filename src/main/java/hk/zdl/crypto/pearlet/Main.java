@@ -49,7 +49,6 @@ public class Main {
 		AquaMagic.do_trick();
 		UIUtil.printVersionOnSplashScreen();
 		Image app_icon = ImageIO.read(Util.getResource("app_icon.png"));
-
 		Util.submit(new Callable<Void>() {
 
 			@Override
@@ -70,6 +69,12 @@ public class Main {
 			JOptionPane.showMessageDialog(null, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
+		createFrame(otd, app_icon);
+		Util.submit(MyDb::create_missing_tables);
+		new TxHistoryQueryExecutor();
+	}
+
+	private static final void createFrame(OsThemeDetector otd, Image app_icon) {
 		SwingUtilities.invokeLater(() -> {
 			var appName = Util.getProp().get("appName");
 			var frame = new JFrame(appName);
@@ -118,8 +123,6 @@ public class Main {
 				});
 			});
 		});
-		Util.submit(MyDb::create_missing_tables);
-		new TxHistoryQueryExecutor();
 	}
 
 }

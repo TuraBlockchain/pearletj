@@ -42,7 +42,7 @@ public class IssueTokenPanel extends JPanel {
 	private final JTextField token_name_field = new JTextField(20);
 	private final JTextArea token_desc_area = new JTextArea(5, 20);
 	private final JSpinner qty_spinner = new JSpinner(new SpinnerNumberModel((Number) 1L, 1L, Long.MAX_VALUE, 1L));
-	private final JSpinner fee_spinner = new JSpinner(new SpinnerNumberModel((Number)1000L, 1000L, Long.MAX_VALUE, 1L));
+	private final JSpinner fee_spinner = new JSpinner(new SpinnerNumberModel((Number) 1000L, 1000L, Long.MAX_VALUE, 1L));
 	private final JSpinner dec_spinner = new JSpinner(new SpinnerNumberModel(0, 0, 8, 1));
 
 	public IssueTokenPanel(Component root, CrptoNetworks nw, String account) {
@@ -103,7 +103,7 @@ public class IssueTokenPanel extends JPanel {
 		if (token_name_field.getText().isBlank()) {
 			JOptionPane.showMessageDialog(root, "Token Name Required", "Error", JOptionPane.ERROR_MESSAGE);
 			return false;
-		} else if (token_name_field.getText().length()<3||token_name_field.getText().length()>10) {
+		} else if (token_name_field.getText().length() < 3 || token_name_field.getText().length() > 10) {
 			JOptionPane.showMessageDialog(root, "Incorrect Name, name must be in [3...10]", "Error", JOptionPane.ERROR_MESSAGE);
 			return false;
 		} else if (token_desc_area.getText().isBlank()) {
@@ -126,7 +126,7 @@ public class IssueTokenPanel extends JPanel {
 			CryptoUtil.broadcastTransaction(nw, signed_tx);
 		} catch (Throwable x) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-			JOptionPane.showMessageDialog(root, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(root, x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
 		}
 		return false;
 	}

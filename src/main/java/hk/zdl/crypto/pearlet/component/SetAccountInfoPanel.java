@@ -9,7 +9,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -38,7 +37,6 @@ import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.SpinableIcon;
-import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -87,15 +85,16 @@ public class SetAccountInfoPanel extends JPanel {
 		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / 1000f));
 		add(fee_panel, newGridConst(0, 7, 5));
 
-		var btn_img = new BufferedImage(32,32,BufferedImage.TYPE_4BYTE_ABGR);
+		var send_icon = MyToolbar.getIcon("paper-plane-solid.svg");
+		var send_btn = new JButton("Update Account Info",send_icon);
 		try {
-			btn_img = ImageIO.read(Util.getResource("icon/spinner-solid.svg"));
+			var btn_img = ImageIO.read(Util.getResource("icon/spinner-solid.svg"));
+			var busy_icon = new SpinableIcon(btn_img, 32, 32);
+			send_btn.setDisabledIcon(busy_icon);
+			busy_icon.start();
 		} catch (IOException x) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 		}
-		var btn_icon = new SpinableIcon(btn_img, 32, 32);
-		var send_btn = new JButton(btn_icon);
-		send_btn.setDisabledIcon(btn_icon);
 		add(send_btn, new GridBagConstraints(4, 0, 1, 3, 0, 0, 10, 1, new Insets(5, 5, 5, 0), 0, 0));
 		send_btn.addActionListener(e -> {
 			if (name_field.getText().isBlank()) {
@@ -106,7 +105,6 @@ public class SetAccountInfoPanel extends JPanel {
 				return;
 			}
 			send_btn.setEnabled(false);
-			btn_icon.start();
 			Util.submit(()->{
 				Optional<Record> o_r = MyDb.getAccount(network, account);
 				if (o_r.isPresent()) {
@@ -117,15 +115,13 @@ public class SetAccountInfoPanel extends JPanel {
 							var feeNQT = SignumValue.fromSigna(new BigDecimal(fee_slider.getValue()).divide(new BigDecimal("1000"))).toNQT().longValue();
 							byte[] ugsigned_tx = CryptoUtil.setAccountInfo(network, name_field.getText().trim(), desc_field.getText().trim(), feeNQT, public_key);
 							byte[] signed_tx = CryptoUtil.signTransaction(network, private_key, ugsigned_tx);
-							Object obj = CryptoUtil.broadcastTransaction(network, signed_tx);
-//							Thread.sleep(5000);
+							CryptoUtil.broadcastTransaction(network, signed_tx);
 						} catch (Exception x) {
 							JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 						}
 					}
 				}
 				send_btn.setEnabled(true);
-				btn_icon.stop();
 			});
 		});
 	}
