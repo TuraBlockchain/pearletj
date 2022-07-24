@@ -1,8 +1,12 @@
 package hk.zdl.crypto.pearlet.component;
 
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -17,7 +21,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jdesktop.swingx.combobox.EnumComboBoxModel;
-import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
 import com.jfinal.plugin.activerecord.Record;
 
@@ -27,8 +30,11 @@ import hk.zdl.crypto.pearlet.component.event.SettingsPanelEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
 import hk.zdl.crypto.pearlet.ds.AddressWithNickname;
 import hk.zdl.crypto.pearlet.ens.ENSLookup;
+import hk.zdl.crypto.pearlet.ui.MyListComboBoxModel;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import signumj.entity.response.Transaction;
+import signumj.response.attachment.AccountInfoAttachment;
 
 @SuppressWarnings("serial")
 public class NetworkAndAccountBar extends JPanel {
@@ -84,7 +90,7 @@ public class NetworkAndAccountBar extends JPanel {
 		CrptoNetworks nw = (CrptoNetworks) network_combobox.getSelectedItem();
 		List<AddressWithNickname> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> o.getStr("ADDRESS")).map(o -> new AddressWithNickname(o)).toList();
 		l = l.stream().map(o -> new AddressWithNickname(o.address, ENSLookup.containsKey(o.address) ? ENSLookup.reverse_lookup(o.address) : null)).toList();
-		account_combobox.setModel(new ListComboBoxModel<>(l));
+		account_combobox.setModel(new MyListComboBoxModel<>(new ArrayList<>(l)));
 		account_combobox.setEnabled(!l.isEmpty());
 	}
 
@@ -107,8 +113,26 @@ public class NetworkAndAccountBar extends JPanel {
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(TxHistoryEvent<?> e) {
 		if (e.type.equals(TxHistoryEvent.Type.INSERT)) {
-			if (e.network.equals(network_combobox.getSelectedItem())) {
-				refresh_account_combobox();
+			if (Arrays.asList(SIGNUM, ROTURA).contains(e.network)) {
+				Transaction tx = (Transaction) e.data;
+				if (tx.getType() == 1 && tx.getSubtype() == 5) {
+					if (e.network.equals(network_combobox.getSelectedItem())) {
+						@SuppressWarnings("unchecked")
+						MyListComboBoxModel<AddressWithNickname> model = (MyListComboBoxModel<AddressWithNickname>) account_combobox.getModel();
+						for (int i = 0; i < model.getSize(); i++) {
+							var a = model.getElementAt(i);
+							var adr = a.address;
+							adr = adr.substring(adr.indexOf('-') + 1);
+							var address = tx.getSender().getRawAddress();
+							if (adr.equals(address)) {
+								var aliases = ((AccountInfoAttachment) tx.getAttachment()).getName();
+								a.nickname = aliases;
+								model.setElementAt(i, a);
+								ENSLookup.put(a.address, aliases);
+							}
+						}
+					}
+				}
 			}
 		}
 	}

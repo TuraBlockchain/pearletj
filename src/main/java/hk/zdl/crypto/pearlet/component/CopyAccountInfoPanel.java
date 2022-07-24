@@ -131,12 +131,12 @@ public class CopyAccountInfoPanel extends JPanel {
 		btns.stream().forEach(x -> x.setEnabled(true));
 		if (WEB3J.equals(network)) {
 			Stream.of(btn_0, btn_2).forEach(x -> x.setEnabled(false));
-			btn_3.setEnabled(public_key.length > 0);
+			btn_3.setEnabled(public_key != null && public_key.length > 0);
 		} else {
 			if (ROTURA.equals(network)) {
 				btn_4.setEnabled(false);
 			}
-			Stream.of(btn_2, btn_3).forEach(x -> x.setEnabled(public_key.length > 0));
+			Stream.of(btn_2, btn_3).forEach(x -> x.setEnabled(public_key != null && public_key.length > 0));
 		}
 	}
 }
