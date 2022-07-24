@@ -32,7 +32,7 @@ public class ImportSignumAccount {
 		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var panel = new JPanel(new GridBagLayout());
 		var label_1 = new JLabel("Network:");
-		var network_combobox = new JComboBox<>(new CrptoNetworks[] { nw });
+		var network_combobox = new JComboBox<>(new String[] { nw.toString() });
 		network_combobox.setEnabled(false);
 		var label_2 = new JLabel("Text type:");
 		var combobox_1 = new JComboBox<>(new String[] { "Phrase", "HEX", "Base64" });
