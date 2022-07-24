@@ -23,7 +23,7 @@ public class TxHistoryQueryExecutor {
 		EventBus.getDefault().register(this);
 	}
 
-	@SuppressWarnings({ "removal", "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public synchronized void onMessage(AccountChangeEvent e) {
 		EventBus.getDefault().post(new TxHistoryEvent(e.network, TxHistoryEvent.Type.START, null));

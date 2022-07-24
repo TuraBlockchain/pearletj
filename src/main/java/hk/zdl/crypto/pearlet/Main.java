@@ -6,6 +6,7 @@ import java.awt.Image;
 import java.awt.Taskbar;
 import java.awt.Toolkit;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -16,9 +17,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.jdesktop.swingx.JXFrame;
-
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.jthemedetecor.OsThemeDetector;
 
@@ -72,7 +72,7 @@ public class Main {
 		}
 		SwingUtilities.invokeLater(() -> {
 			var appName = Util.getProp().get("appName");
-			var frame = new JXFrame(appName);
+			var frame = new JFrame(appName);
 			frame.setIconImage(app_icon);
 			frame.getContentPane().setLayout(new BorderLayout());
 			var panel1 = new JPanel(new BorderLayout());
@@ -111,14 +111,7 @@ public class Main {
 			SwingUtilities.invokeLater(() -> toolbar.clickButton("dashboard"));
 
 			otd.registerListener(isDark -> {
-				SwingUtilities.invokeLater(() -> {
-
-					if (isDark) {
-						FlatDarkLaf.setup();
-					} else {
-						FlatLightLaf.setup();
-					}
-				});
+				Stream.of(new FlatLightLaf(), new FlatDarkLaf()).filter(o -> o.isDark() == isDark).forEach(FlatLaf::setup);
 				SwingUtilities.invokeLater(() -> {
 					SwingUtilities.updateComponentTreeUI(frame);
 					IndepandentWindows.iterator().forEachRemaining(SwingUtilities::updateComponentTreeUI);
