@@ -64,7 +64,6 @@ import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
-import signumj.entity.response.Account;
 
 @SuppressWarnings("serial")
 public class DashBoard extends JPanel {
@@ -137,14 +136,18 @@ public class DashBoard extends JPanel {
 
 			@Override
 			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-				AltTokenWrapper atw = (AltTokenWrapper) value;
+				var atw = (AltTokenWrapper) value;
 				if (Arrays.asList(ROTURA, SIGNUM).contains(atw.network)) {
-					super.getListCellRendererComponent(list, atw.asset.getName(), index, isSelected, cellHasFocus);
+					if (atw.asset != null) {
+						return super.getListCellRendererComponent(list, atw.asset.getName(), index, isSelected, cellHasFocus);
+					}
 				} else if (WEB3J.equals(atw.network)) {
 					String name = atw.jobj.optString("contract_name");
-					super.getListCellRendererComponent(list, name, index, isSelected, cellHasFocus);
+					if (!name.isBlank()) {
+						return super.getListCellRendererComponent(list, name, index, isSelected, cellHasFocus);
+					}
 				}
-				return this;
+				return super.getListCellRendererComponent(list, "", index, isSelected, cellHasFocus);
 			}
 		});
 
@@ -152,7 +155,7 @@ public class DashBoard extends JPanel {
 			if (token_list.getSelectedIndex() < 0) {
 				asset_info_panel.setVisible(false);
 			} else {
-				AltTokenWrapper atw = token_list.getSelectedValue();
+				var atw = token_list.getSelectedValue();
 				if (Arrays.asList(ROTURA, SIGNUM).contains(atw.network)) {
 					var a = atw.asset;
 					asset_id_label_0.setText("asset id:");
@@ -180,8 +183,8 @@ public class DashBoard extends JPanel {
 		});
 		token_list.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent mouseEvent) {
-				if (mouseEvent.getClickCount() == 2 && token_list.getSelectedIndex()>-1) {
-					AltTokenWrapper atw = token_list.getSelectedValue();
+				if (mouseEvent.getClickCount() == 2 && token_list.getSelectedIndex() > -1) {
+					var atw = token_list.getSelectedValue();
 					if (WEB3J.equals(atw.network)) {
 						var jobj = atw.jobj;
 						Util.viewContractDetail(nw, jobj);
@@ -235,7 +238,7 @@ public class DashBoard extends JPanel {
 			if (Arrays.asList(ROTURA, SIGNUM).contains(nw)) {
 				Util.submit(() -> {
 					try {
-						Account account = CryptoUtil.getAccount(nw, e.account);
+						var account = CryptoUtil.getAccount(nw, e.account);
 						balance_label.setText(account.getBalance().toSigna().stripTrailingZeros().toPlainString());
 						token_list.setListData(Arrays.asList(account.getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString())).map(o -> new AltTokenWrapper(nw, o))
 								.toArray((i) -> new AltTokenWrapper[i]));
@@ -254,7 +257,7 @@ public class DashBoard extends JPanel {
 			} else if (WEB3J.equals(e.network)) {
 				Util.submit(() -> {
 					try {
-						if(CryptoUtil.getWeb3j().isPresent()) {
+						if (CryptoUtil.getWeb3j().isPresent()) {
 							BigInteger wei = CryptoUtil.getWeb3j().get().ethGetBalance(account, DefaultBlockParameterName.LATEST).send().getBalance();
 							BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
 							balance_label.setText(eth.toPlainString());
@@ -270,10 +273,10 @@ public class DashBoard extends JPanel {
 		}
 		manage_token_list_btn.setEnabled(!WEB3J.equals(e.network));
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	private final synchronized void refresh_token_list() {
-		if(token_list_thread != null) {
+		if (token_list_thread != null) {
 			token_list_thread.stop();
 			token_list_thread = null;
 		}
@@ -283,7 +286,7 @@ public class DashBoard extends JPanel {
 			public void run() {
 				try {
 					Optional<JSONArray> o_arr = MyDb.getETHTokenList(account);
-					if(o_arr.isPresent()) {
+					if (o_arr.isPresent()) {
 						update_token_list(o_arr.get());
 					}
 					var items = CryptoUtil.getAccountBalances(account);
@@ -306,6 +309,7 @@ public class DashBoard extends JPanel {
 				}
 
 			}
+
 			private void update_token_list(JSONArray items) {
 				List<AltTokenWrapper> l = new ArrayList<>(items.length());
 				for (int i = 0; i < items.length(); i++) {

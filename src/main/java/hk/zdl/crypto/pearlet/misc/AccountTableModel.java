@@ -63,7 +63,7 @@ public class AccountTableModel extends AbstractTableModel {
 		if (columnIndex == 0) {
 			return r.get("ID");
 		} else if (columnIndex == 1) {
-			return r.get("NETWORK");
+			return CrptoNetworks.valueOf(r.get("NETWORK"));
 		} else if (columnIndex == 2) {
 			var o = r.get("ADDRESS");
 			var b = r.getBytes("PRIVATE_KEY");

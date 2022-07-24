@@ -215,7 +215,7 @@ public class CryptoUtil {
 		return new BigDecimal("-1");
 	}
 
-	public static JSONArray getAccountBalances(String address) throws IOException {
+	public static JSONArray getAccountBalances(String address) throws Exception {
 		String _key = Util.getProp().get("covalenthq_apikey");
 		var client = new OkHttpClient();
 		var request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/balances_v2/?quote-currency=ETH&format=JSON&nft=false&no-nft-fetch=true&key=" + _key).build();
@@ -231,7 +231,7 @@ public class CryptoUtil {
 		}
 	}
 
-	public static byte[] generateTransferAssetTransaction(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee) throws IOException {
+	public static byte[] generateTransferAssetTransaction(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee) throws Exception {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
@@ -400,7 +400,7 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	public static byte[] issueAsset(CrptoNetworks nw, String asset_name, String description, long quantityQNT, long feeNQT, byte[] public_key) throws IOException {
+	public static byte[] issueAsset(CrptoNetworks nw, String asset_name, String description, long quantityQNT, long feeNQT, byte[] public_key) throws Exception {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			if (feeNQT < 100000000000L) {
 				throw new IllegalArgumentException("not enought fee");
@@ -447,7 +447,7 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	public static final SignumID[] getSignumTxID(CrptoNetworks nw, String address) throws IllegalArgumentException, InterruptedException, ExecutionException {
+	public static final SignumID[] getSignumTxID(CrptoNetworks nw, String address) throws Exception {
 		if (address == null || address.isBlank()) {
 			return new SignumID[0];
 		}
@@ -473,7 +473,7 @@ public class CryptoUtil {
 		return new SignumID[] {};
 	}
 
-	public static final Transaction getSignumTx(CrptoNetworks nw, SignumID id) throws InterruptedException, ExecutionException {
+	public static final Transaction getSignumTx(CrptoNetworks nw, SignumID id) throws Exception {
 		Optional<Transaction> o_tx = Optional.empty();
 		try {
 			o_tx = MyDb.getSignumTxFromLocal(nw, id);
