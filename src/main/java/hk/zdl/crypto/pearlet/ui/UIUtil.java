@@ -78,7 +78,7 @@ public class UIUtil {
 			}
 		} else if (os.contains("Mac")) {
 			try {
-				new ProcessBuilder("osascript", "-e", "display notification \"" + message + "\"" + " with title \"" + title + "\"").start().waitFor();
+				new ProcessBuilder("osascript", "-e", "display notification \"" + message + "\"" + " with title \"" + title + "\" sound name \"\"").start().waitFor();
 			} catch (Exception e) {
 			}
 		} else if (SystemTray.isSupported()) {
