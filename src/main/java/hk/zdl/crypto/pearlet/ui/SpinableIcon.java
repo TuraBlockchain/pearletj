@@ -20,7 +20,7 @@ public class SpinableIcon extends ImageIcon implements ActionListener {
 
 	private static final long serialVersionUID = -366584986274580572L;
 	private BufferedImage scaledImage;
-	private final int width, height;
+	private int width, height;
 	private Timer timer;
 	private int fps = 24;
 	private int rpm = 60;
@@ -30,6 +30,10 @@ public class SpinableIcon extends ImageIcon implements ActionListener {
 
 	public SpinableIcon(Image image, int width, int height) {
 		super(image);
+		setImage(image, width, height);
+	}
+
+	public void setImage(Image image, int width, int height) {
 		if (height < 0) {
 			this.width = width;
 			this.height = (int) (1.0 * width / image.getWidth(null) * image.getHeight(null));
@@ -47,13 +51,20 @@ public class SpinableIcon extends ImageIcon implements ActionListener {
 			scaledImage.getGraphics().drawImage(image, 0, 0, null);
 		}
 		scaledImage = Scalr.resize(scaledImage, Scalr.Method.SPEED, Scalr.Mode.FIT_EXACT, this.width, this.height);
-		setImage(scaledImage);
+		super.setImage(scaledImage);
 	}
 
 	@Override
 	public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
 		if (c != null) {
 			this.c = c;
+		}
+		if(timer==null||!timer.isRunning()) {
+			if (c instanceof AbstractButton) {
+				if (!((AbstractButton) c).isEnabled()) {
+					setImage(GrayFilter.createDisabledImage(scaledImage));
+				}
+			}
 		}
 		super.paintIcon(c, g, x, y);
 	}
@@ -119,9 +130,8 @@ public class SpinableIcon extends ImageIcon implements ActionListener {
 		var img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
 		img.getGraphics().drawImage(op.filter(scaledImage, null), 0, 0, null);
 		setImage(img);
-		if(c instanceof AbstractButton) {
-			var btn = (AbstractButton)c;
-			if(!btn.isEnabled()) {
+		if (c instanceof AbstractButton) {
+			if (!((AbstractButton) c).isEnabled()) {
 				setImage(GrayFilter.createDisabledImage(img));
 			}
 		}

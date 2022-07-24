@@ -167,7 +167,7 @@ public class CryptoUtil {
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				try {
-					return ns.getAccount(SignumAddress.fromRs(address)).toFuture().get();
+					return ns.getAccount(SignumAddress.fromEither(address)).toFuture().get();
 				} catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
 					throw e;
 				}
@@ -182,7 +182,7 @@ public class CryptoUtil {
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				try {
-					return ns.getAccount(SignumAddress.fromRs(address)).toFuture().get().getBalance().toSigna();
+					return ns.getAccount(SignumAddress.fromEither(address)).toFuture().get().getBalance().toSigna();
 				} catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
 					if (e.getCause() != null) {
 						if (e.getCause().getClass().getName().equals("signumj.entity.response.http.BRSError")) {

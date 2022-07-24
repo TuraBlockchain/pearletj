@@ -17,6 +17,7 @@ import java.awt.Insets;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -84,6 +85,7 @@ public class SendPanel extends JPanel {
 	private final JComboBox<Object> token_combo_box = new JComboBox<>();
 	private final Map<Object, BigDecimal> asset_balance = new HashMap<>();
 	private final JLabel balance_label = new JLabel();
+	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32,32,BufferedImage.TYPE_4BYTE_ABGR), 32, 32);;
 	private JButton send_btn;
 	private CrptoNetworks network;
 	private String account;
@@ -173,9 +175,8 @@ public class SendPanel extends JPanel {
 		send_btn.setEnabled(false);
 		try {
 			var btn_img = ImageIO.read(Util.getResource("icon/spinner-solid.svg"));
-			var busy_icon = new SpinableIcon(btn_img, 32, 32);
+			busy_icon.setImage(btn_img, 32, 32);
 			send_btn.setDisabledIcon(busy_icon);
-			busy_icon.start();
 		} catch (IOException x) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 		}
@@ -281,8 +282,8 @@ public class SendPanel extends JPanel {
 					send_tx.setMessage(bArr);
 				}
 			}
-//			wuli.start();
 			send_btn.setEnabled(false);
+			busy_icon.start();
 			Util.submit(() -> {
 				boolean b = false;
 				try {
@@ -299,7 +300,7 @@ public class SendPanel extends JPanel {
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
 					return;
 				} finally {
-//					wuli.stop();
+					busy_icon.stop();
 					send_btn.setEnabled(true);
 				}
 				if (b) {
