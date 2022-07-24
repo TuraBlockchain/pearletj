@@ -153,17 +153,18 @@ public class AccountTableModel extends AbstractTableModel {
 			if (Arrays.asList(SIGNUM, ROTURA).contains(e.network)) {
 				Transaction tx = (Transaction) e.data;
 				if (tx.getType() == 1 && tx.getSubtype() == 5) {
-					String address = tx.getSender().getFullAddress();
+					var address = tx.getSender().getRawAddress();
 					AccountInfoAttachment atta = (AccountInfoAttachment) tx.getAttachment();
-					String aliases = atta.getName();
-					String desc = atta.getDescription();
+					var aliases = atta.getName();
+					var desc = atta.getDescription();
 					for (int i = 0; i < accounts.size(); i++) {
-						String addr = getValueAt(i,2).toString();
-						if (addr.equals(address)) {
+						var addr = getValueAt(i,2).toString();
+						var raw_addr = addr.substring(addr.indexOf('-')+1);
+						if (raw_addr.equals(address)) {
 							setValueAt(aliases, i, 4);
 							setValueAt(desc, i, 5);
 							fireTableRowsUpdated(i, i);
-							ENSLookup.put(address, aliases);
+							ENSLookup.put(addr, aliases);
 						}
 					}
 				}

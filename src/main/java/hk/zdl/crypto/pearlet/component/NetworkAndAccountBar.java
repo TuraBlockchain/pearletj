@@ -24,6 +24,7 @@ import com.jfinal.plugin.activerecord.Record;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.SettingsPanelEvent;
+import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
 import hk.zdl.crypto.pearlet.ds.AddressWithNickname;
 import hk.zdl.crypto.pearlet.ens.ENSLookup;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
@@ -73,14 +74,18 @@ public class NetworkAndAccountBar extends JPanel {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	private final void update_account_combobox() {
+		refresh_account_combobox();
+		update_current_account();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void refresh_account_combobox() {
 		CrptoNetworks nw = (CrptoNetworks) network_combobox.getSelectedItem();
 		List<AddressWithNickname> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> o.getStr("ADDRESS")).map(o -> new AddressWithNickname(o)).toList();
 		l = l.stream().map(o -> new AddressWithNickname(o.address, ENSLookup.containsKey(o.address) ? ENSLookup.reverse_lookup(o.address) : null)).toList();
 		account_combobox.setModel(new ListComboBoxModel<>(l));
 		account_combobox.setEnabled(!l.isEmpty());
-		update_current_account();
 	}
 
 	private void update_current_account() {
@@ -97,6 +102,15 @@ public class NetworkAndAccountBar extends JPanel {
 	public void onMessage(AccountListUpdateEvent e) {
 		accounts = e.getAccounts();
 		update_account_combobox();
+	}
+
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(TxHistoryEvent<?> e) {
+		if (e.type.equals(TxHistoryEvent.Type.INSERT)) {
+			if (e.network.equals(network_combobox.getSelectedItem())) {
+				refresh_account_combobox();
+			}
+		}
 	}
 
 }

@@ -9,6 +9,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.TrayIcon.MessageType;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -37,6 +38,7 @@ import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.SpinableIcon;
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -116,6 +118,7 @@ public class SetAccountInfoPanel extends JPanel {
 							byte[] ugsigned_tx = CryptoUtil.setAccountInfo(network, name_field.getText().trim(), desc_field.getText().trim(), feeNQT, public_key);
 							byte[] signed_tx = CryptoUtil.signTransaction(network, private_key, ugsigned_tx);
 							CryptoUtil.broadcastTransaction(network, signed_tx);
+							UIUtil.displayMessage("Set Account Info", "Account Info is set!", MessageType.INFO);
 						} catch (Exception x) {
 							JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 						}
