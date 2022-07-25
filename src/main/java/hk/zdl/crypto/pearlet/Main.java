@@ -35,12 +35,14 @@ import hk.zdl.crypto.pearlet.component.TranscationPanel;
 import hk.zdl.crypto.pearlet.component.miner.MinerExplorePane;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.notification.ether.EtherAccountsMonitor;
+import hk.zdl.crypto.pearlet.notification.signum.SignumAccountsMonitor;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.tx_history_query.TxHistoryQueryExecutor;
 import hk.zdl.crypto.pearlet.ui.AquaMagic;
 import hk.zdl.crypto.pearlet.ui.CloseableTabbedPaneLayerUI;
 import hk.zdl.crypto.pearlet.ui.GnomeMagic;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class Main {
@@ -74,6 +76,8 @@ public class Main {
 		Util.submit(MyDb::create_missing_tables);
 		new TxHistoryQueryExecutor();
 		new EtherAccountsMonitor();
+		new SignumAccountsMonitor(CrptoNetworks.ROTURA);
+		new SignumAccountsMonitor(CrptoNetworks.SIGNUM);
 	}
 
 	private static final void createFrame(OsThemeDetector otd, Image app_icon) {

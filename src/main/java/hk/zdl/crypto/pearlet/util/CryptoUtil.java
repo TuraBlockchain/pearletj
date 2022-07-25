@@ -499,6 +499,53 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
+	public static final JSONArray getSignumTxID(CrptoNetworks nw, String address, int from, int to) throws Exception {
+		if (nw == null || address == null || address.isBlank() || from < 0 || to < 0) {
+			throw new IllegalArgumentException();
+		}
+		Optional<String> opt = get_server_url(nw);
+		if (opt.isPresent()) {
+			var request = new Request.Builder().url(opt.get() + "burst?requestType=getAccountTransactionIds&account=" + address + "&firstIndex=" + from + "&lastIndex=" + to).build();
+			var response = _client.newCall(request).execute();
+			try {
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				if (jobj.optInt("errorCode")>0) {
+					throw new IOException(jobj.optString("errorDescription"));
+				}
+				var items = jobj.getJSONArray("transactionIds");
+				return items;
+			} finally {
+				response.body().byteStream().close();
+				response.close();
+			}
+		} else {
+			throw new IllegalStateException();
+		}
+	}
+	
+	public static final JSONObject getSignumTx(CrptoNetworks nw, String tx_id) throws Exception {
+		if (nw == null || tx_id == null || tx_id.isBlank()) {
+			throw new IllegalArgumentException();
+		}
+		Optional<String> opt = get_server_url(nw);
+		if (opt.isPresent()) {
+			var request = new Request.Builder().url(opt.get() + "burst?requestType=getTransaction&transaction=" + tx_id).build();
+			var response = _client.newCall(request).execute();
+			try {
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				if (jobj.optInt("errorCode")>0) {
+					throw new IOException(jobj.optString("errorDescription"));
+				}
+				return jobj;
+			} finally {
+				response.body().byteStream().close();
+				response.close();
+			}
+		} else {
+			throw new IllegalStateException();
+		}
+	}
+
 	public static final SignumID[] getSignumTxID(CrptoNetworks nw, String address) throws Exception {
 		if (address == null || address.isBlank()) {
 			return new SignumID[0];
