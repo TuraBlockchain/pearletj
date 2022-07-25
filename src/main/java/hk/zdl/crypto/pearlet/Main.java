@@ -34,6 +34,7 @@ import hk.zdl.crypto.pearlet.component.SettingsPanel;
 import hk.zdl.crypto.pearlet.component.TranscationPanel;
 import hk.zdl.crypto.pearlet.component.miner.MinerExplorePane;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
+import hk.zdl.crypto.pearlet.notification.ether.EtherAccountsMonitor;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.tx_history_query.TxHistoryQueryExecutor;
 import hk.zdl.crypto.pearlet.ui.AquaMagic;
@@ -72,6 +73,7 @@ public class Main {
 		createFrame(otd, app_icon);
 		Util.submit(MyDb::create_missing_tables);
 		new TxHistoryQueryExecutor();
+		new EtherAccountsMonitor();
 	}
 
 	private static final void createFrame(OsThemeDetector otd, Image app_icon) {

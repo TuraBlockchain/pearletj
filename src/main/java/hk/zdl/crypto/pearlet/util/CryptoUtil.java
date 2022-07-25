@@ -48,6 +48,8 @@ import signumj.service.NodeService;
 
 public class CryptoUtil {
 
+	private static final OkHttpClient _client = new OkHttpClient();
+
 	private static Web3j _web3j;
 
 	private static final synchronized void build_web3j() {
@@ -216,18 +218,40 @@ public class CryptoUtil {
 	}
 
 	public static JSONArray getAccountBalances(String address) throws Exception {
-		String _key = Util.getProp().get("covalenthq_apikey");
-		var client = new OkHttpClient();
+		var _key = Util.getProp().get("covalenthq_apikey");
 		var request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/balances_v2/?quote-currency=ETH&format=JSON&nft=false&no-nft-fetch=true&key=" + _key).build();
-		var response = client.newCall(request).execute();
+		var response = _client.newCall(request).execute();
 		var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
 		response.body().byteStream().close();
 		response.close();
-		if (jobj.getBoolean("error")) {
-			throw new IOException(jobj.getString("error_message"));
+		if (jobj.optBoolean("error")) {
+			throw new IOException(jobj.optString("error_message"));
 		} else {
 			var items = jobj.getJSONObject("data").getJSONArray("items");
 			return items;
+		}
+	}
+
+	public static JSONArray getTxHistory(String address, int page_number, int page_size) throws Exception {
+		if (address == null || address.isBlank() || page_number < 0 || page_size < 1) {
+			throw new IllegalArgumentException();
+
+		}
+		var _key = Util.getProp().get("covalenthq_apikey");
+		var request = new Request.Builder()
+				.url("https://api.covalenthq.com/v1/1/address/" + address + "/transactions_v2/?quote-currency=ETH&no-logs=true&page-number=" + page_number + "&page-size=" + page_size + "&key=" + _key)
+				.build();
+		var response = _client.newCall(request).execute();
+		try {
+			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			if (jobj.optBoolean("error")) {
+				throw new IOException(jobj.optString("error_message"));
+			}
+			var items = jobj.getJSONObject("data").getJSONArray("items");
+			return items;
+		} finally {
+			response.body().byteStream().close();
+			response.close();
 		}
 	}
 
@@ -442,8 +466,7 @@ public class CryptoUtil {
 				}
 				var client = new OkHttpClient.Builder().build();
 				var request = new Request.Builder().url(server_url + "burst?requestType=setAccountInfo")
-						.post(RequestBody.create(
-								"name=" + name + "&description=" + description + "&deadline=1440&broadcast=false&feeNQT=" + feeNQT + "&publicKey=" + Hex.toHexString(public_key),
+						.post(RequestBody.create("name=" + name + "&description=" + description + "&deadline=1440&broadcast=false&feeNQT=" + feeNQT + "&publicKey=" + Hex.toHexString(public_key),
 								MediaType.parse("application/x-www-form-urlencoded")))
 						.build();
 				var response = client.newCall(request).execute();
