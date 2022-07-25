@@ -1,6 +1,7 @@
 package hk.zdl.crypto.pearlet.notification.signum;
 
 import java.awt.TrayIcon.MessageType;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -36,6 +37,7 @@ public class SignumAccountsMonitor implements TxListener {
 		for (var s : l) {
 			if (!map.containsKey(s)) {
 				var worker = new SignumTxHistWorker();
+				worker.setCrptoNetworks(nw);
 				worker.setAddress(s);
 				worker.setRunning(true);
 				map.put(s, worker);
@@ -48,7 +50,13 @@ public class SignumAccountsMonitor implements TxListener {
 
 	@SuppressWarnings("deprecation")
 	private void process_del_worker(List<String> l) {
-		for (var s : l) {
+		var x = new LinkedList<String>();
+		for (var s : map.keySet()) {
+			if (!l.contains(s)) {
+				x.add(s);
+			}
+		}
+		for (var s : x) {
 			var worker = map.remove(s);
 			if (worker != null) {
 				worker.setRunning(false);
@@ -67,7 +75,17 @@ public class SignumAccountsMonitor implements TxListener {
 
 	@Override
 	public void transcationReceived(JSONObject jobj) {
-		UIUtil.displayMessage("", "You have received tokens!", MessageType.INFO);
+		var recipientRS = jobj.optString("recipientRS");
+		if (map.containsKey(recipientRS)) {
+			int tx_type = jobj.getInt("type");
+			int sub_type = jobj.getInt("subtype");
+			if (tx_type == 0 || (tx_type == 2 && sub_type == 1)) {
+				UIUtil.displayMessage("", "You have received tokens!", MessageType.INFO);
+			} else if (tx_type == 1 && sub_type == 0) {
+				UIUtil.displayMessage("", "You got a message!", MessageType.INFO);
+			}
+
+		}
 	}
 
 }

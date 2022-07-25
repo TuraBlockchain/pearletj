@@ -1,6 +1,7 @@
 package hk.zdl.crypto.pearlet.notification.ether;
 
 import java.awt.TrayIcon.MessageType;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -15,7 +16,7 @@ import hk.zdl.crypto.pearlet.notification.ether.EtherTxHistWorker.TxListener;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 
-public class EtherAccountsMonitor implements TxListener{
+public class EtherAccountsMonitor implements TxListener {
 
 	private final Map<String, EtherTxHistWorker> map = new TreeMap<>();
 
@@ -46,7 +47,13 @@ public class EtherAccountsMonitor implements TxListener{
 
 	@SuppressWarnings("deprecation")
 	private void process_del_worker(List<String> l) {
-		for (var s : l) {
+		var x = new LinkedList<String>();
+		for (var s : map.keySet()) {
+			if (!l.contains(s)) {
+				x.add(s);
+			}
+		}
+		for (var s : x) {
 			var worker = map.remove(s);
 			if (worker != null) {
 				worker.setRunning(false);

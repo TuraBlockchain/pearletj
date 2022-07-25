@@ -21,7 +21,6 @@ public class EtherTxHistWorker extends Thread {
 	private int ceil_block_height = Integer.MIN_VALUE;
 	private final TreeSet<JSONObject> records = new TreeSet<JSONObject>(new EtherTxHistoryComparator().reversed());
 	private final List<TxListener> listeners = new LinkedList<>();
-	private long interval = TimeUnit.SECONDS.toMillis(10);
 
 	public EtherTxHistWorker() {
 		super(EtherTxHistWorker.class.getName());
@@ -31,7 +30,7 @@ public class EtherTxHistWorker extends Thread {
 
 	@Override
 	public void run() {
-		while (running) {
+		while (running && ceil_block_height < 0) {
 			try {
 				check_tx_hist(0, 1);
 			} catch (SocketTimeoutException x) {
@@ -49,7 +48,7 @@ public class EtherTxHistWorker extends Thread {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 			}
 			try {
-				sleep(interval);
+				TimeUnit.SECONDS.sleep(10);
 			} catch (InterruptedException e) {
 				return;
 			}

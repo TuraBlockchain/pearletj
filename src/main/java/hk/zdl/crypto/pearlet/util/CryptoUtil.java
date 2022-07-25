@@ -505,11 +505,15 @@ public class CryptoUtil {
 		}
 		Optional<String> opt = get_server_url(nw);
 		if (opt.isPresent()) {
-			var request = new Request.Builder().url(opt.get() + "burst?requestType=getAccountTransactionIds&account=" + address + "&firstIndex=" + from + "&lastIndex=" + to).build();
+			var server_url = opt.get();
+			if (!server_url.endsWith("/")) {
+				server_url += "/";
+			}
+			var request = new Request.Builder().url(server_url + "burst?requestType=getAccountTransactionIds&account=" + address + "&firstIndex=" + from + "&lastIndex=" + to).build();
 			var response = _client.newCall(request).execute();
 			try {
 				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				if (jobj.optInt("errorCode")>0) {
+				if (jobj.optInt("errorCode") > 0) {
 					throw new IOException(jobj.optString("errorDescription"));
 				}
 				var items = jobj.getJSONArray("transactionIds");
@@ -522,18 +526,22 @@ public class CryptoUtil {
 			throw new IllegalStateException();
 		}
 	}
-	
+
 	public static final JSONObject getSignumTx(CrptoNetworks nw, String tx_id) throws Exception {
 		if (nw == null || tx_id == null || tx_id.isBlank()) {
 			throw new IllegalArgumentException();
 		}
 		Optional<String> opt = get_server_url(nw);
 		if (opt.isPresent()) {
-			var request = new Request.Builder().url(opt.get() + "burst?requestType=getTransaction&transaction=" + tx_id).build();
+			var server_url = opt.get();
+			if (!server_url.endsWith("/")) {
+				server_url += "/";
+			}
+			var request = new Request.Builder().url(server_url + "burst?requestType=getTransaction&transaction=" + tx_id).build();
 			var response = _client.newCall(request).execute();
 			try {
 				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				if (jobj.optInt("errorCode")>0) {
+				if (jobj.optInt("errorCode") > 0) {
 					throw new IOException(jobj.optString("errorDescription"));
 				}
 				return jobj;
