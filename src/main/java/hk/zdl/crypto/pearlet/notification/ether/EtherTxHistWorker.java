@@ -67,7 +67,9 @@ public class EtherTxHistWorker extends Thread {
 		var jobj = jarr.getJSONObject(0);
 		records.add(jobj);
 		int this_block_height = jobj.getInt("block_height");
-		if (this_block_height > ceil_block_height) {
+		if (ceil_block_height < 0) {
+			ceil_block_height = this_block_height;
+		} else if (this_block_height > ceil_block_height) {
 			if (first_dig) {
 				dig(depth * 2, true);
 			} else {
