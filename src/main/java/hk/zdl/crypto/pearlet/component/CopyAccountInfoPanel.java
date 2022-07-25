@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -95,16 +96,16 @@ public class CopyAccountInfoPanel extends JPanel {
 	}
 
 	private void copy_public_key() {
-		String id = "";
+		String str = "";
 		switch (network) {
 		case ROTURA:
 		case SIGNUM:
-			id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getPublicKeyString().toUpperCase();
-			copy_to_clip_board(id);
+			str = SignumCrypto.getInstance().getAddressFromPublic(public_key).getPublicKeyString().toUpperCase();
+			copy_to_clip_board(str);
 			break;
 		case WEB3J:
-			id = MyDb.getAccount(network, account).get().getStr("ADDRESS");
-			copy_to_clip_board(id);
+			str = Hex.toHexString(public_key);
+			copy_to_clip_board(str);
 			break;
 		default:
 			break;
@@ -124,13 +125,16 @@ public class CopyAccountInfoPanel extends JPanel {
 		Optional<Record> opt_r = MyDb.getAccount(network, account);
 		if (opt_r.isPresent()) {
 			public_key = opt_r.get().getBytes("PUBLIC_KEY");
+		} else {
+			public_key = new byte[] {};
 		}
 		btns.stream().forEach(x -> x.setEnabled(true));
 		if (WEB3J.equals(network)) {
-			Stream.of(btn_0, btn_2, btn_3).forEach(x -> x.setEnabled(false));
+			Stream.of(btn_0, btn_2).forEach(x -> x.setEnabled(false));
+			btn_3.setEnabled(public_key != null && public_key.length > 0);
 		} else {
 			if (ROTURA.equals(network)) {
-				Stream.of(btn_4).forEach(x -> x.setEnabled(false));
+				btn_4.setEnabled(false);
 			}
 			Stream.of(btn_2, btn_3).forEach(x -> x.setEnabled(public_key != null && public_key.length > 0));
 		}

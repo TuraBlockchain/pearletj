@@ -18,13 +18,14 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
+import com.formdev.flatlaf.util.SystemInfo;
+
 import hk.zdl.crypto.pearlet.Main;
 import hk.zdl.crypto.pearlet.component.MyStretchIcon;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class UIUtil {
 
-	private static final String os = System.getProperty("os.name");
 	private static TrayIcon trayIcon;
 	static {
 	}
@@ -71,14 +72,14 @@ public class UIUtil {
 	}
 
 	public static final void displayMessage(String title, String message, MessageType messageType) {
-		if (os.contains("Linux")) {
+		if (SystemInfo.isLinux) {
 			try {
-				new ProcessBuilder("zenity", "--notification", "--title=" + title, "--text=" + message).start();
-			} catch (IOException e) {
+				new ProcessBuilder("zenity", "--notification", "--title=" + title, "--text=" + message).start().waitFor();
+			} catch (Exception e) {
 			}
-		} else if (os.contains("Mac")) {
+		} else if (SystemInfo.isMacOS) {
 			try {
-				new ProcessBuilder("osascript", "-e", "display notification \"" + message + "\"" + " with title \"" + title + "\"").start().waitFor();
+				new ProcessBuilder("osascript", "-e", "display notification \"" + message + "\"" + " with title \"" + title + "\" sound name \"\"").start().waitFor();
 			} catch (Exception e) {
 			}
 		} else if (SystemTray.isSupported()) {

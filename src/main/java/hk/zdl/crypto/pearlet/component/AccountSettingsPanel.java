@@ -68,7 +68,7 @@ public class AccountSettingsPanel extends JPanel {
 		var create_acc_menu = new JPopupMenu();
 		var create_acc_signum = new JMenuItem("Signum");
 		var create_acc_rotura = new JMenuItem("Rotura");
-		var create_acc_web3j = new JMenuItem("Web3j");
+		var create_acc_web3j = new JMenuItem("Ethereum");
 		Stream.of(create_acc_signum, create_acc_rotura, create_acc_web3j).forEach(create_acc_menu::add);
 
 		create_account_btn.addActionListener(e -> create_acc_menu.show(create_account_btn, 0, 0));
@@ -79,7 +79,7 @@ public class AccountSettingsPanel extends JPanel {
 		var import_acc_menu = new JPopupMenu();
 		var import_acc_signum = new JMenuItem("Signum");
 		var import_acc_rotura = new JMenuItem("Rotura");
-		var import_acc_web3j = new JMenu("Web3j");
+		var import_acc_web3j = new JMenu("Ethereum");
 		var import_from_prik = new JMenuItem("From Private Key ...");
 		var import_from_mnic = new JMenuItem("From Mnemonic ...");
 		var import_from_file = new JMenuItem("From JSON File ...");
@@ -96,7 +96,7 @@ public class AccountSettingsPanel extends JPanel {
 		var watch_acc_menu = new JPopupMenu();
 		var watch_acc_signum = new JMenuItem("Signum");
 		var watch_acc_rotura = new JMenuItem("Rotura");
-		var watch_acc_web3j = new JMenuItem("Web3j");
+		var watch_acc_web3j = new JMenuItem("Ethereum");
 		Stream.of(watch_acc_signum, watch_acc_rotura,watch_acc_web3j).forEach(watch_acc_menu::add);
 		watch_acc_signum.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this, CrptoNetworks.SIGNUM));
 		watch_acc_rotura.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this, CrptoNetworks.ROTURA));

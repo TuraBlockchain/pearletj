@@ -44,7 +44,7 @@ public class CreateSignumAccount {
 		var panel = new JPanel(new GridBagLayout());
 		panel.add(new JLabel(UIUtil.getStretchIcon("icon/" + "cloud-plus-fill.svg", 64, 64)), new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
 		var label_1 = new JLabel("Network:");
-		var network_combobox = new JComboBox<>(new Object[] { nw });
+		var network_combobox = new JComboBox<>(new String[] { nw.toString() });
 		network_combobox.setEnabled(false);
 		var label_2 = new JLabel("Text type:");
 		var combobox_1 = new JComboBox<>(new String[] { "HEX", "Base64" });

@@ -118,9 +118,9 @@ final class StartPanel extends JPanel {
 				} catch (UnknownHostException x) {
 				}
 			}
-			if(CaptorTool.isJCaptorActive()) {
+			if (CaptorTool.isJCaptorActive()) {
 				try {
-					adrs = CaptorTool.filter_online_hosts(adr,adrs, 5000);
+					adrs = CaptorTool.filter_online_hosts(adr, adrs, 5000);
 				} catch (Throwable x) {
 					UIUtil.displayMessage("Error", x.getMessage(), MessageType.ERROR);
 				}
@@ -153,6 +153,10 @@ final class StartPanel extends JPanel {
 			if (txt == null || txt.isBlank()) {
 				return;
 			}
+			txt = txt.trim();
+			while (txt.endsWith("/")) {
+				txt = txt.substring(0, txt.length() - 1);
+			}
 			try {
 				new URL(txt);
 			} catch (Exception x) {
@@ -183,6 +187,7 @@ final class StartPanel extends JPanel {
 				}
 			}
 		});
+		miner_url_field.setText("http://localhost:8080");
 	}
 
 	private void addMinerDetailPane(String base_path) throws Exception {

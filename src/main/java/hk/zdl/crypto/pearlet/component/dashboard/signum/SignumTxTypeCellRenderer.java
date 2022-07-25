@@ -15,8 +15,8 @@ public class SignumTxTypeCellRenderer extends DefaultTableCellRenderer {
 
 	static {
 		map.put(0, "Payment");
-		map.put(2, "Token");
 		map.put(1, "Message");
+		map.put(2, "Token");
 		map.put(20, "Mining");
 		map.put(21, "Escrow");
 		map.put(22, "Auto Transcation");

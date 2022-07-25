@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -28,6 +29,8 @@ import com.jfinal.plugin.activerecord.dialect.AnsiSqlDialect;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
 
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.*;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.SignumID;
 import signumj.entity.response.Transaction;
@@ -156,11 +159,26 @@ public class MyDb {
 	}
 
 	public static final boolean deleteAccount(int id) {
-		return Db.deleteById("ACCOUNTS", "ID", id);
+		Record r = Db.findById("ACCOUNTS", "ID", id);
+		if (r != null) {
+			if (Arrays.asList(ROTURA.name(), SIGNUM.name()).contains(r.getStr("NETWORK"))) {
+				// TODO
+			} else if (WEB3J.name().equals(r.getStr("NETWORK"))) {
+				var adr = r.getStr("ADDRESS");
+				Record r1 = Db.findFirst("SELECT * FROM APP.ETH_TOKENS WHERE ADDRESS = ?", adr);
+				if (r1 != null) {
+					Db.deleteById("APP.ETH_TOKENS", "ID", r1.getInt("ID"));
+				}
+
+			}
+			return Db.deleteById("ACCOUNTS", "ID", id);
+		} else {
+			return false;
+		}
 	}
 
 	public static final boolean putSignumTx(CrptoNetworks nw, Transaction tx) {
-		if(!(tx instanceof java.io.Serializable)) {
+		if (!(tx instanceof java.io.Serializable)) {
 			return false;
 		}
 		long id = tx.getId().getSignedLongId();
@@ -177,7 +195,7 @@ public class MyDb {
 	}
 
 	public static final Optional<Transaction> getSignumTxFromLocal(CrptoNetworks nw, SignumID id) throws Exception {
-		if(!(id instanceof java.io.Serializable)) {
+		if (!(id instanceof java.io.Serializable)) {
 			return Optional.empty();
 		}
 		Connection conn = Db.use().getConfig().getConnection();

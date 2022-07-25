@@ -48,6 +48,8 @@ import signumj.service.NodeService;
 
 public class CryptoUtil {
 
+	private static final OkHttpClient _client = new OkHttpClient();
+
 	private static Web3j _web3j;
 
 	private static final synchronized void build_web3j() {
@@ -167,7 +169,7 @@ public class CryptoUtil {
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				try {
-					return ns.getAccount(SignumAddress.fromRs(address)).toFuture().get();
+					return ns.getAccount(SignumAddress.fromEither(address)).toFuture().get();
 				} catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
 					throw e;
 				}
@@ -182,7 +184,7 @@ public class CryptoUtil {
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				try {
-					return ns.getAccount(SignumAddress.fromRs(address)).toFuture().get().getBalance().toSigna();
+					return ns.getAccount(SignumAddress.fromEither(address)).toFuture().get().getBalance().toSigna();
 				} catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
 					if (e.getCause() != null) {
 						if (e.getCause().getClass().getName().equals("signumj.entity.response.http.BRSError")) {
@@ -215,23 +217,45 @@ public class CryptoUtil {
 		return new BigDecimal("-1");
 	}
 
-	public static JSONArray getAccountBalances(String address) throws IOException {
-		String _key = Util.getProp().get("covalenthq_apikey");
-		var client = new OkHttpClient();
+	public static JSONArray getAccountBalances(String address) throws Exception {
+		var _key = Util.getProp().get("covalenthq_apikey");
 		var request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/balances_v2/?quote-currency=ETH&format=JSON&nft=false&no-nft-fetch=true&key=" + _key).build();
-		var response = client.newCall(request).execute();
+		var response = _client.newCall(request).execute();
 		var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
 		response.body().byteStream().close();
 		response.close();
-		if (jobj.getBoolean("error")) {
-			throw new IOException(jobj.getString("error_message"));
+		if (jobj.optBoolean("error")) {
+			throw new IOException(jobj.optString("error_message"));
 		} else {
 			var items = jobj.getJSONObject("data").getJSONArray("items");
 			return items;
 		}
 	}
 
-	public static byte[] generateTransferAssetTransaction(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee) throws IOException {
+	public static JSONArray getTxHistory(String address, int page_number, int page_size) throws Exception {
+		if (address == null || address.isBlank() || page_number < 0 || page_size < 1) {
+			throw new IllegalArgumentException();
+
+		}
+		var _key = Util.getProp().get("covalenthq_apikey");
+		var request = new Request.Builder()
+				.url("https://api.covalenthq.com/v1/1/address/" + address + "/transactions_v2/?quote-currency=ETH&no-logs=true&page-number=" + page_number + "&page-size=" + page_size + "&key=" + _key)
+				.build();
+		var response = _client.newCall(request).execute();
+		try {
+			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			if (jobj.optBoolean("error")) {
+				throw new IOException(jobj.optString("error_message"));
+			}
+			var items = jobj.getJSONObject("data").getJSONArray("items");
+			return items;
+		} finally {
+			response.body().byteStream().close();
+			response.close();
+		}
+	}
+
+	public static byte[] generateTransferAssetTransaction(CrptoNetworks nw, byte[] senderPublicKey, String recipient, String assetId, BigDecimal quantity, BigDecimal fee) throws Exception {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
@@ -400,7 +424,7 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	public static byte[] issueAsset(CrptoNetworks nw, String asset_name, String description, long quantityQNT, long feeNQT, byte[] public_key) throws IOException {
+	public static byte[] issueAsset(CrptoNetworks nw, String asset_name, String description, long quantityQNT, long feeNQT, byte[] public_key) throws Exception {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
 			if (feeNQT < 100000000000L) {
 				throw new IllegalArgumentException("not enought fee");
@@ -415,6 +439,34 @@ public class CryptoUtil {
 				var request = new Request.Builder().url(server_url + "burst?requestType=issueAsset")
 						.post(RequestBody.create(
 								"name=" + asset_name + "&description=" + description + "&deadline=1440&quantityQNT=" + quantityQNT + "&feeNQT=" + feeNQT + "&publicKey=" + Hex.toHexString(public_key),
+								MediaType.parse("application/x-www-form-urlencoded")))
+						.build();
+				var response = client.newCall(request).execute();
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				if (jobj.optInt("errorCode", 0) != 0) {
+					throw new IOException(jobj.optString("errorDescription"));
+				}
+				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+				return bArr;
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+
+	public static byte[] setAccountInfo(CrptoNetworks nw, String name, String description, long feeNQT, byte[] public_key) throws Exception {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
+			if (feeNQT < 2205000L) {
+				throw new IllegalArgumentException("not enought fee");
+			}
+			Optional<String> opt = get_server_url(nw);
+			if (opt.isPresent()) {
+				var server_url = opt.get();
+				if (!server_url.endsWith("/")) {
+					server_url += "/";
+				}
+				var client = new OkHttpClient.Builder().build();
+				var request = new Request.Builder().url(server_url + "burst?requestType=setAccountInfo")
+						.post(RequestBody.create("name=" + name + "&description=" + description + "&deadline=1440&broadcast=false&feeNQT=" + feeNQT + "&publicKey=" + Hex.toHexString(public_key),
 								MediaType.parse("application/x-www-form-urlencoded")))
 						.build();
 				var response = client.newCall(request).execute();
@@ -447,7 +499,62 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	public static final SignumID[] getSignumTxID(CrptoNetworks nw, String address) throws IllegalArgumentException, InterruptedException, ExecutionException {
+	public static final JSONArray getSignumTxID(CrptoNetworks nw, String address, int from, int to) throws Exception {
+		if (nw == null || address == null || address.isBlank() || from < 0 || to < 0) {
+			throw new IllegalArgumentException();
+		}
+		Optional<String> opt = get_server_url(nw);
+		if (opt.isPresent()) {
+			var server_url = opt.get();
+			if (!server_url.endsWith("/")) {
+				server_url += "/";
+			}
+			var request = new Request.Builder().url(server_url + "burst?requestType=getAccountTransactionIds&account=" + address + "&firstIndex=" + from + "&lastIndex=" + to).build();
+			var response = _client.newCall(request).execute();
+			try {
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				if (jobj.optInt("errorCode") > 0) {
+					throw new IOException(jobj.optString("errorDescription"));
+				}
+				var items = jobj.getJSONArray("transactionIds");
+				return items;
+			} finally {
+				response.body().byteStream().close();
+				response.close();
+			}
+		} else {
+			throw new IllegalStateException();
+		}
+	}
+
+	public static final JSONObject getSignumTx(CrptoNetworks nw, String tx_id) throws Exception {
+		if (nw == null || tx_id == null || tx_id.isBlank()) {
+			throw new IllegalArgumentException();
+		}
+		Optional<String> opt = get_server_url(nw);
+		if (opt.isPresent()) {
+			var server_url = opt.get();
+			if (!server_url.endsWith("/")) {
+				server_url += "/";
+			}
+			var request = new Request.Builder().url(server_url + "burst?requestType=getTransaction&transaction=" + tx_id).build();
+			var response = _client.newCall(request).execute();
+			try {
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				if (jobj.optInt("errorCode") > 0) {
+					throw new IOException(jobj.optString("errorDescription"));
+				}
+				return jobj;
+			} finally {
+				response.body().byteStream().close();
+				response.close();
+			}
+		} else {
+			throw new IllegalStateException();
+		}
+	}
+
+	public static final SignumID[] getSignumTxID(CrptoNetworks nw, String address) throws Exception {
 		if (address == null || address.isBlank()) {
 			return new SignumID[0];
 		}
@@ -473,7 +580,7 @@ public class CryptoUtil {
 		return new SignumID[] {};
 	}
 
-	public static final Transaction getSignumTx(CrptoNetworks nw, SignumID id) throws InterruptedException, ExecutionException {
+	public static final Transaction getSignumTx(CrptoNetworks nw, SignumID id) throws Exception {
 		Optional<Transaction> o_tx = Optional.empty();
 		try {
 			o_tx = MyDb.getSignumTxFromLocal(nw, id);

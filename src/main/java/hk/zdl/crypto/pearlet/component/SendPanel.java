@@ -17,6 +17,8 @@ import java.awt.Insets;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,6 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -59,6 +62,7 @@ import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.tx.SendTx;
+import hk.zdl.crypto.pearlet.ui.SpinableIcon;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
@@ -81,6 +85,7 @@ public class SendPanel extends JPanel {
 	private final JComboBox<Object> token_combo_box = new JComboBox<>();
 	private final Map<Object, BigDecimal> asset_balance = new HashMap<>();
 	private final JLabel balance_label = new JLabel();
+	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32,32,BufferedImage.TYPE_4BYTE_ABGR), 32, 32);;
 	private JButton send_btn;
 	private CrptoNetworks network;
 	private String account;
@@ -168,6 +173,13 @@ public class SendPanel extends JPanel {
 		send_btn.setFont(new Font("Arial Black", Font.PLAIN, 32));
 		send_btn.setMultiClickThreshhold(300);
 		send_btn.setEnabled(false);
+		try {
+			var btn_img = ImageIO.read(Util.getResource("icon/spinner-solid.svg"));
+			busy_icon.setImage(btn_img, 32, 32);
+			send_btn.setDisabledIcon(busy_icon);
+		} catch (IOException x) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+		}
 		panel_1.add(send_btn, new GridBagConstraints(0, 12, 5, 1, 0, 0, 10, 0, new Insets(5, 0, 5, 0), 0, 0));
 
 		token_combo_box.addActionListener(e -> updat_balance_label(asset_balance.get(token_combo_box.getSelectedItem())));
@@ -238,13 +250,13 @@ public class SendPanel extends JPanel {
 				}
 			} else if (WEB3J.equals(network)) {
 				Object o = token_combo_box.getSelectedItem();
-				if(o instanceof JSONObject) {
-					var jobj = (JSONObject)o;
+				if (o instanceof JSONObject) {
+					var jobj = (JSONObject) o;
 					asset_id = jobj.getString("contract_address");
 					amount = amount.multiply(BigDecimal.TEN.pow(jobj.getInt("contract_decimals")));
 				}
 			}
-			
+
 			SendTx send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()), asset_id);
 			if (msg_chk_box.isSelected()) {
 				send_tx.setEncrypted(eny_msg_menu_item.isSelected());
@@ -270,7 +282,8 @@ public class SendPanel extends JPanel {
 					send_tx.setMessage(bArr);
 				}
 			}
-			wuli.start();
+			send_btn.setEnabled(false);
+			busy_icon.start();
 			Util.submit(() -> {
 				boolean b = false;
 				try {
@@ -281,12 +294,14 @@ public class SendPanel extends JPanel {
 					}
 				} catch (Throwable x) {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-					if (x.getClass().equals(java.util.concurrent.ExecutionException.class) && x.getCause() != null) {
+					while (x.getClass().equals(java.util.concurrent.ExecutionException.class) && x.getCause() != null) {
 						x = x.getCause();
 					}
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+					return;
 				} finally {
-					wuli.stop();
+					busy_icon.stop();
+					send_btn.setEnabled(true);
 				}
 				if (b) {
 					UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);

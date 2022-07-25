@@ -6,6 +6,7 @@ import java.awt.Image;
 import java.awt.Taskbar;
 import java.awt.Toolkit;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -16,9 +17,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.jdesktop.swingx.JXFrame;
-
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.jthemedetecor.OsThemeDetector;
 
@@ -34,12 +34,15 @@ import hk.zdl.crypto.pearlet.component.SettingsPanel;
 import hk.zdl.crypto.pearlet.component.TranscationPanel;
 import hk.zdl.crypto.pearlet.component.miner.MinerExplorePane;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
+import hk.zdl.crypto.pearlet.notification.ether.EtherAccountsMonitor;
+import hk.zdl.crypto.pearlet.notification.signum.SignumAccountsMonitor;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.tx_history_query.TxHistoryQueryExecutor;
 import hk.zdl.crypto.pearlet.ui.AquaMagic;
 import hk.zdl.crypto.pearlet.ui.CloseableTabbedPaneLayerUI;
 import hk.zdl.crypto.pearlet.ui.GnomeMagic;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class Main {
@@ -49,7 +52,6 @@ public class Main {
 		AquaMagic.do_trick();
 		UIUtil.printVersionOnSplashScreen();
 		Image app_icon = ImageIO.read(Util.getResource("app_icon.png"));
-
 		Util.submit(new Callable<Void>() {
 
 			@Override
@@ -70,9 +72,18 @@ public class Main {
 			JOptionPane.showMessageDialog(null, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
+		createFrame(otd, app_icon);
+		Util.submit(MyDb::create_missing_tables);
+		new TxHistoryQueryExecutor();
+		new EtherAccountsMonitor();
+		new SignumAccountsMonitor(CrptoNetworks.ROTURA);
+		new SignumAccountsMonitor(CrptoNetworks.SIGNUM);
+	}
+
+	private static final void createFrame(OsThemeDetector otd, Image app_icon) {
 		SwingUtilities.invokeLater(() -> {
 			var appName = Util.getProp().get("appName");
-			var frame = new JXFrame(appName);
+			var frame = new JFrame(appName);
 			frame.setIconImage(app_icon);
 			frame.getContentPane().setLayout(new BorderLayout());
 			var panel1 = new JPanel(new BorderLayout());
@@ -111,22 +122,13 @@ public class Main {
 			SwingUtilities.invokeLater(() -> toolbar.clickButton("dashboard"));
 
 			otd.registerListener(isDark -> {
-				SwingUtilities.invokeLater(() -> {
-
-					if (isDark) {
-						FlatDarkLaf.setup();
-					} else {
-						FlatLightLaf.setup();
-					}
-				});
+				Stream.of(new FlatLightLaf(), new FlatDarkLaf()).filter(o -> o.isDark() == isDark).forEach(FlatLaf::setup);
 				SwingUtilities.invokeLater(() -> {
 					SwingUtilities.updateComponentTreeUI(frame);
 					IndepandentWindows.iterator().forEachRemaining(SwingUtilities::updateComponentTreeUI);
 				});
 			});
 		});
-		Util.submit(MyDb::create_missing_tables);
-		new TxHistoryQueryExecutor();
 	}
 
 }

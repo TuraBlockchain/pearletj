@@ -14,6 +14,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import com.formdev.flatlaf.util.SystemInfo;
+
 import jpcap.JpcapCaptor;
 import jpcap.NetworkInterface;
 import jpcap.packet.ARPPacket;
@@ -22,10 +24,15 @@ import jpcap.packet.EthernetPacket;
 public class CaptorTool {
 	
 	static {
-		String os = System.getProperty("os.name");
-		if(os.contains("Windows")) {
+		if(SystemInfo.isWindows) {
 			try {
 				Files.copy(CaptorTool.class.getClassLoader().getResourceAsStream("lib/jpcap.dll"), Paths.get("./jpcap.dll"), StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+				Logger.getLogger(CaptorTool.class.getName()).log(Level.WARNING, e.getMessage(), e);
+			}
+		}else if(SystemInfo.isMacOS) {
+			try {
+				Files.copy(CaptorTool.class.getClassLoader().getResourceAsStream("lib/libjpcap.jnilib"), Paths.get("./libjpcap.jnilib"), StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
 				Logger.getLogger(CaptorTool.class.getName()).log(Level.WARNING, e.getMessage(), e);
 			}
