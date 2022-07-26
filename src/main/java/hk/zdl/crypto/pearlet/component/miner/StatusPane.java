@@ -141,7 +141,7 @@ final class StatusPane extends JPanel implements ActionListener {
 		plot.setDataset(dataset);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private void set_memory_usage() {
 		var mem = status.getJSONObject("memory");
 		long total = mem.getLong("total");
@@ -149,7 +149,7 @@ final class StatusPane extends JPanel implements ActionListener {
 		long used = mem.getLong("used");
 
 		var chart = memory_usage_panel.getChart();
-		PiePlot<String> plot = (PiePlot<String>) chart.getPlot();
+		var plot = (PiePlot<String>) chart.getPlot();
 		var dataset = new DefaultPieDataset<String>();
 		dataset.setValue("Used", used);
 		dataset.setValue("Free", free);
