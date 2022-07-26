@@ -76,7 +76,9 @@ public class MinerSettingsPane extends JPanel implements ActionListener {
 	}
 
 	@Override
-	protected void finalize() throws Throwable {
+	public void removeNotify() {
+		super.removeNotify();
 		timer.stop();
 	}
+
 }

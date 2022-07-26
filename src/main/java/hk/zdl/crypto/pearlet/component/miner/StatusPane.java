@@ -43,7 +43,7 @@ final class StatusPane extends JPanel implements ActionListener {
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ssXXX");
 	private final ChartPanel temp_panel = new ChartPanel(ChartFactory.createBarChart("Temperature(" + (char) 0x2103 + ")", "", "", new DefaultCategoryDataset(), HORIZONTAL, true, true, false));
 	private final ChartPanel disk_usage_panel = new ChartPanel(ChartFactory.createPieChart("Disk Usage", new DefaultPieDataset<String>(), true, true, false));
-	private final JPanel mining_detail_panel = new JPanel(new BorderLayout(5,5));
+	private final JPanel mining_detail_panel = new JPanel(new BorderLayout(5, 5));
 	private final ChartPanel memory_usage_panel = new ChartPanel(ChartFactory.createPieChart("Memory Usage", new DefaultPieDataset<String>(), true, true, false));
 	private final DefaultTableModel mining_table_model = new DefaultTableModel(5, 2);
 	private final Timer timer = new Timer((int) TimeUnit.SECONDS.toMillis(10), this);
@@ -54,17 +54,19 @@ final class StatusPane extends JPanel implements ActionListener {
 		super(new GridLayout(2, 2));
 		Stream.of(temp_panel, disk_usage_panel, mining_detail_panel, memory_usage_panel).forEach(this::add);
 		Stream.of(temp_panel, disk_usage_panel, memory_usage_panel).forEach(p -> {
-			p.setPopupMenu(null);
 			p.setMouseWheelEnabled(false);
 			p.setMouseZoomable(false);
 			p.setRangeZoomable(false);
+			p.setPopupMenu(null);
 			var chart = p.getChart();
 			var plot = chart.getPlot();
 			var trans = new Color(0, 0, 0, 0);
+			chart.getTitle().setFont(MinerGridTitleFont.getFont());
+			chart.getTitle().setPaint(getForeground());
+			chart.getLegend().setBackgroundPaint(null);
 			chart.setBackgroundPaint(trans);
 			plot.setBackgroundPaint(trans);
 			plot.setOutlinePaint(null);
-			chart.getTitle().setFont(MinerGridTitleFont.getFont());
 		});
 		init_mining_panel();
 		addComponentListener(new ComponentAdapter() {
@@ -139,6 +141,8 @@ final class StatusPane extends JPanel implements ActionListener {
 		dataset.setValue("Plot", plot_size);
 		dataset.setValue("Free", total - used);
 		plot.setDataset(dataset);
+		plot.setSectionPaint("Plot", Color.blue.darker());
+		plot.setSectionPaint("Free", Color.green.darker());
 	}
 
 	@SuppressWarnings({ "unchecked", "unused" })
@@ -154,6 +158,8 @@ final class StatusPane extends JPanel implements ActionListener {
 		dataset.setValue("Used", used);
 		dataset.setValue("Free", free);
 		plot.setDataset(dataset);
+		plot.setSectionPaint("Used", Color.blue.darker());
+		plot.setSectionPaint("Free", Color.green.darker());
 	}
 
 	private void set_temp_panel() {
@@ -181,7 +187,19 @@ final class StatusPane extends JPanel implements ActionListener {
 	}
 
 	@Override
-	protected void finalize() throws Throwable {
+	public void removeNotify() {
+		super.removeNotify();
 		timer.stop();
+	}
+
+	@Override
+	public void repaint() {
+		super.repaint();
+		var fg = getForeground();
+		Stream.of(temp_panel, disk_usage_panel, memory_usage_panel).filter(p -> p != null).forEach(p -> {
+			var chart = p.getChart();
+			chart.getTitle().setPaint(fg);
+			chart.getLegend().setItemPaint(fg);
+		});
 	}
 }
