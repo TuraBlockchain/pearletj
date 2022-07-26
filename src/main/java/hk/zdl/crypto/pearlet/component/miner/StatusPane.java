@@ -55,6 +55,9 @@ final class StatusPane extends JPanel implements ActionListener {
 		Stream.of(temp_panel, disk_usage_panel, mining_detail_panel, memory_usage_panel).forEach(this::add);
 		Stream.of(temp_panel, disk_usage_panel, memory_usage_panel).forEach(p -> {
 			p.setPopupMenu(null);
+			p.setMouseWheelEnabled(false);
+			p.setMouseZoomable(false);
+			p.setRangeZoomable(false);
 			var chart = p.getChart();
 			var plot = chart.getPlot();
 			var trans = new Color(0, 0, 0, 0);
