@@ -1,5 +1,6 @@
 package hk.zdl.crypto.pearlet;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.HeadlessException;
@@ -22,6 +23,7 @@ public class MySplansh extends JFrame{
 		var img = ImageIO.read(MySplansh.class.getResource("/splash.png"));
 		var size = new Dimension(img.getWidth(),img.getHeight());
 		var frame = new MySplansh(img);
+		frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		frame.setAlwaysOnTop(true);
 		frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		frame.setUndecorated(true);
