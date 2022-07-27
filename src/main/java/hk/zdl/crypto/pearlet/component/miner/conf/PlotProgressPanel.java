@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
@@ -26,6 +27,8 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -85,13 +88,20 @@ public class PlotProgressPanel extends JPanel {
 	private void init_table() {
 		table.setFillsViewportHeight(true);
 		table.getTableHeader().setReorderingAllowed(false);
+		table.getTableHeader().setResizingAllowed(false);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setColumnSelectionAllowed(false);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setCellSelectionEnabled(false);
 		table.setDragEnabled(false);
 		table.setRowSelectionAllowed(false);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setShowGrid(true);
+		table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer());
+		table.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer());
+		table.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer());
+		((DefaultTableCellRenderer)table.getColumnModel().getColumn(0).getCellRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+		((DefaultTableCellRenderer)table.getColumnModel().getColumn(1).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
+		((DefaultTableCellRenderer)table.getColumnModel().getColumn(3).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
 		table.getColumnModel().getColumn(2).setCellRenderer(new DefaultTableCellRenderer() {
 
 			@Override
@@ -173,13 +183,24 @@ public class PlotProgressPanel extends JPanel {
 				response.close();
 				if (response.getStatusLine().getStatusCode() == 200) {
 					UIUtil.displayMessage("Succeed", "Plot started!", null);
+					Util.submit(new Callable<Void>() {
+
+						@Override
+						public Void call() throws Exception {
+							for (int i = 0; i < 5; i++) {
+								refresh_current_plots();
+								TimeUnit.SECONDS.sleep(1);
+							}
+							return null;
+						}
+					});
+
 				} else {
 					UIUtil.displayMessage("Error", "Fail to start a plot!", MessageType.ERROR);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
 			}
-
 		}
 	}
 
@@ -211,5 +232,6 @@ public class PlotProgressPanel extends JPanel {
 			model.setValueAt(jobj.get("path"), row_1, 4);
 			model.setValueAt(jobj.get("path"), row_2, 4);
 		}
+		SwingUtilities.invokeLater(() -> UIUtil.adjust_table_width(table, table.getColumnModel()));
 	}
 }
