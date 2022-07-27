@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.TrayIcon.MessageType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
@@ -165,11 +166,15 @@ public class PlotProgressPanel extends JPanel {
 				jobj.put("id", new BigInteger(combo_box_1.getSelectedItem().toString()));
 				jobj.put("start_nounce", spinner_1.getValue());
 				jobj.put("nounces", slider_1.getValue() * 100);
+				jobj.put("target_path", combo_box_2.getSelectedItem());
 				httpPost.setEntity(new StringEntity(jobj.toString()));
+				httpPost.setHeader("Content-type", "application/json");
 				var response = httpclient.execute(httpPost);
 				response.close();
 				if (response.getStatusLine().getStatusCode() == 200) {
 					UIUtil.displayMessage("Succeed", "Plot started!", null);
+				} else {
+					UIUtil.displayMessage("Error", "Fail to start a plot!", MessageType.ERROR);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
