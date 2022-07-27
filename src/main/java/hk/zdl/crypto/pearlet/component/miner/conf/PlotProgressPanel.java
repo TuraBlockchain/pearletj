@@ -1,11 +1,11 @@
 package hk.zdl.crypto.pearlet.component.miner.conf;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.TrayIcon.MessageType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
@@ -33,6 +33,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
@@ -55,6 +56,8 @@ public class PlotProgressPanel extends JPanel {
 	private static final long serialVersionUID = -1150055243038748734L;
 	private static final long byte_per_nounce = 262144;
 	public static final String plot_path = "/api/v1/plot";
+	private final CardLayout card = new CardLayout();
+	private final JPanel top_pane = new JPanel(card);
 	private final JButton add_btn = new JButton("Add a Plot");
 	private final JTable table = new JTable(new DefaultTableModel(new Object[][] {}, new Object[] { "Type", "Rate", "Progress", "ETA", "Path" })) {
 
@@ -75,9 +78,13 @@ public class PlotProgressPanel extends JPanel {
 		super(new BorderLayout());
 		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Plot", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
 		init_table();
-		add(add_btn, BorderLayout.NORTH);
+		top_pane.add("btn", add_btn);
+		var bar = new JProgressBar();
+		bar.setIndeterminate(true);
+		top_pane.add("bar", bar);
+		add(top_pane, BorderLayout.NORTH);
 		add(new JScrollPane(table), BorderLayout.CENTER);
-		add_btn.addActionListener(e -> addPlot());
+		add_btn.addActionListener(e -> Util.submit(() -> addPlot()));
 	}
 
 	public void setBasePath(String basePath) {
@@ -99,9 +106,9 @@ public class PlotProgressPanel extends JPanel {
 		table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer());
 		table.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer());
 		table.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer());
-		((DefaultTableCellRenderer)table.getColumnModel().getColumn(0).getCellRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
-		((DefaultTableCellRenderer)table.getColumnModel().getColumn(1).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
-		((DefaultTableCellRenderer)table.getColumnModel().getColumn(3).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
+		((DefaultTableCellRenderer) table.getColumnModel().getColumn(0).getCellRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+		((DefaultTableCellRenderer) table.getColumnModel().getColumn(1).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
+		((DefaultTableCellRenderer) table.getColumnModel().getColumn(3).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
 		table.getColumnModel().getColumn(2).setCellRenderer(new DefaultTableCellRenderer() {
 
 			@Override
@@ -170,6 +177,7 @@ public class PlotProgressPanel extends JPanel {
 		int i = JOptionPane.showConfirmDialog(getRootPane(), panel, "Add a Plot", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.OK_OPTION && combo_box_1.getSelectedIndex() > -1 && combo_box_2.getSelectedIndex() > -1) {
 			try {
+				card.show(top_pane, "bar");
 				var httpclient = HttpClients.createDefault();
 				var httpPost = new HttpPost(basePath + plot_path + "/add");
 				var jobj = new JSONObject();
@@ -180,8 +188,8 @@ public class PlotProgressPanel extends JPanel {
 				httpPost.setEntity(new StringEntity(jobj.toString()));
 				httpPost.setHeader("Content-type", "application/json");
 				var response = httpclient.execute(httpPost);
-				response.close();
 				if (response.getStatusLine().getStatusCode() == 200) {
+					response.close();
 					UIUtil.displayMessage("Succeed", "Plot started!", null);
 					Util.submit(new Callable<Void>() {
 
@@ -194,12 +202,15 @@ public class PlotProgressPanel extends JPanel {
 							return null;
 						}
 					});
-
 				} else {
-					UIUtil.displayMessage("Error", "Fail to start a plot!", MessageType.ERROR);
+					var text = IOUtils.readLines(response.getEntity().getContent(), "UTF-8").get(0);
+					response.close();
+					JOptionPane.showMessageDialog(getRootPane(), text, "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+			} finally {
+				card.show(top_pane, "btn");
 			}
 		}
 	}
@@ -208,7 +219,7 @@ public class PlotProgressPanel extends JPanel {
 		var str = new BigDecimal(BinaryByteUnit.BYTES.toGibibytes(val)).divide(new BigDecimal(1024)).toPlainString();
 		if (str.contains(".")) {
 			int i = str.indexOf('.');
-			str = str.substring(0, i + 4);
+			str = str.substring(0, Math.min(i + 4, str.length() - 1));
 		}
 		return str + " TiB";
 	}
