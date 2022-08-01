@@ -41,7 +41,7 @@ public class ImportWeb3JAccountFromText {
 		panel.add(mm_label, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		panel.add(sc_panee, new GridBagConstraints(0, 1, 2, 1, 0, 0, 17, 1, insets_5, 0, 0));
 
-		int i = JOptionPane.showConfirmDialog(w, panel, "Create New Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
+		int i = JOptionPane.showConfirmDialog(w, panel, "Import Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
 		if (i != JOptionPane.OK_OPTION) {
 			return;
 		}
@@ -85,7 +85,7 @@ public class ImportWeb3JAccountFromText {
 		panel.add(mm_label, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		panel.add(sc_panee, new GridBagConstraints(0, 1, 2, 1, 0, 0, 17, 1, insets_5, 0, 0));
 
-		int i = JOptionPane.showConfirmDialog(w, panel, "Create New Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
+		int i = JOptionPane.showConfirmDialog(w, panel, "Import Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
 		if (i != JOptionPane.OK_OPTION) {
 			return;
 		}
@@ -125,7 +125,7 @@ public class ImportWeb3JAccountFromText {
 		ECKeyPair eckp = cred.getEcKeyPair();
 		boolean b = MyDb.insertAccount(CrptoNetworks.WEB3J, cred.getAddress(), Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
 		if(b) {
-			UIUtil.displayMessage("Import Account", "done!", null);
+			UIUtil.displayMessage("Import Account", "Done!", null);
 			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 		}else {
 			JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);

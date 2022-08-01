@@ -35,6 +35,9 @@ public class SignumAccountsMonitor implements TxListener {
 
 	private void process_add_worker(List<String> l) {
 		for (var s : l) {
+			if (s == null) {
+				continue;
+			}
 			if (!map.containsKey(s)) {
 				var worker = new SignumTxHistWorker();
 				worker.setCrptoNetworks(nw);

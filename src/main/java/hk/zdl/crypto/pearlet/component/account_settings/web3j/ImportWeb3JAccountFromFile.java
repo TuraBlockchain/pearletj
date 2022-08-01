@@ -43,7 +43,7 @@ public class ImportWeb3JAccountFromFile {
 
 			@Override
 			public boolean accept(File f) {
-				return f.isDirectory() || f.getName().endsWith(".json");
+				return f.isDirectory() || f.getName().toLowerCase().endsWith(".json");
 			}
 		});
 		int i = file_dialog.showOpenDialog(w);
@@ -70,7 +70,7 @@ public class ImportWeb3JAccountFromFile {
 		ECKeyPair eckp = cred.getEcKeyPair();
 		boolean b = MyDb.insertAccount(CrptoNetworks.WEB3J, cred.getAddress(),Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
 		if (b) {
-			UIUtil.displayMessage("Create Account", "done!", null);
+			UIUtil.displayMessage("Import Account", "Done!", null);
 			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 		} else {
 			JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);

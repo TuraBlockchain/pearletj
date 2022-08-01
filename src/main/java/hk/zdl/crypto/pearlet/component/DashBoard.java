@@ -248,7 +248,7 @@ public class DashBoard extends JPanel {
 							token_list.setSelectedIndex(-1);
 						}
 					} catch (Exception x) {
-						Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
+						Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 					} finally {
 						token_list_card_layout.show(token_list_panel, "list");
 						updateUI();
@@ -263,7 +263,7 @@ public class DashBoard extends JPanel {
 							balance_label.setText(eth.toPlainString());
 						}
 					} catch (Exception x) {
-						Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
+						Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 					} finally {
 						updateUI();
 					}

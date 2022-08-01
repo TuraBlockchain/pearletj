@@ -88,8 +88,11 @@ public class Main {
 			frame.getContentPane().setLayout(new BorderLayout());
 			var panel1 = new JPanel(new BorderLayout());
 			var panel2 = new JPanel();
-			var mfs = new MainFrameSwitch(panel2);
+			panel1.add(new NetworkAndAccountBar(), BorderLayout.NORTH);
+			panel1.add(panel2, BorderLayout.CENTER);
+			frame.add(panel1, BorderLayout.CENTER);
 
+			var mfs = new MainFrameSwitch(panel2);
 			mfs.put("dashboard", new DashBoard());
 			mfs.put("txs", new TranscationPanel());
 			mfs.put("send", new SendPanel());
@@ -101,10 +104,6 @@ public class Main {
 			mfs.put("alis", new AlisesPanel());
 			mfs.put("sets", new SettingsPanel());
 			mfs.put("about", new AboutPanel());
-
-			panel1.add(new NetworkAndAccountBar(), BorderLayout.NORTH);
-			panel1.add(panel2, BorderLayout.CENTER);
-			frame.add(panel1, BorderLayout.CENTER);
 			var toolbar = new MyToolbar(mfs);
 			toolbar.clickButton("dashboard");
 			frame.add(toolbar, BorderLayout.WEST);

@@ -1,5 +1,6 @@
 package hk.zdl.crypto.pearlet.notification.signum;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,8 +32,19 @@ public class SignumTxHistWorker extends Thread {
 		while (running && blockTimestamp < 0) {
 			try {
 				dig(0, true);
+			} catch (java.net.UnknownHostException x) {
+				try {
+					TimeUnit.SECONDS.sleep(1);
+				} catch (InterruptedException e) {
+					return;
+				}
+				continue;
 			} catch (SocketTimeoutException x) {
 				continue;
+			} catch (IOException x) {
+				if (x.getMessage().equals("Unknown account")) {
+					return;
+				}
 			} catch (Exception x) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 			}

@@ -33,6 +33,13 @@ public class EtherTxHistWorker extends Thread {
 		while (running && ceil_block_height < 0) {
 			try {
 				check_tx_hist(0, 1);
+			}catch(java.net.UnknownHostException x){
+				try {
+					TimeUnit.SECONDS.sleep(1);
+				} catch (InterruptedException e) {
+					return;
+				}
+				continue;
 			} catch (SocketTimeoutException x) {
 				continue;
 			} catch (Exception x) {
