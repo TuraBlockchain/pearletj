@@ -120,7 +120,7 @@ public class SendTx implements Callable<Boolean> {
 				if (o_j.isPresent()) {
 					Credentials credentials = Credentials.create(ECKeyPair.create(private_key));
 					if (asset_id == null || "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee".equals(asset_id)) {//native ETH
-						Transfer.sendFunds(o_j.get(), credentials, to, amount, Convert.Unit.ETHER).send();
+						Transfer.sendFunds(o_j.get(), credentials, to, amount, Convert.Unit.WEI).send();
 					}else {//ERC20
 						ERC20.load(asset_id, o_j.get(), credentials, new DefaultGasProvider()).transfer(to, amount.toBigInteger()).send();
 					}
