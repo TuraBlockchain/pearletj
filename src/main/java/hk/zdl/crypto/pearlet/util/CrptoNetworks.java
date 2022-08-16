@@ -8,7 +8,7 @@ public enum CrptoNetworks {
 	public String toString() {
 		switch(this) {
 		case ROTURA:
-			return "Rotura";
+			return "PETH";
 		case SIGNUM:
 			return "Signum";
 		case WEB3J:

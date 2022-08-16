@@ -32,7 +32,7 @@ public class Util {
 	});
 
 	public static final Map<String, String> default_currency_symbol = Collections
-			.unmodifiableMap(Stream.of(new String[] { "SIGNUM", String.valueOf((char) 0xA7A8) }, new String[] { "ROTURA", "Rotura" }, new String[] { "WEB3J", "ETH" })
+			.unmodifiableMap(Stream.of(new String[] { "SIGNUM", String.valueOf((char) 0xA7A8) }, new String[] { "ROTURA", "PETH" }, new String[] { "WEB3J", "ETH" })
 					.map(s -> Collections.singletonMap(s[0], s[1])).reduce(new TreeMap<>(), (x, o) -> {
 						x.putAll(o);
 						return x;

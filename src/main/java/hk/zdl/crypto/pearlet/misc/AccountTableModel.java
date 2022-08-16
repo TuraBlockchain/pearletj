@@ -140,7 +140,7 @@ public class AccountTableModel extends AbstractTableModel {
 
 		@Override
 		public Void call() throws Exception {
-			String balance = CryptoUtil.getBalance(nw, address).stripTrailingZeros().toString();
+			String balance = CryptoUtil.getBalance(nw, address).stripTrailingZeros().toPlainString();
 			setValueAt(balance, i, 3);
 			fireTableRowsUpdated(i, i);
 			return null;

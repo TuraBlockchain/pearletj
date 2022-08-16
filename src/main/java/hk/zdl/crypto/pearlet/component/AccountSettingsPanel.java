@@ -83,8 +83,8 @@ public class AccountSettingsPanel extends JPanel {
 		var import_from_prik = new JMenuItem("From Private Key ...");
 		var import_from_mnic = new JMenuItem("From Mnemonic ...");
 		var import_from_file = new JMenuItem("From JSON File ...");
-		Stream.of(import_acc_signum, import_acc_rotura,import_acc_web3j).forEach(import_acc_menu::add);
-		Stream.of(import_from_prik,import_from_mnic, import_from_file).forEach(import_acc_web3j::add);
+		Stream.of(import_acc_signum, import_acc_rotura, import_acc_web3j).forEach(import_acc_menu::add);
+		Stream.of(import_from_prik, import_from_mnic, import_from_file).forEach(import_acc_web3j::add);
 
 		import_account_btn.addActionListener(e -> import_acc_menu.show(import_account_btn, 0, 0));
 		import_acc_signum.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.SIGNUM));
@@ -92,12 +92,12 @@ public class AccountSettingsPanel extends JPanel {
 		import_from_prik.addActionListener(e -> ImportWeb3JAccountFromText.import_from_private_key(this));
 		import_from_mnic.addActionListener(e -> ImportWeb3JAccountFromText.load_from_mnemonic(this));
 		import_from_file.addActionListener(e -> ImportWeb3JAccountFromFile.create_import_account_dialog(this));
-		
+
 		var watch_acc_menu = new JPopupMenu();
 		var watch_acc_signum = new JMenuItem("Signum");
 		var watch_acc_rotura = new JMenuItem("Rotura");
 		var watch_acc_web3j = new JMenuItem("Ethereum");
-		Stream.of(watch_acc_signum, watch_acc_rotura,watch_acc_web3j).forEach(watch_acc_menu::add);
+		Stream.of(watch_acc_signum, watch_acc_rotura, watch_acc_web3j).forEach(watch_acc_menu::add);
 		watch_acc_signum.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this, CrptoNetworks.SIGNUM));
 		watch_acc_rotura.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this, CrptoNetworks.ROTURA));
 		watch_acc_web3j.addActionListener(e -> WatchWeb3JAccount.create_watch_account_dialog(this));
@@ -136,12 +136,13 @@ public class AccountSettingsPanel extends JPanel {
 				Point point = mouseEvent.getPoint();
 				int row = table.rowAtPoint(point);
 				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
-					CrptoNetworks nw = CrptoNetworks.valueOf(account_table_model.getValueAt(row, 1).toString());
+					var str = account_table_model.getValueAt(row, 1).toString();
+					CrptoNetworks nw = Stream.of(CrptoNetworks.values()).filter(o->o.toString().equals(str)).findAny().get();
 					Util.viewAccountDetail(nw, account_table_model.getValueAt(row, 2).toString().replace(",watch", ""));
 				}
 			}
 		});
-		
+
 	}
 
 	private final JTable buildAccountTable() {
@@ -154,7 +155,7 @@ public class AccountSettingsPanel extends JPanel {
 		table.setShowGrid(true);
 		table.getColumnModel().getColumn(2).setCellRenderer(new WatchAddressCellRenderer());
 		table.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer());
-		((DefaultTableCellRenderer)table.getColumnModel().getColumn(3).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
+		((DefaultTableCellRenderer) table.getColumnModel().getColumn(3).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
 		return table;
 	}
 
