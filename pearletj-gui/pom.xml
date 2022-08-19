@@ -206,5 +206,10 @@
 			<version>2.18.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>cloudflare-dns</groupId>
+			<artifactId>cloudflare-dns</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>
