@@ -1,11 +1,15 @@
 package hk.zdl.crypto.pearlet.misc;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
+import javax.swing.Timer;
 import javax.swing.table.AbstractTableModel;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -26,11 +30,16 @@ import signumj.entity.response.Transaction;
 import signumj.response.attachment.AccountInfoAttachment;
 
 @SuppressWarnings("serial")
-public class AccountTableModel extends AbstractTableModel {
+public class AccountTableModel extends AbstractTableModel implements ActionListener {
 
 	private static final List<String> columnNames = Arrays.asList("Id", "Network", "Address", "Balance", "Alias", "Description");
+	private final Timer mTimer = new Timer((int) TimeUnit.SECONDS.toMillis(30), this);
 	private Map<List<Integer>, Object> sparse = new HashMap<>();
 	private List<Record> accounts = Arrays.asList();
+
+	public AccountTableModel() {
+		mTimer.start();
+	}
 
 	@Override
 	public int getRowCount() {
@@ -93,7 +102,7 @@ public class AccountTableModel extends AbstractTableModel {
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
-	public void onMessage(AccountListUpdateEvent e) {
+	public synchronized void onMessage(AccountListUpdateEvent e) {
 		setAccounts(e.getAccounts());
 		for (int i = 0; i < e.getAccounts().size(); i++) {
 			Record r = e.getAccounts().get(i);
@@ -158,8 +167,8 @@ public class AccountTableModel extends AbstractTableModel {
 					var aliases = atta.getName();
 					var desc = atta.getDescription();
 					for (int i = 0; i < accounts.size(); i++) {
-						var addr = getValueAt(i,2).toString();
-						var raw_addr = addr.substring(addr.indexOf('-')+1);
+						var addr = getValueAt(i, 2).toString();
+						var raw_addr = addr.substring(addr.indexOf('-') + 1);
 						if (raw_addr.equals(address)) {
 							setValueAt(aliases, i, 4);
 							setValueAt(desc, i, 5);
@@ -169,6 +178,16 @@ public class AccountTableModel extends AbstractTableModel {
 					}
 				}
 			}
+		}
+	}
+
+	@Override
+	public synchronized void actionPerformed(ActionEvent e) {
+		for (int i = 0; i < getRowCount(); i++) {
+			var nw = (CrptoNetworks)getValueAt(i, 1);
+			var adr = getValueAt(i, 2).toString().replace(",watch", "");
+			var q = new BalanceQuery(nw,adr,i);
+			Util.submit(q);
 		}
 	}
 

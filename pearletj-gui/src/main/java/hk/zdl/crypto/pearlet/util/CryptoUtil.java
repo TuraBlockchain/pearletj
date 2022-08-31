@@ -199,18 +199,20 @@ public class CryptoUtil {
 			}
 		} else if (WEB3J.equals(network)) {
 			if (getWeb3j().isPresent()) {
-				BigInteger wei = getWeb3j().get().ethGetBalance(address, DefaultBlockParameterName.LATEST).send().getBalance();
-				BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
-				return eth;
-			} else {
-				var items = getAccountBalances(address);
-				for (int i = 0; i < items.length(); i++) {
-					var jobj = items.getJSONObject(i);
-					if (jobj.getString("contract_name").equals("Ether") && jobj.getString("contract_ticker_symbol").equals("ETH")) {
-						BigInteger wei = new BigInteger(jobj.getString("balance"));
-						BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
-						return eth;
-					}
+				try {
+					BigInteger wei = getWeb3j().get().ethGetBalance(address, DefaultBlockParameterName.LATEST).send().getBalance();
+					BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
+					return eth;
+				} catch (IOException e) {
+				}
+			}
+			var items = getAccountBalances(address);
+			for (int i = 0; i < items.length(); i++) {
+				var jobj = items.getJSONObject(i);
+				if (jobj.getString("contract_name").equals("Ether") && jobj.getString("contract_ticker_symbol").equals("ETH")) {
+					BigInteger wei = new BigInteger(jobj.getString("balance"));
+					BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
+					return eth;
 				}
 			}
 		}
