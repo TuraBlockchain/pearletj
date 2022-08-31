@@ -66,10 +66,10 @@ public class AccountSettingsPanel extends JPanel {
 		btn_panel.add(del_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 
 		var create_acc_menu = new JPopupMenu();
+		var create_acc_rotura = new JMenuItem("PETH");
 		var create_acc_signum = new JMenuItem("Signum");
-		var create_acc_rotura = new JMenuItem("Rotura");
 		var create_acc_web3j = new JMenuItem("Ethereum");
-		Stream.of(create_acc_signum, create_acc_rotura, create_acc_web3j).forEach(create_acc_menu::add);
+		Stream.of(create_acc_rotura, create_acc_signum, create_acc_web3j).forEach(create_acc_menu::add);
 
 		create_account_btn.addActionListener(e -> create_acc_menu.show(create_account_btn, 0, 0));
 		create_acc_web3j.addActionListener(e -> CreateWeb3JAccount.create_new_account_dialog(this));
@@ -77,13 +77,13 @@ public class AccountSettingsPanel extends JPanel {
 		create_acc_rotura.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this, CrptoNetworks.ROTURA));
 
 		var import_acc_menu = new JPopupMenu();
+		var import_acc_rotura = new JMenuItem("PETH");
 		var import_acc_signum = new JMenuItem("Signum");
-		var import_acc_rotura = new JMenuItem("Rotura");
 		var import_acc_web3j = new JMenu("Ethereum");
 		var import_from_prik = new JMenuItem("From Private Key ...");
 		var import_from_mnic = new JMenuItem("From Mnemonic ...");
 		var import_from_file = new JMenuItem("From JSON File ...");
-		Stream.of(import_acc_signum, import_acc_rotura, import_acc_web3j).forEach(import_acc_menu::add);
+		Stream.of(import_acc_rotura, import_acc_signum, import_acc_web3j).forEach(import_acc_menu::add);
 		Stream.of(import_from_prik, import_from_mnic, import_from_file).forEach(import_acc_web3j::add);
 
 		import_account_btn.addActionListener(e -> import_acc_menu.show(import_account_btn, 0, 0));
@@ -94,10 +94,10 @@ public class AccountSettingsPanel extends JPanel {
 		import_from_file.addActionListener(e -> ImportWeb3JAccountFromFile.create_import_account_dialog(this));
 
 		var watch_acc_menu = new JPopupMenu();
+		var watch_acc_rotura = new JMenuItem("PETH");
 		var watch_acc_signum = new JMenuItem("Signum");
-		var watch_acc_rotura = new JMenuItem("Rotura");
 		var watch_acc_web3j = new JMenuItem("Ethereum");
-		Stream.of(watch_acc_signum, watch_acc_rotura, watch_acc_web3j).forEach(watch_acc_menu::add);
+		Stream.of(watch_acc_rotura, watch_acc_signum, watch_acc_web3j).forEach(watch_acc_menu::add);
 		watch_acc_signum.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this, CrptoNetworks.SIGNUM));
 		watch_acc_rotura.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this, CrptoNetworks.ROTURA));
 		watch_acc_web3j.addActionListener(e -> WatchWeb3JAccount.create_watch_account_dialog(this));
@@ -137,7 +137,7 @@ public class AccountSettingsPanel extends JPanel {
 				int row = table.rowAtPoint(point);
 				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
 					var str = account_table_model.getValueAt(row, 1).toString();
-					CrptoNetworks nw = Stream.of(CrptoNetworks.values()).filter(o->o.toString().equals(str)).findAny().get();
+					CrptoNetworks nw = Stream.of(CrptoNetworks.values()).filter(o -> o.toString().equals(str)).findAny().get();
 					Util.viewAccountDetail(nw, account_table_model.getValueAt(row, 2).toString().replace(",watch", ""));
 				}
 			}

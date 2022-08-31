@@ -47,6 +47,9 @@ public class NetworkSettingsPanel extends JPanel {
 	private static final Component init_network_UI_components(CrptoNetworks network_name) {
 		var panel = new JPanel(new GridBagLayout());
 		var label = new JLabel(network_name.name());
+		if(network_name.equals(CrptoNetworks.ROTURA)) {
+			label.setText("PETH");
+		}
 		label.setHorizontalTextPosition(SwingConstants.LEFT);
 		panel.add(label, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 0, 0, 0), 0, 0));
 		var combo_box = new JComboBox<String>();
@@ -62,6 +65,7 @@ public class NetworkSettingsPanel extends JPanel {
 		}
 		combo_box.setModel(new ListComboBoxModel<String>(nws));
 		if (network_name.equals(CrptoNetworks.WEB3J)) {
+			label.setText("Ethereum");
 			var opt_btn = new JButton("ID / Secret");
 			panel.add(opt_btn, new GridBagConstraints(1, 0, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
 			opt_btn.addActionListener(e -> createWeb3jAuthDialog(panel));
