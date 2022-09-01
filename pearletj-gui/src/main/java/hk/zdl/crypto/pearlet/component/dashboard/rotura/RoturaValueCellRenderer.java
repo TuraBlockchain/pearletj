@@ -2,6 +2,7 @@ package hk.zdl.crypto.pearlet.component.dashboard.rotura;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.math.BigDecimal;
 
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -9,6 +10,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import com.jthemedetecor.OsThemeDetector;
 
+import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import signumj.entity.SignumValue;
 import signumj.entity.response.Transaction;
 
@@ -45,7 +47,7 @@ public class RoturaValueCellRenderer extends DefaultTableCellRenderer {
 	protected void setValue(Object value) {
 		Transaction tx = (Transaction) value;
 		SignumValue val = tx.getAmount();
-		super.setValue(val.toSigna().toPlainString());
+		super.setValue(new BigDecimal(val.toNQT(), CryptoUtil.peth_decimals).toPlainString());
 	}
 
 	private static final Color darker(Color c) {
