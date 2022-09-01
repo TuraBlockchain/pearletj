@@ -28,7 +28,6 @@ import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
-import signumj.entity.SignumValue;
 
 public class IssueTokenPanel extends JPanel {
 
@@ -121,7 +120,7 @@ public class IssueTokenPanel extends JPanel {
 			Record r = MyDb.getAccount(nw, account).get();
 			byte[] public_key = r.getBytes("PUBLIC_KEY");
 			byte[] unsigned_tx = CryptoUtil.issueAsset(nw, token_name_field.getText().trim(), token_desc_area.getText().trim(), (Long) qty_spinner.getValue(),
-					SignumValue.fromSigna(new BigDecimal((Long) fee_spinner.getValue())).toNQT().longValue(), public_key);
+					CryptoUtil.toSignumValue(nw,new BigDecimal((Long) fee_spinner.getValue())).toNQT().longValue(), public_key);
 			byte[] signed_tx = CryptoUtil.signTransaction(nw, r.getBytes("PRIVATE_KEY"), unsigned_tx);
 			CryptoUtil.broadcastTransaction(nw, signed_tx);
 		} catch (Throwable x) {

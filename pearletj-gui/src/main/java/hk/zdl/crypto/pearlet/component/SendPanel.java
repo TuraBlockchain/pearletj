@@ -71,6 +71,7 @@ import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.response.Account;
 import signumj.entity.response.Asset;
 import signumj.entity.response.AssetBalance;
+import signumj.entity.response.FeeSuggestion;
 
 @SuppressWarnings("serial")
 public class SendPanel extends JPanel {
@@ -78,6 +79,8 @@ public class SendPanel extends JPanel {
 	private static final Dimension FIELD_DIMENSION = new Dimension(500, 20);
 	private final JPanel panel_2 = new JPanel(new BorderLayout());
 	private final JPanel fee_panel = new JPanel(new GridLayout(1, 0));
+	private final JTextField fee_field = new JTextField();
+	private final JSlider fee_slider = new JSlider();
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final JLabel fee_label = new JLabel("Fee");
 	private final WaitLayerUI wuli = new WaitLayerUI();
@@ -85,7 +88,7 @@ public class SendPanel extends JPanel {
 	private final JComboBox<Object> token_combo_box = new JComboBox<>();
 	private final Map<Object, BigDecimal> asset_balance = new HashMap<>();
 	private final JLabel balance_label = new JLabel();
-	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32,32,BufferedImage.TYPE_4BYTE_ABGR), 32, 32);;
+	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32, 32, BufferedImage.TYPE_4BYTE_ABGR), 32, 32);;
 	private JButton send_btn;
 	private CrptoNetworks network;
 	private String account;
@@ -128,13 +131,10 @@ public class SendPanel extends JPanel {
 		panel_1.add(amt_field, newGridConst(0, 5, 5));
 
 		panel_1.add(fee_label, newGridConst(0, 6, 3, 17));
-		var fee_field = new JTextField("0.05");
-		fee_field.setHorizontalAlignment(JTextField.RIGHT);
 		fee_panel.setPreferredSize(FIELD_DIMENSION);
-		var fee_slider = new JSlider(10, 100, 50);
 		Stream.of(fee_field, fee_slider).forEach(fee_panel::add);
 		fee_field.setEditable(false);
-		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / 1000f));
+		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / Math.pow(10, network == ROTURA ? CryptoUtil.peth_decimals : 8)));
 		panel_1.add(fee_panel, newGridConst(0, 7, 5));
 
 		var panel_3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -315,9 +315,9 @@ public class SendPanel extends JPanel {
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
-		if(!send_btn.isEnabled()) {
-			return;
-		}
+//		if(!send_btn.isEnabled()) {
+//			return;
+//		}
 		this.network = e.network;
 		this.account = e.account;
 		String symbol = Util.default_currency_symbol.get(e.network.name());
@@ -335,7 +335,12 @@ public class SendPanel extends JPanel {
 				try {
 					if (Arrays.asList(ROTURA, SIGNUM).contains(e.network)) {
 						Account account = CryptoUtil.getAccount(e.network, e.account);
-						BigDecimal value = account.getBalance().toSigna();
+						BigDecimal value;
+						if (e.network.equals(SIGNUM)) {
+							value = account.getBalance().toSigna();
+						} else {
+							value = new BigDecimal(account.getBalance().toNQT(), CryptoUtil.peth_decimals);
+						}
 						asset_balance.put(symbol, value);
 						updat_balance_label(value);
 						for (AssetBalance ab : account.getAssetBalances()) {
@@ -344,6 +349,10 @@ public class SendPanel extends JPanel {
 							asset_balance.put(a, val);
 							((DefaultComboBoxModel<Object>) token_combo_box.getModel()).addElement(a);
 						}
+						FeeSuggestion g = CryptoUtil.getFeeSuggestion(network);
+						fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
+						fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
+						fee_slider.setValue(g.getStandardFee().toNQT().intValue());
 					} else if (WEB3J.equals(e.network)) {
 						try {
 							BigDecimal value = CryptoUtil.getBalance(e.network, e.account);

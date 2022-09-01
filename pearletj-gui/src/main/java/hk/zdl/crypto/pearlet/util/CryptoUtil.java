@@ -42,11 +42,14 @@ import signumj.entity.SignumID;
 import signumj.entity.SignumValue;
 import signumj.entity.response.Account;
 import signumj.entity.response.Asset;
+import signumj.entity.response.FeeSuggestion;
 import signumj.entity.response.Transaction;
 import signumj.entity.response.http.BRSError;
 import signumj.service.NodeService;
 
 public class CryptoUtil {
+
+	public static final int peth_decimals = 4;
 
 	private static final OkHttpClient _client = new OkHttpClient();
 
@@ -184,7 +187,12 @@ public class CryptoUtil {
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				try {
-					return ns.getAccount(SignumAddress.fromEither(address)).toFuture().get().getBalance().toSigna();
+					var balance = ns.getAccount(SignumAddress.fromEither(address)).toFuture().get().getBalance();
+					if (network.equals(ROTURA)) {
+						return new BigDecimal(balance.toNQT(), peth_decimals);
+					} else {
+						return balance.toSigna();
+					}
 				} catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
 					if (e.getCause() != null) {
 						if (e.getCause().getClass().getName().equals("signumj.entity.response.http.BRSError")) {
@@ -268,7 +276,7 @@ public class CryptoUtil {
 				var client = new OkHttpClient.Builder().build();
 				var request = new Request.Builder().url(server_url + "burst?requestType=transferAsset")
 						.post(RequestBody.create("asset=" + assetId + "&recipient=" + recipient + "&deadline=1440&quantityQNT=" + quantity.toPlainString() + "&broadcast=false&feeNQT="
-								+ SignumValue.fromSigna(fee).toNQT() + "&publicKey=" + Hex.toHexString(senderPublicKey), MediaType.parse("application/x-www-form-urlencoded")))
+								+ toSignumValue(nw, fee).toNQT() + "&publicKey=" + Hex.toHexString(senderPublicKey), MediaType.parse("application/x-www-form-urlencoded")))
 						.build();
 				var response = client.newCall(request).execute();
 				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
@@ -285,7 +293,7 @@ public class CryptoUtil {
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				return ns.generateTransferAssetTransactionWithMessage(senderPublicKey, SignumAddress.fromEither(recipient), SignumID.fromLong(assetId),
-						SignumValue.fromNQT(new BigInteger(quantity.toPlainString())), SignumValue.ZERO, SignumValue.fromSigna(fee), 1440, message).blockingGet();
+						SignumValue.fromNQT(new BigInteger(quantity.toPlainString())), SignumValue.ZERO, toSignumValue(nw, fee), 1440, message).blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -303,8 +311,8 @@ public class CryptoUtil {
 				var client = new OkHttpClient.Builder().build();
 				var request = new Request.Builder().url(server_url + "burst?requestType=transferAsset")
 						.post(RequestBody.create(
-								"asset=" + assetId + "&recipient=" + recipient + "&deadline=1440&quantityQNT=" + quantity.toPlainString() + "&broadcast=false&feeNQT="
-										+ SignumValue.fromSigna(fee).toNQT() + "&publicKey=" + Hex.toHexString(senderPublicKey) + "&messageIsText=true&message=" + URLEncoder.encode(message, "UTF-8"),
+								"asset=" + assetId + "&recipient=" + recipient + "&deadline=1440&quantityQNT=" + quantity.toPlainString() + "&broadcast=false&feeNQT=" + toSignumValue(nw, fee).toNQT()
+										+ "&publicKey=" + Hex.toHexString(senderPublicKey) + "&messageIsText=true&message=" + URLEncoder.encode(message, "UTF-8"),
 								MediaType.parse("application/x-www-form-urlencoded")))
 						.build();
 				var response = client.newCall(request).execute();
@@ -321,7 +329,7 @@ public class CryptoUtil {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
-				return ns.generateTransaction(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440, null).blockingGet();
+				return ns.generateTransaction(SignumAddress.fromRs(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, null).blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -337,7 +345,7 @@ public class CryptoUtil {
 				new Random().nextBytes(nounce);
 				EncryptedMessage emsg = new EncryptedMessage(message, nounce, isText);
 				return ns.generateTransferAssetTransactionWithEncryptedMessage(senderPublicKey, SignumAddress.fromEither(recipient), SignumID.fromLong(assetId),
-						SignumValue.fromNQT(new BigInteger(quantity.toPlainString())), SignumValue.ZERO, SignumValue.fromSigna(fee), 1440, emsg).blockingGet();
+						SignumValue.fromNQT(new BigInteger(quantity.toPlainString())), SignumValue.ZERO, toSignumValue(nw, fee), 1440, emsg).blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -351,8 +359,7 @@ public class CryptoUtil {
 				byte[] nounce = new byte[32];// must be 32
 				new Random().nextBytes(nounce);
 				EncryptedMessage emsg = new EncryptedMessage(message, nounce, isText);
-				return ns.generateTransactionWithEncryptedMessage(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440, emsg, null)
-						.blockingGet();
+				return ns.generateTransactionWithEncryptedMessage(SignumAddress.fromRs(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, emsg, null).blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -363,7 +370,7 @@ public class CryptoUtil {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
-				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440, message, null).blockingGet();
+				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, message, null).blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -374,7 +381,7 @@ public class CryptoUtil {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
-				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, SignumValue.fromSigna(amount), SignumValue.fromSigna(fee), 1440, message, null).blockingGet();
+				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, message, null).blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -398,7 +405,7 @@ public class CryptoUtil {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
-				return ns.generateTransactionWithEncryptedMessage(SignumAddress.fromEither(recipient), senderPublicKey, SignumValue.fromSigna(fee), 1440, message, "").blockingGet();
+				return ns.generateTransactionWithEncryptedMessage(SignumAddress.fromEither(recipient), senderPublicKey, toSignumValue(nw, fee), 1440, message, "").blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -619,6 +626,26 @@ public class CryptoUtil {
 			}
 		}
 		return opt;
+	}
+
+	public static final SignumValue toSignumValue(CrptoNetworks network, BigDecimal amount) {
+		switch (network) {
+		case ROTURA:
+			return SignumValue.fromNQT(amount.multiply(BigDecimal.TEN.pow(peth_decimals)).toBigInteger());
+		case SIGNUM:
+			return SignumValue.fromSigna(amount);
+		default:
+			throw new IllegalArgumentException();
+		}
+	}
+	
+	public static final FeeSuggestion getFeeSuggestion(CrptoNetworks network) {
+		Optional<String> opt = get_server_url(network);
+		if (get_server_url(network).isPresent()) {
+			NodeService ns = NodeService.getInstance(opt.get());
+			return ns.suggestFee().blockingGet();
+		}
+		throw new IllegalArgumentException();
 	}
 
 }

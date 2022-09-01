@@ -42,7 +42,6 @@ import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
-import signumj.entity.SignumValue;
 
 @SuppressWarnings("serial")
 public class SetAccountInfoPanel extends JPanel {
@@ -114,7 +113,7 @@ public class SetAccountInfoPanel extends JPanel {
 					byte[] public_key = o_r.get().getBytes("PUBLIC_KEY");
 					if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
 						try {
-							var feeNQT = SignumValue.fromSigna(new BigDecimal(fee_slider.getValue()).divide(new BigDecimal("1000"))).toNQT().longValue();
+							var feeNQT = CryptoUtil.toSignumValue(network,new BigDecimal(fee_slider.getValue()).divide(new BigDecimal("1000"))).toNQT().longValue();
 							byte[] ugsigned_tx = CryptoUtil.setAccountInfo(network, name_field.getText().trim(), desc_field.getText().trim(), feeNQT, public_key);
 							byte[] signed_tx = CryptoUtil.signTransaction(network, private_key, ugsigned_tx);
 							CryptoUtil.broadcastTransaction(network, signed_tx);

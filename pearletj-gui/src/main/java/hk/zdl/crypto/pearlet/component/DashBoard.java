@@ -239,7 +239,13 @@ public class DashBoard extends JPanel {
 				Util.submit(() -> {
 					try {
 						var account = CryptoUtil.getAccount(nw, e.account);
-						balance_label.setText(account.getBalance().toSigna().stripTrailingZeros().toPlainString());
+						var balance_text = "?";
+						if(nw.equals(SIGNUM)) {
+							balance_text = account.getBalance().toSigna().stripTrailingZeros().toPlainString();
+						}else {
+							balance_text = new BigDecimal(account.getBalance().toNQT(), CryptoUtil.peth_decimals).stripTrailingZeros().toPlainString();
+						}
+						balance_label.setText(balance_text);
 						token_list.setListData(Arrays.asList(account.getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString())).map(o -> new AltTokenWrapper(nw, o))
 								.toArray((i) -> new AltTokenWrapper[i]));
 						if (token_list.getModel().getSize() > 0) {
