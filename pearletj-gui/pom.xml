@@ -75,12 +75,12 @@
 			<artifactId>derbytools</artifactId>
 			<version>10.16.1.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.mchange</groupId>
 			<artifactId>c3p0</artifactId>
 			<version>0.9.5.5</version>
 		</dependency>
+
 		<!-- GUI relative -->
 		<dependency>
 			<groupId>com.formdev</groupId>
@@ -102,6 +102,7 @@
 			<artifactId>jSystemThemeDetector</artifactId>
 			<version>3.6</version>
 		</dependency>
+
 		<!-- API backend-->
 		<dependency>
 			<groupId>com.github.signum-network</groupId>
@@ -128,6 +129,7 @@
 			<artifactId>contracts</artifactId>
 			<version>5.0.0</version>
 		</dependency>
+
 		<!-- Utilities -->
 		<dependency>
 			<groupId>org.json</groupId>
@@ -164,6 +166,12 @@
 			<artifactId>jpcap</artifactId>
 			<version>0.01.16</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.javacsv</groupId>
+			<artifactId>javacsv</artifactId>
+			<version>2.0</version>
+		</dependency>
+
 		<!-- jfinal -->
 		<dependency>
 			<groupId>com.jfinal</groupId>
@@ -175,6 +183,7 @@
 			<artifactId>jfreechart</artifactId>
 			<version>1.5.3</version>
 		</dependency>
+
 		<!-- svg -->
 		<dependency>
 			<groupId>com.twelvemonkeys.imageio</groupId>
@@ -186,12 +195,14 @@
 			<artifactId>batik-transcoder</artifactId>
 			<version>1.6-1</version>
 		</dependency>
+
 		<!-- qr-code -->
 		<dependency>
 			<groupId>net.glxn</groupId>
 			<artifactId>qrgen</artifactId>
 			<version>1.2</version>
 		</dependency>
+
 		<!-- image resize -->
 		<dependency>
 			<groupId>org.imgscalr</groupId>
@@ -206,10 +217,5 @@
 			<version>2.18.0</version>
 		</dependency>
 
-		<dependency>
-			<groupId>cloudflare-dns</groupId>
-			<artifactId>cloudflare-dns</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 </project>

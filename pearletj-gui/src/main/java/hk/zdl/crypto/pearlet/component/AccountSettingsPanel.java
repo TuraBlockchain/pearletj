@@ -28,6 +28,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.greenrobot.eventbus.EventBus;
 
+import hk.zdl.crypto.pearlet.component.account_settings.ExportAccountTable;
 import hk.zdl.crypto.pearlet.component.account_settings.signum.CreateSignumAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.signum.ImportSignumAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.signum.WatchSignumAccount;
@@ -60,10 +61,12 @@ public class AccountSettingsPanel extends JPanel {
 		btn_panel.add(create_account_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var import_account_btn = new JButton("Import");
 		btn_panel.add(import_account_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		var export_account_btn = new JButton("Export");
+		btn_panel.add(export_account_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var watch_account_btn = new JButton("Watch");
-		btn_panel.add(watch_account_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		btn_panel.add(watch_account_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var del_btn = new JButton("Delete");
-		btn_panel.add(del_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		btn_panel.add(del_btn, new GridBagConstraints(0, 4, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 
 		var create_acc_menu = new JPopupMenu();
 		var create_acc_rotura = new JMenuItem("PETH");
@@ -92,6 +95,17 @@ public class AccountSettingsPanel extends JPanel {
 		import_from_prik.addActionListener(e -> ImportWeb3JAccountFromText.import_from_private_key(this));
 		import_from_mnic.addActionListener(e -> ImportWeb3JAccountFromText.load_from_mnemonic(this));
 		import_from_file.addActionListener(e -> ImportWeb3JAccountFromFile.create_import_account_dialog(this));
+		
+		var export_acc_menu = new JPopupMenu();
+//		var export_acc_item = new JMenuItem("Current account...");
+//		export_acc_item.setEnabled(false);
+		var export_table_item =  new JMenu("Table As ...");
+		var export_csv_item =  new JMenuItem("Comma-separated values (.CSV)");
+		export_table_item.add(export_csv_item);
+		export_acc_menu.add(export_table_item);
+		export_account_btn.addActionListener(e -> export_acc_menu.show(export_account_btn, 0, 0));
+		export_csv_item.addActionListener(e->ExportAccountTable.export_csv(this, account_table_model));
+		
 
 		var watch_acc_menu = new JPopupMenu();
 		var watch_acc_rotura = new JMenuItem("PETH");
