@@ -229,7 +229,7 @@ public class CryptoUtil {
 
 	public static JSONArray getAccountBalances(String address) throws Exception {
 		var _key = Util.getProp().get("covalenthq_apikey");
-		var request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/balances_v2/?quote-currency=ETH&format=JSON&nft=false&no-nft-fetch=true&key=" + _key).build();
+		var request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/balances_v2/?quote-currency=ETH&format=JSON&nft=true&no-nft-fetch=true&key=" + _key).build();
 		var response = _client.newCall(request).execute();
 		var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
 		response.body().byteStream().close();
