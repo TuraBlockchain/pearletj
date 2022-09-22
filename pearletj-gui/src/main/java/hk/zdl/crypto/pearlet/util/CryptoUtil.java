@@ -42,6 +42,7 @@ import signumj.entity.SignumID;
 import signumj.entity.SignumValue;
 import signumj.entity.response.Account;
 import signumj.entity.response.Asset;
+import signumj.entity.response.AssetBalance;
 import signumj.entity.response.FeeSuggestion;
 import signumj.entity.response.Transaction;
 import signumj.entity.response.http.BRSError;
@@ -173,7 +174,14 @@ public class CryptoUtil {
 				NodeService ns = NodeService.getInstance(opt.get());
 				try {
 					return ns.getAccount(SignumAddress.fromEither(address)).toFuture().get();
-				} catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
+				} catch (ExecutionException e) {
+					if(e.getCause().getClass().equals(signumj.entity.response.http.BRSError.class)) {
+						if(((BRSError)e.getCause()).getCode()==5) {
+							Account a = new Account(SignumAddress.fromEither(address), SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, null, "", "", new AssetBalance[] {});
+							return a;
+						}
+					}
+				} catch (IllegalArgumentException | InterruptedException e) {
 					throw e;
 				}
 			}
@@ -638,7 +646,7 @@ public class CryptoUtil {
 			throw new IllegalArgumentException();
 		}
 	}
-	
+
 	public static final FeeSuggestion getFeeSuggestion(CrptoNetworks network) {
 		Optional<String> opt = get_server_url(network);
 		if (get_server_url(network).isPresent()) {
