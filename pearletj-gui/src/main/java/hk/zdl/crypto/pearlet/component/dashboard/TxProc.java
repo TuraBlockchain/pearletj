@@ -8,6 +8,7 @@ import hk.zdl.crypto.pearlet.component.dashboard.ether.EtherTxIdCellRanderer;
 import hk.zdl.crypto.pearlet.component.dashboard.ether.EtherTxTypeCellRenderer;
 import hk.zdl.crypto.pearlet.component.dashboard.ether.EtherValueCellRenderer;
 import hk.zdl.crypto.pearlet.component.dashboard.rotura.RoturaAddressCellRenderer;
+import hk.zdl.crypto.pearlet.component.dashboard.rotura.RoturaInstantCellRenderer;
 import hk.zdl.crypto.pearlet.component.dashboard.rotura.RoturaValueCellRenderer;
 import hk.zdl.crypto.pearlet.component.dashboard.signum.InstantCellRenderer;
 import hk.zdl.crypto.pearlet.component.dashboard.signum.SignumAddressCellRenderer;
@@ -22,7 +23,7 @@ public class TxProc {
 		switch (network) {
 		case ROTURA:
 			model.getColumn(0).setCellRenderer(new TxIdCellrenderer());
-			model.getColumn(1).setCellRenderer(new InstantCellRenderer());
+			model.getColumn(1).setCellRenderer(new RoturaInstantCellRenderer());
 			model.getColumn(2).setCellRenderer(new SignumTxTypeCellRenderer());
 			model.getColumn(3).setCellRenderer(new RoturaValueCellRenderer(address));
 			model.getColumn(4).setCellRenderer(new RoturaAddressCellRenderer(address));
