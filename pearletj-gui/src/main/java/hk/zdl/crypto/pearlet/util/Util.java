@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 
+import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import net.harawata.appdirs.AppDirs;
 import net.harawata.appdirs.AppDirsFactory;
 import signumj.entity.response.Transaction;
@@ -105,6 +106,13 @@ public class Util {
 		}
 		switch (nw) {
 		case ROTURA:
+			try {
+				Transaction tx = (Transaction) e;
+				String tx_id = tx.getId().toString();
+				Desktop.getDesktop().browse(new URI("http://explorer.peth.world:8000/tx/" + tx_id));
+			} catch (Exception x) {
+				return false;
+			}
 			break;
 		case SIGNUM:
 			try {
@@ -136,6 +144,12 @@ public class Util {
 		}
 		switch (nw) {
 		case ROTURA:
+			try {
+				RoturaAddress adr = RoturaAddress.fromEither(e);
+				Desktop.getDesktop().browse(new URI("http://explorer.peth.world:8000/address/" + adr.getID()));
+			} catch (Exception x) {
+				return false;
+			}
 			break;
 		case SIGNUM:
 			try {
