@@ -173,7 +173,7 @@ public class CryptoUtil {
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				try {
-					return ns.getAccount(SignumAddress.fromEither(address)).toFuture().get();
+					return ns.getAccount(SignumAddress.fromEither(address),null,false,true).toFuture().get();
 				} catch (ExecutionException e) {
 					if(e.getCause().getClass().equals(signumj.entity.response.http.BRSError.class)) {
 						if(((BRSError)e.getCause()).getCode()==5) {
@@ -195,7 +195,10 @@ public class CryptoUtil {
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				try {
-					var balance = ns.getAccount(SignumAddress.fromEither(address)).toFuture().get().getBalance();
+					var account = ns.getAccount(SignumAddress.fromEither(address),null,false,true).toFuture().get();
+					var balance = account.getBalance();
+					var committed_balance = account.getCommittedBalance();
+					balance = balance.subtract(committed_balance);
 					if (network.equals(ROTURA)) {
 						return new BigDecimal(balance.toNQT(), peth_decimals);
 					} else {

@@ -64,6 +64,7 @@ import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
+import signumj.entity.SignumAddress;
 
 @SuppressWarnings("serial")
 public class DashBoard extends JPanel {
@@ -240,10 +241,13 @@ public class DashBoard extends JPanel {
 					try {
 						var account = CryptoUtil.getAccount(nw, e.account);
 						var balance_text = "?";
+						var balance = account.getBalance();
+						var committed_balance = account.getCommittedBalance();
+						balance = balance.subtract(committed_balance);
 						if(nw.equals(SIGNUM)) {
-							balance_text = account.getBalance().toSigna().stripTrailingZeros().toPlainString();
+							balance_text = balance.toSigna().stripTrailingZeros().toPlainString();
 						}else {
-							balance_text = new BigDecimal(account.getBalance().toNQT(), CryptoUtil.peth_decimals).stripTrailingZeros().toPlainString();
+							balance_text = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals).stripTrailingZeros().toPlainString();
 						}
 						balance_label.setText(balance_text);
 						token_list.setListData(Arrays.asList(account.getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString())).map(o -> new AltTokenWrapper(nw, o))

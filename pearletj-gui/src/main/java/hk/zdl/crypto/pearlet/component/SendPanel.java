@@ -68,6 +68,7 @@ import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
+import signumj.entity.SignumAddress;
 import signumj.entity.response.Account;
 import signumj.entity.response.Asset;
 import signumj.entity.response.AssetBalance;
@@ -335,11 +336,14 @@ public class SendPanel extends JPanel {
 				try {
 					if (Arrays.asList(ROTURA, SIGNUM).contains(e.network)) {
 						Account account = CryptoUtil.getAccount(e.network, e.account);
+						var balance = account.getBalance();
+						var committed_balance = account.getCommittedBalance();
+						balance = balance.subtract(committed_balance);
 						BigDecimal value;
 						if (e.network.equals(SIGNUM)) {
-							value = account.getBalance().toSigna();
+							value = balance.toSigna();
 						} else {
-							value = new BigDecimal(account.getBalance().toNQT(), CryptoUtil.peth_decimals);
+							value = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals);
 						}
 						asset_balance.put(symbol, value);
 						updat_balance_label(value);
