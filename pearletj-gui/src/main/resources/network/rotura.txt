@@ -1,1 +1,1 @@
-http://peth.world:6876
+http://mainnet.peth.world:6876
