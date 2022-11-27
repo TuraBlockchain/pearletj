@@ -33,7 +33,6 @@ import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
-import signumj.entity.SignumValue;
 
 public class CommitModifyPanel extends JPanel implements ActionListener {
 

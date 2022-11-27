@@ -419,7 +419,7 @@ public class CryptoUtil {
 				byte[] nounce = new byte[32];// must be 32
 				new Random().nextBytes(nounce);
 				EncryptedMessage emsg = new EncryptedMessage(message, nounce, isText);
-				return ns.generateTransactionWithEncryptedMessage(SignumAddress.fromRs(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, emsg, null).blockingGet();
+				return ns.generateTransactionWithEncryptedMessage(SignumAddress.fromEither(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, emsg, null).blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -430,7 +430,7 @@ public class CryptoUtil {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
-				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, message, null).blockingGet();
+				return ns.generateTransactionWithMessage(SignumAddress.fromEither(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, message, null).blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -441,7 +441,7 @@ public class CryptoUtil {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
-				return ns.generateTransactionWithMessage(SignumAddress.fromRs(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, message, null).blockingGet();
+				return ns.generateTransactionWithMessage(SignumAddress.fromEither(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, message, null).blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
