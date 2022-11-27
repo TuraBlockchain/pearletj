@@ -11,7 +11,6 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.TrayIcon.MessageType;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -42,12 +41,14 @@ import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
+import signumj.entity.response.FeeSuggestion;
 
 @SuppressWarnings("serial")
 public class SetAccountInfoPanel extends JPanel {
 
 	private static final Dimension FIELD_DIMENSION = new Dimension(500, 20);
 	private final JComboBox<String> acc_combo_box = new JComboBox<>();
+	private final JSlider fee_slider = new JSlider();
 
 	private CrptoNetworks network;
 	private String account;
@@ -77,13 +78,11 @@ public class SetAccountInfoPanel extends JPanel {
 		var label_6 = new JLabel("Fee");
 		add(label_6, newGridConst(0, 6, 3, 17));
 		var fee_field = new JTextField("0.05");
-		fee_field.setHorizontalAlignment(JTextField.RIGHT);
 		var fee_panel = new JPanel(new GridLayout(1, 0));
 		fee_panel.setPreferredSize(FIELD_DIMENSION);
-		var fee_slider = new JSlider(10, 100, 50);
 		Stream.of(fee_field, fee_slider).forEach(fee_panel::add);
 		fee_field.setEditable(false);
-		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / 1000f));
+		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / Math.pow(10, network == ROTURA ? CryptoUtil.peth_decimals : 8)));
 		add(fee_panel, newGridConst(0, 7, 5));
 
 		var send_icon = MyToolbar.getIcon("paper-plane-solid.svg");
@@ -113,7 +112,7 @@ public class SetAccountInfoPanel extends JPanel {
 					byte[] public_key = o_r.get().getBytes("PUBLIC_KEY");
 					if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
 						try {
-							var feeNQT = CryptoUtil.toSignumValue(network,new BigDecimal(fee_slider.getValue()).divide(new BigDecimal("1000"))).toNQT().longValue();
+							var feeNQT = fee_slider.getValue();
 							byte[] ugsigned_tx = CryptoUtil.setAccountInfo(network, name_field.getText().trim(), desc_field.getText().trim(), feeNQT, public_key);
 							byte[] signed_tx = CryptoUtil.signTransaction(network, private_key, ugsigned_tx);
 							CryptoUtil.broadcastTransaction(network, signed_tx);
@@ -150,5 +149,9 @@ public class SetAccountInfoPanel extends JPanel {
 		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { e.account }));
 		this.network = e.network;
 		this.account = e.account;
+		FeeSuggestion g = CryptoUtil.getFeeSuggestion(network);
+		fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
+		fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
+		fee_slider.setValue(g.getStandardFee().toNQT().intValue());
 	}
 }

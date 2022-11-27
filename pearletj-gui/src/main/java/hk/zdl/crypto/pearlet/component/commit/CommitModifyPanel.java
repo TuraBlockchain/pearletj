@@ -131,9 +131,11 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 					return;
 				}
 				var public_key = new byte[] {};
+				var private_key = new byte[] {};
 				Optional<Record> opt_r = MyDb.getAccount(network, account);
 				if (opt_r.isPresent()) {
 					public_key = opt_r.get().getBytes("PUBLIC_KEY");
+					private_key = opt_r.get().getBytes("PRIVATE_KEY");
 				} else {
 					JOptionPane.showMessageDialog(getRootPane(), "Account not found in database!", "ERROR", JOptionPane.ERROR_MESSAGE);
 					return;
@@ -142,9 +144,9 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 					var fee_qnt = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
 					var fee_dml = new BigDecimal(fee_qnt, network == ROTURA ? CryptoUtil.peth_decimals : 8);
 					if (add_btn.isSelected()) {
-						do_add_commit(public_key, amount, fee_dml);
+						do_add_commit(public_key, private_key, amount, fee_dml);
 					} else {
-						do_revoke_commit(public_key, amount, fee_dml);
+						do_revoke_commit(public_key, private_key, amount, fee_dml);
 					}
 				} catch (Exception x) {
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
@@ -156,15 +158,15 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		});
 	}
 
-	private void do_add_commit(byte[] public_key, BigDecimal amount, BigDecimal fee) throws Exception {
+	private void do_add_commit(byte[] public_key, byte[] private_key, BigDecimal amount, BigDecimal fee) throws Exception {
 		byte[] unsigned = CryptoUtil.addCommitment(network, public_key, amount, fee);
-		byte[] signed = CryptoUtil.signTransaction(network, public_key, unsigned);
+		byte[] signed = CryptoUtil.signTransaction(network, private_key, unsigned);
 		CryptoUtil.broadcastTransaction(network, signed);
 	}
 
-	private void do_revoke_commit(byte[] public_key, BigDecimal amount, BigDecimal fee) throws Exception {
+	private void do_revoke_commit(byte[] public_key, byte[] private_key, BigDecimal amount, BigDecimal fee) throws Exception {
 		byte[] unsigned = CryptoUtil.removeCommitment(network, public_key, amount, fee);
-		byte[] signed = CryptoUtil.signTransaction(network, public_key, unsigned);
+		byte[] signed = CryptoUtil.signTransaction(network, private_key, unsigned);
 		CryptoUtil.broadcastTransaction(network, signed);
 	}
 
