@@ -125,7 +125,7 @@ public class IssueTokenPanel extends JPanel {
 			CryptoUtil.broadcastTransaction(nw, signed_tx);
 		} catch (Throwable x) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-			JOptionPane.showMessageDialog(root, x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(root, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 		}
 		return false;
 	}

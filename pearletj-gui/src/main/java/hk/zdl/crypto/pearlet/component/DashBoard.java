@@ -50,7 +50,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
-import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.utils.Convert;
 
 import hk.zdl.crypto.pearlet.component.dashboard.TxProc;
@@ -64,7 +63,6 @@ import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
-import signumj.entity.SignumAddress;
 
 @SuppressWarnings("serial")
 public class DashBoard extends JPanel {
@@ -244,9 +242,9 @@ public class DashBoard extends JPanel {
 						var balance = account.getBalance();
 						var committed_balance = account.getCommittedBalance();
 						balance = balance.subtract(committed_balance);
-						if(nw.equals(SIGNUM)) {
+						if (nw.equals(SIGNUM)) {
 							balance_text = balance.toSigna().stripTrailingZeros().toPlainString();
-						}else {
+						} else {
 							balance_text = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals).stripTrailingZeros().toPlainString();
 						}
 						balance_label.setText(balance_text);
@@ -267,11 +265,7 @@ public class DashBoard extends JPanel {
 			} else if (WEB3J.equals(e.network)) {
 				Util.submit(() -> {
 					try {
-						if (CryptoUtil.getWeb3j().isPresent()) {
-							BigInteger wei = CryptoUtil.getWeb3j().get().ethGetBalance(account, DefaultBlockParameterName.LATEST).send().getBalance();
-							BigDecimal eth = Convert.fromWei(new BigDecimal(wei), Convert.Unit.ETHER);
-							balance_label.setText(eth.toPlainString());
-						}
+						balance_label.setText(CryptoUtil.getBalance(nw, account).toPlainString());
 					} catch (Exception x) {
 						Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 					} finally {

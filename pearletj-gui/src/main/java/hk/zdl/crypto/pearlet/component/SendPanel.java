@@ -68,7 +68,6 @@ import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
-import signumj.entity.SignumAddress;
 import signumj.entity.response.Account;
 import signumj.entity.response.Asset;
 import signumj.entity.response.AssetBalance;

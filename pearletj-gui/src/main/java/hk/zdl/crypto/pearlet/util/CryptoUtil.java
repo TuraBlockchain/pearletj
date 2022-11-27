@@ -167,17 +167,66 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
+	public static final byte[] addCommitment(CrptoNetworks network, byte[] public_key, BigDecimal amount, BigDecimal fee) throws Exception {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
+			Optional<String> opt = get_server_url(network);
+			if (opt.isPresent()) {
+				var server_url = opt.get();
+				if (!server_url.endsWith("/")) {
+					server_url += "/";
+				}
+				var client = new OkHttpClient.Builder().build();
+				var request = new Request.Builder().url(server_url + "burst?requestType=addCommitment").post(RequestBody.create("deadline=1440&amountNQT=" + toSignumValue(network, amount).toNQT()
+						+ "&broadcast=false&feeNQT=" + toSignumValue(network, fee).toNQT() + "&publicKey=" + Hex.toHexString(public_key), MediaType.parse("application/x-www-form-urlencoded")))
+						.build();
+				var response = client.newCall(request).execute();
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				if(jobj.has("errorDescription")) {
+					throw new Exception(jobj.getString("errorDescription"));
+				}
+				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+				return bArr;
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+
+	public static final byte[] removeCommitment(CrptoNetworks network, byte[] public_key, BigDecimal amount, BigDecimal fee) throws Exception {
+		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
+			Optional<String> opt = get_server_url(network);
+			if (opt.isPresent()) {
+				var server_url = opt.get();
+				if (!server_url.endsWith("/")) {
+					server_url += "/";
+				}
+				var client = new OkHttpClient.Builder().build();
+				var request = new Request.Builder().url(server_url + "burst?requestType=removeCommitment").post(RequestBody.create("deadline=1440&amountNQT=" + toSignumValue(network, amount).toNQT()
+						+ "&broadcast=false&feeNQT=" + toSignumValue(network, fee).toNQT() + "&publicKey=" + Hex.toHexString(public_key), MediaType.parse("application/x-www-form-urlencoded")))
+						.build();
+				var response = client.newCall(request).execute();
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				if(jobj.has("errorDescription")) {
+					throw new Exception(jobj.getString("errorDescription"));
+				}
+				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+				return bArr;
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+
 	public static final Account getAccount(CrptoNetworks network, String address) throws Exception {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
 			Optional<String> opt = get_server_url(network);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				try {
-					return ns.getAccount(SignumAddress.fromEither(address),null,false,true).toFuture().get();
+					return ns.getAccount(SignumAddress.fromEither(address), null, false, true).toFuture().get();
 				} catch (ExecutionException e) {
-					if(e.getCause().getClass().equals(signumj.entity.response.http.BRSError.class)) {
-						if(((BRSError)e.getCause()).getCode()==5) {
-							Account a = new Account(SignumAddress.fromEither(address), SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, null, "", "", new AssetBalance[] {});
+					if (e.getCause().getClass().equals(signumj.entity.response.http.BRSError.class)) {
+						if (((BRSError) e.getCause()).getCode() == 5) {
+							Account a = new Account(SignumAddress.fromEither(address), SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, null, "", "",
+									new AssetBalance[] {});
 							return a;
 						}
 					}
@@ -195,7 +244,7 @@ public class CryptoUtil {
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
 				try {
-					var account = ns.getAccount(SignumAddress.fromEither(address),null,false,true).toFuture().get();
+					var account = ns.getAccount(SignumAddress.fromEither(address), null, false, true).toFuture().get();
 					var balance = account.getBalance();
 					var committed_balance = account.getCommittedBalance();
 					balance = balance.subtract(committed_balance);
