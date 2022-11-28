@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JLayer;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -41,6 +42,7 @@ import org.json.JSONTokener;
 import com.jakewharton.byteunits.BinaryByteUnit;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crypto.pearlet.ui.CloseableTabbedPaneLayerUI;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
@@ -89,7 +91,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 		add(fz_op, new GridBagConstraints(5, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 		add(pcs_spinner, new GridBagConstraints(4, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		add(plot_btn, new GridBagConstraints(5, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
-		add(tabbed_pane, new GridBagConstraints(0, 2, 6, 2, 2, 2, GridBagConstraints.CENTER, GridBagConstraints.BOTH, insets_5, 0, 0));
+		add(new JLayer<JTabbedPane>(tabbed_pane, new CloseableTabbedPaneLayerUI()), new GridBagConstraints(0, 2, 6, 2, 2, 2, GridBagConstraints.CENTER, GridBagConstraints.BOTH, insets_5, 0, 0));
 
 		jar_file_btn.addActionListener(e -> check_and_set_jar_path());
 		plot_path_btn.addActionListener(e -> {
@@ -198,7 +200,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 
 			};
 			var rend = new ProgressBarTableCellRenderer();
-			rend.setPreferredSize(new Dimension(500,20));
+			rend.setPreferredSize(new Dimension(500, 20));
 			table.getColumnModel().getColumn(1).setCellRenderer(rend);
 			table.setFillsViewportHeight(true);
 			table.getTableHeader().setReorderingAllowed(false);
@@ -222,9 +224,9 @@ public class PlotPanel extends JPanel implements ActionListener {
 				var proc = new ProcessBuilder("java", "-jar", jar_path.toFile().getAbsolutePath(), str).start();
 				var in = proc.getInputStream();
 				var reader = new BufferedReader(new InputStreamReader(in));
-				while(true) {
+				while (true) {
 					var line = reader.readLine();
-					if(line==null) {
+					if (line == null) {
 						break;
 					}
 					var o = new JSONObject(new JSONTokener(line));
