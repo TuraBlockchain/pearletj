@@ -23,16 +23,16 @@
 		"id": "acc_info",
 		"text": "Account Info",
 		"icon": "account_balance_wallet_black_48dp.svg"
-	},
-	{
-		"id": "msgs",
-		"text": "Messages",
-		"icon": "forum_black_24dp.svg"
-	},
+	},	
 	{
 		"id": "alis",
 		"text": "Aliases",
 		"icon": "alt_route_black_48dp.svg"
+	},
+	{
+		"id": "plot",
+		"text": "Plot",
+		"icon": "tractor-200.png"
 	},
 	{
 		"id": "miner",
