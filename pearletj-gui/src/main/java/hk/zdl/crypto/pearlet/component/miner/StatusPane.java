@@ -78,14 +78,10 @@ final class StatusPane extends JPanel implements ActionListener {
 		});
 	}
 
+	@SuppressWarnings("serial")
 	private void init_mining_panel() {
 		mining_detail_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Mining", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
 		var table = new JTable(mining_table_model) {
-
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 3693212988335453847L;
 
 			@Override
 			public boolean isCellEditable(int row, int column) {

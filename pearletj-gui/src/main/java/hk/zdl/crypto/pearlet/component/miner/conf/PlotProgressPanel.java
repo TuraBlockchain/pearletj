@@ -2,7 +2,6 @@ package hk.zdl.crypto.pearlet.component.miner.conf;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -45,6 +44,7 @@ import org.json.JSONTokener;
 import com.jakewharton.byteunits.BinaryByteUnit;
 
 import hk.zdl.crypto.pearlet.component.miner.MinerGridTitleFont;
+import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -91,7 +91,6 @@ public class PlotProgressPanel extends JPanel {
 		this.basePath = basePath;
 	}
 
-	@SuppressWarnings("serial")
 	private void init_table() {
 		table.setFillsViewportHeight(true);
 		table.getTableHeader().setReorderingAllowed(false);
@@ -109,24 +108,7 @@ public class PlotProgressPanel extends JPanel {
 		((DefaultTableCellRenderer) table.getColumnModel().getColumn(0).getCellRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
 		((DefaultTableCellRenderer) table.getColumnModel().getColumn(1).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
 		((DefaultTableCellRenderer) table.getColumnModel().getColumn(3).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
-		table.getColumnModel().getColumn(2).setCellRenderer(new DefaultTableCellRenderer() {
-
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				if (value instanceof Float) {
-					var bar = new JProgressBar(0, 100);
-					bar.setValue((int) Float.parseFloat(value.toString()));
-					bar.setString(value.toString() + "%");
-					bar.setStringPainted(true);
-					bar.setFont(table.getFont());
-					bar.setBorder(super.getBorder());
-					return bar;
-				} else {
-					return this;
-				}
-			}
-		});
+		table.getColumnModel().getColumn(2).setCellRenderer(new ProgressBarTableCellRenderer());
 	}
 
 	private final void addPlot() {

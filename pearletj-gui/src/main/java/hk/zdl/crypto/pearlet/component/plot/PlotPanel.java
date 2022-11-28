@@ -1,12 +1,15 @@
 package hk.zdl.crypto.pearlet.component.plot;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
@@ -18,21 +21,30 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.table.DefaultTableModel;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import com.jakewharton.byteunits.BinaryByteUnit;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.SignumAddress;
 
 public class PlotPanel extends JPanel implements ActionListener {
@@ -146,6 +158,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 		}
 	}
 
+	@SuppressWarnings("serial")
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (jar_path == null) {
@@ -164,18 +177,65 @@ public class PlotPanel extends JPanel implements ActionListener {
 		}
 		l = l / byte_per_nounce;
 
+		var count = (Integer) pcs_spinner.getValue();
 		var jobj = new JSONObject();
-		jobj.put("id", SignumAddress.fromRs(account).getID());
+		var id = SignumAddress.fromRs(account).getID();
+		jobj.put("id", id);
 		jobj.put("path", plot_path.toFile().getAbsolutePath());
-		jobj.put("count", pcs_spinner.getValue());
+		jobj.put("count", count);
 		jobj.put("nounce", l);
+		jobj.put("exitOnDone", true);
 
 		var str = Base64.getEncoder().encodeToString(jobj.toString().getBytes());
 
-		try {
-			var proc = new ProcessBuilder("java", "-jar", jar_path.toFile().getAbsolutePath(), str).start();
-		} catch (Exception x) {
-			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
-		}
+		Util.submit(() -> {
+			var table = new JTable(new DefaultTableModel(new Object[][] {}, new Object[] { "No.", "Progress" })) {
+
+				@Override
+				public boolean isCellEditable(int row, int column) {
+					return false;
+				}
+
+			};
+			var rend = new ProgressBarTableCellRenderer();
+			rend.setPreferredSize(new Dimension(500,20));
+			table.getColumnModel().getColumn(1).setCellRenderer(rend);
+			table.setFillsViewportHeight(true);
+			table.getTableHeader().setReorderingAllowed(false);
+			table.getTableHeader().setResizingAllowed(false);
+			table.setColumnSelectionAllowed(false);
+			table.setRowSelectionAllowed(false);
+			table.setCellSelectionEnabled(false);
+			table.setDragEnabled(false);
+			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			table.setShowGrid(true);
+			var model = (DefaultTableModel) table.getModel();
+			model.setRowCount(count);
+			for (int i = 0; i < count; i++) {
+				model.setValueAt(i + 1, i, 0);
+				model.setValueAt(0.0F, i, 1);
+			}
+			SwingUtilities.invokeLater(() -> UIUtil.adjust_table_width(table, table.getColumnModel()));
+			tabbed_pane.add(id, new JScrollPane(table));
+			try {
+				var proc = new ProcessBuilder("java", "-jar", jar_path.toFile().getAbsolutePath(), str).start();
+				var in = proc.getInputStream();
+				var reader = new BufferedReader(new InputStreamReader(in));
+				while(true) {
+					var line = reader.readLine();
+					if(line==null) {
+						break;
+					}
+					var o = new JSONObject(new JSONTokener(line));
+					var i = o.getInt("index");
+					var p = o.getFloat("progress");
+					model.setValueAt(p, i, 1);
+				}
+			} catch (Exception x) {
+				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
+			}
+		});
 	}
+
 }
