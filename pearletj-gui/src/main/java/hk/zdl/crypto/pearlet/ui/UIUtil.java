@@ -26,10 +26,6 @@ import hk.zdl.crypto.pearlet.util.Util;
 
 public class UIUtil {
 
-	private static TrayIcon trayIcon;
-	static {
-	}
-
 	public static final void adjust_table_width(JTable table, TableColumnModel table_column_model) {
 		for (int column = 0; column < table.getColumnCount(); column++) {
 			int width = 100; // Min width
@@ -79,23 +75,24 @@ public class UIUtil {
 			}
 		} else if (SystemInfo.isMacOS) {
 			try {
-				new ProcessBuilder("osascript", "-e", "display notification \"" + message + "\"" + " with title \"" + title + "\" sound name \"\"").start().waitFor();
+				new ProcessBuilder("osascript", "-e", "display notification \"" + message + "\"" + " with title \"" + title + "\" sound name \"\"").start();
+				java.awt.Toolkit.getDefaultToolkit().beep();
 			} catch (Exception e) {
 			}
 		} else if (SystemTray.isSupported()) {
-			if (trayIcon == null) {
+			if (SystemTray.getSystemTray().getTrayIcons().length < 1) {
 				try {
-					trayIcon = new TrayIcon(ImageIO.read(UIUtil.class.getClassLoader().getResource("app_icon.png")));
+					TrayIcon trayIcon = new TrayIcon(ImageIO.read(UIUtil.class.getClassLoader().getResource("app_icon.png")));
 					trayIcon.setImageAutoSize(true);
 					SystemTray.getSystemTray().add(trayIcon);
 				} catch (Exception e) {
 				}
 			}
-			if (trayIcon != null) {
+			if (SystemTray.getSystemTray().getTrayIcons().length > 0) {
 				if (messageType == null) {
 					messageType = MessageType.INFO;
 				}
-				trayIcon.displayMessage(title, message, messageType);
+				SystemTray.getSystemTray().getTrayIcons()[0].displayMessage(title, message, messageType);
 			}
 		} else {
 			Map<MessageType, Integer> map = new EnumMap<>(MessageType.class);
