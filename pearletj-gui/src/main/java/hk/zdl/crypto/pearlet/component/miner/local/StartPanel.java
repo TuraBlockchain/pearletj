@@ -60,6 +60,12 @@ public class StartPanel extends JPanel {
 				model.remove(i);
 			}
 		});
+
+		run_btn.addActionListener(e -> {
+			if (((DefaultListModel<String>) path_list.getModel()).size() < 1) {
+				return;
+			}
+		});
 	}
 
 }
