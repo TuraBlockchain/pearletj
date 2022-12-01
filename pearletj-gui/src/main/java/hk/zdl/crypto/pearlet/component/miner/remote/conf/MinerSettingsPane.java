@@ -1,4 +1,4 @@
-package hk.zdl.crypto.pearlet.component.miner.conf;
+package hk.zdl.crypto.pearlet.component.miner.remote.conf;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;

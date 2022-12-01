@@ -1,4 +1,4 @@
-package hk.zdl.crypto.pearlet.component.miner.conf;
+package hk.zdl.crypto.pearlet.component.miner.remote.conf;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -19,7 +19,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 
-import hk.zdl.crypto.pearlet.component.miner.MinerGridTitleFont;
+import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 
 public class MinerMiscSettingsPane extends JPanel {

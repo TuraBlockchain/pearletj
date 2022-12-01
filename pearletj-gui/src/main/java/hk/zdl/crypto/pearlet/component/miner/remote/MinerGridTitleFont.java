@@ -1,4 +1,4 @@
-package hk.zdl.crypto.pearlet.component.miner;
+package hk.zdl.crypto.pearlet.component.miner.remote;
 
 import java.awt.Font;
 

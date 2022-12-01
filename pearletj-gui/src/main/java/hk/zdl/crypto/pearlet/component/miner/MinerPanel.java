@@ -3,6 +3,8 @@ package hk.zdl.crypto.pearlet.component.miner;
 import javax.swing.JLayer;
 import javax.swing.JTabbedPane;
 
+import hk.zdl.crypto.pearlet.component.miner.local.LocalMinerPanel;
+import hk.zdl.crypto.pearlet.component.miner.remote.MinerExplorePane;
 import hk.zdl.crypto.pearlet.ui.CloseableTabbedPaneLayerUI;
 
 public class MinerPanel extends JTabbedPane {

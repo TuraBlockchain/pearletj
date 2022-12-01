@@ -1,4 +1,4 @@
-package hk.zdl.crypto.pearlet.component.miner.conf;
+package hk.zdl.crypto.pearlet.component.miner.remote.conf;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -43,7 +43,7 @@ import org.json.JSONTokener;
 
 import com.jakewharton.byteunits.BinaryByteUnit;
 
-import hk.zdl.crypto.pearlet.component.miner.MinerGridTitleFont;
+import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;

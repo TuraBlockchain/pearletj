@@ -4,6 +4,7 @@ public class Test {
 
 	public static void main(String[] args) throws Throwable {
 		UIUtil.displayMessage("aaa", "bbb", null);
+
 	}
 
 }

@@ -1,10 +1,10 @@
-package hk.zdl.crypto.pearlet.component.miner;
+package hk.zdl.crypto.pearlet.component.miner.remote;
 
 import javax.swing.JTabbedPane;
 
 import org.json.JSONObject;
 
-import hk.zdl.crypto.pearlet.component.miner.conf.MinerSettingsPane;
+import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerSettingsPane;
 
 public class MinerDetailPane extends JTabbedPane {
 
