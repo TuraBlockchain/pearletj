@@ -9,6 +9,7 @@ import javax.swing.JLayer;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.plaf.LayerUI;
 
 public class CloseableTabbedPaneLayerUI extends LayerUI<JTabbedPane> {
@@ -37,7 +38,7 @@ public class CloseableTabbedPaneLayerUI extends LayerUI<JTabbedPane> {
 	protected void processMouseEvent(MouseEvent e, JLayer<? extends JTabbedPane> l) {
 		if (e.getID() == MouseEvent.MOUSE_CLICKED && e.getClickCount() == 1 && e.getButton() != 1) {
 			JTabbedPane tabbedPane = l.getView();
-			if(!target_view_pane.equals(e.getSource())) {
+			if (!target_view_pane.equals(e.getSource())) {
 				return;
 			}
 			for (int i = 0; i < tabbedPane.getTabCount(); i++) {
@@ -51,7 +52,7 @@ public class CloseableTabbedPaneLayerUI extends LayerUI<JTabbedPane> {
 					JMenuItem item = new JMenuItem("Close Tab");
 					pop.add(item);
 					int j = i;
-					item.addActionListener(o -> tabbedPane.removeTabAt(j));
+					item.addActionListener(o -> SwingUtilities.invokeLater(() -> tabbedPane.removeTabAt(j)));
 					pop.show(l, e.getX(), e.getY());
 				}
 			}

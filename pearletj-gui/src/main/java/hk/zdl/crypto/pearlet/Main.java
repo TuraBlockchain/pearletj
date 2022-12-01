@@ -5,15 +5,12 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Taskbar;
 import java.awt.Toolkit;
-import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
-import javax.swing.JLayer;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -31,7 +28,7 @@ import hk.zdl.crypto.pearlet.component.ReceivePanel;
 import hk.zdl.crypto.pearlet.component.SendPanel;
 import hk.zdl.crypto.pearlet.component.SettingsPanel;
 import hk.zdl.crypto.pearlet.component.TranscationPanel;
-import hk.zdl.crypto.pearlet.component.miner.MinerExplorePane;
+import hk.zdl.crypto.pearlet.component.miner.MinerPanel;
 import hk.zdl.crypto.pearlet.component.plot.PlotPanel;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.notification.ether.EtherAccountsMonitor;
@@ -39,7 +36,6 @@ import hk.zdl.crypto.pearlet.notification.signum.SignumAccountsMonitor;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.tx_history_query.TxHistoryQueryExecutor;
 import hk.zdl.crypto.pearlet.ui.AquaMagic;
-import hk.zdl.crypto.pearlet.ui.CloseableTabbedPaneLayerUI;
 import hk.zdl.crypto.pearlet.ui.GnomeMagic;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
@@ -52,15 +48,7 @@ public class Main {
 		AquaMagic.do_trick();
 		UIUtil.printVersionOnSplashScreen();
 		Image app_icon = ImageIO.read(Util.getResource("app_icon.png"));
-		Util.submit(new Callable<Void>() {
-
-			@Override
-			public Void call() throws Exception {
-				Taskbar.getTaskbar().setIconImage(app_icon);
-				return null;
-			}
-
-		});
+		Util.submit(()->Taskbar.getTaskbar().setIconImage(app_icon));
 		var otd = OsThemeDetector.getDetector();
 		UIManager.setLookAndFeel(otd.isDark() ? new FlatDarkLaf() : new FlatLightLaf());
 		try {
@@ -99,7 +87,7 @@ public class Main {
 			mfs.put("rcv", new ReceivePanel());
 			mfs.put("acc_info", new AccountInfoPanel());
 			mfs.put("plot", new PlotPanel());
-			mfs.put("miner", new JLayer<JTabbedPane>(new MinerExplorePane(), new CloseableTabbedPaneLayerUI()));
+			mfs.put("miner", new MinerPanel());
 			mfs.put("alis", new AlisesPanel());
 			mfs.put("sets", new SettingsPanel());
 			mfs.put("about", new AboutPanel());

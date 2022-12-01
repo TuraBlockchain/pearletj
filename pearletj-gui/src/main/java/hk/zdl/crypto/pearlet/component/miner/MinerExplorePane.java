@@ -10,12 +10,15 @@ public class MinerExplorePane extends JTabbedPane {
 	private static final long serialVersionUID = -4709359665652317477L;
 
 	public MinerExplorePane() {
-		add("Start", new StartPanel(this));
-		addChangeListener(e -> {
-			if (getTabCount() == 0) {
-				add("Start", new StartPanel(this));
-			}
-		});
+		add("Search", new StartPanel(this));
+	}
+
+	@Override
+	public void removeTabAt(int index) {
+		if (index == 0) {
+			return;
+		}
+		super.removeTabAt(index);
 	}
 
 }
