@@ -10,6 +10,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import org.json.JSONObject;
+
 import hk.zdl.crypto.pearlet.ui.TextAreaOutputStream;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -48,6 +50,16 @@ public class MinerPanel extends JPanel implements Runnable {
 					continue;
 				} else if (show_peth_only && network == CrptoNetworks.ROTURA) {
 					line = line.replace("signum-miner", "pearletj-miner");
+				}
+				if(line.startsWith("message:")) {
+					var str = line.substring(line.indexOf('{'),line.indexOf('}')+1);
+					var jobj = new JSONObject(str);
+					if(jobj.has("result")) {
+						str = jobj.getString("result");
+						if(str.equals("No mining licence")) {
+							proc.destroy();
+						}
+					}
 				}
 				taos.write(line);
 			}
