@@ -7,7 +7,7 @@ public class LocalMinerPanel extends JTabbedPane {
 	private static final long serialVersionUID = -5549092062588608169L;
 
 	public LocalMinerPanel() {
-		addTab("Start", new StartPanel());
+		addTab("Start", new StartPanel(this));
 	}
 
 	@Override

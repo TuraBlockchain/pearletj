@@ -25,7 +25,7 @@ public class LocalMiner {
 	private static final String default_console_log_pattern = "{({d(%H:%M:%S)} [{l}]):16.16} {m}{n}";
 
 	public static Process start(String id, String passphase, Collection<Path> plot_dirs, URL server_url, String console_log_pattern) throws Exception {
-		if (console_log_pattern == null) {
+		if (console_log_pattern == null || console_log_pattern.isBlank()) {
 			console_log_pattern = default_console_log_pattern;
 		}
 		Map<String, Object> m = new TreeMap<>();

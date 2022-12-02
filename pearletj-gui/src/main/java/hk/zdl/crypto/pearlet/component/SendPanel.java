@@ -315,9 +315,6 @@ public class SendPanel extends JPanel {
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
-//		if(!send_btn.isEnabled()) {
-//			return;
-//		}
 		this.network = e.network;
 		this.account = e.account;
 		String symbol = Util.default_currency_symbol.get(e.network.name());
