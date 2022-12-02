@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -70,15 +71,22 @@ public class StartPanel extends JPanel {
 			if (i != JFileChooser.APPROVE_OPTION) {
 				return;
 			}
-			File file = file_dialog.getSelectedFile();
-			((DefaultListModel<String>) path_list.getModel()).addElement(file.getAbsolutePath());
+			var str = file_dialog.getSelectedFile().getAbsolutePath();
+			var id = SignumAddress.fromRs(account).getID();
+			if (MyDb.addMinerPath(network, id, Paths.get(str))) {
+				((DefaultListModel<String>) path_list.getModel()).addElement(str);
+			}
 		});
 
 		del_btn.addActionListener(e -> {
 			var model = (DefaultListModel<String>) path_list.getModel();
 			int i = path_list.getSelectedIndex();
 			if (i > -1) {
-				model.remove(i);
+				var str = model.get(i);
+				var id = SignumAddress.fromRs(account).getID();
+				if (MyDb.delMinerPath(network, id, Paths.get(str))) {
+					model.remove(i);
+				}
 			}
 		});
 
@@ -117,6 +125,14 @@ public class StartPanel extends JPanel {
 	public void onMessage(AccountChangeEvent e) {
 		this.network = e.network;
 		this.account = e.account;
-		run_btn.setEnabled(Arrays.asList(CrptoNetworks.SIGNUM, CrptoNetworks.ROTURA).contains(network));
+		var l_m = ((DefaultListModel<String>) path_list.getModel());
+		l_m.clear();
+		if ((Arrays.asList(CrptoNetworks.SIGNUM, CrptoNetworks.ROTURA).contains(network))) {
+			var id = SignumAddress.fromRs(account.replace("TS-", "S-")).getID();
+			MyDb.getMinerPaths(network, id).stream().map(o -> o.toAbsolutePath().toString()).forEach(l_m::addElement);
+			run_btn.setEnabled(true);
+		} else {
+			run_btn.setEnabled(false);
+		}
 	}
 }

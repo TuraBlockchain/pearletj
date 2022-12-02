@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -159,7 +161,7 @@ public class MyDb {
 	}
 
 	public static final boolean deleteAccount(int id) {
-		Record r = Db.findById("ACCOUNTS", "ID", id);
+		var r = Db.findById("ACCOUNTS", "ID", id);
 		if (r != null) {
 			if (Arrays.asList(ROTURA.name(), SIGNUM.name()).contains(r.getStr("NETWORK"))) {
 				// TODO
@@ -260,6 +262,28 @@ public class MyDb {
 			return o_tx;
 		} else {
 			return Optional.empty();
+		}
+	}
+
+	public static final List<Path> getMinerPaths(CrptoNetworks nw, String id) {
+		return Db.find("SELECT PATH FROM APP.MPATH WHERE NETWORK = ? AND ACCOUNT = ?", nw.name(), id).stream().map(o -> Paths.get(o.getStr("PATH"))).toList();
+	}
+
+	public static final boolean addMinerPath(CrptoNetworks nw, String id, Path path) {
+		int i = Db.queryInt("SELECT COUNT(*) FROM APP.MPATH WHERE NETWORK = ? AND ACCOUNT = ? AND PATH = ?", nw.name(), id, path.toAbsolutePath().toString());
+		if (i > 0) {
+			return false;
+		}
+		var o = new Record().set("NETWORK", nw.name()).set("ACCOUNT", id).set("PATH", path.toAbsolutePath().toString());
+		return Db.save("MPATH", "ID", o);
+	}
+
+	public static final boolean delMinerPath(CrptoNetworks nw, String id, Path path) {
+		var r = Db.findFirst("SELECT * FROM APP.MPATH WHERE NETWORK = ? AND ACCOUNT = ? AND PATH = ?", nw.name(), id, path.toAbsolutePath().toString());
+		if(r!=null) {
+			return Db.deleteById("MPATH", "ID", r.get("ID"));
+		}else {
+			return false;
 		}
 	}
 }
