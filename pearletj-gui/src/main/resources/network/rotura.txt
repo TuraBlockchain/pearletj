@@ -1,1 +1,2 @@
 http://mainnet.peth.world:6876
+http://testnet.peth.world:6876

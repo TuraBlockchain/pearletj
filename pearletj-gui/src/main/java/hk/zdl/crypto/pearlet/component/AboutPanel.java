@@ -50,31 +50,32 @@ public class AboutPanel extends JPanel {
 
 		add(panel_0, BorderLayout.NORTH);
 
-		var poweredby_label = new JLabel("Powered By:");
-		poweredby_label.setFont(new Font(Font.MONOSPACED, Font.BOLD, 20));
-		poweredby_label.setHorizontalAlignment(SwingConstants.LEFT);
-		poweredby_label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+		if (!Util.getProp().getBoolean("show_peth_only")) {
+			var poweredby_label = new JLabel("Powered By:");
+			poweredby_label.setFont(new Font(Font.MONOSPACED, Font.BOLD, 20));
+			poweredby_label.setHorizontalAlignment(SwingConstants.LEFT);
+			poweredby_label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
-		var panel_1 = new JPanel(new BorderLayout());
-		panel_1.add(poweredby_label, BorderLayout.NORTH);
-		add(panel_1, BorderLayout.CENTER);
+			var panel_1 = new JPanel(new BorderLayout());
+			panel_1.add(poweredby_label, BorderLayout.NORTH);
+			add(panel_1, BorderLayout.CENTER);
 
-		var scr = new JScrollPane();
-		scr.setBorder(BorderFactory.createEmptyBorder());
-		panel_1.add(scr, BorderLayout.CENTER);
-
-		var badge_panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
-		scr.setViewportView(badge_panel);
-		JSONArray jarr = new JSONArray(new JSONTokener(Util.getResourceAsStream("badges.json")));
-		for (int i = 0; i < jarr.length(); i++) {
-			try {
-				String _icon = jarr.getJSONObject(i).getString("icon");
-				String _text = jarr.getJSONObject(i).getString("text");
-				var _label = new JLabel(UIUtil.getStretchIcon("icon/" + _icon, -1, 100));
-				_label.setToolTipText(_text);
-				badge_panel.add(_label);
-			} catch (Exception e) {
-				continue;
+			var scr = new JScrollPane();
+			scr.setBorder(BorderFactory.createEmptyBorder());
+			panel_1.add(scr, BorderLayout.CENTER);
+			var badge_panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
+			scr.setViewportView(badge_panel);
+			JSONArray jarr = new JSONArray(new JSONTokener(Util.getResourceAsStream("badges.json")));
+			for (int i = 0; i < jarr.length(); i++) {
+				try {
+					String _icon = jarr.getJSONObject(i).getString("icon");
+					String _text = jarr.getJSONObject(i).getString("text");
+					var _label = new JLabel(UIUtil.getStretchIcon("icon/" + _icon, -1, 100));
+					_label.setToolTipText(_text);
+					badge_panel.add(_label);
+				} catch (Exception e) {
+					continue;
+				}
 			}
 		}
 	}

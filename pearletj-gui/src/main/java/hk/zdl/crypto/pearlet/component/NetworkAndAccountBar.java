@@ -21,6 +21,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jdesktop.swingx.combobox.EnumComboBoxModel;
+import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
 import com.jfinal.plugin.activerecord.Record;
 
@@ -33,6 +34,7 @@ import hk.zdl.crypto.pearlet.ens.ENSLookup;
 import hk.zdl.crypto.pearlet.ui.MyListComboBoxModel;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.response.Transaction;
 import signumj.response.attachment.AccountInfoAttachment;
 
@@ -70,7 +72,11 @@ public class NetworkAndAccountBar extends JPanel {
 		left.add(manage_network_btn);
 		right.add(manage_account_btn);
 
-		network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
+		if(Util.getProp().getBoolean("show_peth_only")) {
+			network_combobox.setModel(new ListComboBoxModel<>(Arrays.asList(CrptoNetworks.ROTURA)));
+		}else {
+			network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
+		}
 		network_combobox.addActionListener(e -> update_account_combobox());
 
 		manage_network_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.NET)));

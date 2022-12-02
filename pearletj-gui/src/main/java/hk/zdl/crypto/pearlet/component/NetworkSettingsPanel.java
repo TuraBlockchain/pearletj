@@ -12,7 +12,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -39,7 +38,9 @@ public class NetworkSettingsPanel extends JPanel {
 	public NetworkSettingsPanel() {
 		super(new FlowLayout(FlowLayout.CENTER));
 		var panel = new JPanel(new GridLayout(0, 1));
-		Stream.of(CrptoNetworks.values()).map(NetworkSettingsPanel::init_network_UI_components).forEach(panel::add);
+
+		var l = Util.getProp().getBoolean("show_peth_only")?Arrays.asList(CrptoNetworks.ROTURA):Arrays.asList(CrptoNetworks.values());
+		l.stream().map(NetworkSettingsPanel::init_network_UI_components).forEach(panel::add);
 		add(panel);
 	}
 
