@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
@@ -169,6 +170,13 @@ public class PlotPanel extends JPanel implements ActionListener {
 		} else if (plot_path == null) {
 			JOptionPane.showMessageDialog(getRootPane(), "Plot path not specified!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
+		} else {
+			for (char c : plot_path.toAbsolutePath().toString().toCharArray()) {
+				if (c > 127) {
+					JOptionPane.showMessageDialog(getRootPane(), "Path should contain only ASCII characters!", "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+			}
 		}
 
 		long l = (Integer) fz_spinner.getValue();
@@ -188,7 +196,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 		jobj.put("nounce", l);
 		jobj.put("exitOnDone", true);
 
-		var str = Base64.getEncoder().encodeToString(jobj.toString().getBytes());
+		var str = Base64.getEncoder().encodeToString(jobj.toString().getBytes(Charset.forName("UTF-8")));
 
 		Util.submit(() -> {
 			var table = new JTable(new DefaultTableModel(new Object[][] {}, new Object[] { "No.", "Progress" })) {
