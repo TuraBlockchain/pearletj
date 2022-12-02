@@ -112,6 +112,7 @@ public class StartPanel extends JPanel {
 				var plot_dirs = Stream.of(l_m.toArray()).map(o -> Path.of(o.toString())).toList();
 				var proc = LocalMiner.start(id, passphase, plot_dirs, url, null);
 				var m_p = new MinerPanel(proc);
+				m_p.setNetwork(network);
 				pane.addTab(id, m_p);
 				Util.submit(m_p);
 			} catch (Exception x) {
