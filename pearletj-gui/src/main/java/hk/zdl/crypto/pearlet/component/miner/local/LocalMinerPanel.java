@@ -14,6 +14,11 @@ public class LocalMinerPanel extends JTabbedPane {
 	public void removeTabAt(int index) {
 		if (index == 0) {
 			return;
+		}else {
+			var c = getComponentAt(index);
+			if(c instanceof MinerPanel) {
+				((MinerPanel)c).destroyForcibly();
+			}
 		}
 		super.removeTabAt(index);
 	}

@@ -1,6 +1,8 @@
 package hk.zdl.crypto.pearlet.component.miner.local;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
@@ -23,6 +25,9 @@ public class MinerPanel extends JPanel implements Runnable {
 	@Override
 	public void run() {
 		var txt_area = new JTextArea();
+		txt_area.setBackground(Color.black);
+		txt_area.setForeground(Color.white.darker());
+		txt_area.setFont(new Font(Font.MONOSPACED, Font.BOLD, getFont().getSize()));
 		var scr = new JScrollPane(txt_area);
 		add(scr, BorderLayout.CENTER);
 		var taos = new TextAreaOutputStream(txt_area);
@@ -40,6 +45,14 @@ public class MinerPanel extends JPanel implements Runnable {
 		} finally {
 			taos.close();
 		}
+	}
+
+	public void destroy() {
+		proc.destroy();
+	}
+
+	public Process destroyForcibly() {
+		return proc.destroyForcibly();
 	}
 
 }
