@@ -389,7 +389,7 @@ public class CryptoUtil {
 			Optional<String> opt = get_server_url(nw);
 			if (opt.isPresent()) {
 				NodeService ns = NodeService.getInstance(opt.get());
-				return ns.generateTransaction(SignumAddress.fromRs(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, null).blockingGet();
+				return ns.generateTransaction(SignumAddress.fromEither(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, null).blockingGet();
 			}
 		}
 		throw new UnsupportedOperationException();
