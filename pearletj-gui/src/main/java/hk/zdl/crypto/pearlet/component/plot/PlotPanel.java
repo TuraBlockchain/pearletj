@@ -61,7 +61,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 	private final JSpinner fz_spinner = new JSpinner(new SpinnerNumberModel(100, 1, 1024, 1));
 	private final JComboBox<String> fz_op = new JComboBox<>(new String[] { "MB", "GB" });
 	private final JButton plot_btn = new JButton("Plot");
-	private final JTabbedPane tabbed_pane = new JTabbedPane(JTabbedPane.SCROLL_TAB_LAYOUT);
+	private final JTabbedPane tabbed_pane = new JTabbedPane(JTabbedPane.TOP,JTabbedPane.SCROLL_TAB_LAYOUT);
 	private CrptoNetworks network;
 	private String account;
 	private Path jar_path, plot_path;
@@ -186,6 +186,11 @@ public class PlotPanel extends JPanel implements ActionListener {
 			l = BinaryByteUnit.GIBIBYTES.toBytes(l);
 		}
 		l = l / byte_per_nounce;
+
+		if (l < 10) {
+			JOptionPane.showMessageDialog(getRootPane(), "File size too small!", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 
 		var count = (Integer) pcs_spinner.getValue();
 		var jobj = new JSONObject();
