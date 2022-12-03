@@ -29,6 +29,7 @@ import org.web3j.utils.Convert;
 
 import com.jfinal.plugin.activerecord.Record;
 
+import hk.zdl.crypto.pearlet.component.account_settings.signum.PKT;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import okhttp3.MediaType;
@@ -121,14 +122,15 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	public static final byte[] getPrivateKey(CrptoNetworks network, String type, String text) {
+	public static final byte[] getPrivateKey(CrptoNetworks network, PKT type, String text) {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
-			if (type.equalsIgnoreCase("phrase")) {
-				return SignumCrypto.getInstance().getPrivateKey(text);
-			} else if (type.equalsIgnoreCase("base64")) {
+			switch(type) {
+			case Base64:
 				return Base64.decode(text);
-			} else if (type.equals("HEX")) {
+			case HEX:
 				return Hex.decode(text);
+			case Phrase:
+				return SignumCrypto.getInstance().getPrivateKey(text);
 			}
 		}
 		throw new UnsupportedOperationException();

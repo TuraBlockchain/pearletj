@@ -15,6 +15,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import org.greenrobot.eventbus.EventBus;
+import org.jdesktop.swingx.combobox.EnumComboBoxModel;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
@@ -27,6 +28,7 @@ public class ImportSignumAccount {
 
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
+	@SuppressWarnings("unchecked")
 	public static final void create_import_account_dialog(Component c, CrptoNetworks nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
@@ -35,7 +37,7 @@ public class ImportSignumAccount {
 		var network_combobox = new JComboBox<>(new String[] { nw.toString() });
 		network_combobox.setEnabled(false);
 		var label_2 = new JLabel("Text type:");
-		var combobox_1 = new JComboBox<>(new String[] { "Phrase", "HEX", "Base64" });
+		var combobox_1 = new JComboBox<>(new EnumComboBoxModel<>(PKT.class));
 		panel.add(label_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		panel.add(network_combobox, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		panel.add(label_2, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
@@ -46,7 +48,7 @@ public class ImportSignumAccount {
 
 		int i = JOptionPane.showConfirmDialog(w, panel, "Import Existing Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
 		if (i == JOptionPane.OK_OPTION) {
-			String type = combobox_1.getSelectedItem().toString();
+			PKT type = (PKT) combobox_1.getSelectedItem();
 			String text = text_area.getText().trim();
 
 			boolean b = false;
@@ -54,7 +56,7 @@ public class ImportSignumAccount {
 			try {
 				private_key = CryptoUtil.getPrivateKey(nw, type, text);
 				public_key = CryptoUtil.getPublicKey(nw, private_key);
-				b = MyDb.insertAccount(nw, CryptoUtil.getAddress(nw, public_key),public_key, private_key);
+				b = MyDb.insertAccount(nw, CryptoUtil.getAddress(nw, public_key), public_key, private_key);
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(w, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				return;
