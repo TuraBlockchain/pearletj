@@ -5,7 +5,6 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -110,9 +109,11 @@ public class StartPanel extends JPanel {
 			try {
 				var url = new URL(MyDb.get_server_url(network).get());
 				var plot_dirs = Stream.of(l_m.toArray()).map(o -> Path.of(o.toString())).toList();
-				var proc = LocalMiner.start(id, passphase, plot_dirs, url, null);
-				var m_p = new MinerPanel(proc);
+				var conf_file = LocalMiner.build_conf_file(id, passphase, plot_dirs, url, null);
+				var miner_bin = LocalMiner.copy_miner();
+				var m_p = new MinerPanel(miner_bin,conf_file);
 				m_p.setNetwork(network);
+				m_p.setPlotDirs(plot_dirs);
 				pane.addTab(id, m_p);
 				Util.submit(m_p);
 			} catch (Exception x) {

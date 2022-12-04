@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.encoders.Base64;
@@ -655,8 +657,8 @@ public class CryptoUtil {
 		Optional<Transaction> o_tx = Optional.empty();
 		try {
 			o_tx = MyDb.getSignumTxFromLocal(nw, id);
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception x) {
+			Logger.getLogger(CryptoUtil.class.getName()).log(Level.WARNING, x.getMessage(), x);
 		}
 		if (o_tx.isPresent()) {
 			return o_tx.get();

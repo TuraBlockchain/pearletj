@@ -43,6 +43,7 @@ import org.json.JSONTokener;
 import com.jakewharton.byteunits.BinaryByteUnit;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crypto.pearlet.component.event.PlotDoneEvent;
 import hk.zdl.crypto.pearlet.ui.CloseableTabbedPaneLayerUI;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
@@ -61,7 +62,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 	private final JSpinner fz_spinner = new JSpinner(new SpinnerNumberModel(100, 1, 1024, 1));
 	private final JComboBox<String> fz_op = new JComboBox<>(new String[] { "MB", "GB" });
 	private final JButton plot_btn = new JButton("Plot");
-	private final JTabbedPane tabbed_pane = new JTabbedPane(JTabbedPane.TOP,JTabbedPane.SCROLL_TAB_LAYOUT);
+	private final JTabbedPane tabbed_pane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
 	private CrptoNetworks network;
 	private String account;
 	private Path jar_path, plot_path;
@@ -246,6 +247,9 @@ public class PlotPanel extends JPanel implements ActionListener {
 					var i = o.getInt("index");
 					var p = o.getFloat("progress");
 					model.setValueAt(p, i, 1);
+					if (p >= 100) {
+						EventBus.getDefault().post(new PlotDoneEvent(plot_path));
+					}
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
