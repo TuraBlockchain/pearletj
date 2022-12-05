@@ -24,12 +24,10 @@ import org.json.JSONObject;
 import hk.zdl.crypto.pearlet.component.event.PlotDoneEvent;
 import hk.zdl.crypto.pearlet.ui.TextAreaOutputStream;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
-import hk.zdl.crypto.pearlet.util.Util;
 
 public class MinerPanel extends JPanel implements Runnable {
 
 	private static final long serialVersionUID = 8753464472327536267L;
-	private static final boolean show_peth_only = Util.getProp().getBoolean("show_peth_only");
 	private final File miner_bin, conf_file;
 	private Collection<Path> plot_dirs = Arrays.asList();
 	private boolean running = true;
@@ -54,12 +52,14 @@ public class MinerPanel extends JPanel implements Runnable {
 	@Override
 	public void run() {
 		var txt_area = new JTextArea();
+		txt_area.setEditable(false);
 		txt_area.setBackground(Color.black);
 		txt_area.setForeground(Color.white.darker());
 		txt_area.setFont(new Font(Font.MONOSPACED, Font.BOLD, getFont().getSize()));
+		txt_area.setCursor(getCursor());
 		var scr = new JScrollPane(txt_area);
 		add(scr, BorderLayout.CENTER);
-		var taos = new TextAreaOutputStream(txt_area);
+		var taos = new TextAreaOutputStream(txt_area, 200);
 		try {
 			BufferedReader reader = null;
 			while (running) {
@@ -75,7 +75,7 @@ public class MinerPanel extends JPanel implements Runnable {
 				}
 				if (line.isBlank() || line.startsWith("Searching")) {
 					continue;
-				} else if (show_peth_only && network == CrptoNetworks.ROTURA) {
+				} else if (network == CrptoNetworks.ROTURA) {
 					line = line.replace("signum-miner", "pearletj-miner");
 				}
 				if (line.startsWith("message:")) {
