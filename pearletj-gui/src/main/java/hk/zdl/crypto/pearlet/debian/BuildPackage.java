@@ -35,18 +35,20 @@ public class BuildPackage {
 		Files.createDirectories(tmp_dir.resolve("usr/share/doc/" + appName));
 		Files.createDirectories(tmp_dir.resolve("usr/share/doc"));
 		Files.createDirectories(tmp_dir.resolve("usr/share/applications"));
+		Files.createDirectories(tmp_dir.resolve("usr/share/swcatalog/yaml"));
 
 		var sb = new StringBuilder();
-		sb.append("Package: ").append(appName).append('\n');
-		sb.append("Architecture: ").append(arch).append('\n');
-		sb.append("Version: ").append(appVer).append('\n');
-		sb.append("Maintainer: ").append(authorFullName).append('\n');
-		sb.append("Description: ").append(appNameUp).append("\n ").append(appComment).append('\n');
+		sb.append("Source: ").append(appName).append('\n');
 		sb.append("Section: net").append('\n');
 		sb.append("Priority: optional").append('\n');
+		sb.append("Maintainer: ").append(authorFullName).append('\n');
 		sb.append("Depends: openjdk-17-jre , libcap2").append('\n');
-		sb.append("Homepage: ").append("http://peth.world").append('\n');
+		sb.append("Version: ").append(appVer).append('\n');
 		sb.append("Vcs-Git: ").append("https://gitee.com/nybbs2003/pearletj").append('\n');
+		sb.append("Homepage: ").append("http://peth.world").append('\n');
+		sb.append("Package: ").append(appName).append('\n');
+		sb.append("Architecture: ").append(arch).append('\n');
+		sb.append("Description: ").append(appNameUp).append("\n ").append(appComment).append('\n');
 		Files.writeString(tmp_dir.resolve("DEBIAN/control"), sb.toString());
 
 		var jar_full_path = "/usr/share/" + appName + "/" + jar_full_name;
@@ -62,7 +64,13 @@ public class BuildPackage {
 		Files.writeString(tmp_dir.resolve("DEBIAN/postrm"), sb.toString());
 
 		sb = new StringBuilder();
-		sb.append("Copyright ").append(new SimpleDateFormat("yyyy ").format(new Date())).append(authorFullName).append("\n\n\n\n");
+		sb.append("Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/").append('\n');
+		sb.append("Upstream-Name: ").append(appName).append('\n');
+		sb.append("Upstream-Contact: ").append(authorFullName).append('\n');
+		sb.append("Source: ").append("https://gitee.com/nybbs2003/pearletj").append('\n');
+		sb.append("Files: *").append('\n');
+		sb.append("Copyright: ").append(new SimpleDateFormat("yyyy ").format(new Date())).append(authorFullName).append('\n');
+		sb.append("License: GPL-2+").append('\n');
 		Files.writeString(tmp_dir.resolve("DEBIAN/copyright"), sb.toString());
 
 		sb = new StringBuilder();
