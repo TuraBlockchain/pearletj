@@ -36,6 +36,7 @@ public class BuildPackage {
 			System.exit(-1);
 		}
 		var tmp_dir = Files.createTempDirectory("debian");
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(tmp_dir.toFile())));
 		Files.createDirectories(tmp_dir.resolve("DEBIAN"));
 		Files.createDirectories(tmp_dir.resolve("usr/lib/systemd/system"));
 		Files.createDirectories(tmp_dir.resolve("usr/lib/" + appName));
@@ -129,7 +130,6 @@ public class BuildPackage {
 		if (proc.waitFor() == 0) {
 			var s = tmp_dir.toFile().getAbsolutePath() + ".deb";
 			new ProcessBuilder().command("chmod", "777", s).start();
-			new ProcessBuilder().command("rm", "-rf", tmp_dir.toFile().getAbsolutePath()).start();
 			Files.move(new File(s).toPath(), new File("./" + appName + "_" + appVer + "_" + arch + ".deb").toPath(), StandardCopyOption.REPLACE_EXISTING);
 		} else {
 			System.exit(proc.waitFor());
