@@ -111,7 +111,7 @@ public class StartPanel extends JPanel {
 				var plot_dirs = Stream.of(l_m.toArray()).map(o -> Path.of(o.toString())).toList();
 				var conf_file = LocalMiner.build_conf_file(id, passphase, plot_dirs, url, null);
 				var miner_bin = LocalMiner.copy_miner();
-				var m_p = new MinerPanel(miner_bin,conf_file);
+				var m_p = new MinerPanel(miner_bin, conf_file);
 				m_p.setNetwork(network);
 				m_p.setPlotDirs(plot_dirs);
 				pane.addTab(id, m_p);
@@ -129,7 +129,7 @@ public class StartPanel extends JPanel {
 		this.account = e.account;
 		var l_m = ((DefaultListModel<String>) path_list.getModel());
 		l_m.clear();
-		if ((Arrays.asList(CrptoNetworks.SIGNUM, CrptoNetworks.ROTURA).contains(network))) {
+		if (account != null && (Arrays.asList(CrptoNetworks.SIGNUM, CrptoNetworks.ROTURA).contains(network))) {
 			var id = SignumAddress.fromRs(account.replace("TS-", "S-")).getID();
 			MyDb.getMinerPaths(network, id).stream().map(o -> o.toAbsolutePath().toString()).forEach(l_m::addElement);
 			run_btn.setEnabled(true);

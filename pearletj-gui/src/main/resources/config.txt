@@ -11,3 +11,4 @@ default_window_height = 768
 covalenthq_apikey = ckey_1f90a230af9d4076a77908c9fa0
 
 show_peth_only = true
+appComment = Cross-platform multi-chain thick wallet for Cryto-currencies
