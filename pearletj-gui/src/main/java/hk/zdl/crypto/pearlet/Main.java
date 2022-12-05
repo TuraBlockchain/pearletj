@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Taskbar;
 import java.awt.Toolkit;
+import java.nio.file.Files;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
@@ -52,6 +53,7 @@ public class Main {
 		var otd = OsThemeDetector.getDetector();
 		UIManager.setLookAndFeel(otd.isDark() ? new FlatDarkLaf() : new FlatLightLaf());
 		try {
+			System.setProperty("derby.system.home", Files.createTempDirectory("derby").toFile().getAbsolutePath());
 			MyDb.getTables();
 		} catch (Throwable x) {
 			while (x.getCause() != null) {
