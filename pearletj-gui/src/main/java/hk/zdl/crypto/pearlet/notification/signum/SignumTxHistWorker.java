@@ -96,7 +96,7 @@ public class SignumTxHistWorker extends Thread {
 	}
 
 	protected boolean filter(JSONObject jobj) {
-		return jobj.getString("recipientRS").equals(address);
+		return jobj.optString("recipientRS","").equals(address);
 	}
 
 	public void setRunning(boolean running) {

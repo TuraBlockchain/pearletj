@@ -278,7 +278,7 @@ public class DashBoard extends JPanel {
 		manage_token_list_btn.setEnabled(!WEB3J.equals(e.network));
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings("removal")
 	private final synchronized void refresh_token_list() {
 		if (token_list_thread != null) {
 			token_list_thread.stop();

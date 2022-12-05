@@ -139,7 +139,7 @@ public class SignumTxTypeCellRenderer extends DefaultTableCellRenderer {
 				value = "Add Commitment";
 				break;
 			case 2:
-				value = "Remove Commitment";
+				value = "Revoke Commitment";
 				break;
 			}
 			break;

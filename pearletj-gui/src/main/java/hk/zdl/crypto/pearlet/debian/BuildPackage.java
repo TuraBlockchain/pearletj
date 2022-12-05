@@ -15,14 +15,12 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.FileUtils;
 
-import com.formdev.flatlaf.util.SystemInfo;
-
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class BuildPackage {
 
 	public static void main(String[] args) throws Throwable {
-		if (!SystemInfo.isLinux) {
+		if (new ProcessBuilder().command("which", "dpkg").start().waitFor() != 0) {
 			System.exit(-1);
 		}
 		var authorFullName = Util.getProp().get("authorFullName");
@@ -32,7 +30,7 @@ public class BuildPackage {
 		var appVer = BuildPackage.class.getPackage().getImplementationVersion();
 		var arch = "all";
 		var jar_full_name = appName + "-" + appVer + "-jar-with-dependencies.jar";
-		if(!new File(jar_full_name).exists()) {
+		if (!new File(jar_full_name).exists()) {
 			System.exit(-1);
 		}
 		var tmp_dir = Files.createTempDirectory("debian");

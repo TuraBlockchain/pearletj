@@ -11,6 +11,8 @@ import com.jthemedetecor.OsThemeDetector;
 
 import signumj.entity.SignumValue;
 import signumj.entity.response.Transaction;
+import signumj.response.attachment.CommitmentAddAttachment;
+import signumj.response.attachment.CommitmentRemoveAttachment;
 
 @SuppressWarnings("serial")
 public class SignumValueCellRenderer extends DefaultTableCellRenderer {
@@ -45,6 +47,13 @@ public class SignumValueCellRenderer extends DefaultTableCellRenderer {
 	protected void setValue(Object value) {
 		Transaction tx = (Transaction) value;
 		SignumValue val = tx.getAmount();
+		if (tx.getType() == 20) {
+			if (tx.getSubtype() == 1) {
+				val = SignumValue.fromNQT(((CommitmentAddAttachment) tx.getAttachment()).getAmountNQT());
+			} else if (tx.getSubtype() == 2) {
+				val = SignumValue.fromNQT(((CommitmentRemoveAttachment) tx.getAttachment()).getAmountNQT());
+			}
+		}
 		super.setValue(Character.valueOf((char) 0xA7A8) + val.toSigna().toPlainString());
 	}
 
