@@ -15,11 +15,16 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.FileUtils;
 
+import com.formdev.flatlaf.util.SystemInfo;
+
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class BuildPackage {
 
 	public static void main(String[] args) throws Throwable {
+		if (!SystemInfo.isLinux) {
+			System.exit(-1);
+		}
 		var authorFullName = Util.getProp().get("authorFullName");
 		var appComment = Util.getProp().get("appComment");
 		var appNameUp = Util.getProp().get("appName");
@@ -27,6 +32,9 @@ public class BuildPackage {
 		var appVer = BuildPackage.class.getPackage().getImplementationVersion();
 		var arch = "all";
 		var jar_full_name = appName + "-" + appVer + "-jar-with-dependencies.jar";
+		if(!new File(jar_full_name).exists()) {
+			System.exit(-1);
+		}
 		var tmp_dir = Files.createTempDirectory("debian");
 		Files.createDirectories(tmp_dir.resolve("DEBIAN"));
 		Files.createDirectories(tmp_dir.resolve("usr/lib/systemd/system"));

@@ -42,6 +42,27 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.3.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<workingDirectory>${project.build.directory}</workingDirectory>
+					<executable>java</executable>
+					<arguments>
+						<argument>-cp</argument>
+						<argument>${artifactId}-${version}-jar-with-dependencies.jar</argument>
+						<argument>hk.zdl.crypto.pearlet.debian.BuildPackage</argument>
+					</arguments>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<repositories>
