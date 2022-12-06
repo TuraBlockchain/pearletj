@@ -2,7 +2,6 @@ package hk.zdl.crypto.pearlet.component.commit;
 
 import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -20,6 +19,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -44,14 +44,14 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 	private String account;
 
 	public CommitModifyPanel() {
-		super(new BorderLayout());
-		add(chart_panel, BorderLayout.CENTER);
-		init_chart();
-		var top_panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		super(new GridBagLayout());
+		var top_panel = new JPanel(new FlowLayout());
 		var btn = new JButton("Commit");
 		top_panel.add(btn);
-		add(top_panel, BorderLayout.NORTH);
+		add(top_panel, new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+		add(chart_panel, new GridBagConstraints(0, 1, 1, 2, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 		btn.addActionListener(this);
+		SwingUtilities.invokeLater(() -> init_chart());
 	}
 
 	private void init_chart() {
