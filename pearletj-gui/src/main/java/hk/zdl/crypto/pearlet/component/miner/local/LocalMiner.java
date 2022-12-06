@@ -29,7 +29,9 @@ public class LocalMiner {
 			console_log_pattern = default_console_log_pattern;
 		}
 		Map<String, Object> m = new TreeMap<>();
-		m.put("account_id_to_secret_phrase", Collections.singletonMap(new BigInteger(id), passphase));
+		if (id != null && passphase != null) {
+			m.put("account_id_to_secret_phrase", Collections.singletonMap(new BigInteger(id), passphase));
+		}
 		m.put("plot_dirs", plot_dirs.stream().map(o -> o.toAbsolutePath().toString()).toList());
 		m.put("url", server_url.toString());
 		m.put("cpu_worker_task_count", Runtime.getRuntime().availableProcessors());

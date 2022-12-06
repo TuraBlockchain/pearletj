@@ -9,16 +9,18 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
 import org.greenrobot.eventbus.EventBus;
@@ -29,6 +31,7 @@ import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.SignumAddress;
@@ -39,12 +42,14 @@ public class StartPanel extends JPanel {
 	private static final long serialVersionUID = 1278363752513931443L;
 	private final JList<String> path_list = new JList<>(new DefaultListModel<String>());
 	private final JButton run_btn = new JButton("Run");
+	private LocalMinerPanel pane;
 	private CrptoNetworks network;
 	private String account;
 
 	public StartPanel(LocalMinerPanel pane) {
 		super(new BorderLayout());
 		EventBus.getDefault().register(this);
+		this.pane = pane;
 		JScrollPane scr = new JScrollPane(path_list);
 		scr.setBorder(BorderFactory.createTitledBorder("Miner Paths"));
 		add(scr, BorderLayout.CENTER);
@@ -89,41 +94,63 @@ public class StartPanel extends JPanel {
 			}
 		});
 
-		run_btn.addActionListener(e -> {
-			var l_m = ((DefaultListModel<String>) path_list.getModel());
-			if (l_m.isEmpty()) {
-				return;
-			}
-			Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
-			String passphase = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input account passphase:", "Start Mining", JOptionPane.INFORMATION_MESSAGE, icon, null, null)).trim();
-			if ("null".equals(String.valueOf(passphase))) {
-				return;
-			} else if (passphase.isBlank()) {
-				JOptionPane.showMessageDialog(getRootPane(), "Passphase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
-				return;
+		var mining_menu = new JPopupMenu();
+		var solo_mining = new JMenuItem("Solo...");
+		var pool_mining = new JMenuItem("in Pool");
+		Stream.of(solo_mining, pool_mining).forEach(mining_menu::add);
 
-			}
+		run_btn.addActionListener(e -> mining_menu.show(run_btn, 0, 0));
+		solo_mining.addActionListener(e -> start_mining(true));
+		pool_mining.addActionListener(e -> start_mining(false));
+	}
+
+	private void start_mining(boolean solo) {
+		var l_m = ((DefaultListModel<String>) path_list.getModel());
+		if (l_m.isEmpty()) {
+			return;
+		}
+		try {
 			String id = SignumAddress.fromRs(account).getID();
-			String _id = SignumCrypto.getInstance().getAddressFromPassphrase(passphase).getID();
-			if (!id.equals(_id)) {
-				JOptionPane.showMessageDialog(getRootPane(), "Passphase not match with account ID!", "Error", JOptionPane.ERROR_MESSAGE);
-				return;
+			String passphase = null;
+			if (solo) {
+				var icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
+				passphase = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input account passphase:", "Start Mining", JOptionPane.INFORMATION_MESSAGE, icon, null, null)).trim();
+				if ("null".equals(String.valueOf(passphase))) {
+					return;
+				} else if (passphase.isBlank()) {
+					JOptionPane.showMessageDialog(getRootPane(), "Passphase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+
+				}
+				var _id = SignumCrypto.getInstance().getAddressFromPassphrase(passphase).getID();
+				if (!id.equals(_id)) {
+					JOptionPane.showMessageDialog(getRootPane(), "Passphase not match with account ID!", "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+			} else {
+				String _id = "";
+				Optional<String> opt = CryptoUtil.getRewardRecipient(network, account);
+				if (opt.isPresent()) {
+					_id = SignumAddress.fromEither(opt.get()).getID();
+				}
+				if (opt.isEmpty() || id.equals(_id)) {
+					JOptionPane.showMessageDialog(getRootPane(), "Reward recipient was not set for this account!", "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 			}
-			try {
-				var url = new URL(MyDb.get_server_url(network).get());
-				var plot_dirs = Stream.of(l_m.toArray()).map(o -> Path.of(o.toString())).toList();
-				var conf_file = LocalMiner.build_conf_file(id, passphase, plot_dirs, url, null);
-				var miner_bin = LocalMiner.copy_miner();
-				var m_p = new MinerPanel(miner_bin, conf_file);
-				m_p.setNetwork(network);
-				m_p.setPlotDirs(plot_dirs);
-				pane.addTab(id, m_p);
-				Util.submit(m_p);
-			} catch (Exception x) {
-				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-		});
+			var url = new URL(MyDb.get_server_url(network).get());
+			var plot_dirs = Stream.of(l_m.toArray()).map(o -> Path.of(o.toString())).toList();
+			var conf_file = LocalMiner.build_conf_file(id, passphase, plot_dirs, url, null);
+			var miner_bin = LocalMiner.copy_miner();
+			var m_p = new MinerPanel(miner_bin, conf_file);
+			m_p.setNetwork(network);
+			m_p.setPlotDirs(plot_dirs);
+			pane.addTab(id, m_p);
+			Util.submit(m_p);
+		} catch (Exception x) {
+			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
+			return;
+		}
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
