@@ -126,7 +126,7 @@ public class CryptoUtil {
 
 	public static final byte[] getPrivateKey(CrptoNetworks network, PKT type, String text) {
 		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
-			switch(type) {
+			switch (type) {
 			case Base64:
 				return Base64.decode(text);
 			case HEX:
@@ -185,7 +185,7 @@ public class CryptoUtil {
 						.build();
 				var response = client.newCall(request).execute();
 				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				if(jobj.has("errorDescription")) {
+				if (jobj.has("errorDescription")) {
 					throw new Exception(jobj.getString("errorDescription"));
 				}
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
@@ -209,7 +209,7 @@ public class CryptoUtil {
 						.build();
 				var response = client.newCall(request).execute();
 				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				if(jobj.has("errorDescription")) {
+				if (jobj.has("errorDescription")) {
 					throw new Exception(jobj.getString("errorDescription"));
 				}
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
@@ -708,6 +708,53 @@ public class CryptoUtil {
 		if (get_server_url(network).isPresent()) {
 			NodeService ns = NodeService.getInstance(opt.get());
 			return ns.suggestFee().blockingGet();
+		}
+		throw new IllegalArgumentException();
+	}
+
+	public static final byte[] setRewardRecipient(CrptoNetworks network, String account, byte[] public_key, String recipient, BigDecimal fee) throws Exception {
+		Optional<String> opt = get_server_url(network);
+		if (get_server_url(network).isPresent()) {
+			var server_url = opt.get();
+			if (!server_url.endsWith("/")) {
+				server_url += "/";
+			}
+			var client = new OkHttpClient.Builder().build();
+			var request = new Request.Builder().url(server_url + "burst?requestType=setRewardRecipient")
+					.post(RequestBody.create("deadline=1440&broadcast=false&feeNQT=" + toSignumValue(network, fee).toNQT() + "&publicKey=" + Hex.toHexString(public_key),
+							MediaType.parse("application/x-www-form-urlencoded")))
+					.build();
+			var response = client.newCall(request).execute();
+			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			if (jobj.optInt("errorCode", 0) != 0) {
+				throw new IOException(jobj.optString("errorDescription"));
+			}
+			byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+			return bArr;
+		}
+		throw new IllegalArgumentException();
+	}
+
+	public static final Optional<String> getRewardRecipient(CrptoNetworks network, String account) throws Exception {
+		Optional<String> opt = get_server_url(network);
+		if (get_server_url(network).isPresent()) {
+			var server_url = opt.get();
+			if (!server_url.endsWith("/")) {
+				server_url += "/";
+			}
+			var client = new OkHttpClient.Builder().build();
+			var request = new Request.Builder().url(server_url + "burst?requestType=getRewardRecipient&account=" + account).get().build();
+			var response = client.newCall(request).execute();
+			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			response.close();
+			if (jobj.optInt("errorCode", 0) == 5) {// Unknown account
+				return Optional.empty();
+			} else if (jobj.has("errorDescription")) {
+				throw new Exception(jobj.getString("errorDescription"));
+			} else if (jobj.has("rewardRecipient")) {
+				return Optional.of(jobj.getString("rewardRecipient"));
+			}
+			return Optional.empty();
 		}
 		throw new IllegalArgumentException();
 	}

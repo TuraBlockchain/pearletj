@@ -96,9 +96,12 @@ public class StartPanel extends JPanel {
 			}
 			Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 			String passphase = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input account passphase:", "Start Mining", JOptionPane.INFORMATION_MESSAGE, icon, null, null)).trim();
-			if ("null".equals(String.valueOf(passphase)) || passphase.isBlank()) {
+			if ("null".equals(String.valueOf(passphase))) {
+				return;
+			} else if (passphase.isBlank()) {
 				JOptionPane.showMessageDialog(getRootPane(), "Passphase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
+
 			}
 			String id = SignumAddress.fromRs(account).getID();
 			String _id = SignumCrypto.getInstance().getAddressFromPassphrase(passphase).getID();

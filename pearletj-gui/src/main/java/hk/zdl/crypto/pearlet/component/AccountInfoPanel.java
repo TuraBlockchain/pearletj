@@ -5,8 +5,6 @@ import java.awt.FlowLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import hk.zdl.crypto.pearlet.component.commit.CommitPanel;
-
 @SuppressWarnings("serial")
 public class AccountInfoPanel extends JTabbedPane {
 
@@ -15,7 +13,6 @@ public class AccountInfoPanel extends JTabbedPane {
 		panel.add(new SetAccountInfoPanel());
 		addTab("Copy", new CopyAccountInfoPanel());
 		addTab("Set", panel);
-		addTab("Commit", new CommitPanel());
 	}
 
 }

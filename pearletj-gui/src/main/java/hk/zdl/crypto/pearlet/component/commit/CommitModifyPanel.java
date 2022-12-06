@@ -30,6 +30,7 @@ import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -151,7 +152,8 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				JOptionPane.showMessageDialog(getRootPane(), "Commitment is set.");
+//				JOptionPane.showMessageDialog(getRootPane(), "Commitment is set.");
+				UIUtil.displayMessage( "Commitment",  "Commitment is set.", null);
 				onMessage(new AccountChangeEvent(network, account));
 			}
 		});
