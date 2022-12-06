@@ -41,8 +41,7 @@ import hk.zdl.crypto.pearlet.util.Util;
 
 public class CreateSignumAccount {
 
-	private static final List<String> mnemoic = new BufferedReader(new InputStreamReader(CreateSignumAccount.class.getClassLoader().getResourceAsStream("en-mnemonic-word-list.txt"))).lines()
-			.filter(s -> !s.isEmpty()).toList();
+	private static List<String> mnemoic = null;
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	@SuppressWarnings("unchecked")
@@ -81,8 +80,7 @@ public class CreateSignumAccount {
 		btn_1.addActionListener(e -> {
 			var sb = new StringBuilder();
 			byte[] bArr = new byte[32];
-			var rand = new Random();
-			rand.nextBytes(bArr);
+			new Random().nextBytes(bArr);
 			PKT type = (PKT) combobox_1.getSelectedItem();
 			switch (type) {
 			case Base64:
@@ -96,11 +94,7 @@ public class CreateSignumAccount {
 				text_area.setText(sb.toString().trim());
 				break;
 			case Phrase:
-				for (var i = 0; i < 12; i++) {
-					sb.append(mnemoic.get(rand.nextInt(mnemoic.size())));
-					sb.append(' ');
-				}
-				text_area.setText(sb.toString().trim());
+				text_area.setText(get_mnemoic());
 				break;
 			}
 		});
@@ -147,5 +141,18 @@ public class CreateSignumAccount {
 		});
 
 		dialog.setVisible(true);
+	}
+
+	private static synchronized String get_mnemoic() {
+		if (mnemoic == null)
+			mnemoic = new BufferedReader(new InputStreamReader(CreateSignumAccount.class.getClassLoader().getResourceAsStream("en-mnemonic-word-list.txt"))).lines().filter(s -> !s.isBlank())
+					.map(String::trim).toList();
+		var sb = new StringBuilder();
+		var rand = new Random();
+		for (var i = 0; i < 12; i++) {
+			sb.append(mnemoic.get(rand.nextInt(mnemoic.size())));
+			sb.append(' ');
+		}
+		return sb.toString().trim();
 	}
 }
