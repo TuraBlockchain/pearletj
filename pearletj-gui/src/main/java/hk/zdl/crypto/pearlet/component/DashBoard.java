@@ -55,6 +55,7 @@ import org.web3j.utils.Convert;
 import hk.zdl.crypto.pearlet.component.dashboard.TxProc;
 import hk.zdl.crypto.pearlet.component.dashboard.TxTableModel;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crypto.pearlet.component.event.BalanceUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
 import hk.zdl.crypto.pearlet.ds.AltTokenWrapper;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
@@ -278,7 +279,7 @@ public class DashBoard extends JPanel {
 		manage_token_list_btn.setEnabled(!WEB3J.equals(e.network));
 	}
 
-	@SuppressWarnings("removal")
+	@SuppressWarnings({ "deprecation" })
 	private final synchronized void refresh_token_list() {
 		if (token_list_thread != null) {
 			token_list_thread.stop();
@@ -329,6 +330,14 @@ public class DashBoard extends JPanel {
 		token_list_thread.setPriority(Thread.MIN_PRIORITY);
 		token_list_thread.setDaemon(true);
 		token_list_thread.start();
+	}
+
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(BalanceUpdateEvent e) {
+		String balance = e.getBalance().stripTrailingZeros().toPlainString();
+		if(e.getNetwork().equals(nw)&&e.getAddress().equals(account)) {
+			balance_label.setText(balance);
+		}
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)

@@ -1,5 +1,9 @@
 package hk.zdl.crypto.pearlet.misc;
 
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
@@ -12,17 +16,16 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.Timer;
 import javax.swing.table.AbstractTableModel;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
+import hk.zdl.crypto.pearlet.component.event.BalanceUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
 import hk.zdl.crypto.pearlet.ens.ENSLookup;
-
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.*;
-
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -108,7 +111,7 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 			Record r = e.getAccounts().get(i);
 			CrptoNetworks nw = CrptoNetworks.valueOf(r.getStr("NETWORK"));
 			String address = r.getStr("ADDRESS");
-			Util.submit(new BalanceQuery(nw, address, i));
+			Util.submit(new BalanceQuery(nw, address));
 			if (WEB3J.equals(nw)) {
 				Util.submit(new ENSQuery(address, i));
 			}
@@ -139,19 +142,16 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 	private final class BalanceQuery implements Callable<Void> {
 		private final CrptoNetworks nw;
 		private final String address;
-		private final int i;
 
-		public BalanceQuery(CrptoNetworks nw, String address, int i) {
+		public BalanceQuery(CrptoNetworks nw, String address) {
 			this.nw = nw;
 			this.address = address;
-			this.i = i;
 		}
 
 		@Override
 		public Void call() throws Exception {
-			String balance = CryptoUtil.getBalance(nw, address).stripTrailingZeros().toPlainString();
-			setValueAt(balance, i, 3);
-			fireTableRowsUpdated(i, i);
+			var bal = CryptoUtil.getBalance(nw, address);
+			EventBus.getDefault().post(new BalanceUpdateEvent(nw, address, bal));
 			return null;
 		}
 	}
@@ -181,12 +181,27 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 		}
 	}
 
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(BalanceUpdateEvent e) {
+		String balance = e.getBalance().stripTrailingZeros().toPlainString();
+		for (int i = 0; i < getRowCount(); i++) {
+			var nw = (CrptoNetworks) getValueAt(i, 1);
+			if (nw.equals(e.getNetwork())) {
+				var adr = getValueAt(i, 2).toString().replace(",watch", "");
+				if (adr.equals(e.getAddress())) {
+					setValueAt(balance, i, 3);
+					fireTableRowsUpdated(i, i);
+				}
+			}
+		}
+	}
+
 	@Override
 	public synchronized void actionPerformed(ActionEvent e) {
 		for (int i = 0; i < getRowCount(); i++) {
-			var nw = (CrptoNetworks)getValueAt(i, 1);
+			var nw = (CrptoNetworks) getValueAt(i, 1);
 			var adr = getValueAt(i, 2).toString().replace(",watch", "");
-			var q = new BalanceQuery(nw,adr,i);
+			var q = new BalanceQuery(nw, adr);
 			Util.submit(q);
 		}
 	}
