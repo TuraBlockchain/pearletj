@@ -3,6 +3,7 @@ package hk.zdl.crypto.pearlet.util;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.InputStream;
+import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
@@ -71,6 +72,16 @@ public class Util {
 
 	public static final Future<?> submit(Runnable task) {
 		return es.submit(task);
+	}
+
+	public static Long getTime(Class<?> cl) {
+		try {
+			String rn = cl.getName().replace('.', '/') + ".class";
+			JarURLConnection j = (JarURLConnection) cl.getClassLoader().getResource(rn).openConnection();
+			return j.getJarFile().getEntry("META-INF/MANIFEST.MF").getTime();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	public static final <E> boolean viewContractDetail(CrptoNetworks nw, E e) {

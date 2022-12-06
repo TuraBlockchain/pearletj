@@ -7,6 +7,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -44,9 +49,16 @@ public class AboutPanel extends JPanel {
 		var appVersionLabel = new JLabel("Version: " + appVer);
 		appVersionLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
 		panel_0.add(appVersionLabel, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		var appBuildLabel = new JLabel("Build: " + Stream.of(Util.getTime(getClass())).filter(o -> o != null && o != -1).map(o -> {
+			var sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.SIMPLIFIED_CHINESE);
+			sdf.setTimeZone(TimeZone.getTimeZone("HKT"));
+			return sdf.format(new Date(o));
+		}).findFirst().orElse("fresh"));
+		appBuildLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
+		panel_0.add(appBuildLabel, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var authorNameLabel = new JLabel("Author: " + Util.getProp().get("authorFullName"));
 		authorNameLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
-		panel_0.add(authorNameLabel, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		panel_0.add(authorNameLabel, new GridBagConstraints(0, 4, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 
 		add(panel_0, BorderLayout.NORTH);
 
