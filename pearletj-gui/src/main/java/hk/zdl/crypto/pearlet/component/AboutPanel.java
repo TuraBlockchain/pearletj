@@ -51,7 +51,7 @@ public class AboutPanel extends JPanel {
 		panel_0.add(appVersionLabel, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var appBuildLabel = new JLabel("Build: " + Stream.of(Util.getTime(getClass())).filter(o -> o != null && o != -1).map(o -> {
 			var sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.SIMPLIFIED_CHINESE);
-			sdf.setTimeZone(TimeZone.getTimeZone("HKT"));
+			sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
 			return sdf.format(new Date(o));
 		}).findFirst().orElse("fresh"));
 		appBuildLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 16));
