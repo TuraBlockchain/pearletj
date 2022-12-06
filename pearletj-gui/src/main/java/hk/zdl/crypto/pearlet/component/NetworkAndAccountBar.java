@@ -107,8 +107,8 @@ public class NetworkAndAccountBar extends JPanel {
 		var acc = account_combobox.getSelectedItem();
 		if (acc != null) {
 			str = ((AccountComboboxEntry) acc).address;
+			EventBus.getDefault().post(new AccountChangeEvent(nw, str));
 		}
-		EventBus.getDefault().post(new AccountChangeEvent(nw, str));
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)

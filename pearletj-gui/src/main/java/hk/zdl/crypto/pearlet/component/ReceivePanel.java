@@ -1,8 +1,10 @@
 package hk.zdl.crypto.pearlet.component;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.*;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
+
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -17,7 +19,6 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -71,7 +72,6 @@ public class ReceivePanel extends JPanel {
 		add(qr_code, BorderLayout.CENTER);
 		adr_filed.setEditable(false);
 		qr_code.setHorizontalAlignment(SwingConstants.CENTER);
-		qr_code.setBorder(BorderFactory.createLineBorder(Color.red));
 		btn.addActionListener(e -> {
 			var s = new StringSelection(adr_filed.getText().trim());
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(s, s);

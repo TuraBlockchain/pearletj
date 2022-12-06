@@ -21,12 +21,14 @@ public class AccountComboboxRenderer extends DefaultListCellRenderer {
 	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		var entry = (AccountComboboxEntry) value;
 		var str = "";
-		if (entry.nickname != null) {
-			str = entry.nickname;
-		} else if (show_numberic && Arrays.asList(CrptoNetworks.ROTURA, CrptoNetworks.SIGNUM).contains(entry.network)) {
-			str = SignumAddress.fromEither(entry.address).getID();
-		} else {
-			str = entry.address;
+		if (entry != null) {
+			if (entry.nickname != null) {
+				str = entry.nickname;
+			} else if (show_numberic && Arrays.asList(CrptoNetworks.ROTURA, CrptoNetworks.SIGNUM).contains(entry.network)) {
+				str = SignumAddress.fromEither(entry.address).getID();
+			} else {
+				str = entry.address;
+			}
 		}
 		return super.getListCellRendererComponent(list, str, index, isSelected, cellHasFocus);
 	}
