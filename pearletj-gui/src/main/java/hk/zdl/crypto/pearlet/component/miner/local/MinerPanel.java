@@ -51,6 +51,13 @@ public class MinerPanel extends JPanel implements Runnable {
 
 	@Override
 	public void run() {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+
+			@Override
+			public void run() {
+				proc.destroyForcibly();
+			}
+		});
 		var txt_area = new JTextArea();
 		txt_area.setEditable(false);
 		txt_area.setBackground(Color.black);
