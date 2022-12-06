@@ -1,4 +1,4 @@
-package hk.zdl.crypto.pearlet.component;
+package hk.zdl.crypto.pearlet.component.settings;
 
 import javax.swing.JTabbedPane;
 
@@ -14,6 +14,7 @@ public class SettingsPanel extends JTabbedPane {
 	public SettingsPanel() {
 		addTab(SettingsPanelEvent.NET, new NetworkSettingsPanel());
 		addTab(SettingsPanelEvent.ACC, new AccountSettingsPanel());
+		addTab("Display", new DisplaySettingsPanel());
 		EventBus.getDefault().register(this);
 	}
 

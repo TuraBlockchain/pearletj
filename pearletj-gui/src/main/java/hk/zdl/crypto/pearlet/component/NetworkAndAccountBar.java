@@ -29,8 +29,9 @@ import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.SettingsPanelEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
-import hk.zdl.crypto.pearlet.ds.AddressWithNickname;
+import hk.zdl.crypto.pearlet.ds.AccountComboboxEntry;
 import hk.zdl.crypto.pearlet.ens.ENSLookup;
+import hk.zdl.crypto.pearlet.ui.AccountComboboxRenderer;
 import hk.zdl.crypto.pearlet.ui.MyListComboBoxModel;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
@@ -43,7 +44,7 @@ public class NetworkAndAccountBar extends JPanel {
 
 	private final JPanel left = new JPanel(new FlowLayout()), right = new JPanel(new FlowLayout());
 	private final JComboBox<CrptoNetworks> network_combobox = new JComboBox<>();
-	private final JComboBox<AddressWithNickname> account_combobox = new JComboBox<>();
+	private final JComboBox<AccountComboboxEntry> account_combobox = new JComboBox<>();
 	private List<Record> accounts = Arrays.asList();
 
 	public NetworkAndAccountBar() {
@@ -72,9 +73,9 @@ public class NetworkAndAccountBar extends JPanel {
 		left.add(manage_network_btn);
 		right.add(manage_account_btn);
 
-		if(Util.getProp().getBoolean("show_peth_only")) {
+		if (Util.getProp().getBoolean("show_peth_only")) {
 			network_combobox.setModel(new ListComboBoxModel<>(Arrays.asList(CrptoNetworks.ROTURA)));
-		}else {
+		} else {
 			network_combobox.setModel(new EnumComboBoxModel<>(CrptoNetworks.class));
 		}
 		network_combobox.addActionListener(e -> update_account_combobox());
@@ -83,7 +84,7 @@ public class NetworkAndAccountBar extends JPanel {
 		manage_account_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.ACC)));
 
 		account_combobox.addActionListener(e -> update_current_account());
-
+		account_combobox.setRenderer(new AccountComboboxRenderer());
 	}
 
 	private final void update_account_combobox() {
@@ -94,8 +95,8 @@ public class NetworkAndAccountBar extends JPanel {
 	@SuppressWarnings("unchecked")
 	private void refresh_account_combobox() {
 		CrptoNetworks nw = (CrptoNetworks) network_combobox.getSelectedItem();
-		List<AddressWithNickname> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> o.getStr("ADDRESS")).map(o -> new AddressWithNickname(o)).toList();
-		l = l.stream().map(o -> new AddressWithNickname(o.address, ENSLookup.containsKey(o.address) ? ENSLookup.reverse_lookup(o.address) : null)).toList();
+		List<AccountComboboxEntry> l = accounts.stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> o.getStr("ADDRESS")).map(o -> new AccountComboboxEntry(nw, o, null)).toList();
+		l = l.stream().map(o -> new AccountComboboxEntry(nw, o.address, ENSLookup.containsKey(o.address) ? ENSLookup.reverse_lookup(o.address) : null)).toList();
 		account_combobox.setModel(new MyListComboBoxModel<>(new ArrayList<>(l)));
 		account_combobox.setEnabled(!l.isEmpty());
 	}
@@ -105,7 +106,7 @@ public class NetworkAndAccountBar extends JPanel {
 		String str = null;
 		var acc = account_combobox.getSelectedItem();
 		if (acc != null) {
-			str = ((AddressWithNickname) acc).address;
+			str = ((AccountComboboxEntry) acc).address;
 		}
 		EventBus.getDefault().post(new AccountChangeEvent(nw, str));
 	}
@@ -124,7 +125,7 @@ public class NetworkAndAccountBar extends JPanel {
 				if (tx.getType() == 1 && tx.getSubtype() == 5) {
 					if (e.network.equals(network_combobox.getSelectedItem())) {
 						@SuppressWarnings("unchecked")
-						MyListComboBoxModel<AddressWithNickname> model = (MyListComboBoxModel<AddressWithNickname>) account_combobox.getModel();
+						MyListComboBoxModel<AccountComboboxEntry> model = (MyListComboBoxModel<AccountComboboxEntry>) account_combobox.getModel();
 						for (int i = 0; i < model.getSize(); i++) {
 							var a = model.getElementAt(i);
 							var adr = a.address;
