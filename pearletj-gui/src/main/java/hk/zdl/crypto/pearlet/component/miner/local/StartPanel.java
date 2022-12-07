@@ -110,6 +110,7 @@ public class StartPanel extends JPanel {
 			return;
 		}
 		try {
+			String url = MyDb.get_server_url(network).get();
 			String id = SignumAddress.fromRs(account).getID();
 			String passphase = null;
 			if (solo) {
@@ -128,6 +129,15 @@ public class StartPanel extends JPanel {
 					return;
 				}
 			} else {
+				url = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input URL of pool:", "Start Mining", JOptionPane.INFORMATION_MESSAGE)).trim();
+				if ("null".equals(String.valueOf(url))) {
+					return;
+				} else if (url.isBlank()) {
+					JOptionPane.showMessageDialog(getRootPane(), "Pool URL cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				} else {
+					new URL(url);
+				}
 				String _id = "";
 				Optional<String> opt = CryptoUtil.getRewardRecipient(network, account);
 				if (opt.isPresent()) {
@@ -138,9 +148,8 @@ public class StartPanel extends JPanel {
 					return;
 				}
 			}
-			var url = new URL(MyDb.get_server_url(network).get());
 			var plot_dirs = Stream.of(l_m.toArray()).map(o -> Path.of(o.toString())).toList();
-			var conf_file = LocalMiner.build_conf_file(id, passphase, plot_dirs, url, null);
+			var conf_file = LocalMiner.build_conf_file(id, passphase, plot_dirs, new URL(url), null);
 			var miner_bin = LocalMiner.copy_miner();
 			var m_p = new MinerPanel(miner_bin, conf_file);
 			m_p.setNetwork(network);
