@@ -721,7 +721,7 @@ public class CryptoUtil {
 			}
 			var client = new OkHttpClient.Builder().build();
 			var request = new Request.Builder().url(server_url + "burst?requestType=setRewardRecipient")
-					.post(RequestBody.create("deadline=1440&broadcast=false&feeNQT=" + toSignumValue(network, fee).toNQT() + "&publicKey=" + Hex.toHexString(public_key),
+					.post(RequestBody.create("deadline=1440&broadcast=false&feeNQT=" + toSignumValue(network, fee).toNQT() + "&publicKey=" + Hex.toHexString(public_key) + "&recipient=" + recipient,
 							MediaType.parse("application/x-www-form-urlencoded")))
 					.build();
 			var response = client.newCall(request).execute();

@@ -77,6 +77,10 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 					if (opt_r.isPresent()) {
 						public_key = opt_r.get().getBytes("PUBLIC_KEY");
 						private_key = opt_r.get().getBytes("PRIVATE_KEY");
+						if (private_key.length < 1) {
+							JOptionPane.showMessageDialog(getRootPane(), "Cannot modify watch account!", "ERROR", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
 					} else {
 						JOptionPane.showMessageDialog(getRootPane(), "Account not found in database!", "ERROR", JOptionPane.ERROR_MESSAGE);
 						return;
