@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -18,6 +19,7 @@ import javax.swing.UIManager;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.util.SystemInfo;
 import com.jthemedetecor.OsThemeDetector;
 
 import hk.zdl.crypto.pearlet.component.AboutPanel;
@@ -49,7 +51,7 @@ public class Main {
 		AquaMagic.do_trick();
 		UIUtil.printVersionOnSplashScreen();
 		Image app_icon = ImageIO.read(Util.getResource("app_icon.png"));
-		Util.submit(()->Taskbar.getTaskbar().setIconImage(app_icon));
+		Util.submit(() -> Taskbar.getTaskbar().setIconImage(app_icon));
 		var otd = OsThemeDetector.getDetector();
 		UIManager.setLookAndFeel(otd.isDark() ? new FlatDarkLaf() : new FlatLightLaf());
 		try {
@@ -78,7 +80,8 @@ public class Main {
 			frame.getContentPane().setLayout(new BorderLayout());
 			var panel1 = new JPanel(new BorderLayout());
 			var panel2 = new JPanel();
-			panel1.add(new NetworkAndAccountBar(), BorderLayout.NORTH);
+			var naa_bar = new NetworkAndAccountBar();
+			panel1.add(naa_bar, BorderLayout.NORTH);
 			panel1.add(panel2, BorderLayout.CENTER);
 			frame.add(panel1, BorderLayout.CENTER);
 
@@ -109,7 +112,11 @@ public class Main {
 			if (screenSize.getWidth() <= frame.getWidth() || screenSize.getHeight() <= frame.getHeight()) {
 				frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			}
-
+			if (SystemInfo.isMacFullWindowContentSupported) {
+				frame.getRootPane().putClientProperty("apple.awt.fullWindowContent", true);
+				frame.getRootPane().putClientProperty("apple.awt.transparentTitleBar", true);
+				toolbar.setBorder(BorderFactory.createEmptyBorder(naa_bar.getHeight(), 0, 0, 0));
+			}
 
 			otd.registerListener(isDark -> {
 				Stream.of(new FlatLightLaf(), new FlatDarkLaf()).filter(o -> o.isDark() == isDark).forEach(FlatLaf::setup);

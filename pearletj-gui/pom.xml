@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>hk.zdl.crpto</groupId>
 	<artifactId>pearletj</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>pearletj</name>
 
 	<build>
@@ -25,7 +25,8 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>hk.zdl.crypto.pearlet.Main</mainClass>
+							<!-- in order to display this in macOS global menu bar -->
+							<mainClass>PearletJ</mainClass>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
 						<manifestEntries>
