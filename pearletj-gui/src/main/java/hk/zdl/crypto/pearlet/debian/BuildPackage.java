@@ -3,6 +3,7 @@ package hk.zdl.crypto.pearlet.debian;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
@@ -21,8 +22,32 @@ public class BuildPackage {
 
 	public static void main(String[] args) throws Throwable {
 		if (new ProcessBuilder().command("which", "dpkg").start().waitFor() != 0) {
-			System.exit(-1);
+			System.out.println("dpkg not found in PATH, skip...");
+		} else {
+			build_debian_package();
 		}
+		build_macos_package();
+	}
+
+	public static void build_macos_package() throws Throwable {
+		var appName = BuildPackage.class.getPackage().getImplementationTitle();
+		var appVer = BuildPackage.class.getPackage().getImplementationVersion();
+		var jar_full_name = appName + "-" + appVer + "-jar-with-dependencies.jar";
+		var app_full_name = appName + "-" + appVer + ".app";
+		Files.createDirectories(Paths.get(app_full_name, "Contents", "MacOS"));
+		Files.createDirectories(Paths.get(app_full_name, "Contents", "Java"));
+		Files.createDirectories(Paths.get(app_full_name, "Contents", "Resources"));
+
+		var stub_path = Paths.get(app_full_name, "Contents", "MacOS", "universalJavaApplicationStub");
+		Files.copy(Util.getResourceAsStream("app.icns"), (Paths.get(app_full_name, "Contents", "Resources", "app.icns")), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(Util.getResourceAsStream("macOS/Info.plist"), Paths.get(app_full_name, "Contents", "Info.plist"), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(Util.getResourceAsStream("macOS/universalJavaApplicationStub"), stub_path, StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(new File(jar_full_name).toPath(), (Paths.get(app_full_name, "Contents", "Java", jar_full_name)), StandardCopyOption.REPLACE_EXISTING);
+		new ProcessBuilder().command("chmod", "+x", "root", stub_path.toFile().getAbsolutePath()).start().waitFor();
+
+	}
+
+	public static void build_debian_package() throws Throwable {
 		var authorFullName = Util.getProp().get("authorFullName");
 		var appComment = Util.getProp().get("appComment");
 		var appNameUp = Util.getProp().get("appName");
