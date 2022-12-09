@@ -40,7 +40,6 @@ public class BuildPackage {
 		Files.createDirectories(tmp_dir.resolve("usr/lib/" + appName));
 		Files.createDirectories(tmp_dir.resolve("usr/share/" + appName));
 		Files.createDirectories(tmp_dir.resolve("usr/share/doc/" + appName));
-		Files.createDirectories(tmp_dir.resolve("usr/share/doc"));
 		Files.createDirectories(tmp_dir.resolve("usr/share/applications"));
 		Files.createDirectories(tmp_dir.resolve("usr/share/swcatalog/yaml"));
 
