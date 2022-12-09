@@ -59,7 +59,7 @@ public class SignumTxTypeCellRenderer extends DefaultTableCellRenderer {
 				value = "Account Info";
 				break;
 			case 6:
-				value = "Alias Operation";
+				value = "Alias Sell";
 				break;
 			case 7:
 				value = "Alias Buy";
@@ -135,6 +135,9 @@ public class SignumTxTypeCellRenderer extends DefaultTableCellRenderer {
 			break;
 		case 20:
 			switch (tx.getSubtype()) {
+			case 0:
+				value = "Reward Recipient Assignment";
+				break;
 			case 1:
 				value = "Add Commitment";
 				break;

@@ -16,6 +16,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -65,8 +67,20 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		var str = JOptionPane.showInputDialog(getRootPane(), "Please specify pool address:", "Pool Address", JOptionPane.QUESTION_MESSAGE);
-		if (str != null) {
+		var panel = new JPanel(new GridBagLayout());
+		var txt_field = new JTextField(30);
+		var a = new JLabel();
+		a.setHorizontalAlignment(SwingConstants.RIGHT);
+		panel.add(new JLabel("Please specify pool address:"), new GridBagConstraints(0, 0, 2, 1, 2, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(txt_field, new GridBagConstraints(0, 1, 2, 1, 2, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(new JLabel("Tx fee:"), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(a, new GridBagConstraints(1, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		Util.submit(() -> {
+			var fee = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
+			a.setText("" + fee.doubleValue() / Math.pow(10, network == ROTURA ? CryptoUtil.peth_decimals : 8));
+		});		
+		int i = JOptionPane.showConfirmDialog(getRootPane(), panel, "Pool Address", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (i == JOptionPane.OK_OPTION) {
 			Util.submit(() -> {
 				try {
 					bar.setIndeterminate(true);
@@ -87,7 +101,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 					}
 					var fee_qnt = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
 					var fee_dml = new BigDecimal(fee_qnt, network == ROTURA ? CryptoUtil.peth_decimals : 8);
-					byte[] unsigned = CryptoUtil.setRewardRecipient(network, account, public_key, str, fee_dml);
+					byte[] unsigned = CryptoUtil.setRewardRecipient(network, account, public_key, txt_field.getText(), fee_dml);
 					byte[] signed = CryptoUtil.signTransaction(network, private_key, unsigned);
 					CryptoUtil.broadcastTransaction(network, signed);
 					UIUtil.displayMessage("Join Pool", "Join pool complete.", null);

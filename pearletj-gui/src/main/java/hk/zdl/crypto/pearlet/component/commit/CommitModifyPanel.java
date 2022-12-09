@@ -19,6 +19,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import org.jfree.chart.ChartFactory;
@@ -114,6 +115,14 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		panel.add(new JLabel("Amount"), new GridBagConstraints(0, 1, 1, 1, 0, 0, 17, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var txt_field = new JTextField();
 		panel.add(txt_field, new GridBagConstraints(1, 1, 2, 1, 0, 0, 17, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		var a = new JLabel();
+		a.setHorizontalAlignment(SwingConstants.RIGHT);
+		panel.add(new JLabel("Tx fee:"), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(a, new GridBagConstraints(1, 2, 2, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		Util.submit(() -> {
+			var fee = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
+			a.setText("" + fee.doubleValue() / Math.pow(10, network == ROTURA ? CryptoUtil.peth_decimals : 8));
+		});		
 		Util.submit(() -> {
 			int i = JOptionPane.showConfirmDialog(getRootPane(), panel, "Set Commitment", JOptionPane.OK_CANCEL_OPTION);
 			if (i == JOptionPane.OK_OPTION) {
