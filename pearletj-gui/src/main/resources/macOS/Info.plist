@@ -8,8 +8,10 @@
         <string>universalJavaApplicationStub</string><!-- relative to Contents/MacOS -->
         <key>CFBundleGetInfoString</key>
         <string>1.0.0</string>
+        <key>JVMSplashFile</key>
+        <string>splash.png</string>
         <key>CFBundleIconFile</key>
-        <string>app</string><!-- relative to Contents/Resources -->
+        <string>app</string>
         <key>CFBundleInfoDictionaryVersion</key>
         <string>8.0</string>
         <key>CFBundleName</key>
@@ -19,6 +21,6 @@
         <key>CFBundleVersion</key>
         <string>8.0</string>        
         <key>JVMMainClassName</key>
-        <string>hk.zdl.crypto.pearlet.MySplansh</string>
+        <string>hk.zdl.crypto.pearlet.Main</string>
 </dict>
 </plist>

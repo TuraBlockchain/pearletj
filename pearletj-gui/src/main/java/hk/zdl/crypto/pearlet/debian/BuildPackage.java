@@ -40,10 +40,11 @@ public class BuildPackage {
 
 		var stub_path = Paths.get(app_full_name, "Contents", "MacOS", "universalJavaApplicationStub");
 		Files.copy(Util.getResourceAsStream("app.icns"), (Paths.get(app_full_name, "Contents", "Resources", "app.icns")), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(Util.getResourceAsStream("splash.png"), (Paths.get(app_full_name, "Contents", "Resources", "splash.png")), StandardCopyOption.REPLACE_EXISTING);
 		Files.copy(Util.getResourceAsStream("macOS/Info.plist"), Paths.get(app_full_name, "Contents", "Info.plist"), StandardCopyOption.REPLACE_EXISTING);
 		Files.copy(Util.getResourceAsStream("macOS/universalJavaApplicationStub"), stub_path, StandardCopyOption.REPLACE_EXISTING);
 		Files.copy(new File(jar_full_name).toPath(), (Paths.get(app_full_name, "Contents", "Java", jar_full_name)), StandardCopyOption.REPLACE_EXISTING);
-		new ProcessBuilder().command("chmod", "+x", "root", stub_path.toFile().getAbsolutePath()).start().waitFor();
+		new ProcessBuilder().command("chmod", "+x", stub_path.toFile().getAbsolutePath()).start().waitFor();
 
 	}
 
