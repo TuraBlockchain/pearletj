@@ -1,5 +1,9 @@
 [
 	{
+		"icon": "peth.jpg",
+		"text":"People Ethereum"
+	},
+	{
 		"icon": "ens transparent background.png",
 		"text":"Ethereum Name Service"
 	},

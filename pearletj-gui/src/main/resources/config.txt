@@ -4,6 +4,8 @@ appAuthor = zdl
 dbName = db
 
 authorFullName = David Zhang
+license = GPLv3
+license_url = https://www.gnu.org/licenses/gpl-3.0
 
 default_window_width = 1024
 default_window_height = 768
