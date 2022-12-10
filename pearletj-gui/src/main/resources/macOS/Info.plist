@@ -8,6 +8,8 @@
         <string>universalJavaApplicationStub</string><!-- relative to Contents/MacOS -->
         <key>CFBundleGetInfoString</key>
         <string>1.0.0</string>
+        <key>JVMVersion</key>
+        <string>17+</string>
         <key>JVMSplashFile</key>
         <string>splash.png</string>
         <key>CFBundleIconFile</key>
