@@ -20,7 +20,6 @@ import javax.swing.table.TableColumnModel;
 
 import com.formdev.flatlaf.util.SystemInfo;
 
-import hk.zdl.crypto.pearlet.Main;
 import hk.zdl.crypto.pearlet.component.MyStretchIcon;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -45,7 +44,7 @@ public class UIUtil {
 	}
 
 	public static final void printVersionOnSplashScreen() {
-		String text = Main.class.getPackage().getImplementationVersion();
+		String text = Util.getAppVersion();
 		SplashScreen ss = SplashScreen.getSplashScreen();
 		if (ss == null) {
 			return;

@@ -51,10 +51,7 @@ public class AboutPanel extends JPanel {
 		appNameLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, 24));
 		appNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		panel_0.add(appNameLabel, new GridBagConstraints(0, 1, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-		var appVer = AboutPanel.class.getPackage().getImplementationVersion();
-		if (appVer == null) {
-			appVer = Util.getProp().get("appVersion");
-		}
+		var appVer = Util.getAppVersion();
 		panel_0.add(new_label("Version:", false), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		panel_0.add(new_label(appVer, true), new GridBagConstraints(1, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		panel_0.add(new_label("Build:", false), new GridBagConstraints(0, 3, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));

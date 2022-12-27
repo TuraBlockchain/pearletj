@@ -62,11 +62,11 @@ public class Util {
 		String db_url = "jdbc:derby:directory:" + user_dir + ";create=true";
 		return db_url;
 	}
-	
+
 	private static final Properties user_settings = new Properties();
-	
+
 	public static final Properties getUserSettings() {
-		if(user_settings.isEmpty()) {
+		if (user_settings.isEmpty()) {
 			try {
 				loadUserSettings();
 			} catch (IOException e) {
@@ -92,6 +92,14 @@ public class Util {
 		String user_dir = appDirs.getUserDataDir(prop.get("appName"), prop.get("appVersion"), prop.get("appAuthor"), false);
 		user_dir += File.separator + "settings.txt";
 		user_settings.store(Files.newOutputStream(Paths.get(user_dir), StandardOpenOption.CREATE), null);
+	}
+
+	public static final String getAppVersion() {
+		var text = Util.class.getPackage().getImplementationVersion();
+		if (text == null) {
+			text = getProp().get("appVersion");
+		}
+		return text;
 	}
 
 	public static final InputStream getResourceAsStream(String path) {
