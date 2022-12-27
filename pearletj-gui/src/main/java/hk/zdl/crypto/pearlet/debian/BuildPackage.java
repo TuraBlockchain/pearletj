@@ -46,7 +46,7 @@ public class BuildPackage {
 		Files.copy(Paths.get(jar_full_name), (Paths.get(app_full_name, "Contents", "Java", jar_full_name)), StandardCopyOption.REPLACE_EXISTING);
 		Files.walk(Paths.get("lib")).filter(o -> o.toFile().isFile()).forEach(p -> {
 			try {
-				Files.copy(p, (Paths.get(app_full_name, "Contents", "Java", "lib", p.toFile().getName())), StandardCopyOption.REPLACE_EXISTING);
+				Files.copy(p, Paths.get(app_full_name, "Contents", "Java", "lib", p.toFile().getName()), StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
 			}
 		});
@@ -61,7 +61,7 @@ public class BuildPackage {
 		var appName = BuildPackage.class.getPackage().getImplementationTitle();
 		var appVer = BuildPackage.class.getPackage().getImplementationVersion();
 		var arch = "all";
-		var jar_full_name = appName + "-" + appVer + "-jar-with-dependencies.jar";
+		var jar_full_name = appName + "-" + appVer + ".jar";
 		if (!new File(jar_full_name).exists()) {
 			System.exit(-1);
 		}
@@ -70,7 +70,7 @@ public class BuildPackage {
 		Files.createDirectories(tmp_dir.resolve("DEBIAN"));
 		Files.createDirectories(tmp_dir.resolve("usr/lib/systemd/system"));
 		Files.createDirectories(tmp_dir.resolve("usr/lib/" + appName));
-		Files.createDirectories(tmp_dir.resolve("usr/share/" + appName));
+		Files.createDirectories(tmp_dir.resolve("usr/share/" + appName + "/lib"));
 		Files.createDirectories(tmp_dir.resolve("usr/share/doc/" + appName));
 		Files.createDirectories(tmp_dir.resolve("usr/share/applications"));
 		Files.createDirectories(tmp_dir.resolve("usr/share/swcatalog/yaml"));
@@ -92,7 +92,7 @@ public class BuildPackage {
 		var jar_full_path = "/usr/share/" + appName + "/" + jar_full_name;
 		sb = new StringBuilder();
 		sb.append("#/usr/bin\n\n");
-		sb.append("chmod 755 /usr/share/").append(appName).append("/*.jar\n");
+		sb.append("chmod 755 " + jar_full_path + "\n");
 		sb.append("java -cp ").append(jar_full_path).append(" hk.zdl.crypto.pearlet.util.SetCapPermission setcap cap_net_raw,cap_net_admin=eip\n");
 		Files.writeString(tmp_dir.resolve("DEBIAN/postinst"), sb.toString());
 
@@ -108,7 +108,7 @@ public class BuildPackage {
 		sb.append("Source: ").append("https://gitee.com/nybbs2003/pearletj").append('\n');
 		sb.append("Files: *").append('\n');
 		sb.append("Copyright: ").append(new SimpleDateFormat("yyyy ").format(new Date())).append(authorFullName).append('\n');
-		sb.append("License: GPL-2+").append('\n');
+		sb.append("License: GPL-3+").append('\n');
 		Files.writeString(tmp_dir.resolve("DEBIAN/copyright"), sb.toString());
 
 		sb = new StringBuilder();
@@ -139,7 +139,13 @@ public class BuildPackage {
 
 		Files.copy(Util.getResourceAsStream("app_icon.png"), tmp_dir.resolve("usr/share/" + appName + "/app_icon.png"));
 		Files.copy(Util.getResourceAsStream("lib/libjpcap.so"), tmp_dir.resolve("usr" + "/lib/libjpcap.so"));
-		Files.copy(new File(jar_full_name).toPath(), tmp_dir.resolve("usr/share/" + appName + "/" + jar_full_name));
+		Files.copy(Paths.get(jar_full_name), tmp_dir.resolve("usr/share/" + appName + "/" + jar_full_name));
+		Files.walk(Paths.get("lib")).filter(o -> o.toFile().isFile()).forEach(p -> {
+			try {
+				Files.copy(p, tmp_dir.resolve("usr/share/" + appName + "/lib/" + p.toFile().getName()), StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+			}
+		});
 
 		var package_size = FileUtils.sizeOfDirectory(tmp_dir.toFile());
 		Files.writeString(tmp_dir.resolve("DEBIAN/control"), "Installed-Size: " + package_size / 1024 + "\n", StandardOpenOption.APPEND);
