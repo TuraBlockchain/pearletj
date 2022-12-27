@@ -32,10 +32,10 @@ public class BuildPackage {
 	public static void build_macos_package() throws Throwable {
 		var appName = BuildPackage.class.getPackage().getImplementationTitle();
 		var appVer = BuildPackage.class.getPackage().getImplementationVersion();
-		var jar_full_name = appName + "-" + appVer + "-jar-with-dependencies.jar";
+		var jar_full_name = appName + "-" + appVer + ".jar";
 		var app_full_name = appName + "-" + appVer + ".app";
 		Files.createDirectories(Paths.get(app_full_name, "Contents", "MacOS"));
-		Files.createDirectories(Paths.get(app_full_name, "Contents", "Java"));
+		Files.createDirectories(Paths.get(app_full_name, "Contents", "Java", "lib"));
 		Files.createDirectories(Paths.get(app_full_name, "Contents", "Resources"));
 
 		var stub_path = Paths.get(app_full_name, "Contents", "MacOS", "universalJavaApplicationStub");
@@ -43,7 +43,13 @@ public class BuildPackage {
 		Files.copy(Util.getResourceAsStream("splash.png"), (Paths.get(app_full_name, "Contents", "Resources", "splash.png")), StandardCopyOption.REPLACE_EXISTING);
 		Files.copy(Util.getResourceAsStream("macOS/Info.plist"), Paths.get(app_full_name, "Contents", "Info.plist"), StandardCopyOption.REPLACE_EXISTING);
 		Files.copy(Util.getResourceAsStream("macOS/universalJavaApplicationStub"), stub_path, StandardCopyOption.REPLACE_EXISTING);
-		Files.copy(new File(jar_full_name).toPath(), (Paths.get(app_full_name, "Contents", "Java", jar_full_name)), StandardCopyOption.REPLACE_EXISTING);
+		Files.copy(Paths.get(jar_full_name), (Paths.get(app_full_name, "Contents", "Java", jar_full_name)), StandardCopyOption.REPLACE_EXISTING);
+		Files.walk(Paths.get("lib")).filter(o -> o.toFile().isFile()).forEach(p -> {
+			try {
+				Files.copy(p, (Paths.get(app_full_name, "Contents", "Java", "lib", p.toFile().getName())), StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+			}
+		});
 		new ProcessBuilder().command("chmod", "+x", stub_path.toFile().getAbsolutePath()).start().waitFor();
 
 	}
