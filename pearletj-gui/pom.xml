@@ -4,6 +4,26 @@
 	<artifactId>pearletj</artifactId>
 	<version>0.0.5-SNAPSHOT</version>
 	<name>pearletj</name>
+	<inceptionYear>2022</inceptionYear>
+
+	<scm>
+		<url>https://github.com/eth3-peth/pearletj</url>
+		<connection>https://github.com/eth3-peth/pearletj.git</connection>
+	</scm>
+
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/eth3-peth/pearletj/issues</url>
+	</issueManagement>
+
+	<licenses>
+		<license>
+			<name>GNU General Public License v3.0</name>
+			<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
 
 	<build>
 		<plugins>
@@ -49,29 +69,33 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<appendAssemblyId>true</appendAssemblyId>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifest>
-							<!-- in order to display this in macOS global menu bar -->
-							<mainClass>PearletJ</mainClass>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-						</manifest>
-						<manifestEntries>
-							<SplashScreen-Image>splash.png</SplashScreen-Image>
-						</manifestEntries>
-					</archive>
-				</configuration>
+				<version>3.4.2</version>
 				<executions>
 					<execution>
 						<id>make-assembly</id>
 						<phase>package</phase>
 						<goals>
-							<goal>assembly</goal>
+							<goal>single</goal>
 						</goals>
+						<configuration>
+							<appendAssemblyId>true</appendAssemblyId>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+							<descriptors>
+								<descriptor>src/assemble/assembly.xml</descriptor>
+							</descriptors>
+							<archive>
+								<manifest>
+									<!-- in order to display this in macOS global menu bar -->
+									<mainClass>PearletJ</mainClass>
+									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+								</manifest>
+								<manifestEntries>
+									<SplashScreen-Image>splash.png</SplashScreen-Image>
+								</manifestEntries>
+							</archive>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
