@@ -55,6 +55,8 @@ public class CopyAccountInfoPanel extends JPanel {
 	}
 
 	private void copy_account_id() {
+		if(account==null)
+			return;
 		String id = "";
 		switch (network) {
 		case ROTURA:
@@ -75,6 +77,8 @@ public class CopyAccountInfoPanel extends JPanel {
 	}
 
 	private void copy_extended_address() {
+		if(account==null)
+			return;
 		String id = "";
 		switch (network) {
 		case ROTURA:

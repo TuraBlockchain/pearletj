@@ -85,6 +85,8 @@ public class ReceivePanel extends JPanel {
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
+		if (e.account == null)
+			return;
 		setText(e.account);
 		String qr_str = "";
 		if (Arrays.asList(SIGNUM, ROTURA).contains(e.network)) {

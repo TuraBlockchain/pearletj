@@ -56,6 +56,9 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 	public void onMessage(AccountChangeEvent e) {
 		this.network = e.network;
 		this.account = e.account;
+		if(account==null) {
+			return;
+		}
 		if (Arrays.asList(CrptoNetworks.ROTURA, CrptoNetworks.SIGNUM).contains(network)) {
 			try {
 				bar.setString(CryptoUtil.getRewardRecipient(network, account).orElse(NONE));

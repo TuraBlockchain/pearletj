@@ -74,6 +74,8 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 	public void onMessage(AccountChangeEvent e) {
 		this.network = e.network;
 		this.account = e.account;
+		if(account==null)
+			return;
 		BigDecimal _bal = new BigDecimal(0), _c_bal = new BigDecimal(0), _a_bal = new BigDecimal(0);
 		try {
 			var account = CryptoUtil.getAccount(e.network, e.account);
@@ -161,7 +163,6 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-//				JOptionPane.showMessageDialog(getRootPane(), "Commitment is set.");
 				UIUtil.displayMessage( "Commitment",  "Commitment is set.", null);
 				onMessage(new AccountChangeEvent(network, account));
 			}

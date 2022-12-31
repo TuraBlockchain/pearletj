@@ -26,6 +26,8 @@ public class TxHistoryQueryExecutor {
 	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public synchronized void onMessage(AccountChangeEvent e) {
+		if(e.account==null)
+			return;
 		EventBus.getDefault().post(new TxHistoryEvent(e.network, TxHistoryEvent.Type.START, null));
 		for (MyThread t : threads) {
 			try {

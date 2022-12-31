@@ -105,7 +105,9 @@ public class NetworkAndAccountBar extends JPanel {
 		CrptoNetworks nw = (CrptoNetworks) network_combobox.getSelectedItem();
 		String str = null;
 		var acc = account_combobox.getSelectedItem();
-		if (acc != null) {
+		if (acc == null) {
+			EventBus.getDefault().post(new AccountChangeEvent(nw, null));
+		}else {
 			str = ((AccountComboboxEntry) acc).address;
 			EventBus.getDefault().post(new AccountChangeEvent(nw, str));
 		}

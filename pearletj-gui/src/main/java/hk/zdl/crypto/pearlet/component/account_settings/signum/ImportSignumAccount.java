@@ -5,9 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
 
 import javax.swing.Icon;
 import javax.swing.JComboBox;
@@ -17,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
@@ -126,7 +125,20 @@ public class ImportSignumAccount {
 			}
 			reader.close();
 			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
-			JOptionPane.showMessageDialog(w, "Imported:"+imported+"\n"+"Total:"+total, "Done", JOptionPane.INFORMATION_MESSAGE);
+			var panel = new JPanel(new GridBagLayout());
+			var label_1 = new JLabel("Imported:");
+			panel.add(label_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+			var label_2 = new JLabel(""+imported);
+			label_2.setHorizontalAlignment(SwingConstants.RIGHT);
+			label_2.setHorizontalTextPosition(SwingConstants.RIGHT);
+			panel.add(label_2, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+			var label_3 = new JLabel("Total:");
+			panel.add(label_3, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+			var label_4 = new JLabel(""+total);
+			label_4.setHorizontalAlignment(SwingConstants.RIGHT);
+			label_4.setHorizontalTextPosition(SwingConstants.RIGHT);
+			panel.add(label_4, new GridBagConstraints(1, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+			JOptionPane.showMessageDialog(w, panel, "Done", JOptionPane.INFORMATION_MESSAGE);
 		} catch (Throwable x) {
 			while (x.getCause() != null) {
 				x = x.getCause();

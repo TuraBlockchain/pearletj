@@ -736,6 +736,9 @@ public class CryptoUtil {
 	}
 
 	public static final Optional<String> getRewardRecipient(CrptoNetworks network, String account) throws Exception {
+		if(account==null||account.isBlank()) {
+			return Optional.empty();
+		}
 		Optional<String> opt = get_server_url(network);
 		if (get_server_url(network).isPresent()) {
 			var server_url = opt.get();
