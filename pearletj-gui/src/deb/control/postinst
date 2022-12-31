@@ -1,0 +1,16 @@
+#/usr/bin
+
+java -cp /usr/share/[[name]]/[[name]].jar hk.zdl.crypto.pearlet.util.SetCapPermission setcap cap_net_raw,cap_net_admin=eip
+
+FILE=/usr/share/applications/hk.zdl.crypto.[[name]].desktop
+echo "[Desktop Entry]" > $FILE
+echo "Name=PearletJ" >> $FILE
+echo "GenericName=PearletJ" >> $FILE
+echo "Exec=java -jar /usr/share/[[name]]/[[name]].jar" >> $FILE
+echo "Icon=/usr/share/[[name]]/app_icon.png" >> $FILE
+echo "StartupWMClass=hk-zdl-crypto-pearlet-Main" >> $FILE
+echo "Terminal=false" >> $FILE
+echo "SingleMainWindow=true" >> $FILE
+echo "Type=Application" >> $FILE
+echo "Categories=Network;Finance;" >> $FILE
+echo "Version=[[version]]" >> $FILE

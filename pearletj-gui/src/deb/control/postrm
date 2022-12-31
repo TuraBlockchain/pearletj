@@ -1,0 +1,4 @@
+#/usr/bin
+
+rm -rf /usr/share/[[name]]/
+rm -rf /usr/share/applications/hk.zdl.crypto.[[name]].desktop
