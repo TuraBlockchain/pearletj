@@ -1,7 +1,10 @@
 package hk.zdl.crypto.pearlet.persistence;
 
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
+import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
+
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -32,8 +35,6 @@ import com.jfinal.plugin.activerecord.dialect.AnsiSqlDialect;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
 
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
-
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.*;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.SignumID;
 import signumj.entity.response.Transaction;
@@ -53,7 +54,6 @@ public class MyDb {
 			public void run() {
 				arp.stop();
 				dp.stop();
-				new File("derby.log").delete();
 			}
 		});
 	}

@@ -3,6 +3,8 @@ package hk.zdl.crypto.pearlet.component.miner.local;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.nio.charset.Charset;
@@ -15,6 +17,7 @@ import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -58,6 +61,15 @@ public class MinerPanel extends JPanel implements Runnable {
 				proc.destroyForcibly();
 			}
 		});
+		var w = SwingUtilities.getWindowAncestor(this);
+		w.addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				proc.destroyForcibly();
+			}
+		});
+		
 		var txt_area = new JTextArea();
 		txt_area.setEditable(false);
 		txt_area.setBackground(Color.black);

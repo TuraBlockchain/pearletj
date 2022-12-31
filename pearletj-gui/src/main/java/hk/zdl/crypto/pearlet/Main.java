@@ -3,9 +3,14 @@ package hk.zdl.crypto.pearlet;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.SystemTray;
 import java.awt.Taskbar;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.nio.file.Files;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
@@ -55,7 +60,7 @@ public class Main {
 		var otd = OsThemeDetector.getDetector();
 		UIManager.setLookAndFeel(otd.isDark() ? new FlatDarkLaf() : new FlatLightLaf());
 		try {
-			System.setProperty("derby.system.home", Files.createTempDirectory("derby").toFile().getAbsolutePath());
+			System.setProperty("derby.system.home", Files.createTempDirectory("derby-").toAbsolutePath().toString());
 			MyDb.getTables();
 		} catch (Throwable x) {
 			while (x.getCause() != null) {
@@ -101,18 +106,36 @@ public class Main {
 			frame.add(toolbar, BorderLayout.WEST);
 
 			var frame_size = new Dimension(Util.getProp().getInt("default_window_width"), Util.getProp().getInt("default_window_height"));
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 			frame.setPreferredSize(frame_size);
 			frame.setMinimumSize(frame_size);
 			frame.setSize(frame_size);
 			frame.pack();
 			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
-			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			frame.addWindowListener(new WindowAdapter() {
+
+				@Override
+				public void windowClosing(WindowEvent e) {
+					Util.submit(new Callable<Void>() {
+
+						@Override
+						public Void call() throws Exception {
+							while (SystemTray.getSystemTray().getTrayIcons().length > 0) {
+								SystemTray.getSystemTray().remove(SystemTray.getSystemTray().getTrayIcons()[0]);
+							}
+							TimeUnit.SECONDS.sleep(2);
+							System.exit(0);
+							return null;
+						}
+					});
+				}
+			});
+			var screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 			if (screenSize.getWidth() <= frame.getWidth() || screenSize.getHeight() <= frame.getHeight()) {
 				frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			}
-			if (SystemInfo.isMacFullWindowContentSupported) {
+			if (SystemInfo.isMacOS) {
 				frame.getRootPane().putClientProperty("apple.awt.fullWindowContent", true);
 				frame.getRootPane().putClientProperty("apple.awt.transparentTitleBar", true);
 				toolbar.setBorder(BorderFactory.createEmptyBorder(naa_bar.getHeight(), 0, 0, 0));

@@ -229,7 +229,7 @@ public class DashBoard extends JPanel {
 		token_list_card_layout.show(token_list_panel, "bar");
 		token_list.setModel(new DefaultComboBoxModel<AltTokenWrapper>());
 		asset_info_panel.setVisible(false);
-		if (e.account == null || e.account.isBlank()) {
+		if (nw == null || account == null || account.isBlank()) {
 			balance_label.setText("0");
 			token_list_card_layout.show(token_list_panel, "list");
 		} else {
@@ -335,7 +335,7 @@ public class DashBoard extends JPanel {
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(BalanceUpdateEvent e) {
 		String balance = e.getBalance().stripTrailingZeros().toPlainString();
-		if(e.getNetwork().equals(nw)&&e.getAddress().equals(account)) {
+		if (e.getNetwork().equals(nw) && e.getAddress().equals(account)) {
 			balance_label.setText(balance);
 		}
 	}

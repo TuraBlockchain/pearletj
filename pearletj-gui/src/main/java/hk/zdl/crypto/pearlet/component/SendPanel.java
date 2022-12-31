@@ -317,26 +317,26 @@ public class SendPanel extends JPanel {
 	public void onMessage(AccountChangeEvent e) {
 		this.network = e.network;
 		this.account = e.account;
-		String symbol = Util.default_currency_symbol.get(e.network.name());
+		String symbol = Util.default_currency_symbol.get(network.name());
 		balance_label.setText("?");
 		balance_label.setToolTipText(null);
 		token_combo_box.setModel(new DefaultComboBoxModel<Object>(new String[] { symbol }));
-		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { e.account }));
+		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { account }));
 		asset_balance.clear();
-		if (e.account == null || e.account.isBlank()) {
+		if (network == null || account == null || account.isBlank()) {
 			balance_label.setText("0");
 			send_btn.setEnabled(false);
 		} else {
 			wuli.start();
 			Util.submit(() -> {
 				try {
-					if (Arrays.asList(ROTURA, SIGNUM).contains(e.network)) {
-						Account account = CryptoUtil.getAccount(e.network, e.account);
+					if (Arrays.asList(ROTURA, SIGNUM).contains(network)) {
+						Account account = CryptoUtil.getAccount(network, e.account);
 						var balance = account.getBalance();
 						var committed_balance = account.getCommittedBalance();
 						balance = balance.subtract(committed_balance);
 						BigDecimal value;
-						if (e.network.equals(SIGNUM)) {
+						if (network.equals(SIGNUM)) {
 							value = balance.toSigna();
 						} else {
 							value = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals);
@@ -344,7 +344,7 @@ public class SendPanel extends JPanel {
 						asset_balance.put(symbol, value);
 						updat_balance_label(value);
 						for (AssetBalance ab : account.getAssetBalances()) {
-							Asset a = CryptoUtil.getAsset(e.network, ab.getAssetId().toString());
+							Asset a = CryptoUtil.getAsset(network, ab.getAssetId().toString());
 							BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).divide(BigDecimal.TEN.pow(a.getDecimals()));
 							asset_balance.put(a, val);
 							((DefaultComboBoxModel<Object>) token_combo_box.getModel()).addElement(a);
@@ -353,9 +353,9 @@ public class SendPanel extends JPanel {
 						fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
 						fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
 						fee_slider.setValue(g.getStandardFee().toNQT().intValue());
-					} else if (WEB3J.equals(e.network)) {
+					} else if (WEB3J.equals(network)) {
 						try {
-							BigDecimal value = CryptoUtil.getBalance(e.network, e.account);
+							BigDecimal value = CryptoUtil.getBalance(network, account);
 							asset_balance.put(symbol, value);
 							updat_balance_label(value);
 						} catch (Exception x) {
@@ -393,7 +393,7 @@ public class SendPanel extends JPanel {
 				send_btn.setEnabled(false);
 			}
 		}
-		Stream.of(panel_2, fee_panel, fee_label).forEach(c -> c.setVisible(!WEB3J.equals(e.network)));
+		Stream.of(panel_2, fee_panel, fee_label).forEach(c -> c.setVisible(!WEB3J.equals(network)));
 	}
 
 	private final void updat_balance_label(BigDecimal value) {

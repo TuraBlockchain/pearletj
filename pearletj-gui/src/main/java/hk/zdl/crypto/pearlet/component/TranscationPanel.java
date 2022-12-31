@@ -83,7 +83,7 @@ public class TranscationPanel extends JPanel {
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
 		this.nw = e.network;
-		if (e.account == null || e.account.isBlank()) {
+		if (nw == null || e.account == null || e.account.isBlank()) {
 			return;
 		}
 		new TxProc().update_column_model(e.network, table_column_model, e.account);

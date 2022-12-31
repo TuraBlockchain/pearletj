@@ -4,18 +4,26 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Arrays;
 
 import javax.swing.Icon;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.jdesktop.swingx.combobox.EnumComboBoxModel;
+
+import com.csvreader.CsvReader;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
@@ -67,6 +75,63 @@ public class ImportSignumAccount {
 			} else {
 				JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
+		}
+	}
+
+	public static final void batch_import(Component c, CrptoNetworks nw) {
+		var w = SwingUtilities.getWindowAncestor(c);
+		var file_dialog = new JFileChooser();
+		file_dialog.setDialogType(JFileChooser.OPEN_DIALOG);
+		file_dialog.setMultiSelectionEnabled(false);
+		file_dialog.setDragEnabled(false);
+		file_dialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		file_dialog.setFileFilter(new FileFilter() {
+
+			@Override
+			public String getDescription() {
+				return "CSV Files";
+			}
+
+			@Override
+			public boolean accept(File f) {
+				return f.isDirectory() || f.getName().toLowerCase().endsWith(".csv");
+			}
+		});
+		int i = file_dialog.showOpenDialog(w);
+		if (i != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+		File file = file_dialog.getSelectedFile();
+		if (file == null) {
+			return;
+		}
+
+		try {
+			var reader = new CsvReader(Files.newBufferedReader(file.toPath()), ',');
+			reader.readHeaders();
+			int header_index = reader.getIndex("phrase"), total = 0, imported = 0;
+			while (reader.readRecord()) {
+				var phrase = reader.get(header_index);
+				total++;
+				try {
+					byte[] private_key = CryptoUtil.getPrivateKey(nw, PKT.Phrase, phrase);
+					byte[] public_key = CryptoUtil.getPublicKey(nw, private_key);
+					boolean b = MyDb.insertAccount(nw, CryptoUtil.getAddress(nw, public_key), public_key, private_key);
+					if(b) {
+						imported++;
+					}
+				} catch (Exception x) {
+					continue;
+				}
+			}
+			reader.close();
+			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+			JOptionPane.showMessageDialog(w, "Imported:"+imported+"\n"+"Total:"+total, "Done", JOptionPane.INFORMATION_MESSAGE);
+		} catch (Throwable x) {
+			while (x.getCause() != null) {
+				x = x.getCause();
+			}
+			JOptionPane.showMessageDialog(w, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

@@ -7,8 +7,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.stream.Stream;
@@ -27,6 +29,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crypto.pearlet.component.account_settings.ExportAccountTable;
 import hk.zdl.crypto.pearlet.component.account_settings.signum.CreateSignumAccount;
@@ -36,6 +40,7 @@ import hk.zdl.crypto.pearlet.component.account_settings.web3j.CreateWeb3JAccount
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.ImportWeb3JAccountFromFile;
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.ImportWeb3JAccountFromText;
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.WatchWeb3JAccount;
+import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
@@ -51,9 +56,11 @@ public class AccountSettingsPanel extends JPanel {
 	private static final boolean show_peth_only = Util.getProp().getBoolean("show_peth_only");
 	private final AccountTableModel account_table_model = new AccountTableModel();
 	private final JTable table = buildAccountTable();
+	private CrptoNetworks nw;
 
 	public AccountSettingsPanel() {
 		super(new BorderLayout());
+		EventBus.getDefault().register(this);
 		EventBus.getDefault().register(account_table_model);
 		add(new JScrollPane(table), BorderLayout.CENTER);
 
@@ -84,8 +91,15 @@ public class AccountSettingsPanel extends JPanel {
 			create_acc_rotura.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this, CrptoNetworks.ROTURA));
 		}
 
+		import_account_btn.addActionListener(e -> {
+			if (isAltDown(e))
+				ImportSignumAccount.batch_import(this, nw);
+		});
 		if (show_peth_only) {
-			import_account_btn.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.ROTURA));
+			import_account_btn.addActionListener(e -> {
+				if (!isAltDown(e))
+					ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.ROTURA);
+			});
 		} else {
 			var import_acc_menu = new JPopupMenu();
 			var import_acc_rotura = new JMenuItem("PETH");
@@ -97,7 +111,10 @@ public class AccountSettingsPanel extends JPanel {
 			Stream.of(import_acc_rotura, import_acc_signum, import_acc_web3j).forEach(import_acc_menu::add);
 			Stream.of(import_from_prik, import_from_mnic, import_from_file).forEach(import_acc_web3j::add);
 
-			import_account_btn.addActionListener(e -> import_acc_menu.show(import_account_btn, 0, 0));
+			import_account_btn.addActionListener(e -> {
+				if (!isAltDown(e))
+					import_acc_menu.show(import_account_btn, 0, 0);
+			});
 			import_acc_signum.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.SIGNUM));
 			import_acc_rotura.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.ROTURA));
 			import_from_prik.addActionListener(e -> ImportWeb3JAccountFromText.import_from_private_key(this));
@@ -188,4 +205,12 @@ public class AccountSettingsPanel extends JPanel {
 		Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 	}
 
+	private final boolean isAltDown(ActionEvent e) {
+		return new KeyEvent(this, 0, 0, e.getModifiers(), 0, ' ').isAltDown();
+	}
+
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(AccountChangeEvent e) {
+		this.nw = e.network;
+	}
 }
