@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>hk.zdl.crpto</groupId>
 	<artifactId>pearletj</artifactId>
-	<version>0.0.7-SNAPSHOT</version>
+	<version>0.0.8-SNAPSHOT</version>
 	<name>pearletj</name>
 	<description>Cross-platform multi-chain thick wallet for Cryto-currencies</description>
 	<inceptionYear>2022</inceptionYear>
@@ -92,7 +92,6 @@
 							</descriptors>
 							<archive>
 								<manifest>
-									<!-- in order to display this in macOS global menu bar -->
 									<mainClass>PearletJ</mainClass>
 									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 								</manifest>
@@ -104,27 +103,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.3.2</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<workingDirectory>${project.build.directory}</workingDirectory>
-					<executable>java</executable>
-					<arguments>
-						<argument>-cp</argument>
-						<argument>${project.artifactId}-${project.version}-jar-with-dependencies.jar</argument>
-						<argument>hk.zdl.crypto.pearlet.debian.BuildPackage</argument>
-					</arguments>
-				</configuration>
-			</plugin>
+			
 			<plugin>
 				<artifactId>jdeb</artifactId>
 				<groupId>org.vafer</groupId>
@@ -179,6 +158,31 @@
 								</data>
 							</dataSet>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>de.perdian.maven.plugins</groupId>
+				<artifactId>macosappbundler-maven-plugin</artifactId>
+				<version>1.20.0</version>
+				<configuration>
+					<plist>
+						<CFBundleIconFile>src/main/resources/app.icns</CFBundleIconFile>
+						<CFBundleDisplayName>PearletJ</CFBundleDisplayName>
+						<JVMMainClassName>hk.zdl.crypto.pearlet.Main</JVMMainClassName>
+						<JVMVersion>17+</JVMVersion>
+						<JVMSplashFile>src/main/resources/splash.png</JVMSplashFile>
+					</plist>
+					<dmg>
+						<generate>true</generate>
+					</dmg>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>bundle</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
