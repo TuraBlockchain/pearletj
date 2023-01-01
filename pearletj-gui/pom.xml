@@ -185,6 +185,7 @@
 					</plist>
 					<dmg>
 						<generate>true</generate>
+						<autoFallback>true</autoFallback>
 					</dmg>
 				</configuration>
 				<executions>
