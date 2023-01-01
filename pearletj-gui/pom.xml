@@ -103,7 +103,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			
 			<plugin>
 				<artifactId>jdeb</artifactId>
 				<groupId>org.vafer</groupId>
@@ -172,6 +171,7 @@
 						<JVMMainClassName>hk.zdl.crypto.pearlet.Main</JVMMainClassName>
 						<JVMVersion>17+</JVMVersion>
 						<JVMSplashFile>src/main/resources/splash.png</JVMSplashFile>
+						<NSHumanReadableCopyright>${project.licenses[0].name}</NSHumanReadableCopyright>
 					</plist>
 					<dmg>
 						<generate>true</generate>
