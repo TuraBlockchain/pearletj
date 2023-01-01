@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: David Zhang
+Upstream-Contact:  David Zhang <david290@qq.com>
+Source: [[url]]
+Files: *
+Copyright: 2023, David Zhang <david290@qq.com>
+License: GPL-3+

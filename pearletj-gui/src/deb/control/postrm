@@ -2,3 +2,4 @@
 
 rm -rf /usr/share/[[name]]/
 rm -rf /usr/share/applications/hk.zdl.crypto.[[name]].desktop
+rm -rf /usr/share/metainfo/hk.zdl.crypto.[[name]].metainfo.xml
