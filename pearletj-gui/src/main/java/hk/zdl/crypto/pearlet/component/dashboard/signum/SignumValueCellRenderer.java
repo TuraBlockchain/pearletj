@@ -33,7 +33,7 @@ public class SignumValueCellRenderer extends DefaultTableCellRenderer {
 		if (!isSelected) {
 			Transaction tx = (Transaction) value;
 			if (tx.getType() == 0 || (tx.getType() == 2 && tx.getSubtype() == 1)) {// Payment
-				if (tx.getRecipient().getRawAddress().equals(address.substring(address.indexOf('-') + 1))) {
+				if (tx.getRecipient() != null && tx.getRecipient().getRawAddress().equals(address.substring(address.indexOf('-') + 1))) {
 					setBackground(isDark ? darker(my_green) : my_green);
 				} else {
 					setBackground(isDark ? darker(Color.pink) : Color.pink);

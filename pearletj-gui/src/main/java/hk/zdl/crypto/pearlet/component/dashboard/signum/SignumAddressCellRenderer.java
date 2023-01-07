@@ -24,6 +24,8 @@ public class SignumAddressCellRenderer extends DefaultTableCellRenderer {
 		}
 		if (tx.getRecipient() != null) {
 			recp = tx.getRecipient().getFullAddress();
+		} else {
+			recp = "Burning Address ";
 		}
 		if (sender.equals(address)) {
 			if (recp.isBlank()) {
