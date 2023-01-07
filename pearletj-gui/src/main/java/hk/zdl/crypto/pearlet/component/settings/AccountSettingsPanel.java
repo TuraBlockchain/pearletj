@@ -13,6 +13,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
@@ -196,8 +197,10 @@ public class AccountSettingsPanel extends JPanel {
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setShowGrid(true);
 		table.getColumnModel().getColumn(2).setCellRenderer(new WatchAddressCellRenderer());
-		table.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer());
-		((DefaultTableCellRenderer) table.getColumnModel().getColumn(3).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
+		IntStream.of(0,3).forEach(i->{
+			table.getColumnModel().getColumn(i).setCellRenderer(new DefaultTableCellRenderer());
+			((DefaultTableCellRenderer) table.getColumnModel().getColumn(i).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
+		});
 		return table;
 	}
 

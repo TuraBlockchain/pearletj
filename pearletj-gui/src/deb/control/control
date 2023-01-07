@@ -1,0 +1,8 @@
+Package: [[name]]
+Version: [[version]]
+Section: net
+Architecture: all
+Priority: optional
+Maintainer: David Zhang <david290@qq.com>
+Description: [[description]]
+Depends: openjdk-17-jre , libcap2

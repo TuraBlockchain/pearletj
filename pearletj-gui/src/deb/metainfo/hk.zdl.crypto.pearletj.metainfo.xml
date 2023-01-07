@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+	<id>hk.zdl.crypto.pearletj</id>
+	<project_license>GPL-3.0+</project_license>
+	<name>PearletJ</name>
+	<summary>PearletJ</summary>
+	<description>Cross-platform multi-chain thick wallet for Cryto-currencies</description>
+	<launchable type="desktop-id">hk.zdl.crypto.pearletj.desktop</launchable>
+	<url type="homepage">https://github.com/eth3-peth/pearletj.git</url>
+</component>
