@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -14,6 +15,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.jar.JarFile;
 
 import javax.swing.JButton;
@@ -66,6 +69,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 	private CrptoNetworks network;
 	private String account;
 	private Path jar_path, plot_path;
+	private ExecutorService es;
 
 	public PlotPanel() {
 		super(new GridBagLayout());
@@ -95,7 +99,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 		add(plot_btn, new GridBagConstraints(5, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 		add(new JLayer<JTabbedPane>(tabbed_pane, new CloseableTabbedPaneLayerUI()), new GridBagConstraints(0, 2, 6, 2, 2, 2, GridBagConstraints.CENTER, GridBagConstraints.BOTH, insets_5, 0, 0));
 
-		jar_file_btn.addActionListener(e -> check_and_set_jar_path());
+		jar_file_btn.addActionListener(this::check_and_set_jar_path);
 		plot_path_btn.addActionListener(e -> {
 			var file_dialog = new JFileChooser();
 			file_dialog.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -111,7 +115,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 		plot_btn.addActionListener(this);
 	}
 
-	private void check_and_set_jar_path() {
+	private void check_and_set_jar_path(ActionEvent e) {
 		var file_dialog = new JFileChooser();
 		file_dialog.setDialogType(JFileChooser.OPEN_DIALOG);
 		file_dialog.setMultiSelectionEnabled(false);
@@ -129,8 +133,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 				return f.isDirectory() || f.getName().toLowerCase().endsWith(".jar");
 			}
 		});
-		int i = file_dialog.showOpenDialog(getRootPane());
-		if (i != JFileChooser.APPROVE_OPTION) {
+		if (file_dialog.showOpenDialog(getRootPane()) != JFileChooser.APPROVE_OPTION) {
 			return;
 		}
 		File file = file_dialog.getSelectedFile();
@@ -234,26 +237,38 @@ public class PlotPanel extends JPanel implements ActionListener {
 			}
 			SwingUtilities.invokeLater(() -> UIUtil.adjust_table_width(table, table.getColumnModel()));
 			tabbed_pane.add(id, new JScrollPane(table));
-			try {
-				var proc = new ProcessBuilder("java", "-jar", jar_path.toFile().getAbsolutePath(), str).start();
-				var in = proc.getInputStream();
-				var reader = new BufferedReader(new InputStreamReader(in));
-				while (true) {
-					var line = reader.readLine();
-					if (line == null) {
-						break;
-					}
-					var o = new JSONObject(new JSONTokener(line));
-					var i = o.getInt("index");
-					var p = o.getFloat("progress");
-					model.setValueAt(p, i, 1);
-					if (p >= 100) {
-						EventBus.getDefault().post(new PlotDoneEvent(plot_path));
-					}
+			synchronized (tabbed_pane) {
+				if (es == null) {
+					es = Executors.newSingleThreadExecutor(r -> {
+						var t = new Thread(r, PlotPanel.class.getSimpleName());
+						t.setDaemon(true);
+						t.setPriority(Thread.MIN_PRIORITY);
+						return t;
+					});
 				}
-			} catch (Exception x) {
-				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 			}
+			es.submit(() -> {
+				try {
+					var proc = new ProcessBuilder("java", "-jar", jar_path.toFile().getAbsolutePath(), str).start();
+					var in = proc.getInputStream();
+					var reader = new BufferedReader(new InputStreamReader(in));
+					while (true) {
+						var line = reader.readLine();
+						if (line == null) {
+							break;
+						}
+						var o = new JSONObject(new JSONTokener(line));
+						var i = o.getInt("index");
+						var p = o.getFloat("progress");
+						model.setValueAt(p, i, 1);
+						if (p >= 100) {
+							EventBus.getDefault().post(new PlotDoneEvent(plot_path));
+						}
+					}
+				} catch (Exception x) {
+					UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
+				}
+			});
 		});
 	}
 
