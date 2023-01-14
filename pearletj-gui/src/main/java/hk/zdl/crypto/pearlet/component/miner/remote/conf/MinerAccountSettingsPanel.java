@@ -78,13 +78,13 @@ public class MinerAccountSettingsPanel extends JPanel {
 		if (i == JOptionPane.OK_OPTION) {
 			var phase = txt_field.getText().trim();
 			if (phase.isBlank()) {
-				JOptionPane.showMessageDialog(getRootPane(), "Passphase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), "Passphrase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
 				return false;
 			} else {
 				try {
 					var id = SignumCrypto.getInstance().getAddressFromPassphrase(phase).getID();
 					var client = new OkHttpClient();
-					var request = new Request.Builder().url(basePath + miner_account_path + "/add").post(new FormBody(Arrays.asList("id", "passphase"), Arrays.asList(id, phase))).build();
+					var request = new Request.Builder().url(basePath + miner_account_path + "/add").post(new FormBody(Arrays.asList("id", "passphrase"), Arrays.asList(id, phase))).build();
 					var response = client.newCall(request).execute();
 					if (!response.isSuccessful()) {
 						throw new Exception(response.body().string());
