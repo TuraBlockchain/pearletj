@@ -112,20 +112,20 @@ public class StartPanel extends JPanel {
 		try {
 			String url = MyDb.get_server_url(network).get();
 			String id = SignumAddress.fromRs(account).getID();
-			String passphase = null;
+			String passphrase = null;
 			if (solo) {
 				var icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
-				passphase = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input account passphase:", "Start Mining", JOptionPane.INFORMATION_MESSAGE, icon, null, null)).trim();
-				if ("null".equals(String.valueOf(passphase))) {
+				passphrase = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input account passphrase:", "Start Mining", JOptionPane.INFORMATION_MESSAGE, icon, null, null)).trim();
+				if ("null".equals(String.valueOf(passphrase))) {
 					return;
-				} else if (passphase.isBlank()) {
-					JOptionPane.showMessageDialog(getRootPane(), "Passphase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+				} else if (passphrase.isBlank()) {
+					JOptionPane.showMessageDialog(getRootPane(), "Passphrase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
 					return;
 
 				}
-				var _id = SignumCrypto.getInstance().getAddressFromPassphrase(passphase).getID();
+				var _id = SignumCrypto.getInstance().getAddressFromPassphrase(passphrase).getID();
 				if (!id.equals(_id)) {
-					JOptionPane.showMessageDialog(getRootPane(), "Passphase not match with account ID!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), "Passphrase not match with account ID!", "Error", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 			} else {
@@ -149,7 +149,7 @@ public class StartPanel extends JPanel {
 				}
 			}
 			var plot_dirs = Stream.of(l_m.toArray()).map(o -> Path.of(o.toString())).toList();
-			var conf_file = LocalMiner.build_conf_file(id, passphase, plot_dirs, new URL(url), null);
+			var conf_file = LocalMiner.build_conf_file(id, passphrase, plot_dirs, new URL(url), null);
 			var miner_bin = LocalMiner.copy_miner();
 			var m_p = new MinerPanel(miner_bin, conf_file);
 			m_p.setNetwork(network);

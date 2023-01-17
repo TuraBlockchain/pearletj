@@ -24,13 +24,13 @@ public class LocalMiner {
 
 	private static final String default_console_log_pattern = "{({d(%H:%M:%S)} [{l}]):16.16} {m}{n}";
 
-	public static File build_conf_file(String id, String passphase, Collection<Path> plot_dirs, URL server_url, String console_log_pattern) throws Exception {
+	public static File build_conf_file(String id, String passphrase, Collection<Path> plot_dirs, URL server_url, String console_log_pattern) throws Exception {
 		if (console_log_pattern == null || console_log_pattern.isBlank()) {
 			console_log_pattern = default_console_log_pattern;
 		}
 		Map<String, Object> m = new TreeMap<>();
-		if (id != null && passphase != null) {
-			m.put("account_id_to_secret_phrase", Collections.singletonMap(new BigInteger(id), passphase));
+		if (id != null && passphrase != null) {
+			m.put("account_id_to_secret_phrase", Collections.singletonMap(new BigInteger(id), passphrase));
 		}
 		m.put("plot_dirs", plot_dirs.stream().map(o -> o.toAbsolutePath().toString()).toList());
 		m.put("url", server_url.toString());

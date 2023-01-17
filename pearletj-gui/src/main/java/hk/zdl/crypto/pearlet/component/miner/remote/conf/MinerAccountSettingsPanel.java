@@ -74,17 +74,17 @@ public class MinerAccountSettingsPanel extends JPanel {
 	public boolean add_account() {
 		var icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var txt_field = new JTextField(30);
-		int i = JOptionPane.showConfirmDialog(getRootPane(), txt_field, "Please Enter your Passphase", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
+		int i = JOptionPane.showConfirmDialog(getRootPane(), txt_field, "Please Enter your Passphrase", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
 		if (i == JOptionPane.OK_OPTION) {
 			var phase = txt_field.getText().trim();
 			if (phase.isBlank()) {
-				JOptionPane.showMessageDialog(getRootPane(), "Passphase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), "Passphrase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
 				return false;
 			} else {
 				try {
 					var id = SignumCrypto.getInstance().getAddressFromPassphrase(phase).getID();
 					var client = new OkHttpClient();
-					var request = new Request.Builder().url(basePath + miner_account_path + "/add").post(new FormBody(Arrays.asList("id", "passphase"), Arrays.asList(id, phase))).build();
+					var request = new Request.Builder().url(basePath + miner_account_path + "/add").post(new FormBody(Arrays.asList("id", "passphrase"), Arrays.asList(id, phase))).build();
 					var response = client.newCall(request).execute();
 					if (!response.isSuccessful()) {
 						throw new Exception(response.body().string());

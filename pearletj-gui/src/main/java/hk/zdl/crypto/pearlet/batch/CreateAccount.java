@@ -37,7 +37,7 @@ public class CreateAccount {
 				sb.append(' ');
 			}
 			var phrase = sb.toString().trim();
-			var r_adr = RoturaAddress.fromPassPhase(phrase);
+			var r_adr = RoturaAddress.fromPassPhrase(phrase);
 			var id = r_adr.getID();
 			var adr = r_adr.getFullAddress();
 			writer.writeRecord(new String[] {id,adr,phrase});

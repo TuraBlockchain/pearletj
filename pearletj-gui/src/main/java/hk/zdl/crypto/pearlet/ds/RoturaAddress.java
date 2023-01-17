@@ -95,8 +95,8 @@ public class RoturaAddress {
 		return fromPublicKey(SignumCrypto.getInstance().getAddressFromPrivate(private_key).getPublicKey());
 	}
 
-	public static final RoturaAddress fromPassPhase(String passphase) {
-		return fromPublicKey(SignumCrypto.getInstance().getAddressFromPassphrase(passphase).getPublicKey());
+	public static final RoturaAddress fromPassPhrase(String passphrase) {
+		return fromPublicKey(SignumCrypto.getInstance().getAddressFromPassphrase(passphrase).getPublicKey());
 	}
 
 }
