@@ -5,12 +5,11 @@ import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -19,9 +18,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
-import javax.swing.JSlider;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -112,27 +112,17 @@ public class PlotProgressPanel extends JPanel {
 		var label_1 = new JLabel("id:");
 		panel.add(label_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, inset_5, 0, 0));
 		var combo_box_1 = new JComboBox<String>();
-		panel.add(combo_box_1, new GridBagConstraints(1, 0, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
+		panel.add(combo_box_1, new GridBagConstraints(1, 0, 2, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
 		var label_2 = new JLabel("Path:");
 		panel.add(label_2, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, inset_5, 0, 0));
 		var combo_box_2 = new JComboBox<String>();
-		panel.add(combo_box_2, new GridBagConstraints(1, 1, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
-		var label_4 = new JLabel("Nounces:");
-		panel.add(label_4, new GridBagConstraints(0, 3, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, inset_5, 0, 0));
-		var slider_1 = new JSlider(1, 100000, 1000);
-		panel.add(slider_1, new GridBagConstraints(1, 3, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
-		var label_5 = new JLabel("File Size:");
-		panel.add(label_5, new GridBagConstraints(0, 4, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, inset_5, 0, 0));
-		var label_6 = new JLabel();
-		panel.add(label_6, new GridBagConstraints(1, 4, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
-		slider_1.addChangeListener(e -> {
-			long bytes = slider_1.getValue() * 100 * byte_per_nounce;
-			var strs = new String[] { bytes + " B", BinaryByteUnit.BYTES.toKibibytes(bytes) + " KiB", BinaryByteUnit.BYTES.toMebibytes(bytes) + " MiB",
-					BinaryByteUnit.BYTES.toGibibytes(bytes) + " GiB", toTibibytesString(bytes), };
-			var str = Stream.of(strs).filter(s -> Float.parseFloat(s.split(" ")[0]) < 1024).findFirst().get();
-			label_6.setText(str);
-		});
-		slider_1.getChangeListeners()[0].stateChanged(null);
+		panel.add(combo_box_2, new GridBagConstraints(1, 1, 2, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
+		var label_4 = new JLabel("File Size:");
+		panel.add(label_4, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, inset_5, 0, 0));
+		var fz_spinner = new JSpinner(new SpinnerNumberModel(100, 1, 1024, 1));
+		var fz_op = new JComboBox<>(new String[] { "MB", "GB" });
+		panel.add(fz_spinner, new GridBagConstraints(1, 2, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
+		panel.add(fz_op, new GridBagConstraints(2, 2, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, inset_5, 0, 0));
 		Util.submit(new Callable<Void>() {
 
 			@SuppressWarnings("unchecked")
@@ -140,29 +130,54 @@ public class PlotProgressPanel extends JPanel {
 			public Void call() throws Exception {
 				combo_box_1.setModel(new ListComboBoxModel<String>(
 						new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().stream().map(String::valueOf).toList()));
-				combo_box_2.setModel(new ListComboBoxModel<String>(
-						new JSONArray(new JSONTokener(new URL(basePath + MinerPathSettingPanel.miner_file_path + "/list").openStream())).toList().stream().map(String::valueOf).toList()));
-
+				combo_box_1.getActionListeners()[0].actionPerformed(null);
 				return null;
 			}
+		});
+		combo_box_1.addActionListener(e -> {
+			Util.submit(new Callable<Void>() {
+
+				@SuppressWarnings("unchecked")
+				@Override
+				public Void call() throws Exception {
+					combo_box_2.setModel(new ListComboBoxModel<String>(
+							new JSONArray(new JSONTokener(new URL(basePath + MinerPathSettingPanel.miner_file_path + "/list?id=" + combo_box_1.getSelectedItem()).openStream())).toList().stream()
+									.map(String::valueOf).toList()));
+
+					return null;
+				}
+			});
 		});
 
 		int i = JOptionPane.showConfirmDialog(getRootPane(), panel, "Add a Plot", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.OK_OPTION && combo_box_1.getSelectedIndex() > -1 && combo_box_2.getSelectedIndex() > -1) {
+			long l = (Integer) fz_spinner.getValue();
+			if (fz_op.getSelectedItem().equals("MB")) {
+				l = BinaryByteUnit.MEBIBYTES.toBytes(l);
+			} else if (fz_op.getSelectedItem().equals("GB")) {
+				l = BinaryByteUnit.GIBIBYTES.toBytes(l);
+			}
+			l = l / byte_per_nounce;
+
+			if (l < 10) {
+				JOptionPane.showMessageDialog(getRootPane(), "File size too small!", "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
 			try {
 				card.show(top_pane, "bar");
 				var httpclient = HttpClients.createDefault();
 				var httpPost = new HttpPost(basePath + plot_path + "/add");
 				var jobj = new JSONObject();
 				jobj.put("id", new BigInteger(combo_box_1.getSelectedItem().toString()));
-				jobj.put("nounces", slider_1.getValue() * 100);
+				jobj.put("nounces", l);
 				jobj.put("target_path", combo_box_2.getSelectedItem());
 				httpPost.setEntity(new StringEntity(jobj.toString()));
 				httpPost.setHeader("Content-type", "application/json");
 				var response = httpclient.execute(httpPost);
 				if (response.getStatusLine().getStatusCode() == 200) {
 					response.close();
-					UIUtil.displayMessage("Succeed", "Plot started!", null);
+					UIUtil.displayMessage("Succeed", "Plot queued!", null);
 					Util.submit(new Callable<Void>() {
 
 						@Override
@@ -175,7 +190,7 @@ public class PlotProgressPanel extends JPanel {
 						}
 					});
 				} else {
-					var text = IOUtils.readLines(response.getEntity().getContent(), "UTF-8").get(0);
+					var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
 					response.close();
 					JOptionPane.showMessageDialog(getRootPane(), text, "Error", JOptionPane.ERROR_MESSAGE);
 				}
@@ -185,15 +200,6 @@ public class PlotProgressPanel extends JPanel {
 				card.show(top_pane, "btn");
 			}
 		}
-	}
-
-	private String toTibibytesString(long val) {
-		var str = new BigDecimal(BinaryByteUnit.BYTES.toGibibytes(val)).divide(new BigDecimal(1024)).toPlainString();
-		if (str.contains(".")) {
-			int i = str.indexOf('.');
-			str = str.substring(0, Math.min(i + 4, str.length() - 1));
-		}
-		return str + " TiB";
 	}
 
 	public void refresh_current_plots() throws Exception {
