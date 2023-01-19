@@ -184,12 +184,18 @@ public class CryptoUtil {
 						+ "&broadcast=false&feeNQT=" + toSignumValue(network, fee).toNQT() + "&publicKey=" + Hex.toHexString(public_key), MediaType.parse("application/x-www-form-urlencoded")))
 						.build();
 				var response = client.newCall(request).execute();
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				if (jobj.has("errorDescription")) {
-					throw new Exception(jobj.getString("errorDescription"));
+				var bis = response.body().byteStream();
+				try {
+					var jobj = new JSONObject(new JSONTokener(bis));
+					bis.close();
+					if (jobj.has("errorDescription")) {
+						throw new Exception(jobj.getString("errorDescription"));
+					}
+					byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+					return bArr;
+				} finally {
+					bis.close();
 				}
-				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
-				return bArr;
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -208,12 +214,17 @@ public class CryptoUtil {
 						+ "&broadcast=false&feeNQT=" + toSignumValue(network, fee).toNQT() + "&publicKey=" + Hex.toHexString(public_key), MediaType.parse("application/x-www-form-urlencoded")))
 						.build();
 				var response = client.newCall(request).execute();
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				if (jobj.has("errorDescription")) {
-					throw new Exception(jobj.getString("errorDescription"));
+				try {
+					var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+					if (jobj.has("errorDescription")) {
+						throw new Exception(jobj.getString("errorDescription"));
+					}
+					byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+					return bArr;
+				} finally {
+					response.body().byteStream().close();
+					response.body().close();
 				}
-				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
-				return bArr;
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -295,21 +306,23 @@ public class CryptoUtil {
 		var _key = Util.getProp().get("covalenthq_apikey");
 		var request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/balances_v2/?quote-currency=ETH&format=JSON&nft=true&no-nft-fetch=true&key=" + _key).build();
 		var response = _client.newCall(request).execute();
-		var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-		response.body().byteStream().close();
-		response.close();
-		if (jobj.optBoolean("error")) {
-			throw new IOException(jobj.optString("error_message"));
-		} else {
-			var items = jobj.getJSONObject("data").getJSONArray("items");
-			return items;
+		try {
+			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			if (jobj.optBoolean("error")) {
+				throw new IOException(jobj.optString("error_message"));
+			} else {
+				var items = jobj.getJSONObject("data").getJSONArray("items");
+				return items;
+			}
+		} finally {
+			response.body().byteStream().close();
+			response.close();
 		}
 	}
 
 	public static JSONArray getTxHistory(String address, int page_number, int page_size) throws Exception {
 		if (address == null || address.isBlank() || page_number < 0 || page_size < 1) {
 			throw new IllegalArgumentException();
-
 		}
 		var _key = Util.getProp().get("covalenthq_apikey");
 		var request = new Request.Builder()
@@ -343,9 +356,14 @@ public class CryptoUtil {
 								+ toSignumValue(nw, fee).toNQT() + "&publicKey=" + Hex.toHexString(senderPublicKey), MediaType.parse("application/x-www-form-urlencoded")))
 						.build();
 				var response = client.newCall(request).execute();
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
-				return bArr;
+				try {
+					var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+					byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+					return bArr;
+				} finally {
+					response.body().byteStream().close();
+					response.body().close();
+				}
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -380,9 +398,14 @@ public class CryptoUtil {
 								MediaType.parse("application/x-www-form-urlencoded")))
 						.build();
 				var response = client.newCall(request).execute();
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
-				return bArr;
+				try {
+					var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+					byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+					return bArr;
+				} finally {
+					response.body().byteStream().close();
+					response.body().close();
+				}
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -489,9 +512,14 @@ public class CryptoUtil {
 								+ "&deadline=1440&messageIsText=true&feeNQT=2205000&publicKey=" + Hex.toHexString(public_key), MediaType.parse("application/x-www-form-urlencoded")))
 						.build();
 				var response = client.newCall(request).execute();
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
-				return bArr;
+				try {
+					var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+					byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+					return bArr;
+				} finally {
+					response.body().byteStream().close();
+					response.body().close();
+				}
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -515,12 +543,17 @@ public class CryptoUtil {
 								MediaType.parse("application/x-www-form-urlencoded")))
 						.build();
 				var response = client.newCall(request).execute();
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				if (jobj.optInt("errorCode", 0) != 0) {
-					throw new IOException(jobj.optString("errorDescription"));
+				try {
+					var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+					if (jobj.optInt("errorCode", 0) != 0) {
+						throw new IOException(jobj.optString("errorDescription"));
+					}
+					byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+					return bArr;
+				} finally {
+					response.body().byteStream().close();
+					response.body().close();
 				}
-				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
-				return bArr;
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -543,12 +576,17 @@ public class CryptoUtil {
 								MediaType.parse("application/x-www-form-urlencoded")))
 						.build();
 				var response = client.newCall(request).execute();
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-				if (jobj.optInt("errorCode", 0) != 0) {
-					throw new IOException(jobj.optString("errorDescription"));
+				try {
+					var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+					if (jobj.optInt("errorCode", 0) != 0) {
+						throw new IOException(jobj.optString("errorDescription"));
+					}
+					byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+					return bArr;
+				} finally {
+					response.body().byteStream().close();
+					response.body().close();
 				}
-				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
-				return bArr;
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -681,7 +719,7 @@ public class CryptoUtil {
 		if (opt.isEmpty()) {
 			List<String> nws = Arrays.asList();
 			try {
-				nws = IOUtils.readLines(Util.getResourceAsStream("network/" + network.name().toLowerCase() + ".txt"), "UTF-8");
+				nws = IOUtils.readLines(Util.getResourceAsStream("network/" + network.name().toLowerCase() + ".txt"), Charset.defaultCharset());
 			} catch (IOException e) {
 			}
 			if (!nws.isEmpty()) {
@@ -725,18 +763,23 @@ public class CryptoUtil {
 							MediaType.parse("application/x-www-form-urlencoded")))
 					.build();
 			var response = client.newCall(request).execute();
-			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-			if (jobj.optInt("errorCode", 0) != 0) {
-				throw new IOException(jobj.optString("errorDescription"));
+			try {
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				if (jobj.optInt("errorCode", 0) != 0) {
+					throw new IOException(jobj.optString("errorDescription"));
+				}
+				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
+				return bArr;
+			} finally {
+				response.body().byteStream().close();
+				response.body().close();
 			}
-			byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
-			return bArr;
 		}
 		throw new IllegalArgumentException();
 	}
 
 	public static final Optional<String> getRewardRecipient(CrptoNetworks network, String account) throws Exception {
-		if(account==null||account.isBlank()) {
+		if (account == null || account.isBlank()) {
 			return Optional.empty();
 		}
 		Optional<String> opt = get_server_url(network);
@@ -748,16 +791,20 @@ public class CryptoUtil {
 			var client = new OkHttpClient.Builder().build();
 			var request = new Request.Builder().url(server_url + "burst?requestType=getRewardRecipient&account=" + account).get().build();
 			var response = client.newCall(request).execute();
-			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
-			response.close();
-			if (jobj.optInt("errorCode", 0) == 5) {// Unknown account
+			try {
+				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				if (jobj.optInt("errorCode", 0) == 5) {// Unknown account
+					return Optional.empty();
+				} else if (jobj.has("errorDescription")) {
+					throw new Exception(jobj.getString("errorDescription"));
+				} else if (jobj.has("rewardRecipient")) {
+					return Optional.of(jobj.getString("rewardRecipient"));
+				}
 				return Optional.empty();
-			} else if (jobj.has("errorDescription")) {
-				throw new Exception(jobj.getString("errorDescription"));
-			} else if (jobj.has("rewardRecipient")) {
-				return Optional.of(jobj.getString("rewardRecipient"));
+			} finally {
+				response.body().byteStream().close();
+				response.close();
 			}
-			return Optional.empty();
 		}
 		throw new IllegalArgumentException();
 	}

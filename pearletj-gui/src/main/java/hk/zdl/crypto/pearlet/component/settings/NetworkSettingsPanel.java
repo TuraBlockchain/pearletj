@@ -10,6 +10,7 @@ import java.awt.Insets;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class NetworkSettingsPanel extends JPanel {
 		panel.add(btn, new GridBagConstraints(3, 1, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
 		List<String> nws = Arrays.asList();
 		try {
-			nws = IOUtils.readLines(Util.getResourceAsStream("network/" + network_name.name().toLowerCase() + ".txt"), "UTF-8");
+			nws = IOUtils.readLines(Util.getResourceAsStream("network/" + network_name.name().toLowerCase() + ".txt"), Charset.defaultCharset());
 		} catch (IOException e) {
 		}
 		combo_box.setModel(new ListComboBoxModel<String>(nws));

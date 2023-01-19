@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -28,7 +27,7 @@ public class LocalMiner {
 		if (console_log_pattern == null || console_log_pattern.isBlank()) {
 			console_log_pattern = default_console_log_pattern;
 		}
-		Map<String, Object> m = new TreeMap<>();
+		var m = new TreeMap<>();
 		if (id != null && passphrase != null) {
 			m.put("account_id_to_secret_phrase", Collections.singletonMap(new BigInteger(id), passphrase));
 		}
@@ -36,6 +35,7 @@ public class LocalMiner {
 		m.put("url", server_url.toString());
 		m.put("cpu_worker_task_count", Runtime.getRuntime().availableProcessors());
 		m.put("console_log_pattern", console_log_pattern);
+		m.put("show_progress", false);
 		File conf_file = File.createTempFile("config-", ".yaml");
 		conf_file.deleteOnExit();
 		Files.writeString(conf_file.toPath(), new Yaml().dump(m));
@@ -43,7 +43,7 @@ public class LocalMiner {
 	}
 
 	public static Process build_process(File miner_bin, File conf_file) throws Exception {
-		return new ProcessBuilder(miner_bin.getAbsolutePath(), "-c", conf_file.getAbsolutePath()).start();
+		return new ProcessBuilder(miner_bin.getAbsolutePath(), "-c", conf_file.getAbsolutePath()).directory(Files.createTempDirectory(String.valueOf(System.currentTimeMillis())).toFile()).start();
 	}
 
 	public static File copy_miner() throws IOException {

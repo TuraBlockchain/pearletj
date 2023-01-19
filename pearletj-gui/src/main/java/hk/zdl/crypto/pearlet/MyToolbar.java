@@ -18,7 +18,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
-import org.json.JSONTokener;
 
 import com.formdev.flatlaf.extras.FlatDesktop;
 import com.formdev.flatlaf.extras.FlatDesktop.QuitResponse;
@@ -51,7 +50,7 @@ public class MyToolbar extends JScrollPane {
 
 	private void init_buttons() {
 		var btn_gp = new ButtonGroup();
-		JSONArray jarr = new JSONArray(new JSONTokener(Util.getResourceAsStream("toolbar.json")));
+		JSONArray jarr = new JSONArray(Util.getResourceAsText("toolbar.json"));
 		for (int i = 0; i < jarr.length(); i++) {
 			String id = jarr.getJSONObject(i).getString("id");
 			String text = jarr.getJSONObject(i).getString("text");
@@ -67,7 +66,6 @@ public class MyToolbar extends JScrollPane {
 			btn_gp.add(btn);
 			panel.add(btn);
 		}
-
 	}
 
 	private void set_callbacks() {
@@ -86,6 +84,6 @@ public class MyToolbar extends JScrollPane {
 	}
 
 	public static final Icon getIcon(String str) {
-		return  UIUtil.getStretchIcon("toolbar/" + str, 32, 32);
+		return UIUtil.getStretchIcon("toolbar/" + str, 32, 32);
 	}
 }

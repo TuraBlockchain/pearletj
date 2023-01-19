@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -20,6 +21,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
 import com.jfinal.kit.Prop;
@@ -100,6 +102,22 @@ public class Util {
 			text = getProp().get("appVersion");
 		}
 		return text;
+	}
+
+	public static final String getResourceAsText(String path) {
+		try {
+			return IOUtils.toString(Util.class.getClassLoader().getResourceAsStream(path), Charset.defaultCharset());
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	public static final byte[] getResourceAsByteArray(String path) {
+		try {
+			return IOUtils.toByteArray(Util.class.getClassLoader().getResourceAsStream(path));
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public static final InputStream getResourceAsStream(String path) {
