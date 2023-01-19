@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
 import java.awt.SplashScreen;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
@@ -67,21 +69,24 @@ public class UIUtil {
 	}
 
 	public static final void displayMessage(String title, String message, MessageType messageType) {
+		if (SystemInfo.isMacOS) {
+			java.awt.Toolkit.getDefaultToolkit().beep();
+		}
 		if (SystemInfo.isLinux) {
 			try {
 				new ProcessBuilder("zenity", "--notification", "--title=" + title, "--text=" + message).start().waitFor();
 			} catch (Exception e) {
 			}
-		} else if (SystemInfo.isMacOS) {
-			try {
-				new ProcessBuilder("osascript", "-e", "display notification \"" + message + "\"" + " with title \"" + title + "\" sound name \"\"").start();
-				java.awt.Toolkit.getDefaultToolkit().beep();
-			} catch (Exception e) {
-			}
 		} else if (SystemTray.isSupported()) {
 			if (SystemTray.getSystemTray().getTrayIcons().length < 1) {
 				try {
-					TrayIcon trayIcon = new TrayIcon(ImageIO.read(UIUtil.class.getClassLoader().getResource("app_icon.png")));
+					var quit_menu_item = new MenuItem("Quit");
+					quit_menu_item.addActionListener((e) -> {
+						System.exit(0);
+					});
+					var menu = new PopupMenu();
+					menu.add(quit_menu_item);
+					TrayIcon trayIcon = new TrayIcon(ImageIO.read(Util.getResource("app_icon.png")), Util.getProp().get("appName"), menu);
 					trayIcon.setImageAutoSize(true);
 					SystemTray.getSystemTray().add(trayIcon);
 				} catch (Exception e) {
