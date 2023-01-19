@@ -1,5 +1,7 @@
 package hk.zdl.crypto.pearlet.component.miner.remote;
 
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -26,7 +28,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSpinner;
@@ -191,11 +192,17 @@ final class StartPanel extends JPanel {
 	}
 
 	private void addMinerDetailPane(String base_path) throws Exception {
-		var jobj = new JSONObject(new JSONTokener(new URL(base_path + StatusPane.miner_status_path).openStream()));
-		MinerDetailPane pane = new MinerDetailPane();
-		pane.setBasePath(base_path);
-		pane.setStatus(jobj);
-		this.pane.insertTab("Miner", getIcon(), pane, base_path, this.pane.getTabCount());
+		var in = new URL(base_path + StatusPane.miner_status_path).openStream();
+		try {
+			var jobj = new JSONObject(new JSONTokener(in));
+			jobj.get("version");
+			MinerDetailPane pane = new MinerDetailPane();
+			pane.setBasePath(base_path);
+			pane.setStatus(jobj);
+			this.pane.insertTab("Miner", getIcon(), pane, base_path, this.pane.getTabCount());
+		} finally {
+			in.close();
+		}
 	}
 
 	private static final Icon getIcon() {

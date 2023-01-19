@@ -1,5 +1,7 @@
 package hk.zdl.crypto.pearlet.component.miner.remote.conf;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -7,9 +9,10 @@ import java.net.URL;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
@@ -30,18 +33,27 @@ public class MinerPathSettingPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = -718519273950546176L;
 	public static final String miner_file_path = "/api/v1/miner_path";
-	private final JComboBox<String> acc_cbox = new JComboBox<String>();
+	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
+
+	private final JList<String> path_list = new JList<>();
 	private final JButton add_btn = new JButton("Add");
 	private final JButton del_btn = new JButton("Del");
+	private String id = "";
 
 	private String basePath = "";
 
 	public MinerPathSettingPanel() {
-		super(new GridBagLayout());
+		super(new BorderLayout());
 		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Miner Path", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
-		add(acc_cbox, new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.WEST, 1, new Insets(5, 5, 5, 5), 0, 0));
-		add(add_btn, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, 0, new Insets(5, 5, 5, 5), 0, 0));
-		add(del_btn, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, 0, new Insets(5, 5, 5, 5), 0, 0));
+		add(new JScrollPane(path_list), BorderLayout.CENTER);
+		var btn_panel = new JPanel(new GridBagLayout());
+		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		btn_panel.add(del_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+
+		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
+		panel_1.add(btn_panel);
+		add(panel_1, BorderLayout.EAST);
+
 		add_btn.addActionListener(e -> {
 			if (add_miner_path()) {
 				try {
@@ -64,10 +76,14 @@ public class MinerPathSettingPanel extends JPanel {
 		this.basePath = basePath;
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	@SuppressWarnings("unchecked")
 	public void refresh_list() throws Exception {
-		var l = new JSONArray(new JSONTokener(new URL(basePath + miner_file_path + "/list").openStream())).toList().stream().map(o -> o.toString()).toList();
-		acc_cbox.setModel(new ListComboBoxModel<String>(l));
+		var l = new JSONArray(new JSONTokener(new URL(basePath + miner_file_path + "/list?id=" + id).openStream())).toList().stream().map(o -> o.toString()).toList();
+		path_list.setModel(new ListComboBoxModel<String>(l));
 	}
 
 	public boolean add_miner_path() {
@@ -100,7 +116,7 @@ public class MinerPathSettingPanel extends JPanel {
 	}
 
 	public boolean del_miner_path() {
-		if (acc_cbox.getSelectedIndex() < 0) {
+		if (path_list.getSelectedIndex() < 0) {
 			return false;
 		}
 		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete it?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -108,7 +124,7 @@ public class MinerPathSettingPanel extends JPanel {
 			try {
 				var httpclient = HttpClients.createDefault();
 				var httpPost = new HttpPost(basePath + miner_file_path + "/del");
-				httpPost.setEntity(new StringEntity(acc_cbox.getSelectedItem().toString()));
+				httpPost.setEntity(new StringEntity(path_list.getSelectedValue()));
 				var response = httpclient.execute(httpPost);
 				response.close();
 				if (response.getStatusLine().getStatusCode() == 200) {

@@ -1,5 +1,7 @@
 package hk.zdl.crypto.pearlet.component.miner.remote.conf;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -8,11 +10,13 @@ import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionListener;
 
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
@@ -32,17 +36,26 @@ public class MinerAccountSettingsPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = -1698208979389357636L;
 	public static final String miner_account_path = "/api/v1/miner/configure/account";
-	private final JComboBox<String> acc_cbox = new JComboBox<String>();
+	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
+
+	private final JList<String> acc_list = new JList<>();
 	private final JButton add_btn = new JButton("Add");
 	private final JButton del_btn = new JButton("Del");
 	private String basePath = "";
 
 	public MinerAccountSettingsPanel() {
-		super(new GridBagLayout());
+		super(new BorderLayout());
 		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Miner Account", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
-		add(acc_cbox, new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.WEST, 1, new Insets(5, 5, 5, 5), 0, 0));
-		add(add_btn, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, 0, new Insets(5, 5, 5, 5), 0, 0));
-		add(del_btn, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, 0, new Insets(5, 5, 5, 5), 0, 0));
+		add(new JScrollPane(acc_list), BorderLayout.CENTER);
+
+		var btn_panel = new JPanel(new GridBagLayout());
+		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		btn_panel.add(del_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+
+		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
+		panel_1.add(btn_panel);
+		add(panel_1, BorderLayout.EAST);
+
 		add_btn.addActionListener(e -> {
 			if (add_account()) {
 				try {
@@ -65,10 +78,20 @@ public class MinerAccountSettingsPanel extends JPanel {
 		this.basePath = basePath;
 	}
 
+	public void addListSelectionListener(ListSelectionListener listener) {
+		acc_list.addListSelectionListener(listener);
+	}
+
 	@SuppressWarnings("unchecked")
 	public void refresh_list() throws Exception {
 		var l = new JSONArray(new JSONTokener(new URL(basePath + miner_account_path).openStream())).toList().stream().map(o -> o.toString()).toList();
-		acc_cbox.setModel(new ListComboBoxModel<String>(l));
+		var str = acc_list.getSelectedValue();
+		acc_list.setModel(new ListComboBoxModel<String>(l));
+		if (str != null) {
+			if(l.contains(str)) {
+				acc_list.setSelectedValue(str, false);
+			}
+		}
 	}
 
 	public boolean add_account() {
@@ -100,13 +123,13 @@ public class MinerAccountSettingsPanel extends JPanel {
 	}
 
 	public boolean del_account() {
-		if (acc_cbox.getSelectedIndex() < 0) {
+		if (acc_list.getSelectedIndex() < 0) {
 			return false;
 		}
 		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this account?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.YES_OPTION) {
 			try {
-				var id = acc_cbox.getSelectedItem().toString();
+				var id = acc_list.getSelectedValue();
 				var client = new OkHttpClient();
 				var request = new Request.Builder().url(basePath + miner_account_path + "/del").post(new FormBody(Arrays.asList("id"), Arrays.asList(id))).build();
 				var response = client.newCall(request).execute();

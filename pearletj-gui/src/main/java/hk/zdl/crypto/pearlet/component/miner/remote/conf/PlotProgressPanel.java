@@ -8,12 +8,10 @@ import java.awt.Insets;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
-import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -22,13 +20,10 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
-import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
@@ -43,7 +38,6 @@ import org.json.JSONTokener;
 
 import com.jakewharton.byteunits.BinaryByteUnit;
 
-import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -76,7 +70,6 @@ public class PlotProgressPanel extends JPanel {
 
 	public PlotProgressPanel() {
 		super(new BorderLayout());
-		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Plot", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
 		init_table();
 		top_pane.add("btn", add_btn);
 		var bar = new JProgressBar();
@@ -122,10 +115,6 @@ public class PlotProgressPanel extends JPanel {
 		panel.add(label_2, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, inset_5, 0, 0));
 		var combo_box_2 = new JComboBox<String>();
 		panel.add(combo_box_2, new GridBagConstraints(1, 1, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
-		var label_3 = new JLabel("Start Nounce:");
-		panel.add(label_3, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, inset_5, 0, 0));
-		var spinner_1 = new JSpinner(new SpinnerNumberModel(Math.abs(new Random().nextInt()), 1, Integer.MAX_VALUE, 1));
-		panel.add(spinner_1, new GridBagConstraints(1, 2, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
 		var label_4 = new JLabel("Nounces:");
 		panel.add(label_4, new GridBagConstraints(0, 3, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, inset_5, 0, 0));
 		var slider_1 = new JSlider(1, 100000, 1000);
@@ -164,7 +153,6 @@ public class PlotProgressPanel extends JPanel {
 				var httpPost = new HttpPost(basePath + plot_path + "/add");
 				var jobj = new JSONObject();
 				jobj.put("id", new BigInteger(combo_box_1.getSelectedItem().toString()));
-				jobj.put("start_nounce", spinner_1.getValue());
 				jobj.put("nounces", slider_1.getValue() * 100);
 				jobj.put("target_path", combo_box_2.getSelectedItem());
 				httpPost.setEntity(new StringEntity(jobj.toString()));

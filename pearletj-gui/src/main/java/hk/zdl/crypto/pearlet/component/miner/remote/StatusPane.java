@@ -7,13 +7,9 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.math.BigDecimal;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
@@ -21,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.Timer;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
@@ -46,7 +41,6 @@ final class StatusPane extends JPanel implements ActionListener {
 	private final JPanel mining_detail_panel = new JPanel(new BorderLayout(5, 5));
 	private final ChartPanel memory_usage_panel = new ChartPanel(ChartFactory.createPieChart("Memory Usage", new DefaultPieDataset<String>(), true, true, false));
 	private final DefaultTableModel mining_table_model = new DefaultTableModel(5, 2);
-	private final Timer timer = new Timer((int) TimeUnit.SECONDS.toMillis(10), this);
 	private JSONObject status;
 	private String basePath = "";
 
@@ -69,13 +63,6 @@ final class StatusPane extends JPanel implements ActionListener {
 			plot.setOutlinePaint(null);
 		});
 		init_mining_panel();
-		addComponentListener(new ComponentAdapter() {
-
-			@Override
-			public void componentShown(ComponentEvent e) {
-				timer.start();
-			}
-		});
 	}
 
 	@SuppressWarnings("serial")
@@ -99,10 +86,10 @@ final class StatusPane extends JPanel implements ActionListener {
 		table.setTableHeader(null);
 		table.setShowGrid(true);
 		mining_table_model.setValueAt("Start Time", 0, 0);
-		mining_table_model.setValueAt("Block Height", 1, 0);
-		mining_table_model.setValueAt("Scoop", 2, 0);
-		mining_table_model.setValueAt("Speed", 3, 0);
-		mining_table_model.setValueAt("Round Time", 4, 0);
+		mining_table_model.setValueAt("Accounts", 1, 0);
+		mining_table_model.setValueAt("Total no. of plot files", 2, 0);
+		mining_table_model.setValueAt("Total size of plot files", 3, 0);
+		mining_table_model.setValueAt("Version", 4, 0);
 	}
 
 	public void setStatus(JSONObject status) {
@@ -114,20 +101,19 @@ final class StatusPane extends JPanel implements ActionListener {
 	}
 
 	private void set_mining_table() {
-		mining_table_model.setValueAt(status.getJSONObject("miner").get("height"), 1, 1);
-		mining_table_model.setValueAt(status.getJSONObject("miner").get("scoop"), 2, 1);
-		mining_table_model.setValueAt(status.getJSONObject("miner").get("speed"), 3, 1);
-		mining_table_model.setValueAt(status.getJSONObject("miner").get("roundtime"), 4, 1);
-		var start_time = new Date(status.getLong("start_time"));
+		var start_time = new Date(status.optLong("start_time"));
 		mining_table_model.setValueAt(sdf.format(start_time), 0, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner").optInt("account_count"), 1, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner").optInt("plot_file_count"), 2, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner").optInt("plot_file_size"), 3, 1);
+		mining_table_model.setValueAt(status.opt("version"), 4, 1);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void set_disk_usage() {
 		long total = status.getJSONObject("disk").getLong("size");
 		long used = status.getJSONObject("disk").getLong("used");
-		var _plot_size = status.getJSONObject("miner").getString("total capacity").replace(" TiB", "").trim();
-		long plot_size = new BigDecimal(_plot_size).multiply(new BigDecimal("2").pow(30)).longValue();
+		long plot_size = 0;
 		long system_used = used - plot_size;
 
 		var chart = disk_usage_panel.getChart();
@@ -143,10 +129,10 @@ final class StatusPane extends JPanel implements ActionListener {
 
 	@SuppressWarnings({ "unchecked", "unused" })
 	private void set_memory_usage() {
-		var mem = status.getJSONObject("memory");
-		long total = mem.getLong("total");
-		long free = mem.getLong("free");
-		long used = mem.getLong("used");
+		var mem = status.optJSONObject("memory");
+		long total = mem.optLong("total");
+		long free = mem.optLong("free");
+		long used = mem.optLong("used");
 
 		var chart = memory_usage_panel.getChart();
 		var plot = (PiePlot<String>) chart.getPlot();
@@ -159,8 +145,8 @@ final class StatusPane extends JPanel implements ActionListener {
 	}
 
 	private void set_temp_panel() {
-		int cpu_temp = status.getInt("CPU Temp");
-		int disk_temp = status.getJSONObject("disk").optInt("temp_cel");
+		int cpu_temp = status.optInt("CPU Temp");
+		int disk_temp = status.optJSONObject("disk").optInt("temp_cel");
 		var chart = temp_panel.getChart();
 		var plot = chart.getCategoryPlot();
 		var dataset = new DefaultCategoryDataset();
@@ -177,15 +163,14 @@ final class StatusPane extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			setStatus(new JSONObject(new JSONTokener(new URL(basePath + miner_status_path).openStream())));
+			var in = new URL(basePath + miner_status_path).openStream();
+			try {
+				setStatus(new JSONObject(new JSONTokener(in)));
+			} finally {
+				in.close();
+			}
 		} catch (Exception x) {
 		}
-	}
-
-	@Override
-	public void removeNotify() {
-		super.removeNotify();
-		timer.stop();
 	}
 
 	@Override
