@@ -101,18 +101,20 @@ final class StatusPane extends JPanel implements ActionListener {
 	}
 
 	private void set_mining_table() {
+		var o = new JSONObject();
 		var start_time = new Date(status.optLong("start time"));
 		mining_table_model.setValueAt(sdf.format(start_time), 0, 1);
-		mining_table_model.setValueAt(status.optJSONObject("miner").optInt("account count"), 1, 1);
-		mining_table_model.setValueAt(status.optJSONObject("miner").optInt("plot file count"), 2, 1);
-		mining_table_model.setValueAt(status.optJSONObject("miner").optString("plot file size", "0") + " TiB", 3, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner", o).optInt("account count"), 1, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner", o).optInt("plot file count"), 2, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner", o).optString("plot file size", "0") + " TiB", 3, 1);
 		mining_table_model.setValueAt(status.opt("version"), 4, 1);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void set_disk_usage() {
-		long total = status.getJSONObject("disk").getLong("size");
-		long used = status.getJSONObject("disk").getLong("used");
+		var o = new JSONObject();
+		long total = status.optJSONObject("disk", o).optLong("size");
+		long used = status.optJSONObject("disk", o).optLong("used");
 		long plot_size = 0;
 		long system_used = used - plot_size;
 
@@ -129,7 +131,7 @@ final class StatusPane extends JPanel implements ActionListener {
 
 	@SuppressWarnings({ "unchecked", "unused" })
 	private void set_memory_usage() {
-		var mem = status.optJSONObject("memory");
+		var mem = status.optJSONObject("memory", new JSONObject());
 		long total = mem.optLong("total");
 		long free = mem.optLong("free");
 		long used = mem.optLong("used");
@@ -146,7 +148,7 @@ final class StatusPane extends JPanel implements ActionListener {
 
 	private void set_temp_panel() {
 		int cpu_temp = status.optInt("CPU Temp");
-		int disk_temp = status.optJSONObject("disk").optInt("temp_cel");
+		int disk_temp = status.optJSONObject("disk", new JSONObject()).optInt("temp_cel");
 		var chart = temp_panel.getChart();
 		var plot = chart.getCategoryPlot();
 		var dataset = new DefaultCategoryDataset();
