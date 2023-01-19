@@ -187,6 +187,7 @@
 					<dmg>
 						<generate>true</generate>
 						<autoFallback>true</autoFallback>
+						<dmgFileName>${project.artifactId}</dmgFileName>
 					</dmg>
 				</configuration>
 				<executions>
