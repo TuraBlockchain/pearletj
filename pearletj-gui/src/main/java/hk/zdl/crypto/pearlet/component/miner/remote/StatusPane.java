@@ -101,11 +101,11 @@ final class StatusPane extends JPanel implements ActionListener {
 	}
 
 	private void set_mining_table() {
-		var start_time = new Date(status.optLong("start_time"));
+		var start_time = new Date(status.optLong("start time"));
 		mining_table_model.setValueAt(sdf.format(start_time), 0, 1);
-		mining_table_model.setValueAt(status.optJSONObject("miner").optInt("account_count"), 1, 1);
-		mining_table_model.setValueAt(status.optJSONObject("miner").optInt("plot_file_count"), 2, 1);
-		mining_table_model.setValueAt(status.optJSONObject("miner").optInt("plot_file_size"), 3, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner").optInt("account count"), 1, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner").optInt("plot file count"), 2, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner").optString("plot file size", "0") + " TiB", 3, 1);
 		mining_table_model.setValueAt(status.opt("version"), 4, 1);
 	}
 

@@ -1,4 +1,4 @@
-package hk.zdl.crypto.pearlet.component.miner.remote.conf;
+package hk.zdl.crypto.pearlet.component.miner.remote;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -38,6 +38,8 @@ import org.json.JSONTokener;
 
 import com.jakewharton.byteunits.BinaryByteUnit;
 
+import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerAccountSettingsPanel;
+import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerPathSettingPanel;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -195,7 +197,9 @@ public class PlotProgressPanel extends JPanel {
 	}
 
 	public void refresh_current_plots() throws Exception {
-		var jarr = new JSONArray(new JSONTokener(new URL(basePath + plot_path + "/list").openStream()));
+		var in = new URL(basePath + plot_path + "/list").openStream();
+		var jarr = new JSONArray(new JSONTokener(in));
+		in.close();
 		var model = (DefaultTableModel) table.getModel();
 		model.setRowCount(jarr.length() * 2);
 		for (int i = 0; i < jarr.length(); i++) {
