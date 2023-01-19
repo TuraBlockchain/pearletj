@@ -48,7 +48,7 @@ public class MinerStateTableModel extends AbstractTableModel {
 		case 6:
 			return jobj.opt("roundtime");
 		case 7:
-			return jobj.opt("speed");
+			return jobj.optString("speed","").replace("inf", "∞");
 		case 8:
 			return jobj.opt("height");
 		case 9:
