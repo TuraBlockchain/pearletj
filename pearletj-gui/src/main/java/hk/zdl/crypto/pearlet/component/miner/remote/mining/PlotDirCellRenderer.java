@@ -27,7 +27,7 @@ public class PlotDirCellRenderer extends DefaultTableCellRenderer {
 					sb.append(jarr.getString(i));
 					sb.append('\n');
 				}
-				setToolTipText(sb.toString());
+				setToolTipText(sb.toString().trim());
 			}
 		}
 		return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
