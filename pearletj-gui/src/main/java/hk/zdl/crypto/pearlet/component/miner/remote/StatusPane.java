@@ -147,7 +147,7 @@ final class StatusPane extends JPanel implements ActionListener {
 	}
 
 	private void set_temp_panel() {
-		int cpu_temp = status.optInt("CPU Temp");
+		int cpu_temp = status.optJSONObject("cpu", new JSONObject()).optInt("temp_cel");
 		int disk_temp = status.optJSONObject("disk", new JSONObject()).optInt("temp_cel");
 		var chart = temp_panel.getChart();
 		var plot = chart.getCategoryPlot();
