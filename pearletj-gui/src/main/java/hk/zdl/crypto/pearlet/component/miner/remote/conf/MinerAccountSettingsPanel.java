@@ -7,6 +7,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.concurrent.Callable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -29,6 +30,7 @@ import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 import signumj.crypto.SignumCrypto;
 
 public class MinerAccountSettingsPanel extends JPanel {
@@ -58,22 +60,26 @@ public class MinerAccountSettingsPanel extends JPanel {
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
 
-		add_btn.addActionListener(e -> {
-			if (add_account()) {
-				try {
+		add_btn.addActionListener(e -> Util.submit(new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				if (add_account()) {
 					refresh_list();
-				} catch (Exception x) {
 				}
+				return null;
 			}
-		});
-		del_btn.addActionListener(e -> {
-			if (del_account()) {
-				try {
+		}));
+		del_btn.addActionListener(e -> Util.submit(new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				if (del_account()) {
 					refresh_list();
-				} catch (Exception x) {
 				}
+				return null;
 			}
-		});
+		}));
 	}
 
 	public void setBasePath(String basePath) {
@@ -90,7 +96,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 		var str = acc_list.getSelectedValue();
 		acc_list.setModel(new ListComboBoxModel<String>(l));
 		if (str != null) {
-			if(l.contains(str)) {
+			if (l.contains(str)) {
 				acc_list.setSelectedValue(str, false);
 			}
 		}
@@ -119,7 +125,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 					if (response.getStatusLine().getStatusCode() != 200) {
 						var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
 						response.close();
-						throw new Exception(text);
+						throw new IllegalArgumentException(text);
 					}
 				} catch (Exception x) {
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
@@ -149,7 +155,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 				if (response.getStatusLine().getStatusCode() != 200) {
 					var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
 					response.close();
-					throw new Exception(text);
+					throw new IllegalArgumentException(text);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);

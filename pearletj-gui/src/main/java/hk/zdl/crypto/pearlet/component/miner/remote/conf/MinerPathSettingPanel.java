@@ -6,6 +6,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.concurrent.Callable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -16,15 +18,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class MinerPathSettingPanel extends JPanel {
 
@@ -54,22 +59,27 @@ public class MinerPathSettingPanel extends JPanel {
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
 
-		add_btn.addActionListener(e -> {
-			if (add_miner_path()) {
-				try {
+		add_btn.addActionListener(e -> Util.submit(new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				if (add_miner_path()) {
 					refresh_list();
-				} catch (Exception x) {
 				}
+				return null;
 			}
-		});
-		del_btn.addActionListener(e -> {
-			if (del_miner_path()) {
-				try {
+		}));
+		del_btn.addActionListener(e -> Util.submit(new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				if (del_miner_path()) {
 					refresh_list();
-				} catch (Exception x) {
 				}
+				return null;
 			}
-		});
+		}));
+
 	}
 
 	public void setBasePath(String basePath) {
@@ -97,13 +107,18 @@ public class MinerPathSettingPanel extends JPanel {
 				return false;
 			} else {
 				try {
-					var httpclient = HttpClients.createDefault();
 					var httpPost = new HttpPost(basePath + miner_file_path + "/add");
-					httpPost.setEntity(new StringEntity(path));
+					var jobj = new JSONObject();
+					jobj.put("id", id);
+					jobj.put("path", path);
+					httpPost.setEntity(new StringEntity(jobj.toString()));
+					httpPost.setHeader("Content-type", "application/json");
+					var httpclient = HttpClients.createDefault();
 					var response = httpclient.execute(httpPost);
-					response.close();
-					if (response.getStatusLine().getStatusCode() == 200) {
-						UIUtil.displayMessage("Succeed", "Add miner path succeed!", null);
+					if (response.getStatusLine().getStatusCode() != 200) {
+						var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
+						response.close();
+						throw new IllegalArgumentException(text);
 					}
 				} catch (Exception x) {
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
@@ -122,13 +137,18 @@ public class MinerPathSettingPanel extends JPanel {
 		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete it?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.YES_OPTION) {
 			try {
-				var httpclient = HttpClients.createDefault();
 				var httpPost = new HttpPost(basePath + miner_file_path + "/del");
-				httpPost.setEntity(new StringEntity(path_list.getSelectedValue()));
+				var jobj = new JSONObject();
+				jobj.put("id", id);
+				jobj.put("path", path_list.getSelectedValue());
+				httpPost.setEntity(new StringEntity(jobj.toString()));
+				httpPost.setHeader("Content-type", "application/json");
+				var httpclient = HttpClients.createDefault();
 				var response = httpclient.execute(httpPost);
-				response.close();
-				if (response.getStatusLine().getStatusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Deleted.", null);
+				if (response.getStatusLine().getStatusCode() != 200) {
+					var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
+					response.close();
+					throw new IllegalArgumentException(text);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
