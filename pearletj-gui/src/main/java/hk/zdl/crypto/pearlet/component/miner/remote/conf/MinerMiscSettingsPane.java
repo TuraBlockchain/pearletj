@@ -60,7 +60,7 @@ public class MinerMiscSettingsPane extends JPanel {
 	}
 
 	public void update_server_address() throws Exception {
-		var line = IOUtils.readLines(new URL(basePath + miner_conf_serv_u_path).openStream(), Charset.defaultCharset()).get(0);
+		var line = IOUtils.readLines(new URL(basePath + miner_conf_serv_u_path).openStream(), Charset.defaultCharset()).stream().findFirst().orElseGet(()->"");
 		server_url_field.setText(line);
 	}
 }

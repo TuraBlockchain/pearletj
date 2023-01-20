@@ -27,7 +27,7 @@ public class CreateAccount {
 			fn = args[1];
 		}
 		var out = new FileOutputStream(new File(fn));
-		var writer = new CsvWriter(out, ',', Charset.forName("UTF-8"));
+		var writer = new CsvWriter(out, ',', Charset.defaultCharset());
 		writer.writeRecord(new String[] { "id", "address", "phrase" });
 		var rand = new Random();
 		for (var i = 0; i < count; i++) {

@@ -47,7 +47,7 @@ public class ExportAccountTable {
 		}
 		try {
 			var out = new FileOutputStream(file);
-			var writer = new CsvWriter(out, ',', Charset.forName("UTF-8"));
+			var writer = new CsvWriter(out, ',', Charset.defaultCharset());
 			var col_name = new String[m.getColumnCount()];
 			for (int i = 0; i < col_name.length; i++) {
 				col_name[i] = m.getColumnName(i);

@@ -1,6 +1,7 @@
 package hk.zdl.crypto.pearlet.util;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -11,7 +12,7 @@ import org.apache.commons.io.IOUtils;
 public class SetCapPermission {
 
 	public static void main(String[] args) throws Throwable{
-		var str = IOUtils.readLines(new ProcessBuilder("which","java").start().getInputStream(),"UTF-8").get(0);
+		var str = IOUtils.readLines(new ProcessBuilder("which","java").start().getInputStream(),Charset.defaultCharset()).get(0);
 		var path = Paths.get(str);
 		while(true) {
 			try {

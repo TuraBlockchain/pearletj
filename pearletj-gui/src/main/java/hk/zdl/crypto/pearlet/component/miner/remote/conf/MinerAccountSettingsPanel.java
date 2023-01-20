@@ -6,7 +6,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.net.URL;
-import java.util.Arrays;
+import java.nio.charset.Charset;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -18,15 +18,17 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import signumj.crypto.SignumCrypto;
 
 public class MinerAccountSettingsPanel extends JPanel {
@@ -99,18 +101,25 @@ public class MinerAccountSettingsPanel extends JPanel {
 		var txt_field = new JTextField(30);
 		int i = JOptionPane.showConfirmDialog(getRootPane(), txt_field, "Please Enter your Passphrase", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
 		if (i == JOptionPane.OK_OPTION) {
-			var phase = txt_field.getText().trim();
-			if (phase.isBlank()) {
+			var phrase = txt_field.getText().trim();
+			if (phrase.isBlank()) {
 				JOptionPane.showMessageDialog(getRootPane(), "Passphrase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
 				return false;
 			} else {
 				try {
-					var id = SignumCrypto.getInstance().getAddressFromPassphrase(phase).getID();
-					var client = new OkHttpClient();
-					var request = new Request.Builder().url(basePath + miner_account_path + "/add").post(new FormBody(Arrays.asList("id", "passphrase"), Arrays.asList(id, phase))).build();
-					var response = client.newCall(request).execute();
-					if (!response.isSuccessful()) {
-						throw new Exception(response.body().string());
+					var id = SignumCrypto.getInstance().getAddressFromPassphrase(phrase).getID();
+					var httpPost = new HttpPost(basePath + miner_account_path + "/add");
+					var jobj = new JSONObject();
+					jobj.put("id", id);
+					jobj.put("passphrase", phrase);
+					httpPost.setEntity(new StringEntity(jobj.toString()));
+					httpPost.setHeader("Content-type", "application/json");
+					var httpclient = HttpClients.createDefault();
+					var response = httpclient.execute(httpPost);
+					if (response.getStatusLine().getStatusCode() != 200) {
+						var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
+						response.close();
+						throw new Exception(text);
 					}
 				} catch (Exception x) {
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
@@ -130,11 +139,17 @@ public class MinerAccountSettingsPanel extends JPanel {
 		if (i == JOptionPane.YES_OPTION) {
 			try {
 				var id = acc_list.getSelectedValue();
-				var client = new OkHttpClient();
-				var request = new Request.Builder().url(basePath + miner_account_path + "/del").post(new FormBody(Arrays.asList("id"), Arrays.asList(id))).build();
-				var response = client.newCall(request).execute();
-				if (!response.isSuccessful()) {
-					throw new Exception(response.body().string());
+				var httpPost = new HttpPost(basePath + miner_account_path + "/del");
+				var jobj = new JSONObject();
+				jobj.put("id", id);
+				httpPost.setEntity(new StringEntity(jobj.toString()));
+				httpPost.setHeader("Content-type", "application/json");
+				var httpclient = HttpClients.createDefault();
+				var response = httpclient.execute(httpPost);
+				if (response.getStatusLine().getStatusCode() != 200) {
+					var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
+					response.close();
+					throw new Exception(text);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);

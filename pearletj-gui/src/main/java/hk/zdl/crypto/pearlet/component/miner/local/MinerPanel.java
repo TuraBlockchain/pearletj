@@ -84,7 +84,7 @@ public class MinerPanel extends JPanel implements Runnable {
 			while (running) {
 				if (proc == null || !proc.isAlive()) {
 					proc = LocalMiner.build_process(miner_bin, conf_file);
-					reader = proc.inputReader(Charset.forName("UTF-8"));
+					reader = proc.inputReader(Charset.defaultCharset());
 				}
 				var line = reader.readLine();
 				if (line == null) {

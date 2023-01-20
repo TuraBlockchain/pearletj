@@ -205,7 +205,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 		jobj.put("nounce", l);
 		jobj.put("exitOnDone", true);
 
-		var str = Base64.getEncoder().encodeToString(jobj.toString().getBytes(Charset.forName("UTF-8")));
+		var str = Base64.getEncoder().encodeToString(jobj.toString().getBytes(Charset.defaultCharset()));
 
 		Util.submit(() -> {
 			var table = new JTable(new DefaultTableModel(new Object[][] {}, new Object[] { "No.", "Progress" })) {
