@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
 import java.net.URL;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -32,6 +33,7 @@ import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerAccountSettingsPanel;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class MiningPanel extends JPanel implements ActionListener {
 
@@ -55,16 +57,27 @@ public class MiningPanel extends JPanel implements ActionListener {
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
-		start_btn.addActionListener(e -> {
-			if (add_miner_path()) {
-				actionPerformed(null);
+		start_btn.addActionListener(e -> Util.submit(new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				if (add_miner_path()) {
+					actionPerformed(null);
+				}
+				return null;
 			}
-		});
-		stop_btn.addActionListener(e -> {
-			if (del_miner_path()) {
-				actionPerformed(null);
+		}));
+
+		stop_btn.addActionListener(e -> Util.submit(new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				if (del_miner_path()) {
+					actionPerformed(null);
+				}
+				return null;
 			}
-		});
+		}));
 	}
 
 	private void init_table() {
@@ -138,7 +151,8 @@ public class MiningPanel extends JPanel implements ActionListener {
 	}
 
 	public boolean del_miner_path() {
-		if (table.getSelectedRowCount() < 1) {
+		var row = table.getSelectedRowCount();
+		if (row < 1) {
 			return false;
 		}
 		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to stop this miner?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -147,7 +161,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 				var httpclient = HttpClients.createDefault();
 				var httpPost = new HttpPost(basePath + addational_path + "/stop");
 				var jobj = new JSONObject();
-				jobj.put("id", new BigInteger(table.getValueAt(table.getSelectedRow(), 0).toString()));
+				jobj.put("id", new BigInteger(table.getValueAt(row, 0).toString()));
 				httpPost.setEntity(new StringEntity(jobj.toString()));
 				httpPost.setHeader("Content-type", "application/json");
 				var response = httpclient.execute(httpPost);

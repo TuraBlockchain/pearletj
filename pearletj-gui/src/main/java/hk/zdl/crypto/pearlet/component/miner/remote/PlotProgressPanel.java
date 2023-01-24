@@ -1,7 +1,7 @@
 package hk.zdl.crypto.pearlet.component.miner.remote;
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -12,11 +12,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
@@ -52,9 +52,8 @@ public class PlotProgressPanel extends JPanel {
 	private static final long serialVersionUID = -1150055243038748734L;
 	private static final long byte_per_nounce = 262144;
 	public static final String plot_path = "/api/v1/plot";
-	private final CardLayout card = new CardLayout();
-	private final JPanel top_pane = new JPanel(card);
-	private final JButton add_btn = new JButton("Add a Plot");
+	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
+	private final JButton add_btn = new JButton("Add");
 	private final JTable table = new JTable(new DefaultTableModel(new Object[][] {}, new Object[] { "Type", "Rate", "Progress", "ETA", "Path" })) {
 
 		/**
@@ -73,12 +72,12 @@ public class PlotProgressPanel extends JPanel {
 	public PlotProgressPanel() {
 		super(new BorderLayout());
 		init_table();
-		top_pane.add("btn", add_btn);
-		var bar = new JProgressBar();
-		bar.setIndeterminate(true);
-		top_pane.add("bar", bar);
-		add(top_pane, BorderLayout.NORTH);
 		add(new JScrollPane(table), BorderLayout.CENTER);
+		var btn_panel = new JPanel(new GridBagLayout());
+		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
+		panel_1.add(btn_panel);
+		add(panel_1, BorderLayout.EAST);
 		add_btn.addActionListener(e -> Util.submit(() -> addPlot()));
 	}
 
@@ -107,22 +106,23 @@ public class PlotProgressPanel extends JPanel {
 	}
 
 	private final void addPlot() {
-		var inset_5 = new Insets(5, 5, 5, 5);
 		var panel = new JPanel(new GridBagLayout());
 		var label_1 = new JLabel("id:");
-		panel.add(label_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, inset_5, 0, 0));
+		panel.add(label_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 		var combo_box_1 = new JComboBox<String>();
-		panel.add(combo_box_1, new GridBagConstraints(1, 0, 2, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
+		panel.add(combo_box_1, new GridBagConstraints(1, 0, 2, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var label_2 = new JLabel("Path:");
-		panel.add(label_2, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, inset_5, 0, 0));
+		panel.add(label_2, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 		var combo_box_2 = new JComboBox<String>();
-		panel.add(combo_box_2, new GridBagConstraints(1, 1, 2, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
+		panel.add(combo_box_2, new GridBagConstraints(1, 1, 2, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var label_4 = new JLabel("File Size:");
-		panel.add(label_4, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, inset_5, 0, 0));
+		panel.add(label_4, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 		var fz_spinner = new JSpinner(new SpinnerNumberModel(100, 1, 1024, 1));
 		var fz_op = new JComboBox<>(new String[] { "MB", "GB" });
-		panel.add(fz_spinner, new GridBagConstraints(1, 2, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, inset_5, 0, 0));
-		panel.add(fz_op, new GridBagConstraints(2, 2, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, inset_5, 0, 0));
+		panel.add(fz_spinner, new GridBagConstraints(1, 2, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		panel.add(fz_op, new GridBagConstraints(2, 2, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
+		var chech_box_1 = new JCheckBox("Restart miner on plot finish");
+		panel.add(chech_box_1, new GridBagConstraints(0, 3, 3, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		Util.submit(new Callable<Void>() {
 
 			@SuppressWarnings("unchecked")
@@ -165,13 +165,13 @@ public class PlotProgressPanel extends JPanel {
 			}
 
 			try {
-				card.show(top_pane, "bar");
 				var httpclient = HttpClients.createDefault();
 				var httpPost = new HttpPost(basePath + plot_path + "/add");
 				var jobj = new JSONObject();
 				jobj.put("id", new BigInteger(combo_box_1.getSelectedItem().toString()));
 				jobj.put("nounces", l);
 				jobj.put("target_path", combo_box_2.getSelectedItem());
+				jobj.put("restart", chech_box_1.isSelected());
 				httpPost.setEntity(new StringEntity(jobj.toString()));
 				httpPost.setHeader("Content-type", "application/json");
 				var response = httpclient.execute(httpPost);
@@ -196,8 +196,6 @@ public class PlotProgressPanel extends JPanel {
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
-			} finally {
-				card.show(top_pane, "btn");
 			}
 		}
 	}
