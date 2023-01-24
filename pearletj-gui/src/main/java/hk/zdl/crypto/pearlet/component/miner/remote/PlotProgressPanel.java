@@ -211,15 +211,18 @@ public class PlotProgressPanel extends JPanel {
 			int row_2 = i * 2 + 1;
 			model.setValueAt("Hash", row_1, 0);
 			model.setValueAt("Write", row_2, 0);
-			var jobj = jarr.getJSONObject(i);
-			model.setValueAt(jobj.get("hash_rate"), row_1, 1);
-			model.setValueAt(jobj.get("write_rate"), row_2, 1);
-			model.setValueAt(jobj.getFloat("hash_progress"), row_1, 2);
-			model.setValueAt(jobj.getFloat("write_progress"), row_2, 2);
-			model.setValueAt(jobj.get("hash_eta"), row_1, 3);
-			model.setValueAt(jobj.get("write_eta"), row_2, 3);
-			model.setValueAt(jobj.get("path"), row_1, 4);
-			model.setValueAt(jobj.get("path"), row_2, 4);
+			var jobj = jarr.optJSONObject(i);
+			if(jobj==null) {
+				jobj = new JSONObject();
+			}
+			model.setValueAt(jobj.opt("hash_rate"), row_1, 1);
+			model.setValueAt(jobj.opt("write_rate"), row_2, 1);
+			model.setValueAt(jobj.optFloat("hash_progress"), row_1, 2);
+			model.setValueAt(jobj.optFloat("write_progress"), row_2, 2);
+			model.setValueAt(jobj.opt("hash_eta"), row_1, 3);
+			model.setValueAt(jobj.opt("write_eta"), row_2, 3);
+			model.setValueAt(jobj.opt("path"), row_1, 4);
+			model.setValueAt(jobj.opt("path"), row_2, 4);
 		}
 		SwingUtilities.invokeLater(() -> UIUtil.adjust_table_width(table, table.getColumnModel()));
 	}
