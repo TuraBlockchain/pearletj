@@ -3,7 +3,6 @@ package hk.zdl.crypto.pearlet.component.miner.local;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.file.Files;
@@ -11,7 +10,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeMap;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
@@ -51,9 +49,9 @@ public class LocalMiner {
 		if (SystemInfo.isWindows) {
 			suffix = ".exe";
 		}
-		File tmp_file = File.createTempFile("peth-miner-", suffix);
+		var tmp_file = File.createTempFile("peth-miner-", suffix);
 		tmp_file.deleteOnExit();
-		String in_filename = "";
+		var in_filename = "";
 		if (SystemInfo.isLinux) {
 			in_filename = "signum-miner";
 		} else if (SystemInfo.isWindows) {
@@ -61,15 +59,15 @@ public class LocalMiner {
 		} else if (SystemInfo.isMacOS) {
 			in_filename = "signum-miner-x86_64-apple-darwin.zip";
 		}
-		InputStream in = LocalMiner.class.getClassLoader().getResourceAsStream("miner/" + in_filename);
-		FileOutputStream out = new FileOutputStream(tmp_file);
+		var in = LocalMiner.class.getClassLoader().getResourceAsStream("miner/" + in_filename);
+		var out = new FileOutputStream(tmp_file);
 		IOUtils.copy(in, out);
 		out.flush();
 		out.close();
 		in.close();
 		if (SystemInfo.isMacOS) {
-			ZipFile zipfile = new ZipFile(tmp_file);
-			ZipEntry entry = zipfile.stream().findAny().get();
+			var zipfile = new ZipFile(tmp_file);
+			var entry = zipfile.stream().findAny().get();
 			in = zipfile.getInputStream(entry);
 			tmp_file = File.createTempFile("peth-miner-", ".app");
 			tmp_file.deleteOnExit();

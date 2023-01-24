@@ -136,9 +136,9 @@ public class PlotPanel extends JPanel implements ActionListener {
 		if (file_dialog.showOpenDialog(getRootPane()) != JFileChooser.APPROVE_OPTION) {
 			return;
 		}
-		File file = file_dialog.getSelectedFile();
+		var file = file_dialog.getSelectedFile();
 		try {
-			JarFile jar_file = new JarFile(file);
+			var jar_file = new JarFile(file);
 			var clz = jar_file.getManifest().getMainAttributes().getValue("Main-Class");
 			jar_file.close();
 			if (clz == null) {

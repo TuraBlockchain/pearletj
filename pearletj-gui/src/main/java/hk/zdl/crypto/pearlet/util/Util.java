@@ -28,14 +28,13 @@ import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
-import net.harawata.appdirs.AppDirs;
 import net.harawata.appdirs.AppDirsFactory;
 import signumj.entity.response.Transaction;
 
 public class Util {
 
 	private static final ExecutorService es = Executors.newCachedThreadPool((r) -> {
-		Thread t = new Thread(r, "");
+		var t = new Thread(r, "");
 		t.setDaemon(true);
 		return t;
 	});
@@ -52,16 +51,16 @@ public class Util {
 	}
 
 	public static final String getDBURL() {
-		Prop prop = getProp();
+		var prop = getProp();
 		return getDBURL(prop.get("appName"), prop.get("appVersion"), prop.get("appAuthor"), prop.get("dbName"));
 	}
 
 	public static final String getDBURL(String app_name, String app_version, String author, String db_name) {
-		AppDirs appDirs = AppDirsFactory.getInstance();
-		String user_dir = appDirs.getUserDataDir(app_name, app_version, author, false);
+		var appDirs = AppDirsFactory.getInstance();
+		var user_dir = appDirs.getUserDataDir(app_name, app_version, author, false);
 		user_dir += File.separator + db_name;
 		user_dir = user_dir.replace('\\', '/');
-		String db_url = "jdbc:derby:directory:" + user_dir + ";create=true";
+		var db_url = "jdbc:derby:directory:" + user_dir + ";create=true";
 		return db_url;
 	}
 
@@ -78,9 +77,9 @@ public class Util {
 	}
 
 	public static final void loadUserSettings() throws IOException {
-		Prop prop = getProp();
-		AppDirs appDirs = AppDirsFactory.getInstance();
-		String user_dir = appDirs.getUserDataDir(prop.get("appName"), prop.get("appVersion"), prop.get("appAuthor"), false);
+		var prop = getProp();
+		var appDirs = AppDirsFactory.getInstance();
+		var user_dir = appDirs.getUserDataDir(prop.get("appName"), prop.get("appVersion"), prop.get("appAuthor"), false);
 		user_dir += File.separator + "settings.txt";
 		var path = Paths.get(user_dir);
 		if (Files.exists(path)) {
@@ -89,9 +88,9 @@ public class Util {
 	}
 
 	public static final void saveUserSettings() throws IOException {
-		AppDirs appDirs = AppDirsFactory.getInstance();
-		Prop prop = getProp();
-		String user_dir = appDirs.getUserDataDir(prop.get("appName"), prop.get("appVersion"), prop.get("appAuthor"), false);
+		var appDirs = AppDirsFactory.getInstance();
+		var prop = getProp();
+		var user_dir = appDirs.getUserDataDir(prop.get("appName"), prop.get("appVersion"), prop.get("appAuthor"), false);
 		user_dir += File.separator + "settings.txt";
 		user_settings.store(Files.newOutputStream(Paths.get(user_dir), StandardOpenOption.CREATE), null);
 	}
@@ -138,8 +137,8 @@ public class Util {
 
 	public static Long getTime(Class<?> cl) {
 		try {
-			String rn = cl.getName().replace('.', '/') + ".class";
-			JarURLConnection j = (JarURLConnection) cl.getClassLoader().getResource(rn).openConnection();
+			var rn = cl.getName().replace('.', '/') + ".class";
+			var j = (JarURLConnection) cl.getClassLoader().getResource(rn).openConnection();
 			return j.getJarFile().getEntry("META-INF/MANIFEST.MF").getTime();
 		} catch (Exception e) {
 			return null;
