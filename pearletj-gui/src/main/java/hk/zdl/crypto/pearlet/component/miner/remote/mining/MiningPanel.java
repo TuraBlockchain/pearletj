@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
 import java.net.URL;
-import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -57,26 +56,18 @@ public class MiningPanel extends JPanel implements ActionListener {
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
-		start_btn.addActionListener(e -> Util.submit(new Callable<Void>() {
-
-			@Override
-			public Void call() throws Exception {
-				if (add_miner_path()) {
-					actionPerformed(null);
-				}
-				return null;
+		start_btn.addActionListener(e -> Util.submit(() -> {
+			if (add_miner_path()) {
+				actionPerformed(null);
 			}
+			return null;
 		}));
 
-		stop_btn.addActionListener(e -> Util.submit(new Callable<Void>() {
-
-			@Override
-			public Void call() throws Exception {
-				if (del_miner_path()) {
-					actionPerformed(null);
-				}
-				return null;
+		stop_btn.addActionListener(e -> Util.submit(() -> {
+			if (del_miner_path()) {
+				actionPerformed(null);
 			}
+			return null;
 		}));
 	}
 

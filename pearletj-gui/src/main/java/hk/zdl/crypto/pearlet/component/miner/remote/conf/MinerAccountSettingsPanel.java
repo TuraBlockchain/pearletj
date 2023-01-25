@@ -12,7 +12,6 @@ import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.concurrent.Callable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -73,29 +72,21 @@ public class MinerAccountSettingsPanel extends JPanel {
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
 
-		add_btn.addActionListener(e -> Util.submit(new Callable<Void>() {
-
-			@Override
-			public Void call() throws Exception {
-				if (isAltDown(e)) {
-					batch_import(MinerAccountSettingsPanel.this, CrptoNetworks.ROTURA);
-				} else {
-					if (add_account()) {
-						refresh_list();
-					}
-				}
-				return null;
-			}
-		}));
-		del_btn.addActionListener(e -> Util.submit(new Callable<Void>() {
-
-			@Override
-			public Void call() throws Exception {
-				if (del_account()) {
+		add_btn.addActionListener(e -> Util.submit(() -> {
+			if (isAltDown(e)) {
+				batch_import(MinerAccountSettingsPanel.this, CrptoNetworks.ROTURA);
+			} else {
+				if (add_account()) {
 					refresh_list();
 				}
-				return null;
 			}
+			return null;
+		}));
+		del_btn.addActionListener(e -> Util.submit(() -> {
+			if (del_account()) {
+				refresh_list();
+			}
+			return null;
 		}));
 	}
 

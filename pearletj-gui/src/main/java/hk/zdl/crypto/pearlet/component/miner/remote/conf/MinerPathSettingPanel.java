@@ -59,25 +59,17 @@ public class MinerPathSettingPanel extends JPanel {
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
 
-		add_btn.addActionListener(e -> Util.submit(new Callable<Void>() {
-
-			@Override
-			public Void call() throws Exception {
-				if (add_miner_path()) {
-					refresh_list();
-				}
-				return null;
+		add_btn.addActionListener(e -> Util.submit(() -> {
+			if (add_miner_path()) {
+				refresh_list();
 			}
+			return null;
 		}));
-		del_btn.addActionListener(e -> Util.submit(new Callable<Void>() {
-
-			@Override
-			public Void call() throws Exception {
-				if (del_miner_path()) {
-					refresh_list();
-				}
-				return null;
+		del_btn.addActionListener(e -> Util.submit(() -> {
+			if (del_miner_path()) {
+				refresh_list();
 			}
+			return null;
 		}));
 
 	}

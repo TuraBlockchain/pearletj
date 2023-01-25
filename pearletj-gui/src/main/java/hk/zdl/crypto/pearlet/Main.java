@@ -9,7 +9,6 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.nio.file.Files;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -117,17 +116,13 @@ public class Main {
 
 				@Override
 				public void windowClosing(WindowEvent e) {
-					Util.submit(new Callable<Void>() {
-
-						@Override
-						public Void call() throws Exception {
-							while (SystemTray.getSystemTray().getTrayIcons().length > 0) {
-								SystemTray.getSystemTray().remove(SystemTray.getSystemTray().getTrayIcons()[0]);
-							}
-							TimeUnit.SECONDS.sleep(2);
-							System.exit(0);
-							return null;
+					Util.submit(() -> {
+						while (SystemTray.getSystemTray().getTrayIcons().length > 0) {
+							SystemTray.getSystemTray().remove(SystemTray.getSystemTray().getTrayIcons()[0]);
 						}
+						TimeUnit.SECONDS.sleep(1);
+						System.exit(0);
+						return null;
 					});
 				}
 			});

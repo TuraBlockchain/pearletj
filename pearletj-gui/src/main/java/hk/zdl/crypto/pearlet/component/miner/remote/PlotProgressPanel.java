@@ -54,6 +54,7 @@ public class PlotProgressPanel extends JPanel {
 	public static final String plot_path = "/api/v1/plot";
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private final JButton add_btn = new JButton("Add");
+	private final JButton clear_btn = new JButton("Clear Done");
 	private final JTable table = new JTable(new DefaultTableModel(new Object[][] {}, new Object[] { "Type", "Rate", "Progress", "ETA", "Path" })) {
 
 		/**
@@ -75,10 +76,12 @@ public class PlotProgressPanel extends JPanel {
 		add(new JScrollPane(table), BorderLayout.CENTER);
 		var btn_panel = new JPanel(new GridBagLayout());
 		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		btn_panel.add(clear_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
-		add_btn.addActionListener(e -> Util.submit(() -> addPlot()));
+		add_btn.addActionListener(e -> Util.submit(this::addPlot));
+		clear_btn.addActionListener(e -> Util.submit(this::clear_done));
 	}
 
 	public void setBasePath(String basePath) {
@@ -105,6 +108,7 @@ public class PlotProgressPanel extends JPanel {
 		table.getColumnModel().getColumn(2).setCellRenderer(new ProgressBarTableCellRenderer());
 	}
 
+	@SuppressWarnings("unchecked")
 	private final void addPlot() {
 		var panel = new JPanel(new GridBagLayout());
 		var label_1 = new JLabel("id:");
@@ -123,29 +127,18 @@ public class PlotProgressPanel extends JPanel {
 		panel.add(fz_op, new GridBagConstraints(2, 2, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
 		var chech_box_1 = new JCheckBox("Restart miner on plot finish");
 		panel.add(chech_box_1, new GridBagConstraints(0, 3, 3, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-		Util.submit(new Callable<Void>() {
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public Void call() throws Exception {
-				combo_box_1.setModel(new ListComboBoxModel<String>(
-						new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().stream().map(String::valueOf).toList()));
-				combo_box_1.getActionListeners()[0].actionPerformed(null);
-				return null;
-			}
+		Util.submit(() -> {
+			combo_box_1.setModel(new ListComboBoxModel<String>(
+					new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().stream().map(String::valueOf).toList()));
+			combo_box_1.getActionListeners()[0].actionPerformed(null);
+			return null;
 		});
 		combo_box_1.addActionListener(e -> {
-			Util.submit(new Callable<Void>() {
-
-				@SuppressWarnings("unchecked")
-				@Override
-				public Void call() throws Exception {
-					combo_box_2.setModel(new ListComboBoxModel<String>(
-							new JSONArray(new JSONTokener(new URL(basePath + MinerPathSettingPanel.miner_file_path + "/list?id=" + combo_box_1.getSelectedItem()).openStream())).toList().stream()
-									.map(String::valueOf).toList()));
-
-					return null;
-				}
+			Util.submit(() -> {
+				combo_box_2.setModel(new ListComboBoxModel<String>(
+						new JSONArray(new JSONTokener(new URL(basePath + MinerPathSettingPanel.miner_file_path + "/list?id=" + combo_box_1.getSelectedItem()).openStream())).toList().stream()
+								.map(String::valueOf).toList()));
+				return null;
 			});
 		});
 
@@ -200,6 +193,28 @@ public class PlotProgressPanel extends JPanel {
 		}
 	}
 
+	private final void clear_done() {
+		try {
+			var httpclient = HttpClients.createDefault();
+			var httpPost = new HttpPost(basePath + plot_path + "/clear_done");
+			var response = httpclient.execute(httpPost);
+			if (response.getStatusLine().getStatusCode() == 200) {
+				response.close();
+				UIUtil.displayMessage("Succeed", "", null);
+				Util.submit(() -> {
+					refresh_current_plots();
+					return null;
+				});
+			} else {
+				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
+				response.close();
+				JOptionPane.showMessageDialog(getRootPane(), text, "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		} catch (Exception x) {
+			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
 	public void refresh_current_plots() throws Exception {
 		var in = new URL(basePath + plot_path + "/list").openStream();
 		var jarr = new JSONArray(new JSONTokener(in));
@@ -212,7 +227,7 @@ public class PlotProgressPanel extends JPanel {
 			model.setValueAt("Hash", row_1, 0);
 			model.setValueAt("Write", row_2, 0);
 			var jobj = jarr.optJSONObject(i);
-			if(jobj==null) {
+			if (jobj == null) {
 				jobj = new JSONObject();
 			}
 			model.setValueAt(jobj.opt("hash_rate"), row_1, 1);

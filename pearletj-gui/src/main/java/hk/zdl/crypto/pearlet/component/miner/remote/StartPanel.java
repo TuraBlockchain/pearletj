@@ -19,7 +19,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
 import javax.swing.DefaultListCellRenderer;
@@ -137,14 +136,10 @@ final class StartPanel extends JPanel {
 					return false;
 				}
 				return true;
-			}).forEach(a -> Util.submit(new Callable<Void>() {
-
-				@Override
-				public Void call() throws Exception {
-					String base_url = new URL("http", a.getHostAddress(), port, "").toString();
-					addMinerDetailPane(base_url);
-					return null;
-				}
+			}).forEach(a -> Util.submit(() -> {
+				String base_url = new URL("http", a.getHostAddress(), port, "").toString();
+				addMinerDetailPane(base_url);
+				return null;
 			}));
 
 			start_button.setEnabled(true);
