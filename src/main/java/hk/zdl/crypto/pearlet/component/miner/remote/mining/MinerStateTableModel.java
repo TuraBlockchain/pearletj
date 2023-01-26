@@ -76,6 +76,7 @@ public class MinerStateTableModel extends AbstractTableModel {
 		} else if (new_size < old_size) {
 			fireTableRowsDeleted(new_size, old_size);
 		}
+		fireTableRowsUpdated(0, Math.min(old_size, new_size));
 	}
 
 	public final void clearData() {
