@@ -44,6 +44,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 	private final JTable table = new JTable(table_model);
 	private final JButton start_btn = new JButton("Start");
 	private final JButton stop_btn = new JButton("Stop");
+	private final JButton restart_btn = new JButton("Restart");
 
 	public MiningPanel() {
 		super(new BorderLayout());
@@ -52,6 +53,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 		var btn_panel = new JPanel(new GridBagLayout());
 		btn_panel.add(start_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		btn_panel.add(stop_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		btn_panel.add(restart_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
@@ -65,6 +67,12 @@ public class MiningPanel extends JPanel implements ActionListener {
 
 		stop_btn.addActionListener(e -> Util.submit(() -> {
 			if (del_miner_path()) {
+				actionPerformed(null);
+			}
+			return null;
+		}));
+		restart_btn.addActionListener(e -> Util.submit(() -> {
+			if (restart_miner_path()) {
 				actionPerformed(null);
 			}
 			return null;
@@ -167,4 +175,43 @@ public class MiningPanel extends JPanel implements ActionListener {
 		}
 		return true;
 	}
+
+	public boolean restart_miner_path() {
+		if (table.getSelectedRowCount() < 1) {
+			return false;
+		}
+		var row = table.getSelectedRow();
+		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to restart this miner?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (i == JOptionPane.YES_OPTION) {
+			try {
+				var id = new BigInteger(table.getValueAt(row, 0).toString());
+				var httpclient = HttpClients.createDefault();
+				var httpPost = new HttpPost(basePath + addational_path + "/stop");
+				var jobj = new JSONObject();
+				jobj.put("id", id);
+				httpPost.setEntity(new StringEntity(jobj.toString()));
+				httpPost.setHeader("Content-type", "application/json");
+				var response = httpclient.execute(httpPost);
+				response.close();
+				if (response.getStatusLine().getStatusCode() == 200) {
+					UIUtil.displayMessage("Succeed", "Miner has stopped.", null);
+				}
+				httpPost = new HttpPost(basePath + addational_path + "/start");
+				jobj = new JSONObject();
+				jobj.put("id", id);
+				httpPost.setEntity(new StringEntity(jobj.toString()));
+				httpPost.setHeader("Content-type", "application/json");
+				response = httpclient.execute(httpPost);
+				response.close();
+				if (response.getStatusLine().getStatusCode() == 200) {
+					UIUtil.displayMessage("Succeed", "Miner has started.", null);
+				}
+			} catch (Exception x) {
+				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+		}
+		return true;
+	}
+
 }
