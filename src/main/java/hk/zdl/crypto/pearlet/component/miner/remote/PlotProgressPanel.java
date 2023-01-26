@@ -30,7 +30,6 @@ import javax.swing.table.DefaultTableModel;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -158,7 +157,7 @@ public class PlotProgressPanel extends JPanel {
 			}
 
 			try {
-				var httpclient = HttpClients.createDefault();
+				var httpclient = MyHC.getHttpclient();
 				var httpPost = new HttpPost(basePath + plot_path + "/add");
 				var jobj = new JSONObject();
 				jobj.put("id", new BigInteger(combo_box_1.getSelectedItem().toString()));
@@ -195,7 +194,7 @@ public class PlotProgressPanel extends JPanel {
 
 	private final void clear_done() {
 		try {
-			var httpclient = HttpClients.createDefault();
+			var httpclient = MyHC.getHttpclient();
 			var httpPost = new HttpPost(basePath + plot_path + "/clear_done");
 			var response = httpclient.execute(httpPost);
 			if (response.getStatusLine().getStatusCode() == 200) {

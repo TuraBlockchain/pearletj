@@ -40,6 +40,7 @@ import org.json.JSONTokener;
 import com.csvreader.CsvReader;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
+import hk.zdl.crypto.pearlet.component.miner.remote.MyHC;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -140,7 +141,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 		jobj.put("passphrase", phrase);
 		httpPost.setEntity(new StringEntity(jobj.toString()));
 		httpPost.setHeader("Content-type", "application/json");
-		var httpclient = HttpClients.createDefault();
+		var httpclient = MyHC.getHttpclient();
 		var response = httpclient.execute(httpPost);
 		if (response.getStatusLine().getStatusCode() == 200) {
 			var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
@@ -165,7 +166,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 				jobj.put("id", id);
 				httpPost.setEntity(new StringEntity(jobj.toString()));
 				httpPost.setHeader("Content-type", "application/json");
-				var httpclient = HttpClients.createDefault();
+				var httpclient = MyHC.getHttpclient();
 				var response = httpclient.execute(httpPost);
 				if (response.getStatusLine().getStatusCode() != 200) {
 					var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
