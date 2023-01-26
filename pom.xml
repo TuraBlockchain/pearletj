@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>hk.zdl.crpto</groupId>
 	<artifactId>pearletj</artifactId>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>pearletj</name>
 	<description>PearletJ
 	Cross-platform multi-chain thick wallet for Cryto-currencies
@@ -131,7 +131,7 @@
 									<type>link</type>
 									<symlink>true</symlink>
 									<linkName>/usr/share/${project.artifactId}/${project.artifactId}.jar</linkName>
-									<linkTarget>${project.build.directory}/${project.build.finalName}.jar</linkTarget>
+									<linkTarget>/usr/share/${project.artifactId}/${project.build.finalName}.jar</linkTarget>
 								</data>
 								<data>
 									<src>${project.build.directory}/lib</src>
