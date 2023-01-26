@@ -142,10 +142,10 @@ public class MiningPanel extends JPanel implements ActionListener {
 	}
 
 	public boolean del_miner_path() {
-		var row = table.getSelectedRowCount();
-		if (row < 1) {
+		if (table.getSelectedRowCount() < 1) {
 			return false;
 		}
+		var row = table.getSelectedRow();
 		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to stop this miner?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.YES_OPTION) {
 			try {

@@ -48,7 +48,7 @@ public class MinerStateTableModel extends AbstractTableModel {
 		case 6:
 			return jobj.opt("roundtime");
 		case 7:
-			return jobj.optString("speed","").replace("inf", "∞");
+			return jobj.optString("speed", "").replace("inf", "∞");
 		case 8:
 			return jobj.opt("height");
 		case 9:
@@ -65,16 +65,22 @@ public class MinerStateTableModel extends AbstractTableModel {
 	}
 
 	public final void setData(JSONArray jarr) {
-		clearData();
+		var old_size = this.jarr.length();
+		var new_size = jarr.length();
+		this.jarr.clear();
 		for (var i = 0; i < jarr.length(); i++) {
 			this.jarr.put(jarr.get(i));
 		}
-		fireTableRowsInserted(0, jarr.length());
+		if (new_size > old_size) {
+			fireTableRowsInserted(old_size, new_size - old_size);
+		} else if (new_size < old_size) {
+			fireTableRowsDeleted(new_size, old_size);
+		}
 	}
 
 	public final void clearData() {
-		fireTableRowsDeleted(0, jarr.length());
 		this.jarr.clear();
+		fireTableRowsDeleted(0, jarr.length());
 	}
 
 }
