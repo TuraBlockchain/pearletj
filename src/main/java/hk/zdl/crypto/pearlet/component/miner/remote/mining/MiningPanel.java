@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
@@ -59,20 +60,20 @@ public class MiningPanel extends JPanel implements ActionListener {
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
 		start_btn.addActionListener(e -> Util.submit(() -> {
-			if (add_miner_path()) {
+			if (start_miner()) {
 				actionPerformed(null);
 			}
 			return null;
 		}));
 
 		stop_btn.addActionListener(e -> Util.submit(() -> {
-			if (del_miner_path()) {
+			if (stop_miner()) {
 				actionPerformed(null);
 			}
 			return null;
 		}));
 		restart_btn.addActionListener(e -> Util.submit(() -> {
-			if (restart_miner_path()) {
+			if (restart_miner()) {
 				actionPerformed(null);
 			}
 			return null;
@@ -118,7 +119,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 		SwingUtilities.invokeLater(() -> UIUtil.adjust_table_width(table, table.getColumnModel()));
 	}
 
-	public boolean add_miner_path() {
+	public boolean start_miner() {
 		var icon = UIUtil.getStretchIcon("icon/" + "signpost-2.svg", 64, 64);
 		try {
 			var options = new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().toArray();
@@ -130,13 +131,15 @@ public class MiningPanel extends JPanel implements ActionListener {
 					var httpclient = MyHC.getHttpclient();
 					var httpPost = new HttpPost(basePath + addational_path + "/start");
 					var jobj = new JSONObject();
-					jobj.put("id", new BigInteger(choice.toString().trim()));
+					jobj.put("id", choice);
 					httpPost.setEntity(new StringEntity(jobj.toString()));
 					httpPost.setHeader("Content-type", "application/json");
 					var response = httpclient.execute(httpPost);
 					response.close();
 					if (response.getStatusLine().getStatusCode() == 200) {
 						UIUtil.displayMessage("Succeed", "Miner has started.", null);
+					} else {
+						UIUtil.displayMessage("Failed", "Failed to start miner.", MessageType.ERROR);
 					}
 				} catch (Exception x) {
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
@@ -149,7 +152,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 		return true;
 	}
 
-	public boolean del_miner_path() {
+	public boolean stop_miner() {
 		if (table.getSelectedRowCount() < 1) {
 			return false;
 		}
@@ -167,6 +170,8 @@ public class MiningPanel extends JPanel implements ActionListener {
 				response.close();
 				if (response.getStatusLine().getStatusCode() == 200) {
 					UIUtil.displayMessage("Succeed", "Miner has stopped.", null);
+				} else {
+					UIUtil.displayMessage("Failed", "Failed to stop miner.", MessageType.ERROR);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
@@ -176,7 +181,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 		return true;
 	}
 
-	public boolean restart_miner_path() {
+	public boolean restart_miner() {
 		if (table.getSelectedRowCount() < 1) {
 			return false;
 		}
@@ -195,6 +200,9 @@ public class MiningPanel extends JPanel implements ActionListener {
 				response.close();
 				if (response.getStatusLine().getStatusCode() == 200) {
 					UIUtil.displayMessage("Succeed", "Miner has stopped.", null);
+				} else {
+					UIUtil.displayMessage("Failed", "Failed to stop miner.", MessageType.ERROR);
+					return false;
 				}
 				httpPost = new HttpPost(basePath + addational_path + "/start");
 				jobj = new JSONObject();
@@ -205,6 +213,9 @@ public class MiningPanel extends JPanel implements ActionListener {
 				response.close();
 				if (response.getStatusLine().getStatusCode() == 200) {
 					UIUtil.displayMessage("Succeed", "Miner has started.", null);
+				} else {
+					UIUtil.displayMessage("Failed", "Failed to start miner.", MessageType.ERROR);
+					return false;
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);

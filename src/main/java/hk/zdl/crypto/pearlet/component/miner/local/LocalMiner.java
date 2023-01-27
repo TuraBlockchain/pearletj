@@ -41,7 +41,7 @@ public class LocalMiner {
 	}
 
 	public static Process build_process(File miner_bin, File conf_file) throws Exception {
-		return new ProcessBuilder(miner_bin.getAbsolutePath(), "-c", conf_file.getAbsolutePath()).directory(Files.createTempDirectory(String.valueOf(System.currentTimeMillis())).toFile()).start();
+		return new ProcessBuilder(miner_bin.getAbsolutePath(), "-c", conf_file.getAbsolutePath()).directory(Files.createTempDirectory(null).getParent().toFile()).start();
 	}
 
 	public static File copy_miner() throws IOException {

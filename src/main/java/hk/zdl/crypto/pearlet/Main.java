@@ -59,7 +59,7 @@ public class Main {
 		var otd = OsThemeDetector.getDetector();
 		UIManager.setLookAndFeel(otd.isDark() ? new FlatDarkLaf() : new FlatLightLaf());
 		try {
-			System.setProperty("derby.system.home", Files.createTempDirectory(null).resolve("..").toFile().getAbsolutePath());
+			System.setProperty("derby.system.home", Files.createTempDirectory(null).toFile().getAbsolutePath());
 			MyDb.getTables();
 		} catch (Throwable x) {
 			while (x.getCause() != null) {
