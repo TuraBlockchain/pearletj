@@ -1,12 +1,20 @@
 package hk.zdl.crypto.pearlet.component.miner.remote.mining;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
+import java.awt.Desktop.Action;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
+import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.logging.Level;
@@ -29,9 +37,17 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import com.formdev.flatlaf.util.SystemInfo;
+
 import hk.zdl.crypto.pearlet.component.miner.remote.MyHC;
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerAccountSettingsPanel;
+import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.DateCellRenderer;
+import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.IDRenderer;
+import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.MinerErrorCellRenderer;
+import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.PlotDirCellRenderer;
+import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class MiningPanel extends JPanel implements ActionListener {
@@ -59,20 +75,20 @@ public class MiningPanel extends JPanel implements ActionListener {
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
 		start_btn.addActionListener(e -> Util.submit(() -> {
-			if (add_miner_path()) {
+			if (start_miner()) {
 				actionPerformed(null);
 			}
 			return null;
 		}));
 
 		stop_btn.addActionListener(e -> Util.submit(() -> {
-			if (del_miner_path()) {
+			if (stop_miner()) {
 				actionPerformed(null);
 			}
 			return null;
 		}));
 		restart_btn.addActionListener(e -> Util.submit(() -> {
-			if (restart_miner_path()) {
+			if (restart_miner()) {
 				actionPerformed(null);
 			}
 			return null;
@@ -94,11 +110,43 @@ public class MiningPanel extends JPanel implements ActionListener {
 			table.getColumnModel().getColumn(i).setCellRenderer(new DefaultTableCellRenderer());
 		}
 		IntStream.of(1, 5).forEach(i -> table.getColumnModel().getColumn(i).setCellRenderer(new DateCellRenderer()));
+		table.getColumnModel().getColumn(0).setCellRenderer(new IDRenderer());
 		table.getColumnModel().getColumn(10).setCellRenderer(new MinerErrorCellRenderer());
 		for (var i = 0; i < table_model.getColumnCount(); i++) {
 			((DefaultTableCellRenderer) table.getColumnModel().getColumn(i).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
 		}
 		table.getColumnModel().getColumn(4).setCellRenderer(new PlotDirCellRenderer());
+		table.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent mouseEvent) {
+				Point point = mouseEvent.getPoint();
+				int row = table.rowAtPoint(point);
+				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
+					if (table.getSelectedColumn() == 0) {
+						var str = table.getModel().getValueAt(row, 0).toString();
+						Util.viewAccountDetail(CrptoNetworks.ROTURA, str);
+					} else if (table.getSelectedColumn() == 4) {
+						var jarr = table.getModel().getValueAt(row, 4);
+						if (jarr != null && ((JSONArray) jarr).length() == 1) {
+							var path = ((JSONArray) jarr).getString(0);
+							var file = new File(path);
+							if (!file.exists() || !file.isDirectory()) {
+								return;
+							}
+							if (Desktop.getDesktop().isSupported(Action.BROWSE_FILE_DIR)) {
+								Desktop.getDesktop().browseFileDirectory(file);
+							} else if (SystemInfo.isWindows) {
+								try {
+									new ProcessBuilder().command("explorer.exe", path).start();
+								} catch (IOException x) {
+									Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+								}
+							}
+						}
+					}
+				}
+			}
+		});
+
 	}
 
 	public void setBasePath(String basePath) {
@@ -118,11 +166,20 @@ public class MiningPanel extends JPanel implements ActionListener {
 		SwingUtilities.invokeLater(() -> UIUtil.adjust_table_width(table, table.getColumnModel()));
 	}
 
-	public boolean add_miner_path() {
+	public boolean start_miner() {
 		var icon = UIUtil.getStretchIcon("icon/" + "signpost-2.svg", 64, 64);
+		var show_numberic = Boolean.parseBoolean(Util.getUserSettings().getProperty("show_numberic_id"));
 		try {
 			var options = new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().toArray();
+			if (!show_numberic) {
+				for (var i = 0; i < options.length; i++) {
+					var str = options[i];
+					var adr = RoturaAddress.fromEither(str.toString()).getFullAddress();
+					options[i] = adr;
+				}
+			}
 			var choice = JOptionPane.showInputDialog(getRootPane(), "Choose your wallet id to start mining:", "Start Miner", JOptionPane.QUESTION_MESSAGE, icon, options, null);
+			choice = RoturaAddress.fromEither(choice.toString()).getID();
 			if (choice == null) {
 				return false;
 			} else {
@@ -130,13 +187,15 @@ public class MiningPanel extends JPanel implements ActionListener {
 					var httpclient = MyHC.getHttpclient();
 					var httpPost = new HttpPost(basePath + addational_path + "/start");
 					var jobj = new JSONObject();
-					jobj.put("id", new BigInteger(choice.toString().trim()));
+					jobj.put("id", choice);
 					httpPost.setEntity(new StringEntity(jobj.toString()));
 					httpPost.setHeader("Content-type", "application/json");
 					var response = httpclient.execute(httpPost);
 					response.close();
 					if (response.getStatusLine().getStatusCode() == 200) {
 						UIUtil.displayMessage("Succeed", "Miner has started.", null);
+					} else {
+						UIUtil.displayMessage("Failed", "Failed to start miner.", MessageType.ERROR);
 					}
 				} catch (Exception x) {
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
@@ -149,7 +208,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 		return true;
 	}
 
-	public boolean del_miner_path() {
+	public boolean stop_miner() {
 		if (table.getSelectedRowCount() < 1) {
 			return false;
 		}
@@ -167,6 +226,8 @@ public class MiningPanel extends JPanel implements ActionListener {
 				response.close();
 				if (response.getStatusLine().getStatusCode() == 200) {
 					UIUtil.displayMessage("Succeed", "Miner has stopped.", null);
+				} else {
+					UIUtil.displayMessage("Failed", "Failed to stop miner.", MessageType.ERROR);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
@@ -176,7 +237,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 		return true;
 	}
 
-	public boolean restart_miner_path() {
+	public boolean restart_miner() {
 		if (table.getSelectedRowCount() < 1) {
 			return false;
 		}
@@ -195,6 +256,9 @@ public class MiningPanel extends JPanel implements ActionListener {
 				response.close();
 				if (response.getStatusLine().getStatusCode() == 200) {
 					UIUtil.displayMessage("Succeed", "Miner has stopped.", null);
+				} else {
+					UIUtil.displayMessage("Failed", "Failed to stop miner.", MessageType.ERROR);
+					return false;
 				}
 				httpPost = new HttpPost(basePath + addational_path + "/start");
 				jobj = new JSONObject();
@@ -205,6 +269,9 @@ public class MiningPanel extends JPanel implements ActionListener {
 				response.close();
 				if (response.getStatusLine().getStatusCode() == 200) {
 					UIUtil.displayMessage("Succeed", "Miner has started.", null);
+				} else {
+					UIUtil.displayMessage("Failed", "Failed to start miner.", MessageType.ERROR);
+					return false;
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);

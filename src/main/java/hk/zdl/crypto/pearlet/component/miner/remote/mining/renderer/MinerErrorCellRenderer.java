@@ -1,4 +1,4 @@
-package hk.zdl.crypto.pearlet.component.miner.remote.mining;
+package hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer;
 
 import java.awt.Component;
 import java.text.SimpleDateFormat;

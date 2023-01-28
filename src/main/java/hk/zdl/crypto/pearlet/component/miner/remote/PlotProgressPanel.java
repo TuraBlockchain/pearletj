@@ -39,6 +39,7 @@ import com.jakewharton.byteunits.BinaryByteUnit;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerAccountSettingsPanel;
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerPathSettingPanel;
+import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -126,17 +127,19 @@ public class PlotProgressPanel extends JPanel {
 		panel.add(fz_op, new GridBagConstraints(2, 2, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
 		var chech_box_1 = new JCheckBox("Restart miner on plot finish");
 		panel.add(chech_box_1, new GridBagConstraints(0, 3, 3, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		var show_numberic = Boolean.parseBoolean(Util.getUserSettings().getProperty("show_numberic_id"));
 		Util.submit(() -> {
-			combo_box_1.setModel(new ListComboBoxModel<String>(
-					new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().stream().map(String::valueOf).toList()));
+			var list = new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().stream().map(String::valueOf).toList();
+			list = list.stream().map(RoturaAddress::fromEither).map(r -> show_numberic ? r.getID() : r.getFullAddress()).toList();
+			combo_box_1.setModel(new ListComboBoxModel<String>(list));
 			combo_box_1.getActionListeners()[0].actionPerformed(null);
 			return null;
 		});
 		combo_box_1.addActionListener(e -> {
 			Util.submit(() -> {
+				var str = RoturaAddress.fromEither(combo_box_1.getSelectedItem().toString()).getID();
 				combo_box_2.setModel(new ListComboBoxModel<String>(
-						new JSONArray(new JSONTokener(new URL(basePath + MinerPathSettingPanel.miner_file_path + "/list?id=" + combo_box_1.getSelectedItem()).openStream())).toList().stream()
-								.map(String::valueOf).toList()));
+						new JSONArray(new JSONTokener(new URL(basePath + MinerPathSettingPanel.miner_file_path + "/list?id=" + str).openStream())).toList().stream().map(String::valueOf).toList()));
 				return null;
 			});
 		});
@@ -157,10 +160,11 @@ public class PlotProgressPanel extends JPanel {
 			}
 
 			try {
+				var str = RoturaAddress.fromEither(combo_box_1.getSelectedItem().toString()).getID();
 				var httpclient = MyHC.getHttpclient();
 				var httpPost = new HttpPost(basePath + plot_path + "/add");
 				var jobj = new JSONObject();
-				jobj.put("id", new BigInteger(combo_box_1.getSelectedItem().toString()));
+				jobj.put("id", str);
 				jobj.put("nounces", l);
 				jobj.put("target_path", combo_box_2.getSelectedItem());
 				jobj.put("restart", chech_box_1.isSelected());
