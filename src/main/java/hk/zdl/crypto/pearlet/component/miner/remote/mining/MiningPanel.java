@@ -1,13 +1,20 @@
 package hk.zdl.crypto.pearlet.component.miner.remote.mining;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
+import java.awt.Desktop.Action;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.logging.Level;
@@ -30,6 +37,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import com.formdev.flatlaf.util.SystemInfo;
+
 import hk.zdl.crypto.pearlet.component.miner.remote.MyHC;
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerAccountSettingsPanel;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.DateCellRenderer;
@@ -37,6 +46,7 @@ import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.IDRenderer;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.MinerErrorCellRenderer;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.PlotDirCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class MiningPanel extends JPanel implements ActionListener {
@@ -105,6 +115,33 @@ public class MiningPanel extends JPanel implements ActionListener {
 			((DefaultTableCellRenderer) table.getColumnModel().getColumn(i).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
 		}
 		table.getColumnModel().getColumn(4).setCellRenderer(new PlotDirCellRenderer());
+		table.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent mouseEvent) {
+				Point point = mouseEvent.getPoint();
+				int row = table.rowAtPoint(point);
+				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
+					if (table.getSelectedColumn() == 0) {
+						var str = table.getModel().getValueAt(row, 0).toString();
+						Util.viewAccountDetail(CrptoNetworks.ROTURA, str);
+					} else if (table.getSelectedColumn() == 4) {
+						var jarr = table.getModel().getValueAt(row, 4);
+						if (jarr != null && ((JSONArray) jarr).length() == 1) {
+							var path = ((JSONArray) jarr).getString(0);
+							if(Desktop.getDesktop().isSupported(Action.BROWSE_FILE_DIR)) {
+								Desktop.getDesktop().browseFileDirectory(new File(path));
+							}else if(SystemInfo.isWindows) {
+								try {
+									new ProcessBuilder().command("explorer.exe",path).start();
+								} catch (IOException x) {
+									Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+								}
+							}
+						}
+					}
+				}
+			}
+		});
+
 	}
 
 	public void setBasePath(String basePath) {
