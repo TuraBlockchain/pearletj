@@ -127,11 +127,15 @@ public class MiningPanel extends JPanel implements ActionListener {
 						var jarr = table.getModel().getValueAt(row, 4);
 						if (jarr != null && ((JSONArray) jarr).length() == 1) {
 							var path = ((JSONArray) jarr).getString(0);
-							if(Desktop.getDesktop().isSupported(Action.BROWSE_FILE_DIR)) {
-								Desktop.getDesktop().browseFileDirectory(new File(path));
-							}else if(SystemInfo.isWindows) {
+							var file = new File(path);
+							if (!file.exists() || !file.isDirectory()) {
+								return;
+							}
+							if (Desktop.getDesktop().isSupported(Action.BROWSE_FILE_DIR)) {
+								Desktop.getDesktop().browseFileDirectory(file);
+							} else if (SystemInfo.isWindows) {
 								try {
-									new ProcessBuilder().command("explorer.exe",path).start();
+									new ProcessBuilder().command("explorer.exe", path).start();
 								} catch (IOException x) {
 									Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 								}
