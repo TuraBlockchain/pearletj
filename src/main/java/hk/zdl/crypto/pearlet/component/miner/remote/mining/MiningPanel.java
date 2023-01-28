@@ -32,6 +32,10 @@ import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MyHC;
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerAccountSettingsPanel;
+import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.DateCellRenderer;
+import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.IDRenderer;
+import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.MinerErrorCellRenderer;
+import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.PlotDirCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -95,6 +99,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 			table.getColumnModel().getColumn(i).setCellRenderer(new DefaultTableCellRenderer());
 		}
 		IntStream.of(1, 5).forEach(i -> table.getColumnModel().getColumn(i).setCellRenderer(new DateCellRenderer()));
+		table.getColumnModel().getColumn(0).setCellRenderer(new IDRenderer());
 		table.getColumnModel().getColumn(10).setCellRenderer(new MinerErrorCellRenderer());
 		for (var i = 0; i < table_model.getColumnCount(); i++) {
 			((DefaultTableCellRenderer) table.getColumnModel().getColumn(i).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
