@@ -164,7 +164,7 @@ public class PlotProgressPanel extends JPanel {
 				var httpclient = MyHC.getHttpclient();
 				var httpPost = new HttpPost(basePath + plot_path + "/add");
 				var jobj = new JSONObject();
-				jobj.put("id", str);
+				jobj.put("id", new BigInteger(str));
 				jobj.put("nounces", l);
 				jobj.put("target_path", combo_box_2.getSelectedItem());
 				jobj.put("restart", chech_box_1.isSelected());
