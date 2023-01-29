@@ -3,6 +3,7 @@ package hk.zdl.crypto.pearlet.component.miner.remote.conf;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -14,6 +15,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -31,7 +33,6 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -41,6 +42,7 @@ import com.csvreader.CsvReader;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.component.miner.remote.MyHC;
+import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -89,6 +91,27 @@ public class MinerAccountSettingsPanel extends JPanel {
 			}
 			return null;
 		}));
+		acc_list.setCellRenderer(new DefaultListCellRenderer() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1165392686465658238L;
+			private boolean show_numberic = Boolean.parseBoolean(Util.getUserSettings().getProperty("show_numberic_id"));
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+				var adr = RoturaAddress.fromEither(value.toString());
+				if (show_numberic) {
+					value = adr.getID();
+				} else {
+					value = adr.getFullAddress();
+				}
+				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				return this;
+			}
+		});
+		acc_list.setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
 	}
 
 	public void setBasePath(String basePath) {

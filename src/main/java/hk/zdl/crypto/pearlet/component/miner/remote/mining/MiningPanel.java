@@ -45,6 +45,7 @@ import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.DateCellRend
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.IDRenderer;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.MinerErrorCellRenderer;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.PlotDirCellRenderer;
+import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -167,9 +168,18 @@ public class MiningPanel extends JPanel implements ActionListener {
 
 	public boolean start_miner() {
 		var icon = UIUtil.getStretchIcon("icon/" + "signpost-2.svg", 64, 64);
+		var show_numberic = Boolean.parseBoolean(Util.getUserSettings().getProperty("show_numberic_id"));
 		try {
 			var options = new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().toArray();
+			if (!show_numberic) {
+				for (var i = 0; i < options.length; i++) {
+					var str = options[i];
+					var adr = RoturaAddress.fromEither(str.toString()).getFullAddress();
+					options[i] = adr;
+				}
+			}
 			var choice = JOptionPane.showInputDialog(getRootPane(), "Choose your wallet id to start mining:", "Start Miner", JOptionPane.QUESTION_MESSAGE, icon, options, null);
+			choice = RoturaAddress.fromEither(choice.toString()).getID();
 			if (choice == null) {
 				return false;
 			} else {
