@@ -84,7 +84,9 @@ public class MinerPathSettingPanel extends JPanel {
 	@SuppressWarnings("unchecked")
 	public void refresh_list() throws Exception {
 		var l = new JSONArray(new JSONTokener(new URL(basePath + miner_file_path + "/list?id=" + id).openStream())).toList().stream().map(o -> o.toString()).toList();
+		var i= path_list.getSelectedIndex();
 		path_list.setModel(new ListComboBoxModel<String>(l));
+		path_list.setSelectedIndex(i);
 	}
 
 	public boolean add_miner_path() {
@@ -125,13 +127,13 @@ public class MinerPathSettingPanel extends JPanel {
 		if (path_list.getSelectedIndex() < 0) {
 			return false;
 		}
+		var jobj = new JSONObject();
+		jobj.put("id", id);
+		jobj.put("path", path_list.getSelectedValue());
 		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete it?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.YES_OPTION) {
 			try {
 				var httpPost = new HttpPost(basePath + miner_file_path + "/del");
-				var jobj = new JSONObject();
-				jobj.put("id", id);
-				jobj.put("path", path_list.getSelectedValue());
 				httpPost.setEntity(new StringEntity(jobj.toString()));
 				httpPost.setHeader("Content-type", "application/json");
 				var httpclient = MyHC.getHttpclient();
