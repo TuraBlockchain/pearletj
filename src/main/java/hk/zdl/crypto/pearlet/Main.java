@@ -20,6 +20,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.apache.derby.shared.common.error.StandardException;
+
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
@@ -62,10 +64,17 @@ public class Main {
 			System.setProperty("derby.system.home", Files.createTempDirectory(null).toFile().getAbsolutePath());
 			MyDb.getTables();
 		} catch (Throwable x) {
-			while (x.getCause() != null) {
+			while (x.getCause() != null && x.getCause() != x) {
 				x = x.getCause();
 			}
-			JOptionPane.showMessageDialog(null, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			var msg = x.getLocalizedMessage();
+			if (x.getClass().equals(StandardException.class)) {
+				if (((StandardException) x).getSQLState().equals("XSDB6")) {
+//					msg = "Another instance of Derby may have already booted the database";
+					msg = "Only one instance can run concurrently.";
+				}
+			}
+			JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
 		Util.submit(MyDb::create_missing_tables);
