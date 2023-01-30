@@ -149,9 +149,12 @@ public class SetAccountInfoPanel extends JPanel {
 		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { e.account }));
 		this.network = e.network;
 		this.account = e.account;
-		FeeSuggestion g = CryptoUtil.getFeeSuggestion(network);
-		fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
-		fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
-		fee_slider.setValue(g.getStandardFee().toNQT().intValue());
+		try {
+			FeeSuggestion g = CryptoUtil.getFeeSuggestion(network);
+			fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
+			fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
+			fee_slider.setValue(g.getStandardFee().toNQT().intValue());
+		} catch (Exception x) {
+		}
 	}
 }

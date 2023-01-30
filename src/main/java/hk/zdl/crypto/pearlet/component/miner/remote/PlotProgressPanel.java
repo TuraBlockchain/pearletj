@@ -132,8 +132,8 @@ public class PlotProgressPanel extends JPanel {
 		panel.add(label_4, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 		var fz_spinner = new JSpinner(new SpinnerNumberModel(50, 1, 1024, 1));
 		var fz_op = new JComboBox<>(new String[] { "MB", "GB" });
-		panel.add(fz_spinner, new GridBagConstraints(1, 2, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-		panel.add(fz_op, new GridBagConstraints(2, 2, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
+		panel.add(fz_spinner, new GridBagConstraints(1, 2, 1, 1, 1, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		panel.add(fz_op, new GridBagConstraints(2, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
 		var chech_box_1 = new JCheckBox("Restart miner on plot finish", true);
 		panel.add(chech_box_1, new GridBagConstraints(0, 3, 3, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		fz_op.getModel().setSelectedItem("GB");
