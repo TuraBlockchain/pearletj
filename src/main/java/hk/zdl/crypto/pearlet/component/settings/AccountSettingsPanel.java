@@ -43,6 +43,7 @@ import hk.zdl.crypto.pearlet.component.account_settings.web3j.ImportWeb3JAccount
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.WatchWeb3JAccount;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
+import hk.zdl.crypto.pearlet.component.event.SetNAABarEvent;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
@@ -178,10 +179,17 @@ public class AccountSettingsPanel extends JPanel {
 			public void mousePressed(MouseEvent mouseEvent) {
 				Point point = mouseEvent.getPoint();
 				int row = table.rowAtPoint(point);
-				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
+				if (row >= 0 & row == table.getSelectedRow()) {
 					var str = account_table_model.getValueAt(row, 1).toString();
+					var adr = account_table_model.getValueAt(row, 2).toString().replace(",watch", "");
 					CrptoNetworks nw = Stream.of(CrptoNetworks.values()).filter(o -> o.toString().equals(str)).findAny().get();
-					Util.viewAccountDetail(nw, account_table_model.getValueAt(row, 2).toString().replace(",watch", ""));
+					if (mouseEvent.getClickCount() == 1) {
+						if (new KeyEvent(AccountSettingsPanel.this, 0, 0, mouseEvent.getModifiersEx(), 0, ' ').isAltDown()) {
+							EventBus.getDefault().post(new SetNAABarEvent(nw, adr));
+						}
+					} else if (mouseEvent.getClickCount() == 2) {
+						Util.viewAccountDetail(nw, adr);
+					}
 				}
 			}
 		});
@@ -197,7 +205,7 @@ public class AccountSettingsPanel extends JPanel {
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setShowGrid(true);
 		table.getColumnModel().getColumn(2).setCellRenderer(new WatchAddressCellRenderer());
-		IntStream.of(0,3).forEach(i->{
+		IntStream.of(0, 3).forEach(i -> {
 			table.getColumnModel().getColumn(i).setCellRenderer(new DefaultTableCellRenderer());
 			((DefaultTableCellRenderer) table.getColumnModel().getColumn(i).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
 		});

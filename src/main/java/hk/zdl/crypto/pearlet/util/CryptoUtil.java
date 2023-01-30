@@ -685,6 +685,8 @@ public class CryptoUtil {
 					}
 				}
 				throw e;
+			}catch(ThreadDeath e) {
+				return new SignumID[] {};
 			}
 			return id_arr;
 		}

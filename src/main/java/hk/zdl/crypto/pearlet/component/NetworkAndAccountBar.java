@@ -9,6 +9,7 @@ import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import javax.swing.Icon;
@@ -27,6 +28,7 @@ import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
+import hk.zdl.crypto.pearlet.component.event.SetNAABarEvent;
 import hk.zdl.crypto.pearlet.component.event.SettingsPanelEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
 import hk.zdl.crypto.pearlet.ds.AccountComboboxEntry;
@@ -107,9 +109,30 @@ public class NetworkAndAccountBar extends JPanel {
 		var acc = account_combobox.getSelectedItem();
 		if (acc == null) {
 			EventBus.getDefault().post(new AccountChangeEvent(nw, null));
-		}else {
+		} else {
 			str = ((AccountComboboxEntry) acc).address;
 			EventBus.getDefault().post(new AccountChangeEvent(nw, str));
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(SetNAABarEvent e) {
+		if (!network_combobox.getSelectedItem().equals(e.getNetwork())) {
+			network_combobox.setSelectedItem(e.getNetwork());
+		}
+		var adr = e.getAddress();
+		for (var i = 0; i < 100; i++) {
+			for (var j = 0; j < account_combobox.getModel().getSize(); j++) {
+				var item = account_combobox.getModel().getElementAt(j).address;
+				if(item.equals(adr)) {
+					account_combobox.setSelectedIndex(j);
+					return;
+				}
+			}
+			try {
+				TimeUnit.MILLISECONDS.sleep(100);
+			} catch (InterruptedException x) {
+			}
 		}
 	}
 
