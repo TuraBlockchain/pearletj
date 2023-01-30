@@ -1,6 +1,7 @@
 package hk.zdl.crypto.pearlet.component.plot;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -61,8 +62,8 @@ public class PlotPanel extends JPanel implements ActionListener {
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private final JTextField jar_file_field = new JTextField(50);
 	private final JTextField plot_path_field = new JTextField(50);
-	private final JSpinner pcs_spinner = new JSpinner(new SpinnerNumberModel(10, 1, 100, 1));
-	private final JSpinner fz_spinner = new JSpinner(new SpinnerNumberModel(100, 1, 1024, 1));
+	private final JSpinner pcs_spinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
+	private final JSpinner fz_spinner = new JSpinner(new SpinnerNumberModel(50, 1, 1024, 1));
 	private final JComboBox<String> fz_op = new JComboBox<>(new String[] { "MB", "GB" });
 	private final JButton plot_btn = new JButton("Plot");
 	private final JTabbedPane tabbed_pane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -98,6 +99,8 @@ public class PlotPanel extends JPanel implements ActionListener {
 		add(pcs_spinner, new GridBagConstraints(4, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		add(plot_btn, new GridBagConstraints(5, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 		add(new JLayer<JTabbedPane>(tabbed_pane, new CloseableTabbedPaneLayerUI()), new GridBagConstraints(0, 2, 6, 2, 2, 2, GridBagConstraints.CENTER, GridBagConstraints.BOTH, insets_5, 0, 0));
+		fz_op.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
+		fz_op.getModel().setSelectedItem("GB");
 
 		jar_file_btn.addActionListener(this::check_and_set_jar_path);
 		plot_path_btn.addActionListener(e -> {

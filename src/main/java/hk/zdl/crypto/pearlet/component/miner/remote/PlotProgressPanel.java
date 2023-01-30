@@ -2,9 +2,11 @@ package hk.zdl.crypto.pearlet.component.miner.remote;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.math.BigInteger;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
@@ -113,6 +115,7 @@ public class PlotProgressPanel extends JPanel {
 		var label_1 = new JLabel("id:");
 		panel.add(label_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 		var combo_box_1 = new JComboBox<String>();
+		combo_box_1.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
 		panel.add(combo_box_1, new GridBagConstraints(1, 0, 2, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var label_2 = new JLabel("Path:");
 		panel.add(label_2, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
