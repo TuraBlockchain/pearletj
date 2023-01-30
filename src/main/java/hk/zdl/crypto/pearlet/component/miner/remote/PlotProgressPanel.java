@@ -31,6 +31,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -38,11 +41,13 @@ import org.json.JSONTokener;
 
 import com.jakewharton.byteunits.BinaryByteUnit;
 
+import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerAccountSettingsPanel;
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerPathSettingPanel;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class PlotProgressPanel extends JPanel {
@@ -70,6 +75,7 @@ public class PlotProgressPanel extends JPanel {
 	};
 
 	private String basePath = "";
+	private String selected_account_id = "";
 
 	public PlotProgressPanel() {
 		super(new BorderLayout());
@@ -83,6 +89,7 @@ public class PlotProgressPanel extends JPanel {
 		add(panel_1, BorderLayout.EAST);
 		add_btn.addActionListener(e -> Util.submit(this::addPlot));
 		clear_btn.addActionListener(e -> Util.submit(this::clear_done));
+		EventBus.getDefault().register(this);
 	}
 
 	public void setBasePath(String basePath) {
@@ -136,6 +143,13 @@ public class PlotProgressPanel extends JPanel {
 			list = list.stream().map(RoturaAddress::fromEither).map(r -> show_numberic ? r.getID() : r.getFullAddress()).toList();
 			combo_box_1.setModel(new ListComboBoxModel<String>(list));
 			combo_box_1.getActionListeners()[0].actionPerformed(null);
+			for (var str : list) {
+				var a = RoturaAddress.fromEither(str).getFullAddress();
+				if (a.equals(selected_account_id)) {
+					combo_box_1.getModel().setSelectedItem(str);
+					break;
+				}
+			}
 			return null;
 		});
 		combo_box_1.addActionListener(e -> {
@@ -242,5 +256,12 @@ public class PlotProgressPanel extends JPanel {
 			model.setValueAt(jobj.opt("path"), row_2, 4);
 		}
 		SwingUtilities.invokeLater(() -> UIUtil.adjust_table_width(table, table.getColumnModel()));
+	}
+
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(AccountChangeEvent e) {
+		if (e.network == CrptoNetworks.ROTURA && e.account != null) {
+			selected_account_id = e.account;
+		}
 	}
 }
