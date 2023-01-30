@@ -8,7 +8,6 @@ import java.awt.Insets;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
@@ -30,6 +29,7 @@ import javax.swing.table.DefaultTableModel;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -121,12 +121,13 @@ public class PlotProgressPanel extends JPanel {
 		panel.add(combo_box_2, new GridBagConstraints(1, 1, 2, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var label_4 = new JLabel("File Size:");
 		panel.add(label_4, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
-		var fz_spinner = new JSpinner(new SpinnerNumberModel(100, 1, 1024, 1));
+		var fz_spinner = new JSpinner(new SpinnerNumberModel(50, 1, 1024, 1));
 		var fz_op = new JComboBox<>(new String[] { "MB", "GB" });
 		panel.add(fz_spinner, new GridBagConstraints(1, 2, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		panel.add(fz_op, new GridBagConstraints(2, 2, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
-		var chech_box_1 = new JCheckBox("Restart miner on plot finish");
+		var chech_box_1 = new JCheckBox("Restart miner on plot finish", true);
 		panel.add(chech_box_1, new GridBagConstraints(0, 3, 3, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		fz_op.getModel().setSelectedItem("GB");
 		var show_numberic = Boolean.parseBoolean(Util.getUserSettings().getProperty("show_numberic_id"));
 		Util.submit(() -> {
 			var list = new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().stream().map(String::valueOf).toList();
@@ -161,7 +162,7 @@ public class PlotProgressPanel extends JPanel {
 
 			try {
 				var str = RoturaAddress.fromEither(combo_box_1.getSelectedItem().toString()).getID();
-				var httpclient = MyHC.getHttpclient();
+				var httpclient = HttpClients.createSystem();
 				var httpPost = new HttpPost(basePath + plot_path + "/add");
 				var jobj = new JSONObject();
 				jobj.put("id", new BigInteger(str));
@@ -174,16 +175,12 @@ public class PlotProgressPanel extends JPanel {
 				if (response.getStatusLine().getStatusCode() == 200) {
 					response.close();
 					UIUtil.displayMessage("Succeed", "Plot queued!", null);
-					Util.submit(new Callable<Void>() {
-
-						@Override
-						public Void call() throws Exception {
-							for (int i = 0; i < 5; i++) {
-								refresh_current_plots();
-								TimeUnit.SECONDS.sleep(1);
-							}
-							return null;
+					Util.submit(() -> {
+						for (var a = 0; a < 5; a++) {
+							refresh_current_plots();
+							TimeUnit.SECONDS.sleep(1);
 						}
+						return null;
 					});
 				} else {
 					var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
@@ -198,7 +195,7 @@ public class PlotProgressPanel extends JPanel {
 
 	private final void clear_done() {
 		try {
-			var httpclient = MyHC.getHttpclient();
+			var httpclient = HttpClients.createSystem();
 			var httpPost = new HttpPost(basePath + plot_path + "/clear_done");
 			var response = httpclient.execute(httpPost);
 			if (response.getStatusLine().getStatusCode() == 200) {

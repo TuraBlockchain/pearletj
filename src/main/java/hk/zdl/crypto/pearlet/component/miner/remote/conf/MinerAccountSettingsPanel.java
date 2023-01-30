@@ -33,6 +33,7 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -41,7 +42,6 @@ import org.json.JSONTokener;
 import com.csvreader.CsvReader;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
-import hk.zdl.crypto.pearlet.component.miner.remote.MyHC;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
@@ -164,7 +164,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 		jobj.put("passphrase", phrase);
 		httpPost.setEntity(new StringEntity(jobj.toString()));
 		httpPost.setHeader("Content-type", "application/json");
-		var httpclient = MyHC.getHttpclient();
+		var httpclient = HttpClients.createSystem();
 		var response = httpclient.execute(httpPost);
 		if (response.getStatusLine().getStatusCode() == 200) {
 			var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
@@ -189,7 +189,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 				jobj.put("id", id);
 				httpPost.setEntity(new StringEntity(jobj.toString()));
 				httpPost.setHeader("Content-type", "application/json");
-				var httpclient = MyHC.getHttpclient();
+				var httpclient = HttpClients.createSystem();
 				var response = httpclient.execute(httpPost);
 				if (response.getStatusLine().getStatusCode() != 200) {
 					var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);

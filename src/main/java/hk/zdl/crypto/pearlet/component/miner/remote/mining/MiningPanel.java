@@ -33,13 +33,13 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import com.formdev.flatlaf.util.SystemInfo;
 
-import hk.zdl.crypto.pearlet.component.miner.remote.MyHC;
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerAccountSettingsPanel;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.DateCellRenderer;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.IDRenderer;
@@ -184,7 +184,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 				return false;
 			} else {
 				try {
-					var httpclient = MyHC.getHttpclient();
+					var httpclient = HttpClients.createSystem();
 					var httpPost = new HttpPost(basePath + addational_path + "/start");
 					var jobj = new JSONObject();
 					jobj.put("id", choice);
@@ -216,7 +216,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to stop this miner?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.YES_OPTION) {
 			try {
-				var httpclient = MyHC.getHttpclient();
+				var httpclient = HttpClients.createSystem();
 				var httpPost = new HttpPost(basePath + addational_path + "/stop");
 				var jobj = new JSONObject();
 				jobj.put("id", new BigInteger(table.getValueAt(row, 0).toString()));
@@ -246,7 +246,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 		if (i == JOptionPane.YES_OPTION) {
 			try {
 				var id = new BigInteger(table.getValueAt(row, 0).toString());
-				var httpclient = MyHC.getHttpclient();
+				var httpclient = HttpClients.createSystem();
 				var httpPost = new HttpPost(basePath + addational_path + "/stop");
 				var jobj = new JSONObject();
 				jobj.put("id", id);

@@ -17,9 +17,9 @@ import javax.swing.border.TitledBorder;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
-import hk.zdl.crypto.pearlet.component.miner.remote.MyHC;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 
 public class MinerMiscSettingsPane extends JPanel {
@@ -41,7 +41,7 @@ public class MinerMiscSettingsPane extends JPanel {
 		add(update_serv_url_btn, new GridBagConstraints(1, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		update_serv_url_btn.addActionListener(e -> {
 			try {
-				var httpclient = MyHC.getHttpclient();
+				var httpclient = HttpClients.createSystem();
 				var httpPost = new HttpPost(basePath + miner_conf_serv_u_path);
 				httpPost.setEntity(new StringEntity(server_url_field.getText().trim()));
 				var response = httpclient.execute(httpPost);

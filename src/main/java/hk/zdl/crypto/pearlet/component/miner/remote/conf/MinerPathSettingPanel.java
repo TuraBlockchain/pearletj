@@ -20,13 +20,13 @@ import javax.swing.border.TitledBorder;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
-import hk.zdl.crypto.pearlet.component.miner.remote.MyHC;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -106,7 +106,7 @@ public class MinerPathSettingPanel extends JPanel {
 					jobj.put("path", path);
 					httpPost.setEntity(new StringEntity(jobj.toString()));
 					httpPost.setHeader("Content-type", "application/json");
-					var httpclient = MyHC.getHttpclient();
+					var httpclient = HttpClients.createSystem();
 					var response = httpclient.execute(httpPost);
 					if (response.getStatusLine().getStatusCode() != 200) {
 						var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
@@ -136,7 +136,7 @@ public class MinerPathSettingPanel extends JPanel {
 				var httpPost = new HttpPost(basePath + miner_file_path + "/del");
 				httpPost.setEntity(new StringEntity(jobj.toString()));
 				httpPost.setHeader("Content-type", "application/json");
-				var httpclient = MyHC.getHttpclient();
+				var httpclient = HttpClients.createSystem();
 				var response = httpclient.execute(httpPost);
 				if (response.getStatusLine().getStatusCode() != 200) {
 					var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);

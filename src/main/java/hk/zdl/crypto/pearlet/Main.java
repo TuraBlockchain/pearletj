@@ -51,8 +51,8 @@ import hk.zdl.crypto.pearlet.util.Util;
 public class Main {
 
 	public static void main(String[] args) throws Throwable {
-		GnomeMagic.do_trick();
 		AquaMagic.do_trick();
+		GnomeMagic.do_trick();
 		UIUtil.printVersionOnSplashScreen();
 		Image app_icon = ImageIO.read(Util.getResource("app_icon.png"));
 		Util.submit(() -> Taskbar.getTaskbar().setIconImage(app_icon));
@@ -70,6 +70,7 @@ public class Main {
 		}
 		Util.submit(MyDb::create_missing_tables);
 		createFrame(otd, app_icon);
+		TimeUnit.SECONDS.sleep(5);
 		new TxHistoryQueryExecutor();
 		new EtherAccountsMonitor();
 		new SignumAccountsMonitor(CrptoNetworks.ROTURA);
