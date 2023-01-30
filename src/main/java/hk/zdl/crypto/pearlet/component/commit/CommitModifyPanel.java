@@ -4,14 +4,21 @@ import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -29,8 +36,10 @@ import org.jfree.data.general.DefaultPieDataset;
 
 import com.jfinal.plugin.activerecord.Record;
 
+import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.ui.SpinableIcon;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
@@ -41,6 +50,8 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private static final long serialVersionUID = -4996189634836777005L;
 	private final ChartPanel chart_panel = new ChartPanel(ChartFactory.createPieChart(null, new DefaultPieDataset<String>(), true, true, false));
+	private final JButton btn = new JButton("Commit", MyToolbar.getIcon("paper-plane-solid.svg"));
+	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32, 32, BufferedImage.TYPE_4BYTE_ABGR), 32, 32);
 
 	private CrptoNetworks network;
 	private String account;
@@ -48,7 +59,16 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 	public CommitModifyPanel() {
 		super(new GridBagLayout());
 		var top_panel = new JPanel(new FlowLayout());
-		var btn = new JButton("Commit");
+		btn.setFont(new Font("Arial Black", Font.PLAIN, 32));
+		btn.setMultiClickThreshhold(300);
+		btn.setEnabled(false);
+		try {
+			var btn_img = ImageIO.read(Util.getResource("icon/spinner-solid.svg"));
+			busy_icon.setImage(btn_img, 32, 32);
+			btn.setDisabledIcon(busy_icon);
+		} catch (IOException x) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+		}
 		top_panel.add(btn);
 		add(top_panel, new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
 		add(chart_panel, new GridBagConstraints(0, 1, 1, 2, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
@@ -74,7 +94,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 	public void onMessage(AccountChangeEvent e) {
 		this.network = e.network;
 		this.account = e.account;
-		if(account==null)
+		if (account == null)
 			return;
 		BigDecimal _bal = new BigDecimal(0), _c_bal = new BigDecimal(0), _a_bal = new BigDecimal(0);
 		try {
@@ -101,6 +121,8 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		plot.setDataset(dataset);
 		plot.setSectionPaint("Available Balance", Color.green.darker());
 		plot.setSectionPaint("Committed Balance", Color.blue.darker());
+		btn.setEnabled(true);
+		busy_icon.stop();
 	}
 
 	@Override
@@ -124,7 +146,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		Util.submit(() -> {
 			var fee = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
 			a.setText("" + fee.doubleValue() / Math.pow(10, network == ROTURA ? CryptoUtil.peth_decimals : 8));
-		});		
+		});
 		Util.submit(() -> {
 			int i = JOptionPane.showConfirmDialog(getRootPane(), panel, "Set Commitment", JOptionPane.OK_CANCEL_OPTION);
 			if (i == JOptionPane.OK_OPTION) {
@@ -133,13 +155,13 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 					amount = new BigDecimal(txt_field.getText().trim());
 				} catch (Exception x) {
 					JOptionPane.showMessageDialog(getRootPane(), "Invalid Number!", "ERROR", JOptionPane.ERROR_MESSAGE);
-					return;
+					return null;
 				}
 				if (amount.compareTo(new BigDecimal(0)) == 0) {
-					return;
+					return null;
 				} else if (amount.doubleValue() < 0) {
 					JOptionPane.showMessageDialog(getRootPane(), "Negetive Number Not Allowed!", "ERROR", JOptionPane.ERROR_MESSAGE);
-					return;
+					return null;
 				}
 				var public_key = new byte[] {};
 				var private_key = new byte[] {};
@@ -149,23 +171,29 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 					private_key = opt_r.get().getBytes("PRIVATE_KEY");
 				} else {
 					JOptionPane.showMessageDialog(getRootPane(), "Account not found in database!", "ERROR", JOptionPane.ERROR_MESSAGE);
-					return;
+					return null;
 				}
 				try {
 					var fee_qnt = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
 					var fee_dml = new BigDecimal(fee_qnt, network == ROTURA ? CryptoUtil.peth_decimals : 8);
+					btn.setEnabled(false);
+					busy_icon.start();
 					if (add_btn.isSelected()) {
 						do_add_commit(public_key, private_key, amount, fee_dml);
 					} else {
 						do_revoke_commit(public_key, private_key, amount, fee_dml);
 					}
 				} catch (Exception x) {
+					btn.setEnabled(true);
+					busy_icon.stop();
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
-					return;
+					return null;
 				}
-				UIUtil.displayMessage( "Commitment",  "Commitment is set.", null);
+				UIUtil.displayMessage("Commitment", "Commitment is set.", null);
+				TimeUnit.SECONDS.sleep(2);
 				onMessage(new AccountChangeEvent(network, account));
 			}
+			return null;
 		});
 	}
 

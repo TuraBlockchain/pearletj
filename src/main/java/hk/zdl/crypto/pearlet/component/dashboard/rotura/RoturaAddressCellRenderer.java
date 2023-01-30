@@ -25,7 +25,7 @@ public class RoturaAddressCellRenderer extends DefaultTableCellRenderer {
 		}
 		if (tx.getRecipient() != null) {
 			recp = RoturaAddress.prefix + "-" + tx.getRecipient().getRawAddress();
-		} else {
+		} else if (tx.getType() == 0 || (tx.getType() == 2 && tx.getSubtype() == 1)) {// Payment
 			recp = "Burning Address ";
 		}
 		if (sender.equals(address)) {

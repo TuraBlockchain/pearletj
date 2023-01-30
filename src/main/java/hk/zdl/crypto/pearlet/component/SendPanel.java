@@ -88,7 +88,7 @@ public class SendPanel extends JPanel {
 	private final JComboBox<Object> token_combo_box = new JComboBox<>();
 	private final Map<Object, BigDecimal> asset_balance = new HashMap<>();
 	private final JLabel balance_label = new JLabel();
-	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32, 32, BufferedImage.TYPE_4BYTE_ABGR), 32, 32);;
+	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32, 32, BufferedImage.TYPE_4BYTE_ABGR), 32, 32);
 	private JButton send_btn;
 	private CrptoNetworks network;
 	private String account;
