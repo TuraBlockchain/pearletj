@@ -685,7 +685,7 @@ public class CryptoUtil {
 					}
 				}
 				throw e;
-			}catch(ThreadDeath e) {
+			} catch (ThreadDeath e) {
 				return new SignumID[] {};
 			}
 			return id_arr;
@@ -716,7 +716,7 @@ public class CryptoUtil {
 		throw new InterruptedException();
 	}
 
-	public static final Optional<String> get_server_url(CrptoNetworks network) {
+	public static final synchronized Optional<String> get_server_url(CrptoNetworks network) {
 		Optional<String> opt = MyDb.get_server_url(network);
 		if (opt.isEmpty()) {
 			List<String> nws = Arrays.asList();
