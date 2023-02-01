@@ -257,7 +257,7 @@ public class SendPanel extends JPanel {
 				}
 			}
 
-			SendTx send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()), asset_id);
+			var send_tx = new SendTx(network, account, rcv_field.getText(), amount, new BigDecimal(fee_field.getText()), asset_id);
 			if (msg_chk_box.isSelected()) {
 				send_tx.setEncrypted(eny_msg_menu_item.isSelected());
 				if (plain_text_option_menu_item.isSelected()) {
@@ -285,9 +285,9 @@ public class SendPanel extends JPanel {
 			send_btn.setEnabled(false);
 			busy_icon.start();
 			Util.submit(() -> {
-				boolean b = false;
+				var b = false;
 				try {
-					if (Util.submit(send_tx).get()) {
+					if (send_tx.call()) {
 						b = true;
 					} else {
 						JOptionPane.showMessageDialog(getRootPane(), "Send token failed!", null, JOptionPane.ERROR_MESSAGE);
@@ -298,16 +298,18 @@ public class SendPanel extends JPanel {
 						x = x.getCause();
 					}
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
-					return;
+					return null;
 				} finally {
 					busy_icon.stop();
 					send_btn.setEnabled(true);
 				}
 				if (b) {
 					UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);
+					update_balance();
 				} else {
 					JOptionPane.showMessageDialog(getRootPane(), "Something went wrong, and token was not sent.", "Error", JOptionPane.ERROR_MESSAGE);
 				}
+				return null;
 			});
 
 		});
@@ -317,7 +319,7 @@ public class SendPanel extends JPanel {
 	public void onMessage(AccountChangeEvent e) {
 		this.network = e.network;
 		this.account = e.account;
-		String symbol = Util.default_currency_symbol.get(network.name());
+		var symbol = Util.default_currency_symbol.get(network.name());
 		balance_label.setText("?");
 		balance_label.setToolTipText(null);
 		token_combo_box.setModel(new DefaultComboBoxModel<Object>(new String[] { symbol }));
@@ -330,56 +332,7 @@ public class SendPanel extends JPanel {
 			wuli.start();
 			Util.submit(() -> {
 				try {
-					if (Arrays.asList(ROTURA, SIGNUM).contains(network)) {
-						Account account = CryptoUtil.getAccount(network, e.account);
-						var balance = account.getBalance();
-						var committed_balance = account.getCommittedBalance();
-						balance = balance.subtract(committed_balance);
-						BigDecimal value;
-						if (network.equals(SIGNUM)) {
-							value = balance.toSigna();
-						} else {
-							value = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals);
-						}
-						asset_balance.put(symbol, value);
-						updat_balance_label(value);
-						for (AssetBalance ab : account.getAssetBalances()) {
-							Asset a = CryptoUtil.getAsset(network, ab.getAssetId().toString());
-							BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).divide(BigDecimal.TEN.pow(a.getDecimals()));
-							asset_balance.put(a, val);
-							((DefaultComboBoxModel<Object>) token_combo_box.getModel()).addElement(a);
-						}
-						FeeSuggestion g = CryptoUtil.getFeeSuggestion(network);
-						fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
-						fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
-						fee_slider.setValue(g.getStandardFee().toNQT().intValue());
-					} else if (WEB3J.equals(network)) {
-						try {
-							BigDecimal value = CryptoUtil.getBalance(network, account);
-							asset_balance.put(symbol, value);
-							updat_balance_label(value);
-						} catch (Exception x) {
-							Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-						}
-						Optional<JSONArray> o_arr = MyDb.getETHTokenList(account);
-						if (o_arr.isPresent()) {
-							var jarr = o_arr.get();
-							JSONObject[] arr = new JSONObject[jarr.length()];
-							int j = -1;
-							for (int i = 0; i < arr.length; i++) {
-								var jobj = jarr.getJSONObject(i);
-								arr[i] = jobj;
-								BigDecimal val = new BigDecimal(jobj.getString("balance")).divide(BigDecimal.TEN.pow(jobj.getInt("contract_decimals")));
-								asset_balance.put(jobj, val);
-								if (jobj.getString("contract_name").equals("Ether") && jobj.getString("contract_ticker_symbol").equals("ETH")) {
-									j = i;
-								}
-							}
-							token_combo_box.setModel(new DefaultComboBoxModel<Object>(arr));
-							token_combo_box.setSelectedIndex(j);
-						}
-
-					}
+					update_balance();
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 				} finally {
@@ -394,6 +347,59 @@ public class SendPanel extends JPanel {
 			}
 		}
 		Stream.of(panel_2, fee_panel, fee_label).forEach(c -> c.setVisible(!WEB3J.equals(network)));
+	}
+
+	private final void update_balance() throws Exception {
+		var symbol = Util.default_currency_symbol.get(network.name());
+		if (Arrays.asList(ROTURA, SIGNUM).contains(network)) {
+			Account account = CryptoUtil.getAccount(network, this.account);
+			var balance = account.getBalance();
+			var committed_balance = account.getCommittedBalance();
+			balance = balance.subtract(committed_balance);
+			BigDecimal value;
+			if (network.equals(SIGNUM)) {
+				value = balance.toSigna();
+			} else {
+				value = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals);
+			}
+			asset_balance.put(symbol, value);
+			updat_balance_label(value);
+			for (AssetBalance ab : account.getAssetBalances()) {
+				Asset a = CryptoUtil.getAsset(network, ab.getAssetId().toString());
+				BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).divide(BigDecimal.TEN.pow(a.getDecimals()));
+				asset_balance.put(a, val);
+				((DefaultComboBoxModel<Object>) token_combo_box.getModel()).addElement(a);
+			}
+			FeeSuggestion g = CryptoUtil.getFeeSuggestion(network);
+			fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
+			fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
+			fee_slider.setValue(g.getStandardFee().toNQT().intValue());
+		} else if (WEB3J.equals(network)) {
+			try {
+				BigDecimal value = CryptoUtil.getBalance(network, account);
+				asset_balance.put(symbol, value);
+				updat_balance_label(value);
+			} catch (Exception x) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+			}
+			Optional<JSONArray> o_arr = MyDb.getETHTokenList(account);
+			if (o_arr.isPresent()) {
+				var jarr = o_arr.get();
+				JSONObject[] arr = new JSONObject[jarr.length()];
+				int j = -1;
+				for (int i = 0; i < arr.length; i++) {
+					var jobj = jarr.getJSONObject(i);
+					arr[i] = jobj;
+					BigDecimal val = new BigDecimal(jobj.getString("balance")).divide(BigDecimal.TEN.pow(jobj.getInt("contract_decimals")));
+					asset_balance.put(jobj, val);
+					if (jobj.getString("contract_name").equals("Ether") && jobj.getString("contract_ticker_symbol").equals("ETH")) {
+						j = i;
+					}
+				}
+				token_combo_box.setModel(new DefaultComboBoxModel<Object>(arr));
+				token_combo_box.setSelectedIndex(j);
+			}
+		}
 	}
 
 	private final void updat_balance_label(BigDecimal value) {
