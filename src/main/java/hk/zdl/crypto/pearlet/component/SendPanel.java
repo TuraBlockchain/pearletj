@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -305,7 +306,16 @@ public class SendPanel extends JPanel {
 				}
 				if (b) {
 					UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);
-					update_balance();
+					var old = balance_label.getText();
+					var acc = account;
+					for (var i = 0; i < 5; i++) {
+						TimeUnit.SECONDS.sleep(2);
+						update_balance();
+						var now = balance_label.getText();
+						if (acc != account || !now.equals(old)) {
+							break;
+						}
+					}
 				} else {
 					JOptionPane.showMessageDialog(getRootPane(), "Something went wrong, and token was not sent.", "Error", JOptionPane.ERROR_MESSAGE);
 				}
@@ -317,6 +327,7 @@ public class SendPanel extends JPanel {
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
+		var network_change = this.network != e.network;
 		this.network = e.network;
 		this.account = e.account;
 		var symbol = Util.default_currency_symbol.get(network.name());
@@ -330,6 +341,14 @@ public class SendPanel extends JPanel {
 			send_btn.setEnabled(false);
 		} else {
 			wuli.start();
+			if (network_change) {
+				Util.submit(() -> {
+					FeeSuggestion g = CryptoUtil.getFeeSuggestion(network);
+					fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
+					fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
+					fee_slider.setValue(g.getStandardFee().toNQT().intValue());
+				});
+			}
 			Util.submit(() -> {
 				try {
 					update_balance();
@@ -370,10 +389,6 @@ public class SendPanel extends JPanel {
 				asset_balance.put(a, val);
 				((DefaultComboBoxModel<Object>) token_combo_box.getModel()).addElement(a);
 			}
-			FeeSuggestion g = CryptoUtil.getFeeSuggestion(network);
-			fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
-			fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
-			fee_slider.setValue(g.getStandardFee().toNQT().intValue());
 		} else if (WEB3J.equals(network)) {
 			try {
 				BigDecimal value = CryptoUtil.getBalance(network, account);
