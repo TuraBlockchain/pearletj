@@ -13,7 +13,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
@@ -46,6 +45,7 @@ import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.SetNAABarEvent;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.ui.TxAmountCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WatchAddressCellRenderer;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
@@ -180,9 +180,8 @@ public class AccountSettingsPanel extends JPanel {
 				Point point = mouseEvent.getPoint();
 				int row = table.rowAtPoint(point);
 				if (row >= 0 & row == table.getSelectedRow()) {
-					var str = account_table_model.getValueAt(row, 1).toString();
+					var nw =  (CrptoNetworks) account_table_model.getValueAt(row, 1);
 					var adr = account_table_model.getValueAt(row, 2).toString().replace(",watch", "");
-					CrptoNetworks nw = Stream.of(CrptoNetworks.values()).filter(o -> o.toString().equals(str)).findAny().get();
 					if (mouseEvent.getClickCount() == 1) {
 						if (new KeyEvent(AccountSettingsPanel.this, 0, 0, mouseEvent.getModifiersEx(), 0, ' ').isAltDown()) {
 							EventBus.getDefault().post(new SetNAABarEvent(nw, adr));
@@ -205,10 +204,9 @@ public class AccountSettingsPanel extends JPanel {
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setShowGrid(true);
 		table.getColumnModel().getColumn(2).setCellRenderer(new WatchAddressCellRenderer());
-		IntStream.of(0, 3).forEach(i -> {
-			table.getColumnModel().getColumn(i).setCellRenderer(new DefaultTableCellRenderer());
-			((DefaultTableCellRenderer) table.getColumnModel().getColumn(i).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
-		});
+		table.getColumnModel().getColumn(3).setCellRenderer(new TxAmountCellRenderer());
+		table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer());
+		((DefaultTableCellRenderer) table.getColumnModel().getColumn(0).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
 		return table;
 	}
 

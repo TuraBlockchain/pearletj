@@ -183,7 +183,7 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(BalanceUpdateEvent e) {
-		String balance = e.getBalance().stripTrailingZeros().toPlainString();
+		var balance = e.getBalance();
 		for (int i = 0; i < getRowCount(); i++) {
 			var nw = (CrptoNetworks) getValueAt(i, 1);
 			if (nw.equals(e.getNetwork())) {
