@@ -53,6 +53,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 	private final JButton btn = new JButton("Commit", MyToolbar.getIcon("paper-plane-solid.svg"));
 	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32, 32, BufferedImage.TYPE_4BYTE_ABGR), 32, 32);
 
+	private BigDecimal committed_balance = null;
 	private CrptoNetworks network;
 	private String account;
 
@@ -111,6 +112,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		} catch (Exception x) {
 		}
 		_a_bal = _bal.subtract(_c_bal);
+		committed_balance = _c_bal;
 
 		var chart = chart_panel.getChart();
 		@SuppressWarnings("unchecked")
@@ -190,8 +192,17 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 					return null;
 				}
 				UIUtil.displayMessage("Commitment", "Commitment is set.", null);
-				TimeUnit.SECONDS.sleep(2);
-				onMessage(new AccountChangeEvent(network, account));
+				var old_committed_balance = committed_balance;
+				var acc = account;
+				for (var j = 0; j < 10; j++) {
+					btn.setEnabled(false);
+					busy_icon.start();
+					TimeUnit.SECONDS.sleep(2);
+					onMessage(new AccountChangeEvent(network, account));
+					if (acc != account || !committed_balance.equals(old_committed_balance)) {
+						break;
+					}
+				}
 			}
 			return null;
 		});

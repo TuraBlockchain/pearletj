@@ -240,9 +240,8 @@ public class CryptoUtil {
 				} catch (ExecutionException e) {
 					if (e.getCause().getClass().equals(signumj.entity.response.http.BRSError.class)) {
 						if (((BRSError) e.getCause()).getCode() == 5) {
-							Account a = new Account(SignumAddress.fromEither(address), SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, null, "", "",
+							return new Account(SignumAddress.fromEither(address), SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, null, "", "",
 									new AssetBalance[] {});
-							return a;
 						}
 					}
 				} catch (IllegalArgumentException | InterruptedException e) {
