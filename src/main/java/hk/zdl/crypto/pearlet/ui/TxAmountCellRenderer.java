@@ -3,6 +3,7 @@ package hk.zdl.crypto.pearlet.ui;
 import java.awt.Component;
 import java.awt.Font;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -21,7 +22,7 @@ public class TxAmountCellRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		if (value != null) {
 			BigDecimal bd = (BigDecimal) value;
-			bd = bd.setScale(CryptoUtil.peth_decimals);
+			bd = bd.setScale(CryptoUtil.peth_decimals, RoundingMode.HALF_EVEN);
 			value = bd;
 		}
 		setFont(new Font(Font.MONOSPACED, Font.PLAIN, table.getFont().getSize()));
