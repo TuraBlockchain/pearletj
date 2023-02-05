@@ -43,7 +43,7 @@ import com.formdev.flatlaf.util.SystemInfo;
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerAccountSettingsPanel;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.DateCellRenderer;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.IDRenderer;
-import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.MinerErrorCellRenderer;
+import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.MinerStatusCellRenderer;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.PlotDirCellRenderer;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
@@ -111,7 +111,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 		}
 		IntStream.of(1, 5).forEach(i -> table.getColumnModel().getColumn(i).setCellRenderer(new DateCellRenderer()));
 		table.getColumnModel().getColumn(0).setCellRenderer(new IDRenderer());
-		table.getColumnModel().getColumn(10).setCellRenderer(new MinerErrorCellRenderer());
+		table.getColumnModel().getColumn(10).setCellRenderer(new MinerStatusCellRenderer());
 		for (var i = 0; i < table_model.getColumnCount(); i++) {
 			((DefaultTableCellRenderer) table.getColumnModel().getColumn(i).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
 		}

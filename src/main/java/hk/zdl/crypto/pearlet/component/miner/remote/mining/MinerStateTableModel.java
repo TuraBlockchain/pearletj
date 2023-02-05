@@ -8,7 +8,7 @@ public class MinerStateTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 5805340052864846718L;
 	public static final String[] column_name = new String[] { "ID", "Start Time", "File Count", "Capacity", "Plot File Directory", "Last Refresh", "Round Time", "Speed", "Height", "Scoop",
-			"Last Error" };
+			"Status" };
 	private final JSONArray jarr = new JSONArray();
 
 	@Override
@@ -54,7 +54,7 @@ public class MinerStateTableModel extends AbstractTableModel {
 		case 9:
 			return jobj.opt("scoop");
 		case 10:
-			return jobj.opt("last error");
+			return jobj.opt("status");
 		}
 		return null;
 	}

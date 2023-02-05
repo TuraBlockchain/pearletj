@@ -9,7 +9,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.json.JSONObject;
 
-public class MinerErrorCellRenderer extends DefaultTableCellRenderer {
+public class MinerStatusCellRenderer extends DefaultTableCellRenderer {
 
 	private static final long serialVersionUID = -1777092869579013934L;
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");

@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
@@ -40,7 +42,7 @@ final class StatusPane extends JPanel implements ActionListener {
 	private final ChartPanel disk_usage_panel = new ChartPanel(ChartFactory.createPieChart("Disk Usage", new DefaultPieDataset<String>(), true, true, false));
 	private final JPanel mining_detail_panel = new JPanel(new BorderLayout(5, 5));
 	private final ChartPanel memory_usage_panel = new ChartPanel(ChartFactory.createPieChart("Memory Usage", new DefaultPieDataset<String>(), true, true, false));
-	private final DefaultTableModel mining_table_model = new DefaultTableModel(5, 2);
+	private final DefaultTableModel mining_table_model = new DefaultTableModel(7, 2);
 	private JSONObject status;
 	private String basePath = "";
 
@@ -86,10 +88,12 @@ final class StatusPane extends JPanel implements ActionListener {
 		table.setTableHeader(null);
 		table.setShowGrid(true);
 		mining_table_model.setValueAt("Start Time", 0, 0);
-		mining_table_model.setValueAt("Accounts", 1, 0);
-		mining_table_model.setValueAt("Total no. of plot files", 2, 0);
-		mining_table_model.setValueAt("Total size of plot files", 3, 0);
-		mining_table_model.setValueAt("Version", 4, 0);
+		mining_table_model.setValueAt("Accounts Loaded", 1, 0);
+		mining_table_model.setValueAt("Active Miners", 2, 0);
+		mining_table_model.setValueAt("Total no. of plot files", 3, 0);
+		mining_table_model.setValueAt("Total size of plot files", 4, 0);
+		mining_table_model.setValueAt("Version", 5, 0);
+		mining_table_model.setValueAt("Build", 6, 0);
 	}
 
 	public void setStatus(JSONObject status) {
@@ -105,9 +109,17 @@ final class StatusPane extends JPanel implements ActionListener {
 		var start_time = new Date(status.optLong("start time"));
 		mining_table_model.setValueAt(sdf.format(start_time), 0, 1);
 		mining_table_model.setValueAt(status.optJSONObject("miner", o).optInt("account count"), 1, 1);
-		mining_table_model.setValueAt(status.optJSONObject("miner", o).optInt("plot file count"), 2, 1);
-		mining_table_model.setValueAt(status.optJSONObject("miner", o).optString("plot file size", "0") + " TiB", 3, 1);
-		mining_table_model.setValueAt(status.opt("version"), 4, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner", o).optInt("active miners"), 2, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner", o).optInt("plot file count"), 3, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner", o).optString("plot file size", "0") + " TB", 4, 1);
+		mining_table_model.setValueAt(status.opt("version"), 5, 1);
+		if(status.has("build")) {
+			var x = new Date(status.getLong("build"));
+			var sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.SIMPLIFIED_CHINESE);
+			sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+			mining_table_model.setValueAt(sdf.format(x), 6, 1);
+			
+		}
 	}
 
 	@SuppressWarnings("unchecked")
