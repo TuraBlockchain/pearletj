@@ -111,11 +111,11 @@ public class MiningPanel extends JPanel implements ActionListener {
 		}
 		IntStream.of(1, 5).forEach(i -> table.getColumnModel().getColumn(i).setCellRenderer(new DateCellRenderer()));
 		table.getColumnModel().getColumn(0).setCellRenderer(new IDRenderer());
-		table.getColumnModel().getColumn(10).setCellRenderer(new MinerStatusCellRenderer());
 		for (var i = 0; i < table_model.getColumnCount(); i++) {
 			((DefaultTableCellRenderer) table.getColumnModel().getColumn(i).getCellRenderer()).setHorizontalAlignment(SwingConstants.RIGHT);
 		}
 		table.getColumnModel().getColumn(4).setCellRenderer(new PlotDirCellRenderer());
+		table.getColumnModel().getColumn(10).setCellRenderer(new MinerStatusCellRenderer());
 		table.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent mouseEvent) {
 				Point point = mouseEvent.getPoint();

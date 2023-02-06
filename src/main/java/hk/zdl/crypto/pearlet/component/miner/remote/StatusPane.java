@@ -111,9 +111,9 @@ final class StatusPane extends JPanel implements ActionListener {
 		mining_table_model.setValueAt(status.optJSONObject("miner", o).optInt("account count"), 1, 1);
 		mining_table_model.setValueAt(status.optJSONObject("miner", o).optInt("active miners"), 2, 1);
 		mining_table_model.setValueAt(status.optJSONObject("miner", o).optInt("plot file count"), 3, 1);
-		mining_table_model.setValueAt(status.optJSONObject("miner", o).optString("plot file size", "0") + " TB", 4, 1);
+		mining_table_model.setValueAt(status.optJSONObject("miner", o).optString("plot file size", "0") + " TiB", 4, 1);
 		mining_table_model.setValueAt(status.opt("version"), 5, 1);
-		if(status.has("build")) {
+		if(status.has("build")&&!status.isNull("build")) {
 			var x = new Date(status.getLong("build"));
 			var sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.SIMPLIFIED_CHINESE);
 			sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
