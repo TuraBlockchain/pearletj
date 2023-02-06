@@ -80,7 +80,7 @@ public class SendPanel extends JPanel {
 	private static final Dimension FIELD_DIMENSION = new Dimension(500, 20);
 	private final JPanel panel_2 = new JPanel(new BorderLayout());
 	private final JPanel fee_panel = new JPanel(new GridLayout(1, 0));
-	private final JTextField fee_field = new JTextField();
+	private final JTextField fee_field = new JTextField("");
 	private final JSlider fee_slider = new JSlider();
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final JLabel fee_label = new JLabel("Fee");
@@ -341,7 +341,7 @@ public class SendPanel extends JPanel {
 			send_btn.setEnabled(false);
 		} else {
 			wuli.start();
-			if (network_change) {
+			if (network_change || fee_field.getText().isBlank()) {
 				Util.submit(() -> {
 					FeeSuggestion g = CryptoUtil.getFeeSuggestion(network);
 					fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
