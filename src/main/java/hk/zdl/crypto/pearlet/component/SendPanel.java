@@ -294,6 +294,9 @@ public class SendPanel extends JPanel {
 						JOptionPane.showMessageDialog(getRootPane(), "Send token failed!", null, JOptionPane.ERROR_MESSAGE);
 					}
 				} catch (Throwable x) {
+					while (x.getCause() != null) {
+						x = x.getCause();
+					}
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 					while (x.getClass().equals(java.util.concurrent.ExecutionException.class) && x.getCause() != null) {
 						x = x.getCause();
