@@ -3,9 +3,12 @@ package hk.zdl.crypto.pearlet;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Taskbar;
 import java.awt.Toolkit;
+import java.awt.TrayIcon;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.nio.file.Files;
@@ -25,6 +28,7 @@ import org.apache.derby.shared.common.error.StandardException;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.extras.FlatDesktop;
 import com.formdev.flatlaf.util.SystemInfo;
 import com.jthemedetecor.OsThemeDetector;
 
@@ -115,7 +119,7 @@ public class Main {
 			frame.add(toolbar, BorderLayout.WEST);
 
 			var frame_size = new Dimension(Util.getProp().getInt("default_window_width"), Util.getProp().getInt("default_window_height"));
-			frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+			frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			frame.setPreferredSize(frame_size);
 			frame.setMinimumSize(frame_size);
 			frame.setSize(frame_size);
@@ -126,14 +130,30 @@ public class Main {
 
 				@Override
 				public void windowClosing(WindowEvent e) {
-					Util.submit(() -> {
-						while (SystemTray.getSystemTray().getTrayIcons().length > 0) {
-							SystemTray.getSystemTray().remove(SystemTray.getSystemTray().getTrayIcons()[0]);
-						}
-						TimeUnit.SECONDS.sleep(1);
+					if (UIUtil.show_confirm_exit_dialog(frame)) {
 						System.exit(0);
-						return null;
-					});
+					}
+				}
+			});
+			try {
+				var quit_menu_item = new MenuItem("Quit");
+				quit_menu_item.addActionListener((e) -> {
+					if (UIUtil.show_confirm_exit_dialog(frame)) {
+						System.exit(0);
+					}
+				});
+				var menu = new PopupMenu();
+				menu.add(quit_menu_item);
+				TrayIcon trayIcon = new TrayIcon(ImageIO.read(Util.getResource("app_icon.png")), Util.getProp().get("appName"), menu);
+				trayIcon.setImageAutoSize(true);
+				SystemTray.getSystemTray().add(trayIcon);
+			} catch (Exception e) {
+			}
+			FlatDesktop.setQuitHandler((e) -> {
+				if (UIUtil.show_confirm_exit_dialog(frame)) {
+					e.performQuit();
+				} else {
+					e.cancelQuit();
 				}
 			});
 			var screenSize = Toolkit.getDefaultToolkit().getScreenSize();

@@ -20,7 +20,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
 
 import com.formdev.flatlaf.extras.FlatDesktop;
-import com.formdev.flatlaf.extras.FlatDesktop.QuitResponse;
 
 import hk.zdl.crypto.pearlet.component.event.SettingsPanelEvent;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
@@ -71,7 +70,6 @@ public class MyToolbar extends JScrollPane {
 	private void set_callbacks() {
 		FlatDesktop.setAboutHandler(() -> clickButton("about"));
 		FlatDesktop.setPreferencesHandler(() -> clickButton("sets"));
-		FlatDesktop.setQuitHandler(QuitResponse::performQuit);
 	}
 
 	public void clickButton(String str) {

@@ -4,11 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
 import java.awt.SplashScreen;
 import java.awt.SystemTray;
-import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.io.IOException;
 import java.util.EnumMap;
@@ -78,20 +75,6 @@ public class UIUtil {
 			} catch (Exception e) {
 			}
 		} else if (SystemTray.isSupported()) {
-			if (SystemTray.getSystemTray().getTrayIcons().length < 1) {
-				try {
-					var quit_menu_item = new MenuItem("Quit");
-					quit_menu_item.addActionListener((e) -> {
-						System.exit(0);
-					});
-					var menu = new PopupMenu();
-					menu.add(quit_menu_item);
-					TrayIcon trayIcon = new TrayIcon(ImageIO.read(Util.getResource("app_icon.png")), Util.getProp().get("appName"), menu);
-					trayIcon.setImageAutoSize(true);
-					SystemTray.getSystemTray().add(trayIcon);
-				} catch (Exception e) {
-				}
-			}
 			if (SystemTray.getSystemTray().getTrayIcons().length > 0) {
 				if (messageType == null) {
 					messageType = MessageType.INFO;
@@ -106,5 +89,10 @@ public class UIUtil {
 			map.put(MessageType.ERROR, JOptionPane.ERROR_MESSAGE);
 			JOptionPane.showMessageDialog(null, message, title, map.get(messageType));
 		}
+	}
+
+	public static final boolean show_confirm_exit_dialog(Component... c) {
+		return JOptionPane.showConfirmDialog(c.length > 0 ? c[0] : null, "Are you sure to exit PearlrtJ ?", "Exit", JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE) == JOptionPane.OK_OPTION;
 	}
 }
