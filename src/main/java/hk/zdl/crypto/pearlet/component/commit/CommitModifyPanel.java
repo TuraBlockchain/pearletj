@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import org.greenrobot.eventbus.EventBus;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.PiePlot;
@@ -38,6 +39,7 @@ import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crypto.pearlet.component.event.BalanceUpdateEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.SpinableIcon;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
@@ -109,6 +111,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 				_bal = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals);
 				_c_bal = new BigDecimal(committed_balance.toNQT(), CryptoUtil.peth_decimals);
 			}
+			EventBus.getDefault().post(new BalanceUpdateEvent(e.network, e.account, _bal));
 		} catch (Exception x) {
 		}
 		_a_bal = _bal.subtract(_c_bal);

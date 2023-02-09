@@ -1,6 +1,7 @@
 package hk.zdl.crypto.pearlet.component.account_settings;
 
 import java.awt.Component;
+import java.awt.TrayIcon.MessageType;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.Charset;
@@ -12,6 +13,8 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableModel;
 
 import com.csvreader.CsvWriter;
+
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 
 public class ExportAccountTable {
 
@@ -69,6 +72,6 @@ public class ExportAccountTable {
 			JOptionPane.showMessageDialog(w, t.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		JOptionPane.showMessageDialog(w, "Table export is done!", "", JOptionPane.PLAIN_MESSAGE);
+		UIUtil.displayMessage("", "Table export is done!", MessageType.INFO);
 	}
 }

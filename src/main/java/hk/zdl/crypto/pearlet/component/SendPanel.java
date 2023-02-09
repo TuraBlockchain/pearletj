@@ -15,6 +15,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.TrayIcon.MessageType;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
@@ -61,6 +62,7 @@ import org.json.JSONObject;
 
 import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crypto.pearlet.component.event.BalanceUpdateEvent;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.tx.SendTx;
 import hk.zdl.crypto.pearlet.ui.SpinableIcon;
@@ -174,6 +176,18 @@ public class SendPanel extends JPanel {
 		send_btn.setFont(new Font("Arial Black", Font.PLAIN, 32));
 		send_btn.setMultiClickThreshhold(300);
 		send_btn.setEnabled(false);
+
+		var send_key_listener = new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					send_btn.doClick();
+				}
+			}
+		};
+		Stream.of(amt_field, rcv_field).forEach(o -> o.addKeyListener(send_key_listener));
+
 		try {
 			var btn_img = ImageIO.read(Util.getResource("icon/spinner-solid.svg"));
 			busy_icon.setImage(btn_img, 32, 32);
@@ -385,7 +399,7 @@ public class SendPanel extends JPanel {
 				value = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals);
 			}
 			asset_balance.put(symbol, value);
-			updat_balance_label(value);
+			EventBus.getDefault().post(new BalanceUpdateEvent(network, this.account, value));
 			for (AssetBalance ab : account.getAssetBalances()) {
 				Asset a = CryptoUtil.getAsset(network, ab.getAssetId().toString());
 				BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).divide(BigDecimal.TEN.pow(a.getDecimals()));
@@ -396,7 +410,7 @@ public class SendPanel extends JPanel {
 			try {
 				BigDecimal value = CryptoUtil.getBalance(network, account);
 				asset_balance.put(symbol, value);
-				updat_balance_label(value);
+				EventBus.getDefault().post(new BalanceUpdateEvent(network, this.account, value));
 			} catch (Exception x) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 			}
@@ -417,6 +431,13 @@ public class SendPanel extends JPanel {
 				token_combo_box.setModel(new DefaultComboBoxModel<Object>(arr));
 				token_combo_box.setSelectedIndex(j);
 			}
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(BalanceUpdateEvent e) {
+		if (e.getNetwork().equals(network) && e.getAddress().equals(account)) {
+			updat_balance_label(e.getBalance());
 		}
 	}
 

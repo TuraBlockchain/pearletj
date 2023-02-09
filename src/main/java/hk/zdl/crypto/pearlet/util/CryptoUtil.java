@@ -243,9 +243,9 @@ public class CryptoUtil {
 							return new Account(SignumAddress.fromEither(address), SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, null, "", "",
 									new AssetBalance[] {});
 						}
+					}else {
+						throw e;
 					}
-				} catch (IllegalArgumentException | InterruptedException e) {
-					throw e;
 				}
 			}
 		}

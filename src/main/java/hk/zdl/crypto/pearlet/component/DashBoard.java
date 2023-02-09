@@ -248,7 +248,7 @@ public class DashBoard extends JPanel {
 						} else {
 							balance_text = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals).stripTrailingZeros().toPlainString();
 						}
-						balance_label.setText(balance_text);
+						EventBus.getDefault().post(new BalanceUpdateEvent(nw, e.account, new BigDecimal(balance_text)));
 						token_list.setListData(Arrays.asList(account.getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString())).map(o -> new AltTokenWrapper(nw, o))
 								.toArray((i) -> new AltTokenWrapper[i]));
 						if (token_list.getModel().getSize() > 0) {
@@ -266,7 +266,8 @@ public class DashBoard extends JPanel {
 			} else if (WEB3J.equals(e.network)) {
 				Util.submit(() -> {
 					try {
-						balance_label.setText(CryptoUtil.getBalance(nw, account).toPlainString());
+						var balance = CryptoUtil.getBalance(nw, account);
+						EventBus.getDefault().post(new BalanceUpdateEvent(WEB3J, account, balance));
 					} catch (Exception x) {
 						Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 					} finally {
