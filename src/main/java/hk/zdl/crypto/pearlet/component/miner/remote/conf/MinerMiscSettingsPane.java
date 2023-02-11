@@ -20,7 +20,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
+import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 
 public class MinerMiscSettingsPane extends JPanel {
 
@@ -62,5 +64,11 @@ public class MinerMiscSettingsPane extends JPanel {
 	public void update_server_address() throws Exception {
 		var line = IOUtils.readLines(new URL(basePath + miner_conf_serv_u_path).openStream(), Charset.defaultCharset()).stream().findFirst().orElseGet(()->"");
 		server_url_field.setText(line);
+		if(line.isBlank()) {
+			MyDb.get_server_url(CrptoNetworks.ROTURA).ifPresent(s->{
+				server_url_field.setText(s);
+				update_serv_url_btn.doClick();
+			});
+		}
 	}
 }

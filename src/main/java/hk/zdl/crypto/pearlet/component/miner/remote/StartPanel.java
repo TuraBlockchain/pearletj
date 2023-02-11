@@ -193,7 +193,7 @@ final class StartPanel extends JPanel {
 		try {
 			var jobj = new JSONObject(new JSONTokener(in));
 			jobj.get("version");
-			MinerDetailPane pane = new MinerDetailPane();
+			var pane = new MinerDetailPane();
 			pane.setBasePath(base_path);
 			pane.setStatus(jobj);
 			this.pane.insertTab("Miner", getIcon(), pane, base_path, this.pane.getTabCount());
