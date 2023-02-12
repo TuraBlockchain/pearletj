@@ -16,11 +16,22 @@ public class RoturaInstantCellRenderer extends DefaultTableCellRenderer {
 	/**
 	 * The Burst Epoch, as a unix time
 	 */
-	private final long epochBeginning;
+	private static final long epochBeginning;
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
 
+	static {
+		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		calendar.set(Calendar.YEAR, 2022);
+		calendar.set(Calendar.MONTH, Calendar.AUGUST);
+		calendar.set(Calendar.DAY_OF_MONTH, 27);
+		calendar.set(Calendar.HOUR_OF_DAY, 10);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		epochBeginning = calendar.getTimeInMillis();
+	}
+
 	public RoturaInstantCellRenderer() {
-		this.epochBeginning = calculateEpochBeginning();
 		setHorizontalAlignment(SwingConstants.RIGHT);
 	}
 
@@ -33,18 +44,6 @@ public class RoturaInstantCellRenderer extends DefaultTableCellRenderer {
 			setText(sdf.format(date));
 		} catch (Exception e) {
 		}
-	}
-
-	private long calculateEpochBeginning() {
-		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		calendar.set(Calendar.YEAR, 2022);
-		calendar.set(Calendar.MONTH, Calendar.AUGUST);
-		calendar.set(Calendar.DAY_OF_MONTH, 27);
-		calendar.set(Calendar.HOUR_OF_DAY, 10);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
-		return calendar.getTimeInMillis();
 	}
 
 }
