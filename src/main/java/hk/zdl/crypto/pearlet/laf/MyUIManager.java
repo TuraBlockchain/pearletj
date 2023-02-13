@@ -8,9 +8,6 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import com.formdev.flatlaf.FlatLaf;
-import com.formdev.flatlaf.themes.FlatMacDarkLaf;
-import com.formdev.flatlaf.themes.FlatMacLightLaf;
-import com.formdev.flatlaf.util.SystemInfo;
 import com.jthemedetecor.OsThemeDetector;
 
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
@@ -34,13 +31,7 @@ public class MyUIManager {
 	}
 
 	private static final void setLookAndFeel(boolean isDark) {
-		FlatLaf laf;
-		if (SystemInfo.isMacOS) {
-			laf = isDark ? new FlatMacDarkLaf() : new FlatMacLightLaf();
-		} else {
-			laf = isDark ? new FlatWinDarkLaf() : new FlatWinLightLaf();
-		}
-		FlatLaf.setup(laf);
+		FlatLaf.setup(isDark ? new FlatWinDarkLaf() : new FlatWinLightLaf());
 		SwingUtilities.invokeLater(() -> {
 			IndepandentWindows.iterator().forEachRemaining(SwingUtilities::updateComponentTreeUI);
 		});
