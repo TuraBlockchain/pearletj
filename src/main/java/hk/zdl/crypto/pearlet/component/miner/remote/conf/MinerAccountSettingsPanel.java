@@ -7,8 +7,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -76,7 +74,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 		add(panel_1, BorderLayout.EAST);
 
 		add_btn.addActionListener(e -> Util.submit(() -> {
-			if (isAltDown(e)) {
+			if (UIUtil.isAltDown(e)) {
 				batch_import(MinerAccountSettingsPanel.this, CrptoNetworks.ROTURA);
 			} else {
 				if (add_account()) {
@@ -268,10 +266,6 @@ public class MinerAccountSettingsPanel extends JPanel {
 			}
 			JOptionPane.showMessageDialog(w, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
-	}
-
-	private final boolean isAltDown(ActionEvent e) {
-		return new KeyEvent(this, 0, 0, e.getModifiers(), 0, ' ').isAltDown();
 	}
 
 }

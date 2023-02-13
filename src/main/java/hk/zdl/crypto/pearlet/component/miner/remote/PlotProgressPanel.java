@@ -60,6 +60,7 @@ public class PlotProgressPanel extends JPanel {
 	public static final String plot_path = "/api/v1/plot";
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private final JButton add_btn = new JButton("Add");
+	private final JButton del_btn = new JButton("Del");
 	private final JButton clear_btn = new JButton("Clear Done");
 	private final JTable table = new JTable(new DefaultTableModel(new Object[][] {}, new Object[] { "Type", "Rate", "Progress", "ETA", "Path" })) {
 
@@ -83,11 +84,13 @@ public class PlotProgressPanel extends JPanel {
 		add(new JScrollPane(table), BorderLayout.CENTER);
 		var btn_panel = new JPanel(new GridBagLayout());
 		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
-		btn_panel.add(clear_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		btn_panel.add(del_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		btn_panel.add(clear_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
 		add_btn.addActionListener(e -> Util.submit(this::addPlot));
+		add_btn.addActionListener(e -> Util.submit(this::delPlot));
 		clear_btn.addActionListener(e -> Util.submit(this::clear_done));
 		EventBus.getDefault().register(this);
 	}
@@ -206,6 +209,35 @@ public class PlotProgressPanel extends JPanel {
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
 			}
+		}
+	}
+
+	private final void delPlot() {
+		var index = table.getSelectedRow() / 2;
+		if (index < 0) {
+			return;
+		}
+		try {
+			var httpclient = HttpClients.createSystem();
+			var httpPost = new HttpPost(basePath + plot_path + "/del");
+			var jobj = new JSONObject();
+			jobj.put("index", index);
+			httpPost.setEntity(new StringEntity(jobj.toString()));
+			var response = httpclient.execute(httpPost);
+			if (response.getStatusLine().getStatusCode() == 200) {
+				response.close();
+				UIUtil.displayMessage("Succeed", "", null);
+				Util.submit(() -> {
+					refresh_current_plots();
+					return null;
+				});
+			} else {
+				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
+				response.close();
+				JOptionPane.showMessageDialog(getRootPane(), text, "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		} catch (Exception x) {
+			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
