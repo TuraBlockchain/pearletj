@@ -13,7 +13,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -21,13 +20,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 import org.apache.derby.shared.common.error.StandardException;
 
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatLaf;
-import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.extras.FlatDesktop;
 import com.formdev.flatlaf.util.SystemInfo;
 import com.jthemedetecor.OsThemeDetector;
@@ -43,6 +38,7 @@ import hk.zdl.crypto.pearlet.component.TranscationPanel;
 import hk.zdl.crypto.pearlet.component.miner.MinerPanel;
 import hk.zdl.crypto.pearlet.component.plot.PlotPanel;
 import hk.zdl.crypto.pearlet.component.settings.SettingsPanel;
+import hk.zdl.crypto.pearlet.laf.MyUIManager;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.notification.ether.EtherAccountsMonitor;
 import hk.zdl.crypto.pearlet.notification.signum.SignumAccountsMonitor;
@@ -63,7 +59,7 @@ public class Main {
 		Image app_icon = ImageIO.read(Util.getResource("app_icon.png"));
 		Util.submit(() -> Taskbar.getTaskbar().setIconImage(app_icon));
 		var otd = OsThemeDetector.getDetector();
-		UIManager.setLookAndFeel(otd.isDark() ? new FlatDarkLaf() : new FlatLightLaf());
+		MyUIManager.setLookAndFeel();
 		try {
 			System.setProperty("derby.system.home", Files.createTempDirectory(null).toFile().getAbsolutePath());
 			MyDb.getTables();
@@ -166,13 +162,7 @@ public class Main {
 				toolbar.setBorder(BorderFactory.createEmptyBorder(naa_bar.getHeight(), 0, 0, 0));
 			}
 
-			otd.registerListener(isDark -> {
-				Stream.of(new FlatLightLaf(), new FlatDarkLaf()).filter(o -> o.isDark() == isDark).forEach(FlatLaf::setup);
-				SwingUtilities.invokeLater(() -> {
-					SwingUtilities.updateComponentTreeUI(frame);
-					IndepandentWindows.iterator().forEachRemaining(SwingUtilities::updateComponentTreeUI);
-				});
-			});
+			IndepandentWindows.add(frame);
 		});
 	}
 
