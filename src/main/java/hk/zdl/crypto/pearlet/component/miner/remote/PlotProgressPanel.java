@@ -227,10 +227,7 @@ public class PlotProgressPanel extends JPanel {
 			if (response.getStatusLine().getStatusCode() == 200) {
 				response.close();
 				UIUtil.displayMessage("Succeed", "", null);
-				Util.submit(() -> {
-					refresh_current_plots();
-					return null;
-				});
+				Util.submit(() -> refresh_current_plots());
 			} else {
 				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
 				response.close();
@@ -249,10 +246,7 @@ public class PlotProgressPanel extends JPanel {
 			if (response.getStatusLine().getStatusCode() == 200) {
 				response.close();
 				UIUtil.displayMessage("Succeed", "", null);
-				Util.submit(() -> {
-					refresh_current_plots();
-					return null;
-				});
+				Util.submit(() -> refresh_current_plots());
 			} else {
 				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
 				response.close();
@@ -263,7 +257,7 @@ public class PlotProgressPanel extends JPanel {
 		}
 	}
 
-	public void refresh_current_plots() throws Exception {
+	public Void refresh_current_plots() throws Exception {
 		var in = new URL(basePath + plot_path + "/list").openStream();
 		var jarr = new JSONArray(new JSONTokener(in));
 		in.close();
@@ -288,6 +282,7 @@ public class PlotProgressPanel extends JPanel {
 			model.setValueAt(jobj.opt("path"), row_2, 4);
 		}
 		SwingUtilities.invokeLater(() -> UIUtil.adjust_table_width(table, table.getColumnModel()));
+		return null;
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)

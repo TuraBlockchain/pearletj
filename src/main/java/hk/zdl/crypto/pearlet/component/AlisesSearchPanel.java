@@ -54,8 +54,8 @@ public class AlisesSearchPanel extends JPanel {
 		progress_bar.setIndeterminate(true);
 		center_card_panel.add(progress_bar, "progress_bar");
 		center_panel.add(center_card_panel, new GridBagConstraints(1, 1, 1, 1, 0, 0, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
-		var resolve_btn = new JButton("resolve", UIUtil.getStretchIcon("icon/" + "arrow-down.svg", icon_size, icon_size));
-		var r_resolve_btn = new JButton("revrse resolve", UIUtil.getStretchIcon("icon/" + "arrow-up.svg", icon_size, icon_size));
+		var resolve_btn = new JButton("Resolve", UIUtil.getStretchIcon("icon/" + "arrow-down.svg", icon_size, icon_size));
+		var r_resolve_btn = new JButton("Reverse Resolve", UIUtil.getStretchIcon("icon/" + "arrow-up.svg", icon_size, icon_size));
 		resolve_buttons_panel.add(resolve_btn);
 		resolve_buttons_panel.add(r_resolve_btn);
 		Stream.of(label_1, label_2, field_1, field_2, resolve_btn, r_resolve_btn).forEach(o -> o.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20)));

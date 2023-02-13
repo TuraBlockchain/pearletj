@@ -6,7 +6,7 @@
 	},
 	{
 		"id": "txs",
-		"text": "Transcations",
+		"text": "Transactions",
 		"icon": "swap_vert_black_48dp.svg"
 	},
 	{
@@ -26,7 +26,7 @@
 	},	
 	{
 		"id": "alis",
-		"text": "Aliases",
+		"text": "Alias",
 		"icon": "alt_route_black_48dp.svg"
 	},
 	{

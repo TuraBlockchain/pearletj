@@ -25,7 +25,7 @@ public class WatchSignumAccount {
 	public static final void create_watch_account_dialog(Component c, CrptoNetworks nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		Icon icon = UIUtil.getStretchIcon("icon/" + "eyeglasses.svg", 64, 64);
-		String address = String.valueOf(JOptionPane.showInputDialog(w, "Please input account address or numberic id:", "Watch Account", JOptionPane.PLAIN_MESSAGE, icon, null, null)).trim();
+		String address = String.valueOf(JOptionPane.showInputDialog(w, "Please input account address or numeric id:", "Watch Account", JOptionPane.PLAIN_MESSAGE, icon, null, null)).trim();
 		if ("null".equals(String.valueOf(address)) || address.isBlank()) {
 			return;
 		}

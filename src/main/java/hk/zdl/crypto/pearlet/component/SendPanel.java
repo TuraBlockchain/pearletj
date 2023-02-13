@@ -119,7 +119,7 @@ public class SendPanel extends JPanel {
 		token_combo_box.setPreferredSize(new Dimension(100, 20));
 		panel_1.add(token_combo_box, newGridConst(4, 1, 1, 13));
 
-		var label_4 = new JLabel("Recipant");
+		var label_4 = new JLabel("Recipent");
 		panel_1.add(label_4, newGridConst(0, 2, 3, 17));
 		var rcv_field = new JTextField();
 		rcv_field.setPreferredSize(FIELD_DIMENSION);

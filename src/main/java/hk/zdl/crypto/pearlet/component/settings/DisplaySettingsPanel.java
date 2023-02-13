@@ -21,7 +21,7 @@ public class DisplaySettingsPanel extends JPanel {
 	public DisplaySettingsPanel() {
 		super(new FlowLayout());
 		var panel = new JPanel(new GridBagLayout());
-		panel.add(new JLabel("Display PETH address as numberic ID"), new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(new JLabel("Display PETH address as numeric ID"), new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		var cbox1 = new JCheckBox();
 		panel.add(cbox1, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		add(panel);
