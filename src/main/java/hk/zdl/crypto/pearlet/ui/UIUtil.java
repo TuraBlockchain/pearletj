@@ -7,6 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.SplashScreen;
 import java.awt.SystemTray;
 import java.awt.TrayIcon.MessageType;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
@@ -63,6 +65,10 @@ public class UIUtil {
 		} catch (IOException e) {
 			return null;
 		}
+	}
+
+	public static final boolean isAltDown(ActionEvent e) {
+		return new KeyEvent((Component) e.getSource(), 0, 0, e.getModifiers(), 0, ' ').isAltDown();
 	}
 
 	public static final void displayMessage(String title, String message, MessageType messageType) {

@@ -7,7 +7,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
@@ -94,12 +93,12 @@ public class AccountSettingsPanel extends JPanel {
 		}
 
 		import_account_btn.addActionListener(e -> {
-			if (isAltDown(e))
+			if (UIUtil.isAltDown(e))
 				ImportSignumAccount.batch_import(this, nw);
 		});
 		if (show_peth_only) {
 			import_account_btn.addActionListener(e -> {
-				if (!isAltDown(e))
+				if (!UIUtil.isAltDown(e))
 					ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.ROTURA);
 			});
 		} else {
@@ -114,7 +113,7 @@ public class AccountSettingsPanel extends JPanel {
 			Stream.of(import_from_prik, import_from_mnic, import_from_file).forEach(import_acc_web3j::add);
 
 			import_account_btn.addActionListener(e -> {
-				if (!isAltDown(e))
+				if (!UIUtil.isAltDown(e))
 					import_acc_menu.show(import_account_btn, 0, 0);
 			});
 			import_acc_signum.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.SIGNUM));
@@ -212,10 +211,6 @@ public class AccountSettingsPanel extends JPanel {
 
 	private static final void reload_accounts() {
 		Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
-	}
-
-	private final boolean isAltDown(ActionEvent e) {
-		return new KeyEvent(this, 0, 0, e.getModifiers(), 0, ' ').isAltDown();
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)

@@ -10,29 +10,24 @@ import java.util.List;
 
 public class IndepandentWindows {
 
-	private static final IndepandentWindows INSTANCE = new IndepandentWindows();
-
-	private final List<Window> list = new LinkedList<>();
+	private static final List<Window> list = Collections.synchronizedList(new LinkedList<>());
 
 	private IndepandentWindows() {
 
 	}
 
-
 	public static final void add(Window w) {
-		INSTANCE.list.add(w);
+		list.add(w);
 		w.addWindowListener(new WindowAdapter() {
 
 			@Override
 			public void windowClosed(WindowEvent e) {
-				synchronized (INSTANCE.list) {
-					INSTANCE.list.remove(w);
-				}
+				list.remove(w);
 			}
 		});
 	}
 
 	public static final Iterator<Window> iterator() {
-		return Collections.unmodifiableList(INSTANCE.list).iterator();
+		return Collections.unmodifiableList(list).iterator();
 	}
 }

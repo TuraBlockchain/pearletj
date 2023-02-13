@@ -5,11 +5,13 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.nio.charset.Charset;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -59,7 +61,7 @@ public class MinerPathSettingPanel extends JPanel {
 		add(panel_1, BorderLayout.EAST);
 
 		add_btn.addActionListener(e -> Util.submit(() -> {
-			if (add_miner_path()) {
+			if (add_miner_path(e)) {
 				refresh_list();
 			}
 			return null;
@@ -84,41 +86,54 @@ public class MinerPathSettingPanel extends JPanel {
 	@SuppressWarnings("unchecked")
 	public void refresh_list() throws Exception {
 		var l = new JSONArray(new JSONTokener(new URL(basePath + miner_file_path + "/list?id=" + id).openStream())).toList().stream().map(o -> o.toString()).toList();
-		var i= path_list.getSelectedIndex();
+		var i = path_list.getSelectedIndex();
 		path_list.setModel(new ListComboBoxModel<String>(l));
 		path_list.setSelectedIndex(i);
 	}
 
-	public boolean add_miner_path() {
-		var icon = UIUtil.getStretchIcon("icon/" + "signpost-2.svg", 64, 64);
-		var txt_field = new JTextField(30);
-		int i = JOptionPane.showConfirmDialog(getRootPane(), txt_field, "Please Enter path for plot files:", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
-		if (i == JOptionPane.OK_OPTION) {
-			var path = txt_field.getText().trim();
-			if (path.isBlank()) {
-				JOptionPane.showMessageDialog(getRootPane(), "Path cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
-				return false;
+	public boolean add_miner_path(ActionEvent e) {
+		var path = "";
+		if (UIUtil.isAltDown(e)) {
+			var file_dialog = new JFileChooser();
+			file_dialog.setDialogType(JFileChooser.OPEN_DIALOG);
+			file_dialog.setMultiSelectionEnabled(false);
+			file_dialog.setDragEnabled(false);
+			file_dialog.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			int i = file_dialog.showOpenDialog(getRootPane());
+			if (i == JFileChooser.APPROVE_OPTION) {
+				path = file_dialog.getSelectedFile().getAbsolutePath();
 			} else {
-				try {
-					var httpPost = new HttpPost(basePath + miner_file_path + "/add");
-					var jobj = new JSONObject();
-					jobj.put("id", id);
-					jobj.put("path", path);
-					httpPost.setEntity(new StringEntity(jobj.toString()));
-					httpPost.setHeader("Content-type", "application/json");
-					var httpclient = HttpClients.createSystem();
-					var response = httpclient.execute(httpPost);
-					if (response.getStatusLine().getStatusCode() != 200) {
-						var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-						response.close();
-						throw new IllegalArgumentException(text);
-					}
-				} catch (Exception x) {
-					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+		} else {
+			var icon = UIUtil.getStretchIcon("icon/" + "signpost-2.svg", 64, 64);
+			var txt_field = new JTextField(30);
+			int i = JOptionPane.showConfirmDialog(getRootPane(), txt_field, "Please Enter path for plot files:", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
+			if (i == JOptionPane.OK_OPTION) {
+				path = txt_field.getText().trim();
+				if (path.isBlank()) {
+					JOptionPane.showMessageDialog(getRootPane(), "Path cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
-
 			}
+		}
+		try {
+			var httpPost = new HttpPost(basePath + miner_file_path + "/add");
+			var jobj = new JSONObject();
+			jobj.put("id", id);
+			jobj.put("path", path);
+			httpPost.setEntity(new StringEntity(jobj.toString()));
+			httpPost.setHeader("Content-type", "application/json");
+			var httpclient = HttpClients.createSystem();
+			var response = httpclient.execute(httpPost);
+			if (response.getStatusLine().getStatusCode() != 200) {
+				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
+				response.close();
+				throw new IllegalArgumentException(text);
+			}
+		} catch (Exception x) {
+			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+			return false;
 		}
 		return true;
 	}
