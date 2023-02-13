@@ -115,6 +115,8 @@ public class MinerPathSettingPanel extends JPanel {
 					JOptionPane.showMessageDialog(getRootPane(), "Path cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
+			}else {
+				return false;
 			}
 		}
 		try {

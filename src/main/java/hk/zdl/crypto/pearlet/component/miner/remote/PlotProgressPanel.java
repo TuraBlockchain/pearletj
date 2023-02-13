@@ -90,7 +90,7 @@ public class PlotProgressPanel extends JPanel {
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
 		add_btn.addActionListener(e -> Util.submit(this::addPlot));
-		add_btn.addActionListener(e -> Util.submit(this::delPlot));
+		del_btn.addActionListener(e -> Util.submit(this::delPlot));
 		clear_btn.addActionListener(e -> Util.submit(this::clear_done));
 		EventBus.getDefault().register(this);
 	}

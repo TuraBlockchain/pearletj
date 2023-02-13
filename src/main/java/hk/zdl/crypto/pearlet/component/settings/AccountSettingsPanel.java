@@ -179,7 +179,7 @@ public class AccountSettingsPanel extends JPanel {
 				Point point = mouseEvent.getPoint();
 				int row = table.rowAtPoint(point);
 				if (row >= 0 & row == table.getSelectedRow()) {
-					var nw =  (CrptoNetworks) account_table_model.getValueAt(row, 1);
+					var nw = (CrptoNetworks) account_table_model.getValueAt(row, 1);
 					var adr = account_table_model.getValueAt(row, 2).toString().replace(",watch", "");
 					if (mouseEvent.getClickCount() == 1) {
 						if (new KeyEvent(AccountSettingsPanel.this, 0, 0, mouseEvent.getModifiersEx(), 0, ' ').isAltDown()) {
@@ -191,7 +191,6 @@ public class AccountSettingsPanel extends JPanel {
 				}
 			}
 		});
-
 	}
 
 	private final JTable buildAccountTable() {
