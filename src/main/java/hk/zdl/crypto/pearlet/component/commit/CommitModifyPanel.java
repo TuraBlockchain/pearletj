@@ -111,10 +111,10 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 				_bal = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals);
 				_c_bal = new BigDecimal(committed_balance.toNQT(), CryptoUtil.peth_decimals);
 			}
-			EventBus.getDefault().post(new BalanceUpdateEvent(e.network, e.account, _bal));
+			_a_bal = _bal.subtract(_c_bal);
+			EventBus.getDefault().post(new BalanceUpdateEvent(e.network, e.account, _a_bal));
 		} catch (Exception x) {
 		}
-		_a_bal = _bal.subtract(_c_bal);
 		committed_balance = _c_bal;
 
 		var chart = chart_panel.getChart();
