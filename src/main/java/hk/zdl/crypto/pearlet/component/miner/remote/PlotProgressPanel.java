@@ -30,7 +30,6 @@ import javax.swing.table.DefaultTableModel;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -49,6 +48,7 @@ import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
+import hk.zdl.crypto.pearlet.util.WebUtil;
 
 public class PlotProgressPanel extends JPanel {
 
@@ -181,7 +181,7 @@ public class PlotProgressPanel extends JPanel {
 
 			try {
 				var str = RoturaAddress.fromEither(combo_box_1.getSelectedItem().toString()).getID();
-				var httpclient = HttpClients.createSystem();
+				var httpclient = WebUtil.getHttpclient();
 				var httpPost = new HttpPost(basePath + plot_path + "/add");
 				var jobj = new JSONObject();
 				jobj.put("id", new BigInteger(str));
@@ -203,9 +203,9 @@ public class PlotProgressPanel extends JPanel {
 					});
 				} else {
 					var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-					response.close();
 					JOptionPane.showMessageDialog(getRootPane(), text, "Error", JOptionPane.ERROR_MESSAGE);
 				}
+				response.getEntity().getContent().close();
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
 			}
@@ -218,7 +218,7 @@ public class PlotProgressPanel extends JPanel {
 			return;
 		}
 		try {
-			var httpclient = HttpClients.createSystem();
+			var httpclient = WebUtil.getHttpclient();
 			var httpPost = new HttpPost(basePath + plot_path + "/del");
 			var jobj = new JSONObject();
 			jobj.put("index", index);
@@ -230,9 +230,9 @@ public class PlotProgressPanel extends JPanel {
 				Util.submit(() -> refresh_current_plots());
 			} else {
 				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-				response.close();
 				JOptionPane.showMessageDialog(getRootPane(), text, "Error", JOptionPane.ERROR_MESSAGE);
 			}
+			response.getEntity().getContent().close();
 		} catch (Exception x) {
 			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
 		}
@@ -240,7 +240,7 @@ public class PlotProgressPanel extends JPanel {
 
 	private final void clear_done() {
 		try {
-			var httpclient = HttpClients.createSystem();
+			var httpclient = WebUtil.getHttpclient();
 			var httpPost = new HttpPost(basePath + plot_path + "/clear_done");
 			var response = httpclient.execute(httpPost);
 			if (response.getStatusLine().getStatusCode() == 200) {
@@ -249,9 +249,9 @@ public class PlotProgressPanel extends JPanel {
 				Util.submit(() -> refresh_current_plots());
 			} else {
 				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-				response.close();
 				JOptionPane.showMessageDialog(getRootPane(), text, "Error", JOptionPane.ERROR_MESSAGE);
 			}
+			response.getEntity().getContent().close();
 		} catch (Exception x) {
 			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
 		}

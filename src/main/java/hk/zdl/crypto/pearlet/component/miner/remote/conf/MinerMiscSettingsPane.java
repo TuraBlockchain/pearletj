@@ -17,12 +17,12 @@ import javax.swing.border.TitledBorder;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.util.WebUtil;
 
 public class MinerMiscSettingsPane extends JPanel {
 
@@ -43,11 +43,11 @@ public class MinerMiscSettingsPane extends JPanel {
 		add(update_serv_url_btn, new GridBagConstraints(1, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		update_serv_url_btn.addActionListener(e -> {
 			try {
-				var httpclient = HttpClients.createSystem();
+				var httpclient = WebUtil.getHttpclient();
 				var httpPost = new HttpPost(basePath + miner_conf_serv_u_path);
 				httpPost.setEntity(new StringEntity(server_url_field.getText().trim()));
 				var response = httpclient.execute(httpPost);
-				response.close();
+				response.getEntity().getContent().close();
 				if (response.getStatusLine().getStatusCode() == 200) {
 					UIUtil.displayMessage("Succeed", "Set server URL Done!", null);
 				}
@@ -62,10 +62,10 @@ public class MinerMiscSettingsPane extends JPanel {
 	}
 
 	public void update_server_address() throws Exception {
-		var line = IOUtils.readLines(new URL(basePath + miner_conf_serv_u_path).openStream(), Charset.defaultCharset()).stream().findFirst().orElseGet(()->"");
+		var line = IOUtils.readLines(new URL(basePath + miner_conf_serv_u_path).openStream(), Charset.defaultCharset()).stream().findFirst().orElseGet(() -> "");
 		server_url_field.setText(line);
-		if(line.isBlank()) {
-			MyDb.get_server_url(CrptoNetworks.ROTURA).ifPresent(s->{
+		if (line.isBlank()) {
+			MyDb.get_server_url(CrptoNetworks.ROTURA).ifPresent(s -> {
 				server_url_field.setText(s);
 				update_serv_url_btn.doClick();
 			});

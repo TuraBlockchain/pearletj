@@ -33,7 +33,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -49,6 +48,7 @@ import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
+import hk.zdl.crypto.pearlet.util.WebUtil;
 
 public class MiningPanel extends JPanel implements ActionListener {
 
@@ -184,14 +184,14 @@ public class MiningPanel extends JPanel implements ActionListener {
 				return false;
 			} else {
 				try {
-					var httpclient = HttpClients.createSystem();
+					var httpclient = WebUtil.getHttpclient();
 					var httpPost = new HttpPost(basePath + addational_path + "/start");
 					var jobj = new JSONObject();
 					jobj.put("id", choice);
 					httpPost.setEntity(new StringEntity(jobj.toString()));
 					httpPost.setHeader("Content-type", "application/json");
 					var response = httpclient.execute(httpPost);
-					response.close();
+					response.getEntity().getContent().close();
 					if (response.getStatusLine().getStatusCode() == 200) {
 						UIUtil.displayMessage("Succeed", "Miner has started.", null);
 					} else {
@@ -216,14 +216,14 @@ public class MiningPanel extends JPanel implements ActionListener {
 		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to stop this miner?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.YES_OPTION) {
 			try {
-				var httpclient = HttpClients.createSystem();
+				var httpclient = WebUtil.getHttpclient();
 				var httpPost = new HttpPost(basePath + addational_path + "/stop");
 				var jobj = new JSONObject();
 				jobj.put("id", new BigInteger(table.getValueAt(row, 0).toString()));
 				httpPost.setEntity(new StringEntity(jobj.toString()));
 				httpPost.setHeader("Content-type", "application/json");
 				var response = httpclient.execute(httpPost);
-				response.close();
+				response.getEntity().getContent().close();
 				if (response.getStatusLine().getStatusCode() == 200) {
 					UIUtil.displayMessage("Succeed", "Miner has stopped.", null);
 				} else {
@@ -246,14 +246,14 @@ public class MiningPanel extends JPanel implements ActionListener {
 		if (i == JOptionPane.YES_OPTION) {
 			try {
 				var id = new BigInteger(table.getValueAt(row, 0).toString());
-				var httpclient = HttpClients.createSystem();
+				var httpclient = WebUtil.getHttpclient();
 				var httpPost = new HttpPost(basePath + addational_path + "/stop");
 				var jobj = new JSONObject();
 				jobj.put("id", id);
 				httpPost.setEntity(new StringEntity(jobj.toString()));
 				httpPost.setHeader("Content-type", "application/json");
 				var response = httpclient.execute(httpPost);
-				response.close();
+				response.getEntity().getContent().close();
 				if (response.getStatusLine().getStatusCode() == 200) {
 					UIUtil.displayMessage("Succeed", "Miner has stopped.", null);
 				} else {

@@ -31,7 +31,6 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,6 +43,7 @@ import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
+import hk.zdl.crypto.pearlet.util.WebUtil;
 import signumj.crypto.SignumCrypto;
 
 public class MinerAccountSettingsPanel extends JPanel {
@@ -162,14 +162,13 @@ public class MinerAccountSettingsPanel extends JPanel {
 		jobj.put("passphrase", phrase);
 		httpPost.setEntity(new StringEntity(jobj.toString()));
 		httpPost.setHeader("Content-type", "application/json");
-		var httpclient = HttpClients.createSystem();
+		var httpclient = WebUtil.getHttpclient();
 		var response = httpclient.execute(httpPost);
+		var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
+		response.getEntity().getContent().close();
 		if (response.getStatusLine().getStatusCode() == 200) {
-			var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
 			return Integer.parseInt(text) > 0;
 		} else {
-			var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-			response.close();
 			throw new IllegalArgumentException(text);
 		}
 	}
@@ -187,11 +186,11 @@ public class MinerAccountSettingsPanel extends JPanel {
 				jobj.put("id", id);
 				httpPost.setEntity(new StringEntity(jobj.toString()));
 				httpPost.setHeader("Content-type", "application/json");
-				var httpclient = HttpClients.createSystem();
+				var httpclient = WebUtil.getHttpclient();
 				var response = httpclient.execute(httpPost);
+				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
+				response.getEntity().getContent().close();
 				if (response.getStatusLine().getStatusCode() != 200) {
-					var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-					response.close();
 					throw new IllegalArgumentException(text);
 				}
 			} catch (Exception x) {

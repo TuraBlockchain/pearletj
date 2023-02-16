@@ -22,7 +22,6 @@ import javax.swing.border.TitledBorder;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,6 +30,7 @@ import org.json.JSONTokener;
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
+import hk.zdl.crypto.pearlet.util.WebUtil;
 
 public class MinerPathSettingPanel extends JPanel {
 
@@ -115,7 +115,7 @@ public class MinerPathSettingPanel extends JPanel {
 					JOptionPane.showMessageDialog(getRootPane(), "Path cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
-			}else {
+			} else {
 				return false;
 			}
 		}
@@ -126,11 +126,11 @@ public class MinerPathSettingPanel extends JPanel {
 			jobj.put("path", path);
 			httpPost.setEntity(new StringEntity(jobj.toString()));
 			httpPost.setHeader("Content-type", "application/json");
-			var httpclient = HttpClients.createSystem();
+			var httpclient = WebUtil.getHttpclient();
 			var response = httpclient.execute(httpPost);
+			var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
+			response.getEntity().getContent().close();
 			if (response.getStatusLine().getStatusCode() != 200) {
-				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-				response.close();
 				throw new IllegalArgumentException(text);
 			}
 		} catch (Exception x) {
@@ -153,11 +153,11 @@ public class MinerPathSettingPanel extends JPanel {
 				var httpPost = new HttpPost(basePath + miner_file_path + "/del");
 				httpPost.setEntity(new StringEntity(jobj.toString()));
 				httpPost.setHeader("Content-type", "application/json");
-				var httpclient = HttpClients.createSystem();
+				var httpclient = WebUtil.getHttpclient();
 				var response = httpclient.execute(httpPost);
+				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
+				response.getEntity().getContent().close();
 				if (response.getStatusLine().getStatusCode() != 200) {
-					var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-					response.close();
 					throw new IllegalArgumentException(text);
 				}
 			} catch (Exception x) {
