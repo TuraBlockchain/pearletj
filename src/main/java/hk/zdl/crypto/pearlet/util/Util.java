@@ -25,9 +25,9 @@ import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
-import com.formdev.flatlaf.util.SystemInfo;
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
+import com.vaadin.open.Open;
 
 import net.harawata.appdirs.AppDirsFactory;
 import signumj.entity.response.Transaction;
@@ -237,11 +237,11 @@ public class Util {
 		}
 	}
 
-	private static void browse(URI uri) throws Exception {
-		if (Desktop.getDesktop().isSupported(Action.BROWSE)) {
+	public static void browse(URI uri) throws Exception {
+		if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Action.BROWSE)) {
 			Desktop.getDesktop().browse(uri);
-		} else if (SystemInfo.isLinux) {
-			new ProcessBuilder("xdg-open", uri.toString()).start();
+		} else {
+			Open.open(uri.toString());
 		}
 	}
 }
