@@ -129,7 +129,7 @@ public class StartPanel extends JPanel {
 					return;
 				}
 			} else {
-				url = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input URL of pool:", "Start Mining", JOptionPane.INFORMATION_MESSAGE)).trim();
+				url = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input URL of pool:")).trim();
 				if ("null".equals(String.valueOf(url))) {
 					return;
 				} else if (url.isBlank()) {

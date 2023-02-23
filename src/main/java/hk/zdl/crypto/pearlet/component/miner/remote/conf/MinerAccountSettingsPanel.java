@@ -122,6 +122,9 @@ public class MinerAccountSettingsPanel extends JPanel {
 
 	@SuppressWarnings("unchecked")
 	public void refresh_list() throws Exception {
+		if(basePath.isBlank()) {
+			return;
+		}
 		var l = new JSONArray(new JSONTokener(new URL(basePath + miner_account_path).openStream())).toList().stream().map(o -> o.toString()).toList();
 		var str = acc_list.getSelectedValue();
 		acc_list.setModel(new ListComboBoxModel<String>(l));

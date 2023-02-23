@@ -54,6 +54,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 3870247981006005478L;
 	public static final String addational_path = "/api/v1/miner";
+	public static final String miner_reboot_path = "/api/v1/miner/restart_all";
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private String basePath = "";
 	private final MinerStateTableModel table_model = new MinerStateTableModel();
@@ -61,6 +62,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 	private final JButton start_btn = new JButton("Start");
 	private final JButton stop_btn = new JButton("Stop");
 	private final JButton restart_btn = new JButton("Restart");
+	private final JButton restart_all_btn = new JButton("Restart All");
 
 	public MiningPanel() {
 		super(new BorderLayout());
@@ -70,6 +72,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 		btn_panel.add(start_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		btn_panel.add(stop_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		btn_panel.add(restart_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		btn_panel.add(restart_all_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
