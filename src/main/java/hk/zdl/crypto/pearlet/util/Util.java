@@ -1,6 +1,7 @@
 package hk.zdl.crypto.pearlet.util;
 
 import java.awt.Desktop;
+import java.awt.Desktop.Action;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,10 +25,10 @@ import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
+import com.formdev.flatlaf.util.SystemInfo;
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 
-import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import net.harawata.appdirs.AppDirsFactory;
 import signumj.entity.response.Transaction;
 
@@ -160,7 +161,7 @@ public class Util {
 				if ("0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee".equals(address)) {
 					return false;
 				}
-				Desktop.getDesktop().browse(new URI("https://ethplorer.io/address/" + address + "#pageTab=issuances&tab=tab-issuances"));
+				browse(new URI("https://ethplorer.io/address/" + address + "#pageTab=issuances&tab=tab-issuances"));
 			} catch (Exception x) {
 				return false;
 			}
@@ -173,7 +174,7 @@ public class Util {
 	}
 
 	public static final <E> boolean viewTxDetail(CrptoNetworks nw, E e) {
-		if (!Desktop.isDesktopSupported()) {
+		if (e == null || !Desktop.isDesktopSupported()) {
 			return false;
 		}
 		switch (nw) {
@@ -181,7 +182,7 @@ public class Util {
 			try {
 				Transaction tx = (Transaction) e;
 				String tx_id = tx.getId().toString();
-				Desktop.getDesktop().browse(new URI("http://explorer.peth.world:8000/tx/" + tx_id));
+				browse(new URI("http://explorer.peth.world:8000/tx/" + tx_id));
 			} catch (Exception x) {
 				return false;
 			}
@@ -190,7 +191,7 @@ public class Util {
 			try {
 				Transaction tx = (Transaction) e;
 				String tx_id = tx.getId().toString();
-				Desktop.getDesktop().browse(new URI("https://chain.signum.network/tx/" + tx_id));
+				browse(new URI("https://chain.signum.network/tx/" + tx_id));
 			} catch (Exception x) {
 				return false;
 			}
@@ -198,7 +199,7 @@ public class Util {
 		case WEB3J:
 			JSONObject tx = (JSONObject) e;
 			try {
-				Desktop.getDesktop().browse(new URI("https://www.blockchain.com/eth/tx/" + tx.getString("tx_hash")));
+				browse(new URI("https://www.blockchain.com/eth/tx/" + tx.getString("tx_hash")));
 			} catch (Exception x) {
 				return false;
 			}
@@ -211,37 +212,36 @@ public class Util {
 	}
 
 	public static final boolean viewAccountDetail(CrptoNetworks nw, String e) {
-		if (!Desktop.isDesktopSupported()) {
+		if (e == null || !Desktop.isDesktopSupported()) {
 			return false;
 		}
+		var uri = "";
 		switch (nw) {
 		case ROTURA:
-			try {
-				RoturaAddress adr = RoturaAddress.fromEither(e);
-				Desktop.getDesktop().browse(new URI("http://explorer.peth.world:8000/address/" + adr.getID()));
-			} catch (Exception x) {
-				return false;
-			}
+			uri = "http://explorer.peth.world:8000/address/" + e;
 			break;
 		case SIGNUM:
-			try {
-				Desktop.getDesktop().browse(new URI("https://chain.signum.network/search/?q=" + e));
-			} catch (Exception x) {
-				return false;
-			}
+			uri = "https://chain.signum.network/search/?q=" + e;
 			break;
 		case WEB3J:
-			try {
-				Desktop.getDesktop().browse(new URI("https://www.blockchain.com/eth/address/" + e));
-			} catch (Exception x) {
-				return false;
-			}
+			uri = "https://www.blockchain.com/eth/address/" + e;
 			break;
 		default:
 			break;
-
 		}
-		return false;
+		try {
+			browse(new URI(uri));
+			return true;
+		} catch (Exception x) {
+			return false;
+		}
 	}
 
+	private static void browse(URI uri) throws Exception {
+		if (Desktop.getDesktop().isSupported(Action.BROWSE)) {
+			Desktop.getDesktop().browse(uri);
+		} else if (SystemInfo.isLinux) {
+			new ProcessBuilder("xdg-open", uri.toString()).start();
+		}
+	}
 }

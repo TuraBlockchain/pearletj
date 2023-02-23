@@ -161,6 +161,12 @@ public class MiningPanel extends JPanel implements ActionListener {
 								} catch (IOException x) {
 									Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 								}
+							}else if (SystemInfo.isLinux) {
+								try {
+									new ProcessBuilder().command("xdg-open", path).start();
+								} catch (IOException x) {
+									Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+								}
 							}
 						}
 					}
