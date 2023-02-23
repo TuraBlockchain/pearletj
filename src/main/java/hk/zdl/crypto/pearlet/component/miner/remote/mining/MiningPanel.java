@@ -1,8 +1,6 @@
 package hk.zdl.crypto.pearlet.component.miner.remote.mining;
 
 import java.awt.BorderLayout;
-import java.awt.Desktop;
-import java.awt.Desktop.Action;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -16,7 +14,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.logging.Level;
@@ -39,7 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import com.formdev.flatlaf.util.SystemInfo;
+import com.vaadin.open.Open;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerAccountSettingsPanel;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.DateCellRenderer;
@@ -153,21 +150,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 							if (!file.exists() || !file.isDirectory()) {
 								return;
 							}
-							if (Desktop.getDesktop().isSupported(Action.BROWSE_FILE_DIR)) {
-								Desktop.getDesktop().browseFileDirectory(file);
-							} else if (SystemInfo.isWindows) {
-								try {
-									new ProcessBuilder().command("explorer.exe", path).start();
-								} catch (IOException x) {
-									Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-								}
-							}else if (SystemInfo.isLinux) {
-								try {
-									new ProcessBuilder().command("xdg-open", path).start();
-								} catch (IOException x) {
-									Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-								}
-							}
+							Open.open(file.getAbsolutePath());
 						}
 					}
 				}
