@@ -9,6 +9,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -188,6 +189,16 @@ public class AccountSettingsPanel extends JPanel {
 					} else if (mouseEvent.getClickCount() == 2) {
 						Util.viewAccountDetail(nw, adr);
 					}
+				}
+			}
+		});
+
+		table.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+					del_btn.doClick();
 				}
 			}
 		});

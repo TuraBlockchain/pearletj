@@ -7,6 +7,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -110,6 +112,16 @@ public class MinerAccountSettingsPanel extends JPanel {
 			}
 		});
 		acc_list.setFont(new Font(Font.MONOSPACED, getFont().getStyle(), getFont().getSize()));
+
+		acc_list.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode()==KeyEvent.VK_DELETE) {
+					del_btn.doClick();
+				}
+			}
+		});
 	}
 
 	public void setBasePath(String basePath) {

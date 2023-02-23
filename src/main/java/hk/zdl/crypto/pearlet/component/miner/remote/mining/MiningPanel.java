@@ -11,6 +11,8 @@ import java.awt.Point;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -96,6 +98,22 @@ public class MiningPanel extends JPanel implements ActionListener {
 			}
 			return null;
 		}));
+		restart_all_btn.addActionListener(e -> Util.submit(() -> {
+			if (restart_all_miner()) {
+				actionPerformed(null);
+			}
+			return null;
+		}));
+
+		table.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+					stop_btn.doClick();
+				}
+			}
+		});
 	}
 
 	private void init_table() {
@@ -274,6 +292,28 @@ public class MiningPanel extends JPanel implements ActionListener {
 					UIUtil.displayMessage("Succeed", "Miner has started.", null);
 				} else {
 					UIUtil.displayMessage("Failed", "Failed to start miner.", MessageType.ERROR);
+					return false;
+				}
+			} catch (Exception x) {
+				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean restart_all_miner() {
+		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to restart all miners?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (i == JOptionPane.YES_OPTION) {
+			try {
+				var httpclient = WebUtil.getHttpclient();
+				var httpPost = new HttpPost(basePath + miner_reboot_path);
+				var response = httpclient.execute(httpPost);
+				response.getEntity().getContent().close();
+				if (response.getStatusLine().getStatusCode() == 200) {
+					UIUtil.displayMessage("Succeed", "Miners have restarted.", null);
+				} else {
+					UIUtil.displayMessage("Failed", "Failed to restart miners.", MessageType.ERROR);
 					return false;
 				}
 			} catch (Exception x) {
