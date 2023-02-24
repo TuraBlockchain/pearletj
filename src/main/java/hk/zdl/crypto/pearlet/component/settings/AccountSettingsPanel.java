@@ -3,6 +3,9 @@ package hk.zdl.crypto.pearlet.component.settings;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -41,7 +44,6 @@ import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.SetNAABarEvent;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
-import hk.zdl.crypto.pearlet.misc.VerticalFlowLayout;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.TxAmountCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
@@ -52,6 +54,7 @@ import hk.zdl.crypto.pearlet.util.Util;
 @SuppressWarnings("serial")
 public class AccountSettingsPanel extends JPanel {
 
+	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private static final boolean show_peth_only = Util.getProp().getBoolean("show_peth_only");
 	private final AccountTableModel account_table_model = new AccountTableModel();
 	private final JTable table = buildAccountTable();
@@ -63,14 +66,17 @@ public class AccountSettingsPanel extends JPanel {
 		EventBus.getDefault().register(account_table_model);
 		add(new JScrollPane(table), BorderLayout.CENTER);
 
-		var btn_panel = new JPanel();
-		btn_panel.setLayout(new VerticalFlowLayout());
+		var btn_panel = new JPanel(new GridBagLayout());
 		var create_account_btn = new JButton("Create");
 		var import_account_btn = new JButton("Import");
 		var export_account_btn = new JButton("Export");
 		var watch_account_btn = new JButton("Watch");
 		var del_btn = new JButton("Delete");
-		Stream.of(create_account_btn, import_account_btn, export_account_btn, watch_account_btn, del_btn).forEach(btn_panel::add);
+		btn_panel.add(create_account_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(import_account_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(export_account_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(watch_account_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(del_btn, new GridBagConstraints(0, 4, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
 		if (show_peth_only) {
 			create_account_btn.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this, CrptoNetworks.ROTURA));

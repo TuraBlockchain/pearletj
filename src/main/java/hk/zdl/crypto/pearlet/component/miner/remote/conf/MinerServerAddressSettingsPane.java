@@ -3,11 +3,13 @@ package hk.zdl.crypto.pearlet.component.miner.remote.conf;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.util.LinkedList;
-import java.util.stream.Stream;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
@@ -27,7 +29,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import hk.zdl.crypto.pearlet.misc.VerticalFlowLayout;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.WebUtil;
 
@@ -39,6 +40,7 @@ public class MinerServerAddressSettingsPane extends JPanel {
 	private static final long serialVersionUID = 4764477299442830256L;
 	public static final String miner_conf_serv_u_path = "/api/v1/miner/configure/server_url";
 	private String basePath = "";
+	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private final JList<JSONObject> my_list = new JList<>();
 	private final JButton add_btn = new JButton("Add");
 	private final JButton edit_btn = new JButton("Edit");
@@ -48,8 +50,10 @@ public class MinerServerAddressSettingsPane extends JPanel {
 		super(new BorderLayout());
 		my_list.setCellRenderer(new MyCellRenderer());
 		add(new JScrollPane(my_list), BorderLayout.CENTER);
-		var btn_panel = new JPanel(new VerticalFlowLayout());
-		Stream.of(add_btn, edit_btn,del_btn).forEach(btn_panel::add);
+		var btn_panel = new JPanel(new GridBagLayout());
+		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(edit_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(del_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);

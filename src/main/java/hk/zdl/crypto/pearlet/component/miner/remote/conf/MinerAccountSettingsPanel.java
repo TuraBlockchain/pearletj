@@ -13,7 +13,6 @@ import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -43,7 +42,6 @@ import com.csvreader.CsvReader;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
-import hk.zdl.crypto.pearlet.misc.VerticalFlowLayout;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -69,8 +67,9 @@ public class MinerAccountSettingsPanel extends JPanel {
 		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Miner Account", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
 		add(new JScrollPane(acc_list), BorderLayout.CENTER);
 
-		var btn_panel = new JPanel(new VerticalFlowLayout());
-		Stream.of(add_btn, del_btn).forEach(btn_panel::add);
+		var btn_panel = new JPanel(new GridBagLayout());
+		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(del_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
@@ -118,7 +117,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if(e.getKeyCode()==KeyEvent.VK_DELETE) {
+				if (e.getKeyCode() == KeyEvent.VK_DELETE) {
 					del_btn.doClick();
 				}
 			}
@@ -135,7 +134,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 
 	@SuppressWarnings("unchecked")
 	public void refresh_list() throws Exception {
-		if(basePath.isBlank()) {
+		if (basePath.isBlank()) {
 			return;
 		}
 		var l = new JSONArray(new JSONTokener(new URL(basePath + miner_account_path).openStream())).toList().stream().map(o -> o.toString()).toList();
@@ -193,7 +192,8 @@ public class MinerAccountSettingsPanel extends JPanel {
 		if (acc_list.getSelectedIndex() < 0) {
 			return false;
 		}
-		if (JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this account?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this account?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (i == JOptionPane.YES_OPTION) {
 			try {
 				var id = acc_list.getSelectedValue();
 				var httpPost = new HttpPost(basePath + miner_account_path + "/del");
