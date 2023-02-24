@@ -21,8 +21,11 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
+import se.gustavkarlsson.gwiz.AbstractWizardPage;
 import se.gustavkarlsson.gwiz.Wizard;
+import se.gustavkarlsson.gwiz.WizardController;
 
 public class JDialogWizard extends JDialog implements Wizard {
 
@@ -162,4 +165,11 @@ public class JDialogWizard extends JDialog implements Wizard {
 
 	}
 
+	public static final void showWizard(String title, AbstractWizardPage startPage, Container... c) {
+		var w = c.length > 0 ? SwingUtilities.getWindowAncestor(c[0]) : null;
+		var wizard = new JDialogWizard(w, title);
+		var controller = new WizardController(wizard);
+		controller.startWizard(startPage);
+		wizard.setVisible(true);
+	}
 }

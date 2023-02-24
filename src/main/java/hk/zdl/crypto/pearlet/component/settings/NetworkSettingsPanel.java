@@ -32,7 +32,6 @@ import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 import se.gustavkarlsson.gwiz.AbstractWizardPage;
-import se.gustavkarlsson.gwiz.WizardController;
 
 @SuppressWarnings("serial")
 public class NetworkSettingsPanel extends JPanel {
@@ -49,8 +48,6 @@ public class NetworkSettingsPanel extends JPanel {
 		btn_panel.add(add_btn);
 
 		add_btn.addActionListener(e -> {
-			var wizard = new JDialogWizard(SwingUtilities.getWindowAncestor(this),"Add Network");
-			var controller = new WizardController(wizard);
 			var startPage = new AbstractWizardPage() {
 
 				@Override
@@ -78,8 +75,7 @@ public class NetworkSettingsPanel extends JPanel {
 					return true;
 				}
 			};
-			controller.startWizard(startPage);
-			wizard.setVisible(true);
+			JDialogWizard.showWizard("Add Network", startPage, this);
 		});
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
