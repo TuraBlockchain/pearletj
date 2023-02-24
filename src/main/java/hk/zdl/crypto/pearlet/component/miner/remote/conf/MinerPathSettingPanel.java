@@ -59,23 +59,13 @@ public class MinerPathSettingPanel extends JPanel {
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
 
-		add_btn.addActionListener(e -> Util.submit(() -> {
-			if (add_miner_path(e)) {
-				refresh_list();
-			}
-			return null;
-		}));
-		del_btn.addActionListener(e -> Util.submit(() -> {
-			if (del_miner_path()) {
-				refresh_list();
-			}
-			return null;
-		}));
+		add_btn.addActionListener(e -> Util.submit(() -> add_miner_path(e) ? refresh_list() : null));
+		del_btn.addActionListener(e -> Util.submit(() -> del_miner_path(e) ? refresh_list() : null));
 		path_list.addKeyListener(new KeyAdapter() {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if(e.getKeyCode()==KeyEvent.VK_DELETE) {
+				if (e.getKeyCode() == KeyEvent.VK_DELETE) {
 					del_btn.doClick();
 				}
 			}
@@ -91,11 +81,12 @@ public class MinerPathSettingPanel extends JPanel {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void refresh_list() throws Exception {
+	public Void refresh_list() throws Exception {
 		var l = new JSONArray(new JSONTokener(new URL(basePath + miner_file_path + "/list?id=" + id).openStream())).toList().stream().map(o -> o.toString()).toList();
 		var i = path_list.getSelectedIndex();
 		path_list.setModel(new ListComboBoxModel<String>(l));
 		path_list.setSelectedIndex(i);
+		return null;
 	}
 
 	public boolean add_miner_path(ActionEvent e) {
@@ -147,7 +138,7 @@ public class MinerPathSettingPanel extends JPanel {
 		return true;
 	}
 
-	public boolean del_miner_path() {
+	public boolean del_miner_path(ActionEvent e) {
 		if (path_list.getSelectedIndex() < 0) {
 			return false;
 		}

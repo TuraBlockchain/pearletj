@@ -4,7 +4,6 @@ import java.awt.Desktop;
 import java.awt.Desktop.Action;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -118,10 +117,6 @@ public class Util {
 		} catch (IOException e) {
 			return null;
 		}
-	}
-
-	public static final InputStream getResourceAsStream(String path) {
-		return Util.class.getClassLoader().getResourceAsStream(path);
 	}
 
 	public static final URL getResource(String path) {

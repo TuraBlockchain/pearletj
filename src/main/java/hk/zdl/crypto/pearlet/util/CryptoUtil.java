@@ -10,14 +10,12 @@ import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.IOUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 import org.json.JSONArray;
@@ -716,19 +714,7 @@ public class CryptoUtil {
 	}
 
 	public static final synchronized Optional<String> get_server_url(CrptoNetworks network) {
-		Optional<String> opt = MyDb.get_server_url(network);
-		if (opt.isEmpty()) {
-			List<String> nws = Arrays.asList();
-			try {
-				nws = IOUtils.readLines(Util.getResourceAsStream("network/" + network.name().toLowerCase() + ".txt"), Charset.defaultCharset());
-			} catch (IOException e) {
-			}
-			if (!nws.isEmpty()) {
-				MyDb.update_server_url(network, nws.get(0));
-				return Optional.of(nws.get(0));
-			}
-		}
-		return opt;
+		return MyDb.get_server_url(network);
 	}
 
 	public static final SignumValue toSignumValue(CrptoNetworks network, BigDecimal amount) {

@@ -1,97 +1,150 @@
 package hk.zdl.crypto.pearlet.component.settings;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.TitledBorder;
 
-import org.apache.commons.io.IOUtils;
-import org.jdesktop.swingx.combobox.ListComboBoxModel;
-
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
+import hk.zdl.crypto.pearlet.misc.VerticalFlowLayout;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class NetworkSettingsPanel extends JPanel {
 
-	public NetworkSettingsPanel() {
-		super(new FlowLayout(FlowLayout.CENTER));
-		var panel = new JPanel(new GridLayout(0, 1));
+	private static final Insets insets_5 = new Insets(2, 3, 3, 3);
+	private static final JPanel center_panel = new JPanel(new GridLayout(0, 1));
+	private static final int ping_timeout = 5000;
 
-		var l = Util.getProp().getBoolean("show_peth_only")?Arrays.asList(CrptoNetworks.ROTURA):Arrays.asList(CrptoNetworks.values());
-		l.stream().map(NetworkSettingsPanel::init_network_UI_components).forEach(panel::add);
-		add(panel);
+	public NetworkSettingsPanel() {
+		super(new BorderLayout());
+
+		var btn_panel = new JPanel(new VerticalFlowLayout());
+		var add_btn = new JButton(UIUtil.getStretchIcon("icon/heavy-plus-sign-svgrepo-com.svg", 32, 32));
+		btn_panel.add(add_btn);
+
+		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
+		panel_1.add(btn_panel);
+		add(panel_1, BorderLayout.EAST);
+
+		add(new JScrollPane(center_panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		refresh_network_list(center_panel);
 	}
 
-	@SuppressWarnings("unchecked")
-	private static final Component init_network_UI_components(CrptoNetworks network_name) {
-		var panel = new JPanel(new GridBagLayout());
-		var label = new JLabel(network_name.name());
-		if(network_name.equals(CrptoNetworks.ROTURA)) {
-			label.setText("PETH");
+	private final void refresh_network_list(JPanel p) {
+		p.removeAll();
+		MyDb.get_networks().stream().map(this::init_network_UI_components).forEach(p::add);
+	}
+
+	private final Component init_network_UI_components(CryptoNetwork o) {
+		var panel = new JPanel(new BorderLayout());
+		var icon = new JLabel(UIUtil.getStretchIcon("icon/" + UIUtil.get_icon_file_name(o), 64, 64));
+		panel.add(icon, BorderLayout.WEST);
+		var my_panel = new JPanel(new GridBagLayout());
+		panel.add(my_panel, BorderLayout.CENTER);
+		my_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(getForeground()), o.getName(), TitledBorder.LEFT, TitledBorder.TOP,
+				new Font("Arial Black", Font.PLAIN, (int) (getFont().getSize() * 1.5))));
+		var label_0 = new JLabel("Type:");
+		var label_1 = new JLabel("URL:");
+		var label_2 = new JLabel("Ping:");
+
+		var label_3 = new JLabel(o.getType().name());
+		var label_4 = new JLabel(o.getUrl());
+		var prog = new JProgressBar();
+		prog.setString("");
+		prog.setStringPainted(true);
+
+		var btn_0 = new JButton("Delete");
+		var btn_1 = new JButton("Modify");
+		var btn_2 = new JButton("Ping");
+		var btn_3 = new JButton("Credential...");
+		if (o.getType() == CryptoNetwork.Type.WEB3J) {
+			my_panel.add(btn_3, new GridBagConstraints(2, 0, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
+			btn_3.addActionListener(e -> createWeb3jAuthDialog(this));
 		}
-		label.setHorizontalTextPosition(SwingConstants.LEFT);
-		panel.add(label, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 0, new Insets(5, 0, 0, 0), 0, 0));
-		var combo_box = new JComboBox<String>();
-		combo_box.setEditable(true);
-		combo_box.setPreferredSize(new Dimension(300, 20));
-		panel.add(combo_box, new GridBagConstraints(0, 1, 3, 1, 0, 0, 10, 0, new Insets(5, 0, 5, 0), 0, 0));
-		var btn = new JButton("Select Node");
-		panel.add(btn, new GridBagConstraints(3, 1, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
-		List<String> nws = Arrays.asList();
-		try {
-			nws = IOUtils.readLines(Util.getResourceAsStream("network/" + network_name.name().toLowerCase() + ".txt"), Charset.defaultCharset());
-		} catch (IOException e) {
-		}
-		combo_box.setModel(new ListComboBoxModel<String>(nws));
-		if (network_name.equals(CrptoNetworks.WEB3J)) {
-			label.setText("Ethereum");
-			var opt_btn = new JButton("ID / Secret");
-			panel.add(opt_btn, new GridBagConstraints(1, 0, 1, 1, 0, 0, 10, 0, new Insets(5, 5, 5, 5), 0, 0));
-			opt_btn.addActionListener(e -> createWeb3jAuthDialog(panel));
-		}
-		Util.submit(() -> MyDb.get_server_url(network_name).ifPresent(combo_box::setSelectedItem));
-		btn.addActionListener(e -> Util.submit(() -> {
-			try {
-				URL url = new URL(combo_box.getSelectedItem().toString().trim());
-				var p = url.getProtocol().toLowerCase();
-				if (!p.equals("http") && !p.equals("https")) {
-					JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(panel), "Unsupported Protocol" + ": " + p, "Error", JOptionPane.ERROR_MESSAGE);
-					return;
+		my_panel.add(label_0, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+		my_panel.add(label_1, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+		my_panel.add(label_2, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+
+		my_panel.add(label_3, new GridBagConstraints(1, 0, 1, 1, 1, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+		my_panel.add(label_4, new GridBagConstraints(1, 1, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		my_panel.add(prog, new GridBagConstraints(1, 2, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+
+		my_panel.add(btn_0, new GridBagConstraints(3, 0, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		my_panel.add(btn_1, new GridBagConstraints(3, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		my_panel.add(btn_2, new GridBagConstraints(3, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+
+		btn_0.addActionListener(e -> {
+			if (JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this?", null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+				MyDb.delete_network(o.getId());
+				refresh_network_list(center_panel);
+			}
+		});
+		btn_2.addActionListener(e -> {
+			btn_2.setEnabled(false);
+			prog.setString("");
+			prog.setIndeterminate(true);
+			Util.submit(() -> {
+				var f = Util.submit(() -> {
+					var t = System.currentTimeMillis();
+					new URL(o.getUrl()).openStream().close();
+					t = System.currentTimeMillis() - t;
+					prog.setIndeterminate(false);
+					prog.setString("" + t + "ms");
+					btn_2.setEnabled(true);
+					return null;
+				});
+				try {
+					f.get(ping_timeout, TimeUnit.MILLISECONDS);
+				} catch (TimeoutException x) {
+					prog.setString(">" + ping_timeout + "ms");
+				} catch (Throwable x) {
+					while (x.getCause() != null) {
+						x = x.getCause();
+					}
+					prog.setString(x.getMessage());
+				} finally {
+					prog.setIndeterminate(false);
+					btn_2.setEnabled(true);
 				}
-				boolean b = MyDb.update_server_url(network_name, url.toString());
-				if (b) {
-					JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(panel), "Node updated.", null, JOptionPane.INFORMATION_MESSAGE);
-				} else {
-					JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(panel), "Something went wrong", "Error", JOptionPane.ERROR_MESSAGE);
-				}
-			} catch (MalformedURLException x) {
-				JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(panel), "Invalid URL", "Error", JOptionPane.ERROR_MESSAGE);
+			});
+		});
+		btn_1.addActionListener(e -> {
+			var str = JOptionPane.showInputDialog(getRootPane(), "Please input node server URL:", null, JOptionPane.INFORMATION_MESSAGE, null, null, o.getUrl());
+			if (str == null) {
 				return;
 			}
-		}));
+			try {
+				new URL(str.toString());
+			} catch (Throwable x) {
+				return;
+			}
+			o.setUrl(str.toString());
+			MyDb.update_network(o);
+			refresh_network_list(center_panel);
+		});
 		return panel;
 	}
 

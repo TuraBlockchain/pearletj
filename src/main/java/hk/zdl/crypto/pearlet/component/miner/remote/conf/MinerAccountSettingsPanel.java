@@ -193,8 +193,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 		if (acc_list.getSelectedIndex() < 0) {
 			return false;
 		}
-		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this account?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-		if (i == JOptionPane.YES_OPTION) {
+		if (JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this account?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 			try {
 				var id = acc_list.getSelectedValue();
 				var httpPost = new HttpPost(basePath + miner_account_path + "/del");
