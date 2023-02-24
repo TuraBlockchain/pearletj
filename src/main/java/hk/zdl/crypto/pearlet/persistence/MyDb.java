@@ -91,7 +91,7 @@ public class MyDb {
 			var n = new CryptoNetwork();
 			n.setId(r.getInt("ID"));
 			n.setType(CryptoNetwork.Type.valueOf(r.getStr("NETWORK")));
-			n.setName("NWNAME");
+			n.setName(r.getStr("NWNAME"));
 			n.setUrl(r.getStr("URL"));
 			return n;
 		}).toList();

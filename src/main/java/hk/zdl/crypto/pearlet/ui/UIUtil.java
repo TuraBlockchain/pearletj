@@ -21,6 +21,8 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+import org.json.JSONTokener;
 
 import com.formdev.flatlaf.util.SystemInfo;
 
@@ -35,14 +37,17 @@ public class UIUtil {
 			return "ethereum-crypto-cryptocurrency-2-svgrepo-com.svg";
 		} else {
 			var url = o.getUrl();
+			var jarr = new JSONArray(new JSONTokener(UIUtil.class.getClassLoader().getResourceAsStream("network/predefined.json")));
+			for (var i = 0; i < jarr.length(); i++) {
+				var jobj = jarr.getJSONObject(i);
+				if (url.equals(jobj.getString("server url"))) {
+					return jobj.getString("icon");
+				}
+			}
 			try {
 				var list = IOUtils.readLines(UIUtil.class.getClassLoader().getResourceAsStream("network/signum.txt"), Charset.defaultCharset());
-				if(list.contains(url)) {
+				if (list.contains(url)) {
 					return "Signum_Logomark_black.png";
-				}
-				list = IOUtils.readLines(UIUtil.class.getClassLoader().getResourceAsStream("network/rotura.txt"), Charset.defaultCharset());
-				if(list.contains(url)) {
-					return "peth-logo.png";
 				}
 			} catch (IOException e) {
 			}
