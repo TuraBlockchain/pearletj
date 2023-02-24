@@ -6,6 +6,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.nio.charset.Charset;
 
@@ -72,7 +74,15 @@ public class MinerPathSettingPanel extends JPanel {
 			}
 			return null;
 		}));
+		path_list.addKeyListener(new KeyAdapter() {
 
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode()==KeyEvent.VK_DELETE) {
+					del_btn.doClick();
+				}
+			}
+		});
 	}
 
 	public void setBasePath(String basePath) {

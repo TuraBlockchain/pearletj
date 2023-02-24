@@ -2,24 +2,21 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>hk.zdl.crpto</groupId>
 	<artifactId>pearletj</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.2.1-SNAPSHOT</version>
 	<name>pearletj</name>
 	<description>PearletJ
 	Cross-platform multi-chain thick wallet for Cryto-currencies
 	</description>
 	<inceptionYear>2022</inceptionYear>
 	<url>${project.scm.url}</url>
-
 	<scm>
 		<url>https://github.com/eth3-peth/pearletj</url>
 		<connection>https://github.com/eth3-peth/pearletj.git</connection>
 	</scm>
-
 	<issueManagement>
 		<system>GitHub Issues</system>
 		<url>https://github.com/eth3-peth/pearletj/issues</url>
 	</issueManagement>
-
 	<licenses>
 		<license>
 			<name>GNU General Public License v3.0</name>
@@ -27,7 +24,6 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -249,7 +245,6 @@
 			<artifactId>c3p0</artifactId>
 			<version>0.9.5.5</version>
 		</dependency>
-
 		<!-- GUI relative -->
 		<dependency>
 			<groupId>com.formdev</groupId>
@@ -271,7 +266,6 @@
 			<artifactId>jSystemThemeDetector</artifactId>
 			<version>3.8</version>
 		</dependency>
-
 		<!-- API backend-->
 		<dependency>
 			<groupId>com.github.signum-network</groupId>
@@ -298,7 +292,6 @@
 			<artifactId>contracts</artifactId>
 			<version>5.0.0</version>
 		</dependency>
-
 		<!-- Utilities -->
 		<dependency>
 			<groupId>org.json</groupId>
@@ -345,7 +338,12 @@
 			<artifactId>javacsv</artifactId>
 			<version>2.0</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>open</artifactId>
+			<version>8.5.0</version>
+		</dependency>
+		
 		<!-- jfinal -->
 		<dependency>
 			<groupId>com.jfinal</groupId>
@@ -357,7 +355,6 @@
 			<artifactId>jfreechart</artifactId>
 			<version>1.5.4</version>
 		</dependency>
-
 		<!-- svg -->
 		<dependency>
 			<groupId>com.twelvemonkeys.imageio</groupId>
@@ -369,27 +366,23 @@
 			<artifactId>batik-transcoder</artifactId>
 			<version>1.6-1</version>
 		</dependency>
-
 		<!-- qr-code -->
 		<dependency>
 			<groupId>net.glxn</groupId>
 			<artifactId>qrgen</artifactId>
 			<version>1.4</version>
 		</dependency>
-
 		<!-- image resize -->
 		<dependency>
 			<groupId>org.imgscalr</groupId>
 			<artifactId>imgscalr-lib</artifactId>
 			<version>4.2</version>
 		</dependency>
-
 		<!-- loggings -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 			<version>2.19.0</version>
 		</dependency>
-
 	</dependencies>
 </project>

@@ -2,7 +2,6 @@ package hk.zdl.crypto.pearlet.component;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -106,7 +105,7 @@ public class AboutPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 1) {
 					try {
-						Desktop.getDesktop().browse(new URI(Util.getProp().get("license_url")));
+						Util.browse(new URI(Util.getProp().get("license_url")));
 					} catch (Exception x) {
 						Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 					}

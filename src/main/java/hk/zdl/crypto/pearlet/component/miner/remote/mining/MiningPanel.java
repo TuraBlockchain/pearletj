@@ -1,8 +1,6 @@
 package hk.zdl.crypto.pearlet.component.miner.remote.mining;
 
 import java.awt.BorderLayout;
-import java.awt.Desktop;
-import java.awt.Desktop.Action;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,10 +9,11 @@ import java.awt.Point;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.logging.Level;
@@ -37,7 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import com.formdev.flatlaf.util.SystemInfo;
+import com.vaadin.open.Open;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerAccountSettingsPanel;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.DateCellRenderer;
@@ -96,6 +95,22 @@ public class MiningPanel extends JPanel implements ActionListener {
 			}
 			return null;
 		}));
+		restart_all_btn.addActionListener(e -> Util.submit(() -> {
+			if (restart_all_miner()) {
+				actionPerformed(null);
+			}
+			return null;
+		}));
+
+		table.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+					stop_btn.doClick();
+				}
+			}
+		});
 	}
 
 	private void init_table() {
@@ -135,15 +150,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 							if (!file.exists() || !file.isDirectory()) {
 								return;
 							}
-							if (Desktop.getDesktop().isSupported(Action.BROWSE_FILE_DIR)) {
-								Desktop.getDesktop().browseFileDirectory(file);
-							} else if (SystemInfo.isWindows) {
-								try {
-									new ProcessBuilder().command("explorer.exe", path).start();
-								} catch (IOException x) {
-									Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-								}
-							}
+							Open.open(file.getAbsolutePath());
 						}
 					}
 				}
@@ -274,6 +281,28 @@ public class MiningPanel extends JPanel implements ActionListener {
 					UIUtil.displayMessage("Succeed", "Miner has started.", null);
 				} else {
 					UIUtil.displayMessage("Failed", "Failed to start miner.", MessageType.ERROR);
+					return false;
+				}
+			} catch (Exception x) {
+				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean restart_all_miner() {
+		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to restart all miners?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (i == JOptionPane.YES_OPTION) {
+			try {
+				var httpclient = WebUtil.getHttpclient();
+				var httpPost = new HttpPost(basePath + miner_reboot_path);
+				var response = httpclient.execute(httpPost);
+				response.getEntity().getContent().close();
+				if (response.getStatusLine().getStatusCode() == 200) {
+					UIUtil.displayMessage("Succeed", "Miners have restarted.", null);
+				} else {
+					UIUtil.displayMessage("Failed", "Failed to restart miners.", MessageType.ERROR);
 					return false;
 				}
 			} catch (Exception x) {

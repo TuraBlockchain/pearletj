@@ -20,6 +20,8 @@ public class MyUIManager {
 		sound_map.put("OptionPane.questionSound", "win.sound.question");
 		sound_map.put("OptionPane.warningSound", "win.sound.exclamation");
 		sound_map.put("OptionPane.errorSound", "win.sound.hand");
+		sound_map.put("MenuItem.commandSound", "win.sound.menuCommand");
+		sound_map.put("MenuItem.popupSound", "win.sound.menuPopup");
 		OsThemeDetector.getDetector().registerListener((isDark) -> {
 			setLookAndFeel(isDark);
 		});
@@ -38,9 +40,11 @@ public class MyUIManager {
 	}
 
 	protected static void playSound(Action audioAction) {
-		String actionName = (String) audioAction.getValue(Action.NAME);
-		Runnable runnable = (Runnable) Toolkit.getDefaultToolkit().getDesktopProperty(sound_map.get(actionName));
-		if (runnable != null)
-			runnable.run();
+		String actionName = audioAction.getValue(Action.NAME).toString();
+		if (sound_map.containsKey(actionName)) {
+			Runnable runnable = (Runnable) Toolkit.getDefaultToolkit().getDesktopProperty(sound_map.get(actionName));
+			if (runnable != null)
+				runnable.run();
+		}
 	}
 }
