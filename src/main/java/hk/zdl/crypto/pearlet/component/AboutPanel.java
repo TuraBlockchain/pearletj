@@ -89,8 +89,7 @@ public class AboutPanel extends JPanel {
 		var badge_panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
 		scr.setViewportView(badge_panel);
 		JSONArray jarr = new JSONArray(new JSONTokener(Util.getResourceAsText("badges.json")));
-		var len = Util.getProp().getBoolean("show_peth_only") ? 1 : jarr.length();
-		for (int i = 0; i < len; i++) {
+		for (int i = 0; i < jarr.length(); i++) {
 			try {
 				String _icon = jarr.getJSONObject(i).getString("icon");
 				String _text = jarr.getJSONObject(i).getString("text");

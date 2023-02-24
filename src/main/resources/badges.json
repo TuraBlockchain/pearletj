@@ -1,18 +1,16 @@
-[
-	{
-		"icon": "peth.jpg",
-		"text":"People Ethereum"
-	},
-	{
-		"icon": "ens transparent background.png",
-		"text":"Ethereum Name Service"
-	},
-	{
-		"icon": "Signum_Badge_J.png",
-		"text":"SignumJ"
-	},
-	{
-		"icon": "web3j_logo.png",
-		"text":"Web3j"
-	}
-]
+[ {
+  "icon" : "peth-logo.png",
+  "text" : "People Ethereum"
+}, {
+  "icon" : "pp-logo.png",
+  "text" : "PETH Pioneer"
+}, {
+  "icon" : "ens transparent background.png",
+  "text" : "Ethereum Name Service"
+}, {
+  "icon" : "Signum_Badge_J.png",
+  "text" : "SignumJ"
+}, {
+  "icon" : "web3j_logo.png",
+  "text" : "Web3j"
+} ]
