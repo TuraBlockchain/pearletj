@@ -13,6 +13,7 @@ import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -42,6 +43,7 @@ import com.csvreader.CsvReader;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
+import hk.zdl.crypto.pearlet.misc.VerticalFlowLayout;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -67,9 +69,8 @@ public class MinerAccountSettingsPanel extends JPanel {
 		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Miner Account", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
 		add(new JScrollPane(acc_list), BorderLayout.CENTER);
 
-		var btn_panel = new JPanel(new GridBagLayout());
-		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
-		btn_panel.add(del_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		var btn_panel = new JPanel(new VerticalFlowLayout());
+		Stream.of(add_btn, del_btn).forEach(btn_panel::add);
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);

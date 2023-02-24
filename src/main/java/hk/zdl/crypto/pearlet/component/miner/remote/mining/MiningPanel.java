@@ -2,9 +2,6 @@ package hk.zdl.crypto.pearlet.component.miner.remote.mining;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
@@ -19,6 +16,7 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -44,6 +42,7 @@ import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.IDRenderer;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.MinerStatusCellRenderer;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.PlotDirCellRenderer;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
+import hk.zdl.crypto.pearlet.misc.VerticalFlowLayout;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -54,7 +53,6 @@ public class MiningPanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 3870247981006005478L;
 	public static final String addational_path = "/api/v1/miner";
 	public static final String miner_reboot_path = "/api/v1/miner/restart_all";
-	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private String basePath = "";
 	private final MinerStateTableModel table_model = new MinerStateTableModel();
 	private final JTable table = new JTable(table_model);
@@ -67,11 +65,8 @@ public class MiningPanel extends JPanel implements ActionListener {
 		super(new BorderLayout());
 		init_table();
 		add(new JScrollPane(table), BorderLayout.CENTER);
-		var btn_panel = new JPanel(new GridBagLayout());
-		btn_panel.add(start_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
-		btn_panel.add(stop_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
-		btn_panel.add(restart_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
-		btn_panel.add(restart_all_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		var btn_panel = new JPanel(new VerticalFlowLayout());
+		Stream.of(start_btn, stop_btn,restart_btn,restart_all_btn).forEach(btn_panel::add);
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);

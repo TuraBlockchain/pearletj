@@ -2,14 +2,12 @@ package hk.zdl.crypto.pearlet.component.miner.remote.conf;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -30,6 +28,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
+import hk.zdl.crypto.pearlet.misc.VerticalFlowLayout;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 import hk.zdl.crypto.pearlet.util.WebUtil;
@@ -41,7 +40,6 @@ public class MinerPathSettingPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = -718519273950546176L;
 	public static final String miner_file_path = "/api/v1/miner_path";
-	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	private final JList<String> path_list = new JList<>();
 	private final JButton add_btn = new JButton("Add");
@@ -54,9 +52,8 @@ public class MinerPathSettingPanel extends JPanel {
 		super(new BorderLayout());
 		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Miner Path", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
 		add(new JScrollPane(path_list), BorderLayout.CENTER);
-		var btn_panel = new JPanel(new GridBagLayout());
-		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
-		btn_panel.add(del_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		var btn_panel = new JPanel(new VerticalFlowLayout());
+		Stream.of(add_btn, del_btn).forEach(btn_panel::add);
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
