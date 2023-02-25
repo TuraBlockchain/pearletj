@@ -31,9 +31,9 @@ public class JDialogWizard extends JDialog implements Wizard {
 
 	private static final long serialVersionUID = -4056365152045590112L;
 
-	private static final Dimension defaultminimumSize = new Dimension(800, 600);
+	private static final Dimension defaultminimumSize = new Dimension(640, 480);
 	private final JPanel wizardPageContainer = new JPanel(new GridLayout(1, 1));
-	private final JButton previousButton = new JButton("Back");
+	private final JButton backButton = new JButton("Back");
 	private final JButton nextButton = new JButton("Next");
 	private final JButton finishButton = new JButton("Finish");
 	private final JButton cancelButton = new JButton("Cancel");
@@ -92,11 +92,6 @@ public class JDialogWizard extends JDialog implements Wizard {
 
 		finishButton.addActionListener((e) -> dispose());
 
-		cancelButton.setMnemonic(KeyEvent.VK_C);
-		previousButton.setMnemonic(KeyEvent.VK_P);
-		nextButton.setMnemonic(KeyEvent.VK_N);
-		finishButton.setMnemonic(KeyEvent.VK_F);
-
 		wizardPageContainer.addContainerListener(new MinimumSizeAdjuster());
 
 		setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
@@ -106,7 +101,7 @@ public class JDialogWizard extends JDialog implements Wizard {
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(wizardPageContainer, BorderLayout.CENTER);
 		var btn_panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		Stream.of(previousButton, c, cancelButton).forEach(btn_panel::add);
+		Stream.of(backButton, c, cancelButton).forEach(btn_panel::add);
 		getContentPane().add(btn_panel, BorderLayout.SOUTH);
 	}
 
@@ -122,7 +117,7 @@ public class JDialogWizard extends JDialog implements Wizard {
 
 	@Override
 	public AbstractButton getPreviousButton() {
-		return previousButton;
+		return backButton;
 	}
 
 	@Override

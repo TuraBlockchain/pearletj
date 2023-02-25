@@ -24,6 +24,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
+import hk.zdl.crypto.pearlet.component.settings.wizard.ChooseNetworkType;
+import hk.zdl.crypto.pearlet.component.settings.wizard.EnterNetworkDetail;
 import hk.zdl.crypto.pearlet.component.settings.wizard.JDialogWizard;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.misc.VerticalFlowLayout;
@@ -31,7 +33,6 @@ import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
-import se.gustavkarlsson.gwiz.AbstractWizardPage;
 
 @SuppressWarnings("serial")
 public class NetworkSettingsPanel extends JPanel {
@@ -48,34 +49,10 @@ public class NetworkSettingsPanel extends JPanel {
 		btn_panel.add(add_btn);
 
 		add_btn.addActionListener(e -> {
-			var startPage = new AbstractWizardPage() {
-
-				@Override
-				protected AbstractWizardPage getNextPage() {
-					return null;
-				}
-
-				@Override
-				protected boolean isCancelAllowed() {
-					return true;
-				}
-
-				@Override
-				protected boolean isPreviousAllowed() {
-					return false;
-				}
-
-				@Override
-				protected boolean isNextAllowed() {
-					return false;
-				}
-
-				@Override
-				protected boolean isFinishAllowed() {
-					return true;
-				}
-			};
-			JDialogWizard.showWizard("Add Network", startPage, this);
+			var startPage = new ChooseNetworkType();
+			var detailPage = new EnterNetworkDetail();
+			startPage.setNextPage(detailPage);
+			JDialogWizard.showWizard("Add a Network", startPage, this);
 		});
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
