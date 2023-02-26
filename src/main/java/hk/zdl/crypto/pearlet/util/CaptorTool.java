@@ -47,7 +47,7 @@ public class CaptorTool {
 		}
 	}
 
-	public static final synchronized Inet4Address[] filter_online_hosts(Inet4Address from, Inet4Address[] adrs, long timeout_ms) throws Throwable {
+	public static final synchronized Inet4Address[] filter_online_hosts(Inet4Address from, Inet4Address[] adrs, long timeout_ms) throws Exception {
 		var iface = findNetworkInterfaceWithInet4Address(from).get();
 		var cap = JpcapCaptor.openDevice(iface, 65535, true, 2000);
 		cap.setNonBlockingMode(true);

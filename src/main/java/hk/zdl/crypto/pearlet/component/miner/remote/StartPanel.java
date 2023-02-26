@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.TrayIcon.MessageType;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
@@ -19,6 +18,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import javax.swing.DefaultListCellRenderer;
@@ -119,13 +120,19 @@ final class StartPanel extends JPanel {
 				} catch (UnknownHostException x) {
 				}
 			}
-			if (CaptorTool.isJCaptorActive()) {
-				try {
-					adrs = CaptorTool.filter_online_hosts(adr, adrs, 5000);
-				} catch (Throwable x) {
-					UIUtil.displayMessage("Error", x.getMessage(), MessageType.ERROR);
+			final Inet4Address[] b = Arrays.copyOf(adrs, 254);
+			var f = Util.submit(() -> {
+				if (CaptorTool.isJCaptorActive()) {
+					return CaptorTool.filter_online_hosts(adr, b, 5000);
+				} else {
+					return b;
 				}
+			});
+			try {
+				adrs = f.get(6000, TimeUnit.MILLISECONDS);
+			} catch (Exception x) {
 			}
+
 			Stream.of(adrs).parallel().filter(a -> {
 				try {
 					var socket = new Socket(a, port);
