@@ -65,7 +65,8 @@ public class AccountSettingsPanel extends JPanel {
 		EventBus.getDefault().register(this);
 		EventBus.getDefault().register(account_table_model);
 		add(new JScrollPane(table), BorderLayout.CENTER);
-
+		
+		table.getColumnModel().removeColumn(table.getColumnModel().getColumn(0));
 		var btn_panel = new JPanel(new GridBagLayout());
 		var create_account_btn = new JButton("Create");
 		btn_panel.add(create_account_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));

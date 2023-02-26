@@ -182,7 +182,7 @@ public class Util {
 			try {
 				Transaction tx = (Transaction) e;
 				String tx_id = tx.getId().toString();
-				browse(new URI("http://explorer.peth.world:8000/tx/" + tx_id));
+				browse(new URI("http://pp-explorer.peth.world:9000/tx/" + tx_id));
 			} catch (Exception x) {
 				return false;
 			}
@@ -218,7 +218,7 @@ public class Util {
 		var uri = "";
 		switch (nw) {
 		case ROTURA:
-			uri = "http://explorer.peth.world:8000/address/" + e;
+			uri = "http://pp-explorer.peth.world:9000/address/" + e;
 			break;
 		case SIGNUM:
 			uri = "https://chain.signum.network/search/?q=" + e;
