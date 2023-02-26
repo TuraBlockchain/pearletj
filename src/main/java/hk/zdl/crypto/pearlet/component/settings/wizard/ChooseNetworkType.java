@@ -43,9 +43,9 @@ public class ChooseNetworkType extends AbstractWizardPage {
 
 	public String getSelected() {
 		if (op_1.isSelected()) {
-			return op_1.getText();
+			return "Burst Variant";
 		} else {
-			return op_2.getText();
+			return "Ethereum";
 		}
 	}
 

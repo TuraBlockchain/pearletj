@@ -39,6 +39,7 @@ public class JDialogWizard extends JDialog implements Wizard {
 	private final JButton cancelButton = new JButton("Cancel");
 	private final CardLayout card = new CardLayout();
 	private final JPanel c = new JPanel(card);
+	private boolean finish = false;
 
 	public JDialogWizard() {
 		setupWizard();
@@ -90,7 +91,10 @@ public class JDialogWizard extends JDialog implements Wizard {
 		c.add(finishButton, "f");
 		cancelButton.addActionListener((e) -> dispose());
 
-		finishButton.addActionListener((e) -> dispose());
+		finishButton.addActionListener((e) -> {
+			finish = true;
+			dispose();
+		});
 
 		wizardPageContainer.addContainerListener(new MinimumSizeAdjuster());
 
@@ -122,22 +126,17 @@ public class JDialogWizard extends JDialog implements Wizard {
 
 	@Override
 	public AbstractButton getNextButton() {
-		refresh_card();
 		return nextButton;
 	}
 
 	@Override
 	public AbstractButton getFinishButton() {
-		refresh_card();
+		SwingUtilities.invokeLater(() -> card.show(c, finishButton.isEnabled() ? "f" : "n"));
 		return finishButton;
 	}
 
-	private void refresh_card() {
-		if (nextButton.isEnabled()) {
-			card.show(c, "n");
-		} else if (finishButton.isEnabled()) {
-			card.show(c, "f");
-		}
+	public boolean isFinish() {
+		return finish;
 	}
 
 	private class MinimumSizeAdjuster implements ContainerListener {
@@ -160,11 +159,12 @@ public class JDialogWizard extends JDialog implements Wizard {
 
 	}
 
-	public static final void showWizard(String title, AbstractWizardPage startPage, Container... c) {
+	public static final boolean showWizard(String title, AbstractWizardPage startPage, Container... c) {
 		var w = c.length > 0 ? SwingUtilities.getWindowAncestor(c[0]) : null;
 		var wizard = new JDialogWizard(w, title);
 		var controller = new WizardController(wizard);
 		controller.startWizard(startPage);
 		wizard.setVisible(true);
+		return wizard.isFinish();
 	}
 }

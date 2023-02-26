@@ -25,6 +25,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import hk.zdl.crypto.pearlet.component.settings.wizard.ChooseNetworkType;
+import hk.zdl.crypto.pearlet.component.settings.wizard.ConfirmNetwork;
 import hk.zdl.crypto.pearlet.component.settings.wizard.EnterNetworkDetail;
 import hk.zdl.crypto.pearlet.component.settings.wizard.JDialogWizard;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
@@ -52,7 +53,25 @@ public class NetworkSettingsPanel extends JPanel {
 			var startPage = new ChooseNetworkType();
 			var detailPage = new EnterNetworkDetail();
 			startPage.setNextPage(detailPage);
-			JDialogWizard.showWizard("Add a Network", startPage, this);
+			var confPage = new ConfirmNetwork();
+			detailPage.setNextPage(confPage);
+			var finish = JDialogWizard.showWizard("Add a Network", startPage, this);
+			if (finish) {
+				var new_network = new CryptoNetwork();
+				new_network.setName(confPage.getNetworkName());
+				new_network.setUrl(confPage.getNetworkAddress());
+				switch (confPage.getType()) {
+				case "Ethereum":
+					new_network.setType(CryptoNetwork.Type.WEB3J);
+					break;
+				case "Burst Variant":
+					new_network.setType(CryptoNetwork.Type.BURST);
+					break;
+				}
+				if (MyDb.insert_network(new_network)) {
+					refresh_network_list();
+				}
+			}
 		});
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
@@ -60,12 +79,12 @@ public class NetworkSettingsPanel extends JPanel {
 		add(panel_1, BorderLayout.EAST);
 
 		add(new JScrollPane(center_panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
-		refresh_network_list(center_panel);
+		refresh_network_list();
 	}
 
-	private final void refresh_network_list(JPanel p) {
-		p.removeAll();
-		MyDb.get_networks().stream().map(this::init_network_UI_components).forEach(p::add);
+	private final void refresh_network_list() {
+		center_panel.removeAll();
+		MyDb.get_networks().stream().map(this::init_network_UI_components).forEach(center_panel::add);
 	}
 
 	private final Component init_network_UI_components(CryptoNetwork o) {
@@ -109,7 +128,7 @@ public class NetworkSettingsPanel extends JPanel {
 		btn_0.addActionListener(e -> {
 			if (JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this?", null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 				MyDb.delete_network(o.getId());
-				refresh_network_list(center_panel);
+				refresh_network_list();
 			}
 		});
 		btn_2.addActionListener(e -> {
@@ -153,7 +172,7 @@ public class NetworkSettingsPanel extends JPanel {
 			}
 			o.setUrl(str.toString());
 			MyDb.update_network(o);
-			refresh_network_list(center_panel);
+			refresh_network_list();
 		});
 		return panel;
 	}
