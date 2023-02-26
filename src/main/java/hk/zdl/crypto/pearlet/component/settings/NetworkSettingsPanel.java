@@ -2,6 +2,7 @@ package hk.zdl.crypto.pearlet.component.settings;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -78,22 +79,28 @@ public class NetworkSettingsPanel extends JPanel {
 		panel_1.add(btn_panel);
 		add(panel_1, BorderLayout.EAST);
 
-		add(new JScrollPane(center_panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		var p = new JPanel();
+		p.add(center_panel);
+		add(new JScrollPane(p, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		refresh_network_list();
 	}
 
 	private final void refresh_network_list() {
-		center_panel.removeAll();
-		MyDb.get_networks().stream().map(this::init_network_UI_components).forEach(center_panel::add);
+		SwingUtilities.invokeLater(() -> {
+			center_panel.removeAll();
+			MyDb.get_networks().stream().map(this::init_network_UI_components).forEach(center_panel::add);
+			SwingUtilities.updateComponentTreeUI(this);
+		});
 	}
 
 	private final Component init_network_UI_components(CryptoNetwork o) {
 		var panel = new JPanel(new BorderLayout());
+		panel.setPreferredSize(new Dimension(700, 130));
 		var icon = new JLabel(UIUtil.getStretchIcon("icon/" + UIUtil.get_icon_file_name(o), 64, 64));
 		panel.add(icon, BorderLayout.WEST);
 		var my_panel = new JPanel(new GridBagLayout());
 		panel.add(my_panel, BorderLayout.CENTER);
-		my_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(getForeground()), o.getName(), TitledBorder.LEFT, TitledBorder.TOP,
+		my_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), o.getName(), TitledBorder.LEFT, TitledBorder.TOP,
 				new Font("Arial Black", Font.PLAIN, (int) (getFont().getSize() * 1.5))));
 		var label_0 = new JLabel("Type:");
 		var label_1 = new JLabel("URL:");
