@@ -107,6 +107,7 @@ public class StartPanel extends JPanel {
 	private void start_mining(boolean solo) {
 		var l_m = ((DefaultListModel<String>) path_list.getModel());
 		if (l_m.isEmpty()) {
+			JOptionPane.showMessageDialog(getRootPane(), "Plot path unavailable!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		try {
