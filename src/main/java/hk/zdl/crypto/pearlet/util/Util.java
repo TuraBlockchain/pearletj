@@ -218,7 +218,7 @@ public class Util {
 		var uri = "";
 		switch (nw) {
 		case ROTURA:
-			uri = "http://pp-explorer.peth.world:9000/address/" + e;
+			uri = "http://pp-explorer.peth.world:9000/search/?q=" + e;
 			break;
 		case SIGNUM:
 			uri = "https://chain.signum.network/search/?q=" + e;
