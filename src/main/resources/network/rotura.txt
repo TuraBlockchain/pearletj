@@ -1,1 +1,1 @@
-http://pp.peth.world:6876
+http://mainnet.ppcoin.cc:6876/
