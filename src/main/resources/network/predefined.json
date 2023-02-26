@@ -1,0 +1,19 @@
+[ {
+  "networkName" : "PETH",
+  "server url" : "http://mainnet.peth.world:6876",
+  "icon" : "peth-logo.png",
+  "epoch" : "20220827 10:00:00Z",
+  "valueSuffix" : "PETH"
+}, {
+  "networkName" : "PETH Testnet",
+  "server url" : "http://testnet.peth.world:6876",
+  "icon" : "peth-logo.png",
+  "epoch" : "20220827 10:00:00Z",
+  "valueSuffix" : "PETH"
+}, {
+  "networkName" : "PETH Pioneer",
+  "server url" : "http://pp.peth.world:6876",
+  "icon" : "pp-logo.png",
+  "epoch" : "20220827 10:00:00Z",
+  "valueSuffix" : "PETH"
+} ]

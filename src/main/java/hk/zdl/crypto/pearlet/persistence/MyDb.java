@@ -34,6 +34,7 @@ import com.jfinal.plugin.activerecord.Record;
 import com.jfinal.plugin.activerecord.dialect.AnsiSqlDialect;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
 
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.SignumID;
@@ -85,24 +86,40 @@ public class MyDb {
 		prop.getProperties().keySet().stream().map(o -> o.toString().trim().toUpperCase()).filter(s -> !tables.contains(s)).map(s -> s.toLowerCase()).forEach(MyDb::create_table);
 	}
 
+	public static final List<CryptoNetwork> get_networks() {
+		return Db.find("select * from networks").stream().map(r -> {
+			var n = new CryptoNetwork();
+			n.setId(r.getInt("ID"));
+			n.setType(CryptoNetwork.Type.valueOf(r.getStr("NETWORK")));
+			n.setName(r.getStr("NWNAME"));
+			n.setUrl(r.getStr("URL"));
+			return n;
+		}).toList();
+	}
+
+	public static final boolean insert_network(CryptoNetwork nw) {
+		return Db.save("networks", new Record().set("NETWORK", nw.getType().name()).set("NWNAME", nw.getName()).set("URL", nw.getUrl()));
+	}
+
+	public static final boolean update_network(CryptoNetwork nw) {
+		if (nw.getId() < 1) {
+			return false;
+		}
+		var r = Db.findFirst("select * from networks where id = ?", nw.getId());
+		r.set("NWNAME", nw.getName()).set("URL", nw.getUrl());
+		return Db.update("NETWORKS", "ID", r);
+	}
+
+	public static final boolean delete_network(int id) {
+		return Db.deleteById("NETWORKS", "ID", id);
+	}
+
 	public static final Optional<String> get_server_url(CrptoNetworks network) {
 		List<Record> l = Db.find("select * from networks where network = ?", network.name());
 		if (l.isEmpty()) {
 			return Optional.empty();
 		} else {
 			return Optional.of(l.get(0).getStr("URL"));
-		}
-	}
-
-	public static final boolean update_server_url(CrptoNetworks network, String url) {
-		List<Record> l = Db.find("select * from networks where network = ?", network.name());
-		if (l.isEmpty()) {
-			var o = new Record().set("network", network.name()).set("URL", url);
-			return Db.save("networks", o);
-		} else {
-			var o = l.get(0);
-			o.set("URL", url);
-			return Db.update("networks", "ID", o);
 		}
 	}
 
@@ -282,9 +299,9 @@ public class MyDb {
 
 	public static final boolean delMinerPath(CrptoNetworks nw, String id, Path path) {
 		var r = Db.findFirst("SELECT * FROM APP.MPATH WHERE NETWORK = ? AND ACCOUNT = ? AND PATH = ?", nw.name(), id, path.toAbsolutePath().toString());
-		if(r!=null) {
+		if (r != null) {
 			return Db.deleteById("MPATH", "ID", r.get("ID"));
-		}else {
+		} else {
 			return false;
 		}
 	}

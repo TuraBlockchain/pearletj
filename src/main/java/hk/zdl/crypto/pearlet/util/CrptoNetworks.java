@@ -2,7 +2,7 @@ package hk.zdl.crypto.pearlet.util;
 
 public enum CrptoNetworks {
 
-	ROTURA, SIGNUM, WEB3J;
+	BURST, ROTURA, SIGNUM, WEB3J;
 
 	@Override
 	public String toString() {

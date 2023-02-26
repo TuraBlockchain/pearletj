@@ -266,6 +266,11 @@
 			<artifactId>jSystemThemeDetector</artifactId>
 			<version>3.8</version>
 		</dependency>
+		<dependency>
+			<groupId>se.gustavkarlsson</groupId>
+			<artifactId>g-wiz</artifactId>
+			<version>1.0.1</version>
+		</dependency>
 		<!-- API backend-->
 		<dependency>
 			<groupId>com.github.signum-network</groupId>
@@ -343,7 +348,7 @@
 			<artifactId>open</artifactId>
 			<version>8.5.0</version>
 		</dependency>
-		
+
 		<!-- jfinal -->
 		<dependency>
 			<groupId>com.jfinal</groupId>

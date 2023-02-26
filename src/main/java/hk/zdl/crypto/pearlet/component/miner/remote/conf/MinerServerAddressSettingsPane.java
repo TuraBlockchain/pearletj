@@ -9,6 +9,7 @@ import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.LinkedList;
 
 import javax.swing.DefaultListCellRenderer;
@@ -18,6 +19,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
@@ -27,7 +29,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.WebUtil;
@@ -51,9 +52,9 @@ public class MinerServerAddressSettingsPane extends JPanel {
 		my_list.setCellRenderer(new MyCellRenderer());
 		add(new JScrollPane(my_list), BorderLayout.CENTER);
 		var btn_panel = new JPanel(new GridBagLayout());
-		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
-		btn_panel.add(edit_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
-		btn_panel.add(del_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(edit_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(del_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
@@ -155,14 +156,25 @@ public class MinerServerAddressSettingsPane extends JPanel {
 		if (basePath.isBlank()) {
 			return;
 		}
-		var jarr = new JSONArray(new JSONTokener(new URL(basePath + miner_conf_serv_u_path).openStream()));
-		var _arr = new JSONObject[jarr.length()];
-		for (var i = 0; i < jarr.length(); i++) {
-			_arr[i] = jarr.getJSONObject(i);
-		}
-		var i = my_list.getSelectedIndex();
-		my_list.setListData(_arr);
-		my_list.setSelectedIndex(i);
+		IOUtils.readLines(new URL(basePath + miner_conf_serv_u_path).openStream(), Charset.defaultCharset()).stream().findAny().ifPresent(s -> {
+			if (s.startsWith("[")) {
+				var jarr = new JSONArray(s);
+				var _arr = new JSONObject[jarr.length()];
+				for (var i = 0; i < jarr.length(); i++) {
+					_arr[i] = jarr.getJSONObject(i);
+				}
+				var i = my_list.getSelectedIndex();
+				my_list.setListData(_arr);
+				my_list.setSelectedIndex(i);
+			} else {
+				var o = new JSONObject();
+				o.put("ID", -1);
+				o.put("URL", s);
+				var i = my_list.getSelectedIndex();
+				my_list.setListData(new JSONObject[] { o });
+				my_list.setSelectedIndex(i);
+			}
+		});
 	}
 
 	private static final class MyCellRenderer extends DefaultListCellRenderer {

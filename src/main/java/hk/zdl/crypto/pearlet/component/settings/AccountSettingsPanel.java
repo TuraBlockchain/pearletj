@@ -68,15 +68,15 @@ public class AccountSettingsPanel extends JPanel {
 
 		var btn_panel = new JPanel(new GridBagLayout());
 		var create_account_btn = new JButton("Create");
-		btn_panel.add(create_account_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var import_account_btn = new JButton("Import");
-		btn_panel.add(import_account_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var export_account_btn = new JButton("Export");
-		btn_panel.add(export_account_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var watch_account_btn = new JButton("Watch");
-		btn_panel.add(watch_account_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		var del_btn = new JButton("Delete");
-		btn_panel.add(del_btn, new GridBagConstraints(0, 4, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		btn_panel.add(create_account_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(import_account_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(export_account_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(watch_account_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(del_btn, new GridBagConstraints(0, 4, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
 		if (show_peth_only) {
 			create_account_btn.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this, CrptoNetworks.ROTURA));

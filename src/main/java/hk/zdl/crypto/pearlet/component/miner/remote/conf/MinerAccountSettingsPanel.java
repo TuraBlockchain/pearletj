@@ -68,8 +68,8 @@ public class MinerAccountSettingsPanel extends JPanel {
 		add(new JScrollPane(acc_list), BorderLayout.CENTER);
 
 		var btn_panel = new JPanel(new GridBagLayout());
-		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
-		btn_panel.add(del_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
+		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		btn_panel.add(del_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
 		var panel_1 = new JPanel(new FlowLayout(1, 0, 0));
 		panel_1.add(btn_panel);
@@ -117,7 +117,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if(e.getKeyCode()==KeyEvent.VK_DELETE) {
+				if (e.getKeyCode() == KeyEvent.VK_DELETE) {
 					del_btn.doClick();
 				}
 			}
@@ -134,7 +134,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 
 	@SuppressWarnings("unchecked")
 	public void refresh_list() throws Exception {
-		if(basePath.isBlank()) {
+		if (basePath.isBlank()) {
 			return;
 		}
 		var l = new JSONArray(new JSONTokener(new URL(basePath + miner_account_path).openStream())).toList().stream().map(o -> o.toString()).toList();
