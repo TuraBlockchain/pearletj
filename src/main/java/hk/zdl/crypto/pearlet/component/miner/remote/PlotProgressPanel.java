@@ -46,7 +46,6 @@ import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerPathSettingPanel;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 import hk.zdl.crypto.pearlet.util.WebUtil;
 
@@ -287,7 +286,7 @@ public class PlotProgressPanel extends JPanel {
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
-		if (e.network == CrptoNetworks.ROTURA && e.account != null) {
+		if (e.account != null && e.network.isBurst()) {
 			selected_account_id = e.account;
 		}
 	}

@@ -25,6 +25,11 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import hk.zdl.crypto.pearlet.component.event.NetworkChangeEvent;
 import hk.zdl.crypto.pearlet.component.settings.wizard.ChooseNetworkType;
 import hk.zdl.crypto.pearlet.component.settings.wizard.ConfirmNetwork;
 import hk.zdl.crypto.pearlet.component.settings.wizard.EnterNetworkDetail;
@@ -45,6 +50,7 @@ public class NetworkSettingsPanel extends JPanel {
 
 	public NetworkSettingsPanel() {
 		super(new BorderLayout());
+		EventBus.getDefault().register(this);
 
 		var btn_panel = new JPanel(new VerticalFlowLayout());
 		var add_btn = new JButton(UIUtil.getStretchIcon("icon/heavy-plus-sign-svgrepo-com.svg", 32, 32));
@@ -70,7 +76,7 @@ public class NetworkSettingsPanel extends JPanel {
 					break;
 				}
 				if (MyDb.insert_network(new_network)) {
-					refresh_network_list();
+					EventBus.getDefault().post(new NetworkChangeEvent());
 				}
 			}
 		});
@@ -82,10 +88,11 @@ public class NetworkSettingsPanel extends JPanel {
 		var p = new JPanel();
 		p.add(center_panel);
 		add(new JScrollPane(p, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
-		refresh_network_list();
+		EventBus.getDefault().post(new NetworkChangeEvent());
 	}
 
-	private final void refresh_network_list() {
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(NetworkChangeEvent e) {
 		SwingUtilities.invokeLater(() -> {
 			center_panel.removeAll();
 			MyDb.get_networks().stream().map(this::init_network_UI_components).forEach(center_panel::add);
@@ -135,7 +142,7 @@ public class NetworkSettingsPanel extends JPanel {
 		btn_0.addActionListener(e -> {
 			if (JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this?", null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 				MyDb.delete_network(o.getId());
-				refresh_network_list();
+				EventBus.getDefault().post(new NetworkChangeEvent());
 			}
 		});
 		btn_2.addActionListener(e -> {
@@ -179,7 +186,7 @@ public class NetworkSettingsPanel extends JPanel {
 			}
 			o.setUrl(str.toString());
 			MyDb.update_network(o);
-			refresh_network_list();
+			EventBus.getDefault().post(new NetworkChangeEvent());
 		});
 		return panel;
 	}

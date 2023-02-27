@@ -1,7 +1,5 @@
 package hk.zdl.crypto.pearlet.component.commit;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
-
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -40,10 +38,10 @@ import com.jfinal.plugin.activerecord.Record;
 import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.BalanceUpdateEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.SpinableIcon;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -56,7 +54,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32, 32, BufferedImage.TYPE_4BYTE_ABGR), 32, 32);
 
 	private BigDecimal committed_balance = null;
-	private CrptoNetworks network;
+	private CryptoNetwork network;
 	private String account;
 
 	public CommitModifyPanel() {
@@ -104,13 +102,9 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 			var account = CryptoUtil.getAccount(e.network, e.account);
 			var balance = account.getBalance();
 			var committed_balance = account.getCommittedBalance();
-			if (e.network.equals(CrptoNetworks.SIGNUM)) {
-				_bal = balance.toSigna();
-				_c_bal = committed_balance.toSigna();
-			} else {
-				_bal = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals);
-				_c_bal = new BigDecimal(committed_balance.toNQT(), CryptoUtil.peth_decimals);
-			}
+			var decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
+			_bal = new BigDecimal(balance.toNQT(), decimalPlaces);
+			_c_bal = new BigDecimal(committed_balance.toNQT(), decimalPlaces);
 			_a_bal = _bal.subtract(_c_bal);
 			EventBus.getDefault().post(new BalanceUpdateEvent(e.network, e.account, _a_bal));
 		} catch (Exception x) {
@@ -150,7 +144,8 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		panel.add(a, new GridBagConstraints(1, 2, 2, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		Util.submit(() -> {
 			var fee = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
-			a.setText("" + fee.doubleValue() / Math.pow(10, network == ROTURA ? CryptoUtil.peth_decimals : 8));
+			a.setText("" + fee.doubleValue() / Math.pow(10, CryptoUtil.getConstants(network).getInt("decimalPlaces")));
+			return null;
 		});
 		Util.submit(() -> {
 			int i = JOptionPane.showConfirmDialog(getRootPane(), panel, "Set Commitment", JOptionPane.OK_CANCEL_OPTION);
@@ -180,7 +175,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 				}
 				try {
 					var fee_qnt = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
-					var fee_dml = new BigDecimal(fee_qnt, network == ROTURA ? CryptoUtil.peth_decimals : 8);
+					var fee_dml = new BigDecimal(fee_qnt, CryptoUtil.getConstants(network).getInt("decimalPlaces"));
 					btn.setEnabled(false);
 					busy_icon.start();
 					if (add_btn.isSelected()) {

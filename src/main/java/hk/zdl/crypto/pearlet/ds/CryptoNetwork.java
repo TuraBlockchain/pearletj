@@ -42,6 +42,14 @@ public class CryptoNetwork {
 		this.url = url;
 	}
 
+	public boolean isBurst() {
+		return type == Type.BURST;
+	}
+
+	public boolean isWeb3J() {
+		return type == Type.WEB3J;
+	}
+
 	@Override
 	public String toString() {
 		return "CryptoNetwork [id=" + id + ", type=" + type + ", name=" + name + ", url=" + url + "]";

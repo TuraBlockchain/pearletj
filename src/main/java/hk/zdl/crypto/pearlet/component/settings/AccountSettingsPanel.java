@@ -43,6 +43,7 @@ import hk.zdl.crypto.pearlet.component.account_settings.web3j.WatchWeb3JAccount;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.SetNAABarEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.TxAmountCellRenderer;
@@ -58,7 +59,7 @@ public class AccountSettingsPanel extends JPanel {
 	private static final boolean show_peth_only = Util.getProp().getBoolean("show_peth_only");
 	private final AccountTableModel account_table_model = new AccountTableModel();
 	private final JTable table = buildAccountTable();
-	private CrptoNetworks nw;
+	private CryptoNetwork nw;
 
 	public AccountSettingsPanel() {
 		super(new BorderLayout());

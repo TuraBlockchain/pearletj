@@ -1,9 +1,5 @@
 package hk.zdl.crypto.pearlet.component;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -16,7 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -89,12 +84,12 @@ public class ReceivePanel extends JPanel {
 			return;
 		setText(e.account);
 		String qr_str = "";
-		if (Arrays.asList(SIGNUM, ROTURA).contains(e.network)) {
+		if (e.network.isBurst()) {
 			JSONObject jobj = new JSONObject();
 			jobj.put("recipient", e.account);
 			String str = Base64.encodeBytes(jobj.toString().getBytes());
 			qr_str = "signum://v1?action=pay&payload=" + str;
-		} else if (WEB3J.equals(e.network)) {
+		} else if (e.network.isWeb3J()) {
 			qr_str = "ethereum:" + e.account;
 		}
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(5120);

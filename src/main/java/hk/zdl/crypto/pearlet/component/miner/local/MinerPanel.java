@@ -25,8 +25,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import hk.zdl.crypto.pearlet.component.event.PlotDoneEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.ui.TextAreaOutputStream;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 
 public class MinerPanel extends JPanel implements Runnable {
 
@@ -34,7 +34,7 @@ public class MinerPanel extends JPanel implements Runnable {
 	private final File miner_bin, conf_file;
 	private Collection<Path> plot_dirs = Arrays.asList();
 	private boolean running = true;
-	private CrptoNetworks network;
+	private CryptoNetwork network;
 	private Process proc;
 
 	public MinerPanel(File miner_bin, File conf_file) {
@@ -44,7 +44,7 @@ public class MinerPanel extends JPanel implements Runnable {
 		this.conf_file = conf_file;
 	}
 
-	public void setNetwork(CrptoNetworks network) {
+	public void setNetwork(CryptoNetwork network) {
 		this.network = network;
 	}
 
@@ -69,7 +69,7 @@ public class MinerPanel extends JPanel implements Runnable {
 				proc.destroyForcibly();
 			}
 		});
-		
+
 		var txt_area = new JTextArea();
 		txt_area.setEditable(false);
 		txt_area.setBackground(Color.black);
@@ -94,7 +94,7 @@ public class MinerPanel extends JPanel implements Runnable {
 				}
 				if (line.isBlank() || line.startsWith("Searching")) {
 					continue;
-				} else if (network == CrptoNetworks.ROTURA) {
+				} else if (network.getName().startsWith("PETH")) {
 					line = line.replace("signum-miner", "pearletj-miner");
 				}
 				if (line.startsWith("message:")) {

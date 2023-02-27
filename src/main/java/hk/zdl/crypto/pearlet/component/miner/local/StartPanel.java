@@ -8,7 +8,6 @@ import java.awt.Insets;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -28,9 +27,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.crypto.SignumCrypto;
@@ -43,7 +42,7 @@ public class StartPanel extends JPanel {
 	private final JList<String> path_list = new JList<>(new DefaultListModel<String>());
 	private final JButton run_btn = new JButton("Run");
 	private LocalMinerPanel pane;
-	private CrptoNetworks network;
+	private CryptoNetwork network;
 	private String account;
 
 	public StartPanel(LocalMinerPanel pane) {
@@ -169,7 +168,7 @@ public class StartPanel extends JPanel {
 		this.account = e.account;
 		var l_m = ((DefaultListModel<String>) path_list.getModel());
 		l_m.clear();
-		if (account != null && (Arrays.asList(CrptoNetworks.SIGNUM, CrptoNetworks.ROTURA).contains(network))) {
+		if (account != null && network.isBurst()) {
 			var id = SignumAddress.fromRs(account.replace("TS-", "S-")).getID();
 			MyDb.getMinerPaths(network, id).stream().map(o -> o.toAbsolutePath().toString()).forEach(l_m::addElement);
 			run_btn.setEnabled(true);

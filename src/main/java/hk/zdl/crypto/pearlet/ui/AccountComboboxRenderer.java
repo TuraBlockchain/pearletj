@@ -1,13 +1,12 @@
 package hk.zdl.crypto.pearlet.ui;
 
 import java.awt.Component;
-import java.util.Arrays;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
 import hk.zdl.crypto.pearlet.ds.AccountComboboxEntry;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.SignumAddress;
 
@@ -24,7 +23,7 @@ public class AccountComboboxRenderer extends DefaultListCellRenderer {
 		if (entry != null) {
 			if (entry.nickname != null) {
 				str = entry.nickname;
-			} else if (show_numberic && Arrays.asList(CrptoNetworks.ROTURA, CrptoNetworks.SIGNUM).contains(entry.network)) {
+			} else if (show_numberic && entry.network.getType() == CryptoNetwork.Type.BURST) {
 				str = SignumAddress.fromEither(entry.address).getID();
 			} else {
 				str = entry.address;

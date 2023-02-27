@@ -114,8 +114,8 @@ public class MyDb {
 		return Db.deleteById("NETWORKS", "ID", id);
 	}
 
-	public static final Optional<String> get_server_url(CrptoNetworks network) {
-		List<Record> l = Db.find("select * from networks where network = ?", network.name());
+	public static final Optional<String> get_server_url(CryptoNetwork network) {
+		List<Record> l = Db.find("select * from networks where ID = ?", network.getId());
 		if (l.isEmpty()) {
 			return Optional.empty();
 		} else {
@@ -161,6 +161,11 @@ public class MyDb {
 		return Db.find("select * from ACCOUNTS WHERE NETWORK = ?", network.name());
 	}
 
+	public static final Optional<Record> getAccount(CryptoNetwork network, String address) {
+		Record r = Db.findFirst("select * from ACCOUNTS WHERE NETWORK = ? AND ADDRESS = ?", network.getType().name(), address);
+		return r == null ? Optional.empty() : Optional.of(r);
+	}
+
 	public static final Optional<Record> getAccount(CrptoNetworks network, String address) {
 		Record r = Db.findFirst("select * from ACCOUNTS WHERE NETWORK = ? AND ADDRESS = ?", network.name(), address);
 		return r == null ? Optional.empty() : Optional.of(r);
@@ -170,12 +175,12 @@ public class MyDb {
 		return Db.find("select * from ACCOUNTS");
 	}
 
-	public static final boolean insertAccount(CrptoNetworks network, String address, byte[] public_key, byte[] private_key) {
-		int i = Db.queryInt("SELECT COUNT(*) FROM ACCOUNTS WHERE NETWORK = ? AND ADDRESS = ?", network.name(), address);
+	public static final boolean insertAccount(CryptoNetwork nw, String address, byte[] public_key, byte[] private_key) {
+		int i = Db.queryInt("SELECT COUNT(*) FROM ACCOUNTS WHERE NWID = ? AND ADDRESS = ?", nw.getId(), address);
 		if (i > 0) {
 			return false;
 		}
-		var o = new Record().set("NETWORK", network.name()).set("ADDRESS", address).set("PUBLIC_KEY", public_key).set("PRIVATE_KEY", private_key);
+		var o = new Record().set("NWID", nw.getId()).set("NETWORK", nw.getType().name()).set("ADDRESS", address).set("PUBLIC_KEY", public_key).set("PRIVATE_KEY", private_key);
 		return Db.save("ACCOUNTS", "ID", o);
 	}
 
@@ -198,7 +203,7 @@ public class MyDb {
 		}
 	}
 
-	public static final boolean putSignumTx(CrptoNetworks nw, Transaction tx) {
+	public static final boolean putSignumTx(CryptoNetwork nw, Transaction tx) {
 		if (!(tx instanceof java.io.Serializable)) {
 			return false;
 		}
@@ -212,16 +217,16 @@ public class MyDb {
 			Logger.getLogger(MyDb.class.getName()).log(Level.WARNING, e.getMessage(), e);
 		}
 		byte[] bArr = baos.toByteArray();
-		return Db.save("SIGNUM_TX", "ID", new Record().set("id", id).set("network", nw.name()).set("content", bArr));
+		return Db.save("SIGNUM_TX", "ID", new Record().set("id", id).set("network", nw.getType().name()).set("content", bArr));
 	}
 
-	public static final Optional<Transaction> getSignumTxFromLocal(CrptoNetworks nw, SignumID id) throws Exception {
+	public static final Optional<Transaction> getSignumTxFromLocal(CryptoNetwork nw, SignumID id) throws Exception {
 		if (!(id instanceof java.io.Serializable)) {
 			return Optional.empty();
 		}
 		Connection conn = Db.use().getConfig().getConnection();
 		PreparedStatement pst = conn.prepareStatement("SELECT CONTENT FROM APP.SIGNUM_TX WHERE NETWORK = ? AND ID = ?");
-		Db.use().getConfig().getDialect().fillStatement(pst, nw.name(), id.getSignedLongId());
+		Db.use().getConfig().getDialect().fillStatement(pst, nw.getType().name(), id.getSignedLongId());
 		ResultSet rs = pst.executeQuery();
 		if (rs.next()) {
 			InputStream in = rs.getBinaryStream(1);
@@ -284,21 +289,21 @@ public class MyDb {
 		}
 	}
 
-	public static final List<Path> getMinerPaths(CrptoNetworks nw, String id) {
-		return Db.find("SELECT PATH FROM APP.MPATH WHERE NETWORK = ? AND ACCOUNT = ?", nw.name(), id).stream().map(o -> Paths.get(o.getStr("PATH"))).toList();
+	public static final List<Path> getMinerPaths(CryptoNetwork nw, String id) {
+		return Db.find("SELECT PATH FROM APP.MPATH WHERE NETWORK = ? AND ACCOUNT = ?", nw.getType().name(), id).stream().map(o -> Paths.get(o.getStr("PATH"))).toList();
 	}
 
-	public static final boolean addMinerPath(CrptoNetworks nw, String id, Path path) {
-		int i = Db.queryInt("SELECT COUNT(*) FROM APP.MPATH WHERE NETWORK = ? AND ACCOUNT = ? AND PATH = ?", nw.name(), id, path.toAbsolutePath().toString());
+	public static final boolean addMinerPath(CryptoNetwork nw, String id, Path path) {
+		int i = Db.queryInt("SELECT COUNT(*) FROM APP.MPATH WHERE NETWORK = ? AND ACCOUNT = ? AND PATH = ?", nw.getType().name(), id, path.toAbsolutePath().toString());
 		if (i > 0) {
 			return false;
 		}
-		var o = new Record().set("NETWORK", nw.name()).set("ACCOUNT", id).set("PATH", path.toAbsolutePath().toString());
+		var o = new Record().set("NETWORK", nw.getType().name()).set("ACCOUNT", id).set("PATH", path.toAbsolutePath().toString());
 		return Db.save("MPATH", "ID", o);
 	}
 
-	public static final boolean delMinerPath(CrptoNetworks nw, String id, Path path) {
-		var r = Db.findFirst("SELECT * FROM APP.MPATH WHERE NETWORK = ? AND ACCOUNT = ? AND PATH = ?", nw.name(), id, path.toAbsolutePath().toString());
+	public static final boolean delMinerPath(CryptoNetwork nw, String id, Path path) {
+		var r = Db.findFirst("SELECT * FROM APP.MPATH WHERE NETWORK = ? AND ACCOUNT = ? AND PATH = ?", nw.getType().name(), id, path.toAbsolutePath().toString());
 		if (r != null) {
 			return Db.deleteById("MPATH", "ID", r.get("ID"));
 		} else {

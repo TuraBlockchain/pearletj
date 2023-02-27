@@ -25,9 +25,9 @@ import org.jdesktop.swingx.combobox.EnumComboBoxModel;
 import com.csvreader.CsvReader;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -36,7 +36,7 @@ public class ImportSignumAccount {
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	@SuppressWarnings("unchecked")
-	public static final void create_import_account_dialog(Component c, CrptoNetworks nw) {
+	public static final void create_import_account_dialog(Component c, CryptoNetwork nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var panel = new JPanel(new GridBagLayout());
@@ -77,7 +77,7 @@ public class ImportSignumAccount {
 		}
 	}
 
-	public static final void batch_import(Component c, CrptoNetworks nw) {
+	public static final void batch_import(Component c, CryptoNetwork nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		var file_dialog = new JFileChooser();
 		file_dialog.setDialogType(JFileChooser.OPEN_DIALOG);

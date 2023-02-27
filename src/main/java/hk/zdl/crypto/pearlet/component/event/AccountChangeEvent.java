@@ -1,13 +1,13 @@
 package hk.zdl.crypto.pearlet.component.event;
 
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 
 public class AccountChangeEvent {
 
-	public final CrptoNetworks network;
+	public final CryptoNetwork network;
 	public final String account;
 
-	public AccountChangeEvent(CrptoNetworks network, String account) {
+	public AccountChangeEvent(CryptoNetwork network, String account) {
 		this.network = network;
 		this.account = account;
 	}
