@@ -3,7 +3,7 @@ package hk.zdl.crypto.pearlet.ds;
 public class CryptoNetwork {
 
 	public enum Type {
-		BURST, ROTURA, SIGNUM, WEB3J;
+		BURST, WEB3J;
 	}
 
 	private int id;

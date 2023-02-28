@@ -1,9 +1,5 @@
 package hk.zdl.crypto.pearlet.component;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -14,14 +10,12 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.TrayIcon.MessageType;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -63,12 +57,12 @@ import org.json.JSONObject;
 import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.BalanceUpdateEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.tx.SendTx;
 import hk.zdl.crypto.pearlet.ui.SpinableIcon;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.response.Account;
@@ -93,8 +87,9 @@ public class SendPanel extends JPanel {
 	private final JLabel balance_label = new JLabel();
 	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32, 32, BufferedImage.TYPE_4BYTE_ABGR), 32, 32);
 	private JButton send_btn;
-	private CrptoNetworks network;
+	private CryptoNetwork network;
 	private String account;
+	private int decimalPlaces = 8;
 
 	public SendPanel() {
 		super(new BorderLayout());
@@ -137,7 +132,7 @@ public class SendPanel extends JPanel {
 		fee_panel.setPreferredSize(FIELD_DIMENSION);
 		Stream.of(fee_field, fee_slider).forEach(fee_panel::add);
 		fee_field.setEditable(false);
-		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / Math.pow(10, network == ROTURA ? CryptoUtil.peth_decimals : 8)));
+		fee_slider.addChangeListener(e -> fee_field.setText(new BigDecimal(fee_slider.getValue()).movePointLeft(decimalPlaces).toPlainString()));
 		panel_1.add(fee_panel, newGridConst(0, 7, 5));
 
 		var panel_3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -254,21 +249,21 @@ public class SendPanel extends JPanel {
 				return;
 			}
 			String asset_id = null;
-			if (Arrays.asList(ROTURA, SIGNUM).contains(network)) {
+			if (network.isBurst()) {
 				if (token_combo_box.getSelectedIndex() > 0) {
 					Object o = token_combo_box.getSelectedItem();
 					if (o instanceof Asset) {
 						Asset a = (Asset) o;
 						asset_id = a.getAssetId().getID();
-						amount = amount.multiply(BigDecimal.TEN.pow(a.getDecimals()));
+						amount = amount.movePointRight(a.getDecimals());
 					}
 				}
-			} else if (WEB3J.equals(network)) {
+			} else if (network.isWeb3J()) {
 				Object o = token_combo_box.getSelectedItem();
 				if (o instanceof JSONObject) {
 					var jobj = (JSONObject) o;
 					asset_id = jobj.getString("contract_address");
-					amount = amount.multiply(BigDecimal.TEN.pow(jobj.getInt("contract_decimals")));
+					amount = amount.movePointRight(jobj.getInt("contract_decimals"));
 				}
 			}
 
@@ -322,7 +317,7 @@ public class SendPanel extends JPanel {
 					send_btn.setEnabled(true);
 				}
 				if (b) {
-					UIUtil.displayMessage("Send Token", "Send token succeed!", MessageType.INFO);
+					UIUtil.displayMessage("Send Token", "Send token succeed!");
 					var old = balance_label.getText();
 					var acc = account;
 					for (var i = 0; i < 5; i++) {
@@ -347,7 +342,7 @@ public class SendPanel extends JPanel {
 		var network_change = this.network != e.network;
 		this.network = e.network;
 		this.account = e.account;
-		var symbol = Util.default_currency_symbol.get(network.name());
+		var symbol = Util.default_currency_symbol.get(network.getType().name());
 		balance_label.setText("?");
 		balance_label.setToolTipText(null);
 		token_combo_box.setModel(new DefaultComboBoxModel<Object>(new String[] { symbol }));
@@ -364,6 +359,8 @@ public class SendPanel extends JPanel {
 					fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
 					fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
 					fee_slider.setValue(g.getStandardFee().toNQT().intValue());
+					decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
+					return null;
 				});
 			}
 			Util.submit(() -> {
@@ -382,22 +379,17 @@ public class SendPanel extends JPanel {
 				send_btn.setEnabled(false);
 			}
 		}
-		Stream.of(panel_2, fee_panel, fee_label).forEach(c -> c.setVisible(!WEB3J.equals(network)));
+		Stream.of(panel_2, fee_panel, fee_label).forEach(c -> c.setVisible(network.isBurst()));
 	}
 
 	private final void update_balance() throws Exception {
-		var symbol = Util.default_currency_symbol.get(network.name());
-		if (Arrays.asList(ROTURA, SIGNUM).contains(network)) {
+		var symbol = Util.default_currency_symbol.get(network.getType().name());
+		if (network.isBurst()) {
 			Account account = CryptoUtil.getAccount(network, this.account);
 			var balance = account.getBalance();
 			var committed_balance = account.getCommittedBalance();
 			balance = balance.subtract(committed_balance);
-			BigDecimal value;
-			if (network.equals(SIGNUM)) {
-				value = balance.toSigna();
-			} else {
-				value = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals);
-			}
+			var value = new BigDecimal(balance.toNQT(), decimalPlaces);
 			asset_balance.put(symbol, value);
 			EventBus.getDefault().post(new BalanceUpdateEvent(network, this.account, value));
 			for (AssetBalance ab : account.getAssetBalances()) {
@@ -406,7 +398,7 @@ public class SendPanel extends JPanel {
 				asset_balance.put(a, val);
 				((DefaultComboBoxModel<Object>) token_combo_box.getModel()).addElement(a);
 			}
-		} else if (WEB3J.equals(network)) {
+		} else if (network.isWeb3J()) {
 			try {
 				BigDecimal value = CryptoUtil.getBalance(network, account);
 				asset_balance.put(symbol, value);

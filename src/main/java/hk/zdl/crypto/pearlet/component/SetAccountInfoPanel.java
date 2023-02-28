@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.TrayIcon.MessageType;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,7 +80,7 @@ public class SetAccountInfoPanel extends JPanel {
 		fee_panel.setPreferredSize(FIELD_DIMENSION);
 		Stream.of(fee_field, fee_slider).forEach(fee_panel::add);
 		fee_field.setEditable(false);
-		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / Math.pow(10, decimalPlaces)));
+		fee_slider.addChangeListener(e -> fee_field.setText(new BigDecimal(fee_slider.getValue()).movePointLeft(decimalPlaces).toPlainString()));
 		add(fee_panel, newGridConst(0, 7, 5));
 
 		var send_icon = MyToolbar.getIcon("paper-plane-solid.svg");

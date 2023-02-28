@@ -144,8 +144,8 @@ public class MyDb {
 		}
 	}
 
-	public static final Optional<Boolean> isWatchAccount(CrptoNetworks network, String address) {
-		Record r = Db.findFirst("select * from ACCOUNTS WHERE NETWORK = ? AND ADDRESS = ?", network.name(), address);
+	public static final Optional<Boolean> isWatchAccount(CryptoNetwork network, String address) {
+		Record r = Db.findFirst("select * from ACCOUNTS WHERE NWID = ? AND ADDRESS = ?", network.getId(), address);
 		if (r == null) {
 			return Optional.empty();
 		} else {

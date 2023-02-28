@@ -144,7 +144,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		panel.add(a, new GridBagConstraints(1, 2, 2, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		Util.submit(() -> {
 			var fee = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
-			a.setText("" + fee.doubleValue() / Math.pow(10, CryptoUtil.getConstants(network).getInt("decimalPlaces")));
+			a.setText(new BigDecimal(fee).movePointLeft(CryptoUtil.getConstants(network).getInt("decimalPlaces")).toPlainString());
 			return null;
 		});
 		Util.submit(() -> {
@@ -189,7 +189,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 					return null;
 				}
-				UIUtil.displayMessage("Commitment", "Commitment is set.", null);
+				UIUtil.displayMessage("Commitment", "Commitment is set.");
 				var old_committed_balance = committed_balance;
 				var acc = account;
 				for (var j = 0; j < 10; j++) {
