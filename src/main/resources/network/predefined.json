@@ -17,7 +17,7 @@
   "decimalPlaces" : 4
 }, {
   "networkName" : "PETH Pioneer",
-  "server url" : "http://pp.peth.world:6876",
+  "server url" : "http://mainnet.ppcoin.cc:6876",
   "explorer url":"http://explorer.ppcoin.cc:9000/search/?q=",
   "icon" : "pp-logo.png",
   "epoch" : "20220827 10:00:00Z",
