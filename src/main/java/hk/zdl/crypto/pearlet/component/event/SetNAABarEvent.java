@@ -1,18 +1,18 @@
 package hk.zdl.crypto.pearlet.component.event;
 
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 
 public class SetNAABarEvent {
 
-	private final CrptoNetworks network;
+	private final CryptoNetwork network;
 	private final String address;
 
-	public SetNAABarEvent(CrptoNetworks network, String address) {
+	public SetNAABarEvent(CryptoNetwork network, String address) {
 		this.network = network;
 		this.address = address;
 	}
 
-	public CrptoNetworks getNetwork() {
+	public CryptoNetwork getNetwork() {
 		return network;
 	}
 

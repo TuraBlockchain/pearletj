@@ -13,6 +13,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
@@ -32,13 +34,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import hk.zdl.crypto.pearlet.component.account_settings.CreateAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.ExportAccountTable;
-import hk.zdl.crypto.pearlet.component.account_settings.signum.CreateSignumAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.signum.ImportSignumAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.signum.WatchSignumAccount;
-import hk.zdl.crypto.pearlet.component.account_settings.web3j.CreateWeb3JAccount;
-import hk.zdl.crypto.pearlet.component.account_settings.web3j.ImportWeb3JAccountFromFile;
-import hk.zdl.crypto.pearlet.component.account_settings.web3j.ImportWeb3JAccountFromText;
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.WatchWeb3JAccount;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
@@ -49,7 +48,6 @@ import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.TxAmountCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WatchAddressCellRenderer;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
@@ -78,41 +76,43 @@ public class AccountSettingsPanel extends JPanel {
 		btn_panel.add(watch_account_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		btn_panel.add(del_btn, new GridBagConstraints(0, 4, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
-		var create_acc_menu = new JPopupMenu();
-		var create_acc_rotura = new JMenuItem("PETH");
-		var create_acc_signum = new JMenuItem("Signum");
-		var create_acc_web3j = new JMenuItem("Ethereum");
-		Stream.of(create_acc_rotura, create_acc_signum, create_acc_web3j).forEach(create_acc_menu::add);
-
-		create_account_btn.addActionListener(e -> create_acc_menu.show(create_account_btn, 0, 0));
-		create_acc_web3j.addActionListener(e -> CreateWeb3JAccount.create_new_account_dialog(this, nw));
-		create_acc_signum.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this, CrptoNetworks.SIGNUM));
-		create_acc_rotura.addActionListener(e -> CreateSignumAccount.create_new_account_dialog(this, CrptoNetworks.ROTURA));
-
+		create_account_btn.addActionListener(e -> {
+			var nws = MyDb.get_networks();
+			if (nws.size() > 0) {
+				var menu = new JPopupMenu();
+				for (var n : nws) {
+					var item = new JMenuItem(n.getName());
+					item.addActionListener(a -> CreateAccount.create_new_account_dialog(this, n));
+					menu.add(item);
+				}
+				menu.show(create_account_btn, 0, 0);
+			}
+		});
 		import_account_btn.addActionListener(e -> {
-			if (UIUtil.isAltDown(e))
+			if (UIUtil.isAltDown(e)) {
 				ImportSignumAccount.batch_import(this, nw);
+			} else {
+				var nws = MyDb.get_networks();
+				if (nws.size() > 0) {
+					var menu = new JPopupMenu();
+					for (var n : nws) {
+						if (n.isBurst()) {
+							var item = new JMenuItem(n.getName());
+							item.addActionListener(a -> ImportSignumAccount.create_import_account_dialog(this, n));
+							menu.add(item);
+						} else if (n.isWeb3J()) {
+							var import_acc_web3j = new JMenu(n.getName());
+							var import_from_prik = new JMenuItem("From Private Key ...");
+							var import_from_mnic = new JMenuItem("From Mnemonic ...");
+							var import_from_file = new JMenuItem("From JSON File ...");
+							Stream.of(import_from_prik, import_from_mnic, import_from_file).forEach(import_acc_web3j::add);
+							menu.add(import_acc_web3j);
+						}
+					}
+					menu.show(import_account_btn, 0, 0);
+				}
+			}
 		});
-
-		var import_acc_menu = new JPopupMenu();
-		var import_acc_rotura = new JMenuItem("PETH");
-		var import_acc_signum = new JMenuItem("Signum");
-		var import_acc_web3j = new JMenu("Ethereum");
-		var import_from_prik = new JMenuItem("From Private Key ...");
-		var import_from_mnic = new JMenuItem("From Mnemonic ...");
-		var import_from_file = new JMenuItem("From JSON File ...");
-		Stream.of(import_acc_rotura, import_acc_signum, import_acc_web3j).forEach(import_acc_menu::add);
-		Stream.of(import_from_prik, import_from_mnic, import_from_file).forEach(import_acc_web3j::add);
-
-		import_account_btn.addActionListener(e -> {
-			if (!UIUtil.isAltDown(e))
-				import_acc_menu.show(import_account_btn, 0, 0);
-		});
-		import_acc_signum.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.SIGNUM));
-		import_acc_rotura.addActionListener(e -> ImportSignumAccount.create_import_account_dialog(this, CrptoNetworks.ROTURA));
-		import_from_prik.addActionListener(e -> ImportWeb3JAccountFromText.import_from_private_key(this));
-		import_from_mnic.addActionListener(e -> ImportWeb3JAccountFromText.load_from_mnemonic(this));
-		import_from_file.addActionListener(e -> ImportWeb3JAccountFromFile.create_import_account_dialog(this));
 
 		var export_acc_menu = new JPopupMenu();
 //		var export_acc_item = new JMenuItem("Current account...");
@@ -124,16 +124,25 @@ public class AccountSettingsPanel extends JPanel {
 		export_account_btn.addActionListener(e -> export_acc_menu.show(export_account_btn, 0, 0));
 		export_csv_item.addActionListener(e -> ExportAccountTable.export_csv(this, account_table_model));
 
-		var watch_acc_menu = new JPopupMenu();
-		var watch_acc_rotura = new JMenuItem("PETH");
-		var watch_acc_signum = new JMenuItem("Signum");
-		var watch_acc_web3j = new JMenuItem("Ethereum");
-		Stream.of(watch_acc_rotura, watch_acc_signum, watch_acc_web3j).forEach(watch_acc_menu::add);
-		watch_acc_signum.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this, CrptoNetworks.SIGNUM));
-		watch_acc_rotura.addActionListener(e -> WatchSignumAccount.create_watch_account_dialog(this, CrptoNetworks.ROTURA));
-		watch_acc_web3j.addActionListener(e -> WatchWeb3JAccount.create_watch_account_dialog(this));
+		watch_account_btn.addActionListener(e -> {
+			var nws = MyDb.get_networks();
+			if (nws.size() > 0) {
+				var menu = new JPopupMenu();
+				for (var n : nws) {
+					if (n.isBurst()) {
+						var item = new JMenuItem(n.getName());
+						item.addActionListener(a -> WatchSignumAccount.create_watch_account_dialog(this, n));
+						menu.add(item);
+					} else if (n.isWeb3J()) {
+						var item = new JMenuItem(n.getName());
+						item.addActionListener(a -> WatchWeb3JAccount.create_watch_account_dialog(this, n));
+						menu.add(item);
+					}
+				}
+				menu.show(watch_account_btn, 0, 0);
+			}
 
-		watch_account_btn.addActionListener(e -> watch_acc_menu.show(watch_account_btn, 0, 0));
+		});
 
 		del_btn.addActionListener(e -> Util.submit(() -> {
 			int row = table.getSelectedRow();
@@ -167,14 +176,18 @@ public class AccountSettingsPanel extends JPanel {
 				Point point = mouseEvent.getPoint();
 				int row = table.rowAtPoint(point);
 				if (row >= 0 & row == table.getSelectedRow()) {
-					var nw = (CrptoNetworks) account_table_model.getValueAt(row, 1);
+					var nw = (CryptoNetwork) account_table_model.getValueAt(row, 1);
 					var adr = account_table_model.getValueAt(row, 2).toString().replace(",watch", "");
 					if (mouseEvent.getClickCount() == 1) {
 						if (new KeyEvent(AccountSettingsPanel.this, 0, 0, mouseEvent.getModifiersEx(), 0, ' ').isAltDown()) {
 							EventBus.getDefault().post(new SetNAABarEvent(nw, adr));
 						}
 					} else if (mouseEvent.getClickCount() == 2) {
-						Util.viewAccountDetail(nw, adr);
+						try {
+							Util.viewAccountDetail(nw, adr);
+						} catch (Exception x) {
+							Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+						}
 					}
 				}
 			}

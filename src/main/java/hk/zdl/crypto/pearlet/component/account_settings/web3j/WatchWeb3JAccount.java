@@ -27,7 +27,7 @@ public class WatchWeb3JAccount {
 		address = address.trim();
 		if (CryptoUtil.isValidAddress(nw, address)) {
 			if (MyDb.insertAccount(nw, address, new byte[] {}, new byte[] {})) {
-				UIUtil.displayMessage("Watch Account", "done!", null);
+				UIUtil.displayMessage("Watch Account", "done!");
 				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 			} else {
 				JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
