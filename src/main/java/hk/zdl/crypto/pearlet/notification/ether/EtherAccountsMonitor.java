@@ -13,8 +13,8 @@ import org.json.JSONObject;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.notification.ether.EtherTxHistWorker.TxListener;
+import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 
 public class EtherAccountsMonitor implements TxListener {
 
@@ -26,7 +26,8 @@ public class EtherAccountsMonitor implements TxListener {
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountListUpdateEvent e) {
-		List<String> l = e.getAccounts().stream().filter(o -> o.getStr("NETWORK").equals(CrptoNetworks.WEB3J.name())).map(o -> o.getStr("ADDRESS")).toList();
+		var nws = MyDb.get_networks().stream().filter(o -> o.isBurst()).map(o -> o.getId()).toList();
+		List<String> l = e.getAccounts().stream().filter(o -> nws.contains(o.getInt("NWID"))).map(o -> o.getStr("ADDRESS")).toList();
 		process_add_worker(l);
 		process_del_worker(l);
 	}
@@ -45,7 +46,7 @@ public class EtherAccountsMonitor implements TxListener {
 
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "removal" })
 	private void process_del_worker(List<String> l) {
 		var x = new LinkedList<String>();
 		for (var s : map.keySet()) {

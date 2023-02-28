@@ -43,7 +43,6 @@ import com.csvreader.CsvReader;
 import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 import hk.zdl.crypto.pearlet.util.WebUtil;
 import signumj.crypto.SignumCrypto;
@@ -77,7 +76,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 
 		add_btn.addActionListener(e -> Util.submit(() -> {
 			if (UIUtil.isAltDown(e)) {
-				batch_import(MinerAccountSettingsPanel.this, CrptoNetworks.ROTURA);
+				batch_import(this);
 			} else {
 				if (add_account()) {
 					refresh_list();
@@ -216,7 +215,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 		return true;
 	}
 
-	private void batch_import(Component c, CrptoNetworks nw) {
+	private void batch_import(Component c) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		var file_dialog = new JFileChooser();
 		file_dialog.setDialogType(JFileChooser.OPEN_DIALOG);

@@ -32,13 +32,12 @@ import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.AccountComboboxRenderer;
 import hk.zdl.crypto.pearlet.ui.MyListComboBoxModel;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 
 @SuppressWarnings("serial")
 public class NetworkAndAccountBar extends JPanel {
 
 	private final JPanel left = new JPanel(new FlowLayout()), right = new JPanel(new FlowLayout());
-	private final JComboBox<CrptoNetworks> network_combobox = new JComboBox<>();
+	private final JComboBox<CryptoNetwork> network_combobox = new JComboBox<>();
 	private final JComboBox<AccountComboboxEntry> account_combobox = new JComboBox<>();
 
 	public NetworkAndAccountBar() {

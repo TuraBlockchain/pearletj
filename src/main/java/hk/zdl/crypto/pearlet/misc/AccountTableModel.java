@@ -24,7 +24,6 @@ import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.ens.ENSLookup;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.response.Transaction;
@@ -73,7 +72,8 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 		if (columnIndex == 0) {
 			return r.get("ID");
 		} else if (columnIndex == 1) {
-			return CrptoNetworks.valueOf(r.get("NETWORK"));
+			var i = r.getInt("NWID");
+			return MyDb.get_networks().stream().filter(o -> o.getId() == i).findAny().get();
 		} else if (columnIndex == 2) {
 			var o = r.get("ADDRESS");
 			var b = r.getBytes("PRIVATE_KEY");

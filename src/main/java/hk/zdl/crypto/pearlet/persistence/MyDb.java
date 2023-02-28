@@ -1,7 +1,5 @@
 package hk.zdl.crypto.pearlet.persistence;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +30,6 @@ import com.jfinal.plugin.activerecord.dialect.AnsiSqlDialect;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
 
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.SignumID;
 import signumj.entity.response.Transaction;
@@ -154,17 +151,12 @@ public class MyDb {
 		}
 	}
 
-	public static final List<Record> getAccounts(CrptoNetworks network) {
-		return Db.find("select * from ACCOUNTS WHERE NETWORK = ?", network.name());
+	public static final List<Record> getAccounts(CryptoNetwork network) {
+		return Db.find("select * from ACCOUNTS WHERE NWID = ?", network.getId());
 	}
 
 	public static final Optional<Record> getAccount(CryptoNetwork network, String address) {
 		Record r = Db.findFirst("select * from ACCOUNTS WHERE NETWORK = ? AND ADDRESS = ?", network.getType().name(), address);
-		return r == null ? Optional.empty() : Optional.of(r);
-	}
-
-	public static final Optional<Record> getAccount(CrptoNetworks network, String address) {
-		Record r = Db.findFirst("select * from ACCOUNTS WHERE NETWORK = ? AND ADDRESS = ?", network.name(), address);
 		return r == null ? Optional.empty() : Optional.of(r);
 	}
 
@@ -182,20 +174,7 @@ public class MyDb {
 	}
 
 	public static final boolean deleteAccount(int id) {
-		var r = Db.findById("ACCOUNTS", "ID", id);
-		if (r != null) {
-			if (WEB3J.name().equals(r.getStr("NETWORK"))) {
-				var adr = r.getStr("ADDRESS");
-				Record r1 = Db.findFirst("SELECT * FROM APP.ETH_TOKENS WHERE ADDRESS = ?", adr);
-				if (r1 != null) {
-					Db.deleteById("APP.ETH_TOKENS", "ID", r1.getInt("ID"));
-				}
-
-			}
-			return Db.deleteById("ACCOUNTS", "ID", id);
-		} else {
-			return false;
-		}
+		return Db.deleteById("ACCOUNTS", "ID", id);
 	}
 
 	public static final boolean putSignumTx(CryptoNetwork nw, Transaction tx) {

@@ -1,14 +1,10 @@
 package hk.zdl.crypto.pearlet.util;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Random;
@@ -112,15 +108,15 @@ public class CryptoUtil {
 		return false;
 	}
 
-	public static final byte[] getPublicKeyFromAddress(CrptoNetworks network, String addr) {
-		if (network.equals(SIGNUM)) {
+	public static final byte[] getPublicKeyFromAddress(CryptoNetwork network, String addr) {
+		if (network.isBurst()) {
 			return SignumAddress.fromRs(addr).getPublicKey();
 		}
 		throw new UnsupportedOperationException();
 	}
 
-	public static final byte[] getPublicKey(CrptoNetworks network, String type, String text) {
-		if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
+	public static final byte[] getPublicKey(CryptoNetwork network, String type, String text) {
+		if (network.isBurst()) {
 			if (type.equalsIgnoreCase("phrase")) {
 				return SignumCrypto.getInstance().getPublicKey(text);
 			}
@@ -581,13 +577,6 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	public static byte[] signTransaction(CrptoNetworks nw, byte[] privateKey, byte[] unsignedTransaction) {
-		if (Arrays.asList(SIGNUM, ROTURA).contains(nw)) {
-			return SignumCrypto.getInstance().signTransaction(privateKey, unsignedTransaction);
-		}
-		throw new UnsupportedOperationException();
-	}
-
 	public static Object broadcastTransaction(CryptoNetwork nw, byte[] signedTransactionBytes) {
 		if (nw.isBurst()) {
 			var ns = NodeService.getInstance(nw.getUrl());
@@ -696,20 +685,9 @@ public class CryptoUtil {
 		return MyDb.get_server_url(network);
 	}
 
-	public static final SignumValue toSignumValue(CrptoNetworks network, BigDecimal amount) {
-		switch (network) {
-		case ROTURA:
-			return SignumValue.fromNQT(amount.multiply(BigDecimal.TEN.pow(peth_decimals)).toBigInteger());
-		case SIGNUM:
-			return SignumValue.fromSigna(amount);
-		default:
-			throw new IllegalArgumentException();
-		}
-	}
-
 	public static final SignumValue toSignumValue(CryptoNetwork network, BigDecimal amount) throws Exception {
 		if (network.isBurst()) {
-			return SignumValue.fromNQT(amount.multiply(BigDecimal.TEN.pow(getConstants(network).getInt("decimalPlaces"))).toBigInteger());
+			return SignumValue.fromNQT(amount.movePointRight(getConstants(network).getInt("decimalPlaces")).toBigInteger());
 		}
 		throw new UnsupportedOperationException();
 	}
@@ -730,7 +708,7 @@ public class CryptoUtil {
 			var bis = response.getEntity().getContent();
 			try {
 				return new JSONObject(new JSONTokener(bis));
-			}finally {
+			} finally {
 				bis.close();
 			}
 		}
