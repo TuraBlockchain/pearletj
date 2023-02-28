@@ -10,7 +10,6 @@ import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -20,40 +19,12 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
-import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
-import org.json.JSONTokener;
-
 import com.formdev.flatlaf.util.SystemInfo;
 
 import hk.zdl.crypto.pearlet.component.MyStretchIcon;
-import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class UIUtil {
-
-	public static final String get_icon_file_name(CryptoNetwork o) {
-		if (o.getType() == CryptoNetwork.Type.WEB3J) {
-			return "ethereum-crypto-cryptocurrency-2-svgrepo-com.svg";
-		} else {
-			var url = o.getUrl();
-			var jarr = new JSONArray(new JSONTokener(UIUtil.class.getClassLoader().getResourceAsStream("network/predefined.json")));
-			for (var i = 0; i < jarr.length(); i++) {
-				var jobj = jarr.getJSONObject(i);
-				if (url.equals(jobj.getString("server url"))) {
-					return jobj.getString("icon");
-				}
-			}
-			try {
-				var list = IOUtils.readLines(UIUtil.class.getClassLoader().getResourceAsStream("network/signum.txt"), Charset.defaultCharset());
-				if (list.contains(url)) {
-					return "Signum_Logomark_black.png";
-				}
-			} catch (IOException e) {
-			}
-		}
-		return "blockchain-dot-com-svgrepo-com.svg";
-	}
 
 	public static final void adjust_table_width(JTable table, TableColumnModel table_column_model) {
 		for (int column = 0; column < table.getColumnCount(); column++) {

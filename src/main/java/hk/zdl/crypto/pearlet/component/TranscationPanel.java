@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -74,7 +76,11 @@ public class TranscationPanel extends JPanel {
 				Point point = mouseEvent.getPoint();
 				int row = table.rowAtPoint(point);
 				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
-					Util.viewTxDetail(nw, table_model.getValueAt(row, 0));
+					try {
+						Util.viewTxDetail(nw, table_model.getValueAt(row, 0));
+					} catch (Exception x) {
+						Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+					}
 				}
 			}
 		});

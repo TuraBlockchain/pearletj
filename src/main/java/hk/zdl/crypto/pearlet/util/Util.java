@@ -22,13 +22,16 @@ import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 import com.vaadin.open.Open;
 
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 import net.harawata.appdirs.AppDirsFactory;
 import signumj.entity.response.Transaction;
 
@@ -142,86 +145,86 @@ public class Util {
 		}
 	}
 
-	public static final <E> boolean viewContractDetail(CryptoNetwork nw, E e) {
-		if (!Desktop.isDesktopSupported()) {
-			return false;
-		}
-		if (nw.isWeb3J()) {
+	public static final String get_icon_file_name(CryptoNetwork o) {
+		if (o.getType() == CryptoNetwork.Type.WEB3J) {
+			return "ethereum-crypto-cryptocurrency-2-svgrepo-com.svg";
+		} else if (is_signum_server_address(o.getUrl())) {
+			return "Signum_Logomark_black.png";
+		} else {
 			try {
-				var address = ((JSONObject) e).getString("contract_address");
-				if ("0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee".equals(address)) {
-					return false;
+				var url = o.getUrl();
+				var jarr = get_predefined_networks();
+				for (var i = 0; i < jarr.length(); i++) {
+					var jobj = jarr.getJSONObject(i);
+					if (url.equals(jobj.getString("server url"))) {
+						return jobj.getString("icon");
+					}
 				}
-				browse(new URI("https://ethplorer.io/address/" + address + "#pageTab=issuances&tab=tab-issuances"));
 			} catch (Exception x) {
-				return false;
 			}
-
 		}
-		return false;
+		return "blockchain-dot-com-svgrepo-com.svg";
 	}
 
-	public static final <E> boolean viewTxDetail(CryptoNetwork nw, E e) {
-		if (e == null || !Desktop.isDesktopSupported()) {
-			return false;
-		}
-		switch (nw) {
-		case ROTURA:
-			try {
-				Transaction tx = (Transaction) e;
-				String tx_id = tx.getId().toString();
-				browse(new URI("http://explorer.peth.world:8000/tx/" + tx_id));
-			} catch (Exception x) {
-				return false;
-			}
-			break;
-		case SIGNUM:
-			try {
-				Transaction tx = (Transaction) e;
-				String tx_id = tx.getId().toString();
-				browse(new URI("https://chain.signum.network/tx/" + tx_id));
-			} catch (Exception x) {
-				return false;
-			}
-			break;
-		case WEB3J:
-			JSONObject tx = (JSONObject) e;
-			try {
-				browse(new URI("https://www.blockchain.com/eth/tx/" + tx.getString("tx_hash")));
-			} catch (Exception x) {
-				return false;
-			}
-			break;
-		default:
-			break;
-
-		}
-		return false;
+	private static final JSONArray get_predefined_networks() throws Exception {
+		var in = UIUtil.class.getClassLoader().getResourceAsStream("network/predefined.json");
+		var jarr = new JSONArray(new JSONTokener(in));
+		in.close();
+		return jarr;
 	}
 
-	public static final boolean viewAccountDetail(CryptoNetwork nw, String e) {
-		if (e == null || !Desktop.isDesktopSupported()) {
-			return false;
-		}
-		var uri = "";
-		switch (nw) {
-		case ROTURA:
-			uri = "http://explorer.peth.world:8000/address/" + e;
-			break;
-		case SIGNUM:
-			uri = "https://chain.signum.network/search/?q=" + e;
-			break;
-		case WEB3J:
-			uri = "https://www.blockchain.com/eth/address/" + e;
-			break;
-		default:
-			break;
-		}
+	private static final boolean is_signum_server_address(String str) {
 		try {
-			browse(new URI(uri));
-			return true;
-		} catch (Exception x) {
-			return false;
+			var list = IOUtils.readLines(UIUtil.class.getClassLoader().getResourceAsStream("network/signum.txt"), Charset.defaultCharset());
+			if (list.contains(str)) {
+				return true;
+			}
+		} catch (Exception e) {
+		}
+		return false;
+	}
+
+	public static final <E> void viewContractDetail(CryptoNetwork nw, E e) throws Exception {
+		if (nw.isWeb3J()) {
+			var address = ((JSONObject) e).getString("contract_address");
+			if (!"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee".equals(address)) {
+				browse(new URI("https://ethplorer.io/address/" + address + "#pageTab=issuances&tab=tab-issuances"));
+			}
+		}
+	}
+
+	public static final <E> void viewTxDetail(CryptoNetwork nw, E e) throws Exception {
+		if (nw.isWeb3J()) {
+			var tx = (JSONObject) e;
+			browse(new URI("https://www.blockchain.com/eth/tx/" + tx.getString("tx_hash")));
+		} else if (is_signum_server_address(nw.getUrl())) {
+			Transaction tx = (Transaction) e;
+			String tx_id = tx.getId().toString();
+			browse(new URI("https://chain.signum.network/tx/" + tx_id));
+		} else {
+			var jarr = get_predefined_networks();
+			for (var i = 0; i < jarr.length(); i++) {
+				var jobj = jarr.getJSONObject(i);
+				if (nw.getUrl().equals(jobj.getString("server url"))) {
+					browse(new URI(jobj.getString("explorer url") + e));
+				}
+			}
+		}
+	}
+
+	public static final void viewAccountDetail(CryptoNetwork nw, String e) throws Exception {
+		if (nw.isWeb3J()) {
+			browse(new URI("https://www.blockchain.com/eth/address/" + e));
+		} else if (is_signum_server_address(nw.getUrl())) {
+			browse(new URI("https://chain.signum.network/address/" + e));
+		} else {
+			var jarr = get_predefined_networks();
+			for (var i = 0; i < jarr.length(); i++) {
+				var jobj = jarr.getJSONObject(i);
+				if (nw.getUrl().equals(jobj.getString("server url"))) {
+					browse(new URI(jobj.getString("explorer url") + e));
+				}
+			}
 		}
 	}
 

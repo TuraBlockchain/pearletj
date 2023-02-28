@@ -49,7 +49,7 @@ public class CopyAccountInfoPanel extends JPanel {
 		btn_1.addActionListener(e -> copy_to_clip_board(account));
 		btn_2.addActionListener(e -> copy_extended_address());
 		btn_3.addActionListener(e -> copy_public_key());
-		btn_4.addActionListener(e -> Util.viewAccountDetail(network, account));
+		btn_4.addActionListener(e -> viewAccountDetail());
 	}
 
 	private void copy_account_id() {
@@ -99,6 +99,13 @@ public class CopyAccountInfoPanel extends JPanel {
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(s, s);
 	}
 
+	private void viewAccountDetail() {
+		try {
+			Util.viewAccountDetail(network, account);
+		} catch (Exception e) {
+		}
+	}
+
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
 		this.network = e.network;
@@ -117,4 +124,5 @@ public class CopyAccountInfoPanel extends JPanel {
 			Stream.of(btn_2, btn_3).forEach(x -> x.setEnabled(public_key != null && public_key.length > 0));
 		}
 	}
+
 }

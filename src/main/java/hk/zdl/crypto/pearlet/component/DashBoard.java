@@ -183,7 +183,11 @@ public class DashBoard extends JPanel {
 					var atw = token_list.getSelectedValue();
 					if (atw.network.isWeb3J()) {
 						var jobj = atw.jobj;
-						Util.viewContractDetail(nw, jobj);
+						try {
+							Util.viewContractDetail(nw, jobj);
+						} catch (Exception x) {
+							Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+						}
 					}
 				}
 			}
@@ -209,7 +213,11 @@ public class DashBoard extends JPanel {
 				Point point = mouseEvent.getPoint();
 				int row = table.rowAtPoint(point);
 				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
-					Util.viewTxDetail(nw, table_model.getValueAt(row, 0));
+					try {
+						Util.viewTxDetail(nw, table_model.getValueAt(row, 0));
+					} catch (Exception x) {
+						Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+					}
 				}
 			}
 		});

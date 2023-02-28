@@ -103,7 +103,7 @@ public class NetworkSettingsPanel extends JPanel {
 	private final Component init_network_UI_components(CryptoNetwork o) {
 		var panel = new JPanel(new BorderLayout());
 		panel.setPreferredSize(new Dimension(700, 130));
-		var icon = new JLabel(UIUtil.getStretchIcon("icon/" + UIUtil.get_icon_file_name(o), 64, 64));
+		var icon = new JLabel(UIUtil.getStretchIcon("icon/" + Util.get_icon_file_name(o), 64, 64));
 		panel.add(icon, BorderLayout.WEST);
 		var my_panel = new JPanel(new GridBagLayout());
 		panel.add(my_panel, BorderLayout.CENTER);
