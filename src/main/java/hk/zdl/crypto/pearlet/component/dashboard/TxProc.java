@@ -2,24 +2,12 @@ package hk.zdl.crypto.pearlet.component.dashboard;
 
 import javax.swing.table.TableColumnModel;
 
-import hk.zdl.crypto.pearlet.component.dashboard.ether.EtherAddressCellRenderer;
-import hk.zdl.crypto.pearlet.component.dashboard.ether.EtherTxDateCellRenderer;
-import hk.zdl.crypto.pearlet.component.dashboard.ether.EtherTxIdCellRanderer;
-import hk.zdl.crypto.pearlet.component.dashboard.ether.EtherTxTypeCellRenderer;
-import hk.zdl.crypto.pearlet.component.dashboard.ether.EtherValueCellRenderer;
-import hk.zdl.crypto.pearlet.component.dashboard.rotura.RoturaAddressCellRenderer;
-import hk.zdl.crypto.pearlet.component.dashboard.rotura.RoturaInstantCellRenderer;
-import hk.zdl.crypto.pearlet.component.dashboard.rotura.RoturaValueCellRenderer;
-import hk.zdl.crypto.pearlet.component.dashboard.signum.InstantCellRenderer;
-import hk.zdl.crypto.pearlet.component.dashboard.signum.SignumAddressCellRenderer;
-import hk.zdl.crypto.pearlet.component.dashboard.signum.SignumTxTypeCellRenderer;
-import hk.zdl.crypto.pearlet.component.dashboard.signum.SignumValueCellRenderer;
-import hk.zdl.crypto.pearlet.component.dashboard.signum.TxIdCellrenderer;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 
 public class TxProc {
 
-	public void update_column_model(CrptoNetworks network, TableColumnModel model, String address){
+	public void update_column_model(CryptoNetwork network, TableColumnModel model, String address){
+		/**
 		switch (network) {
 		case ROTURA:
 			model.getColumn(0).setCellRenderer(new TxIdCellrenderer());
@@ -46,5 +34,6 @@ public class TxProc {
 			break;
 
 		}
+		**/
 	}
 }

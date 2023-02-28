@@ -22,16 +22,16 @@ import org.web3j.crypto.WalletUtils;
 import org.web3j.utils.Numeric;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class CreateWeb3JAccount {
 
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
-	public static final void create_new_account_dialog(Component c) {
+	public static final void create_new_account_dialog(Component c, CryptoNetwork nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		Icon icon = UIUtil.getStretchIcon("icon/" + "cloud-plus-fill.svg", 64, 64);
 		var panel = new JPanel(new GridBagLayout());
@@ -73,7 +73,7 @@ public class CreateWeb3JAccount {
 			}
 			Credentials cred = WalletUtils.loadBip39Credentials(new String(pw_field.getPassword()), tx_field.getText().trim());
 			ECKeyPair eckp = cred.getEcKeyPair();
-			boolean b = MyDb.insertAccount(CrptoNetworks.WEB3J, cred.getAddress(),Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
+			boolean b = MyDb.insertAccount(nw, cred.getAddress(),Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
 			if (b) {
 				UIUtil.displayMessage("Create Account", "done!", null);
 				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));

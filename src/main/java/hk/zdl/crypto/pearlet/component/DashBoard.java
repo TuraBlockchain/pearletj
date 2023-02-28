@@ -1,9 +1,5 @@
 package hk.zdl.crypto.pearlet.component;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
-
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
@@ -58,10 +54,10 @@ import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.BalanceUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
 import hk.zdl.crypto.pearlet.ds.AltTokenWrapper;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -85,7 +81,7 @@ public class DashBoard extends JPanel {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private final JLayer<JScrollPane> scroll_pane_layer = new JLayer(table_scroll_pane, wuli);
 	private final JButton manage_token_list_btn = new JButton("Manage Token List");
-	private CrptoNetworks nw;
+	private CryptoNetwork nw;
 	private String account;
 	private Thread token_list_thread = null;
 
@@ -137,11 +133,11 @@ public class DashBoard extends JPanel {
 			@Override
 			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				var atw = (AltTokenWrapper) value;
-				if (Arrays.asList(ROTURA, SIGNUM).contains(atw.network)) {
+				if (atw.network.isBurst()) {
 					if (atw.asset != null) {
 						return super.getListCellRendererComponent(list, atw.asset.getName(), index, isSelected, cellHasFocus);
 					}
-				} else if (WEB3J.equals(atw.network)) {
+				} else if (atw.network.isWeb3J()) {
 					String name = atw.jobj.optString("contract_name");
 					if (!name.isBlank()) {
 						return super.getListCellRendererComponent(list, name, index, isSelected, cellHasFocus);
@@ -156,7 +152,7 @@ public class DashBoard extends JPanel {
 				asset_info_panel.setVisible(false);
 			} else {
 				var atw = token_list.getSelectedValue();
-				if (Arrays.asList(ROTURA, SIGNUM).contains(atw.network)) {
+				if (atw.network.isBurst()) {
 					var a = atw.asset;
 					asset_id_label_0.setText("asset id:");
 					asset_id_label_1.setText(a.getAssetId().getID());
@@ -166,7 +162,7 @@ public class DashBoard extends JPanel {
 					BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).divide(BigDecimal.TEN.pow(a.getDecimals()));
 					asset_balance_label.setText(val.toString());
 					asset_info_panel.setVisible(true);
-				} else if (WEB3J.equals(atw.network)) {
+				} else if (atw.network.isWeb3J()) {
 					var jobj = atw.jobj;
 					var contract_name = jobj.optString("contract_name");
 					var contract_ticker_symbol = jobj.optString("contract_ticker_symbol");
@@ -185,7 +181,7 @@ public class DashBoard extends JPanel {
 			public void mousePressed(MouseEvent mouseEvent) {
 				if (mouseEvent.getClickCount() == 2 && token_list.getSelectedIndex() > -1) {
 					var atw = token_list.getSelectedValue();
-					if (WEB3J.equals(atw.network)) {
+					if (atw.network.isWeb3J()) {
 						var jobj = atw.jobj;
 						Util.viewContractDetail(nw, jobj);
 					}
@@ -224,7 +220,7 @@ public class DashBoard extends JPanel {
 	public void onMessage(AccountChangeEvent e) {
 		this.nw = e.network;
 		this.account = e.account;
-		var symbol = Util.default_currency_symbol.get(nw.name());
+		var symbol = Util.default_currency_symbol.get(nw.getType().name());
 		currency_label.setText(symbol);
 		token_list_card_layout.show(token_list_panel, "bar");
 		token_list.setModel(new DefaultComboBoxModel<AltTokenWrapper>());
@@ -235,7 +231,7 @@ public class DashBoard extends JPanel {
 		} else {
 			balance_label.setText("?");
 			new TxProc().update_column_model(e.network, table_column_model, e.account);
-			if (Arrays.asList(ROTURA, SIGNUM).contains(nw)) {
+			if (nw.isBurst()) {
 				Util.submit(() -> {
 					try {
 						var account = CryptoUtil.getAccount(nw, e.account);
@@ -243,11 +239,8 @@ public class DashBoard extends JPanel {
 						var balance = account.getBalance();
 						var committed_balance = account.getCommittedBalance();
 						balance = balance.subtract(committed_balance);
-						if (nw.equals(SIGNUM)) {
-							balance_text = balance.toSigna().stripTrailingZeros().toPlainString();
-						} else {
-							balance_text = new BigDecimal(balance.toNQT(), CryptoUtil.peth_decimals).stripTrailingZeros().toPlainString();
-						}
+						var decimalPlaces = CryptoUtil.getConstants(nw).getInt("decimalPlaces");
+						balance_text = new BigDecimal(balance.toNQT(), decimalPlaces).toPlainString();
 						EventBus.getDefault().post(new BalanceUpdateEvent(nw, e.account, new BigDecimal(balance_text)));
 						token_list.setListData(Arrays.asList(account.getAssetBalances()).stream().map(o -> CryptoUtil.getAsset(nw, o.getAssetId().toString())).map(o -> new AltTokenWrapper(nw, o))
 								.toArray((i) -> new AltTokenWrapper[i]));
@@ -263,11 +256,11 @@ public class DashBoard extends JPanel {
 						updateUI();
 					}
 				});
-			} else if (WEB3J.equals(e.network)) {
+			} else if (nw.isWeb3J()) {
 				Util.submit(() -> {
 					try {
 						var balance = CryptoUtil.getBalance(nw, account);
-						EventBus.getDefault().post(new BalanceUpdateEvent(WEB3J, account, balance));
+						EventBus.getDefault().post(new BalanceUpdateEvent(nw, account, balance));
 					} catch (Exception x) {
 						Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 					} finally {
@@ -277,10 +270,10 @@ public class DashBoard extends JPanel {
 				refresh_token_list();
 			}
 		}
-		manage_token_list_btn.setEnabled(!WEB3J.equals(e.network));
+		manage_token_list_btn.setEnabled(!nw.isWeb3J());
 	}
 
-	@SuppressWarnings({ "deprecation" })
+	@SuppressWarnings({ "removal" })
 	private final synchronized void refresh_token_list() {
 		if (token_list_thread != null) {
 			token_list_thread.stop();

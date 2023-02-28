@@ -1,6 +1,6 @@
 package hk.zdl.crypto.pearlet.component.event;
 
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 
 public class TxHistoryEvent<E> {
 
@@ -8,11 +8,11 @@ public class TxHistoryEvent<E> {
 		START, INSERT, FINISH
 	}
 
-	public final CrptoNetworks network;
+	public final CryptoNetwork network;
 	public final Type type;
 	public final E data;
 
-	public TxHistoryEvent(CrptoNetworks network, Type type, E data) {
+	public TxHistoryEvent(CryptoNetwork network, Type type, E data) {
 		this.network = network;
 		this.type = type;
 		this.data = data;

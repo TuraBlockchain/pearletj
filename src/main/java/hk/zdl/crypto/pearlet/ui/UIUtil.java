@@ -100,7 +100,10 @@ public class UIUtil {
 		return new KeyEvent((Component) e.getSource(), 0, 0, e.getModifiers(), 0, ' ').isAltDown();
 	}
 
-	public static final void displayMessage(String title, String message, MessageType messageType) {
+	public static final void displayMessage(String title, String message, MessageType... messageType) {
+		if (messageType == null || messageType.length < 1) {
+			messageType = new MessageType[] { MessageType.INFO };
+		}
 		if (SystemInfo.isMacOS) {
 			java.awt.Toolkit.getDefaultToolkit().beep();
 		}
@@ -111,10 +114,7 @@ public class UIUtil {
 			}
 		} else if (SystemTray.isSupported()) {
 			if (SystemTray.getSystemTray().getTrayIcons().length > 0) {
-				if (messageType == null) {
-					messageType = MessageType.INFO;
-				}
-				SystemTray.getSystemTray().getTrayIcons()[0].displayMessage(title, message, messageType);
+				SystemTray.getSystemTray().getTrayIcons()[0].displayMessage(title, message, messageType[0]);
 			}
 		} else {
 			Map<MessageType, Integer> map = new EnumMap<>(MessageType.class);
@@ -122,7 +122,7 @@ public class UIUtil {
 			map.put(MessageType.WARNING, JOptionPane.WARNING_MESSAGE);
 			map.put(MessageType.INFO, JOptionPane.INFORMATION_MESSAGE);
 			map.put(MessageType.ERROR, JOptionPane.ERROR_MESSAGE);
-			JOptionPane.showMessageDialog(null, message, title, map.get(messageType));
+			JOptionPane.showMessageDialog(null, message, title, map.get(messageType[0]));
 		}
 	}
 

@@ -12,7 +12,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 
 public class TxHistoryQueryExecutor {
 
@@ -23,10 +23,10 @@ public class TxHistoryQueryExecutor {
 		EventBus.getDefault().register(this);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
+	@SuppressWarnings({ "unchecked", "rawtypes", "removal" })
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public synchronized void onMessage(AccountChangeEvent e) {
-		if(e.account==null)
+		if (e.account == null)
 			return;
 		EventBus.getDefault().post(new TxHistoryEvent(e.network, TxHistoryEvent.Type.START, null));
 		for (MyThread t : threads) {
@@ -42,10 +42,10 @@ public class TxHistoryQueryExecutor {
 	}
 
 	private final class MyThread extends Thread {
-		CrptoNetworks network;
+		CryptoNetwork network;
 		String account;
 
-		public MyThread(CrptoNetworks network, String account) {
+		public MyThread(CryptoNetwork network, String account) {
 			this.network = network;
 			this.account = account;
 			setPriority(MIN_PRIORITY);
@@ -59,17 +59,10 @@ public class TxHistoryQueryExecutor {
 				is_finished = true;
 			} else
 				try {
-					switch (network) {
-					case ROTURA:
-					case SIGNUM:
+					if (network.isBurst()) {
 						new SignumTxHistoryQuery(network).queryTxHistory(account);
-						break;
-					case WEB3J:
+					} else if (network.isWeb3J()) {
 						eth_tx_q.queryTxHistory(account);
-						break;
-					default:
-						break;
-
 					}
 					is_finished = true;
 				} catch (InterruptedException e) {

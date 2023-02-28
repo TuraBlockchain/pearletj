@@ -1,9 +1,5 @@
 package hk.zdl.crypto.pearlet.misc;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.WEB3J;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
@@ -25,7 +21,9 @@ import com.jfinal.plugin.activerecord.Record;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.BalanceUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.ens.ENSLookup;
+import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -107,12 +105,14 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public synchronized void onMessage(AccountListUpdateEvent e) {
 		setAccounts(e.getAccounts());
+		var nws = MyDb.get_networks();
 		for (int i = 0; i < e.getAccounts().size(); i++) {
-			Record r = e.getAccounts().get(i);
-			CrptoNetworks nw = CrptoNetworks.valueOf(r.getStr("NETWORK"));
-			String address = r.getStr("ADDRESS");
+			var r = e.getAccounts().get(i);
+			int id = r.getInt("NWID");
+			var nw = nws.stream().filter(o -> o.getId() == id).findAny().get();
+			var address = r.getStr("ADDRESS");
 			Util.submit(new BalanceQuery(nw, address));
-			if (WEB3J.equals(nw)) {
+			if (nw.isWeb3J()) {
 				Util.submit(new ENSQuery(address, i));
 			}
 		}
@@ -140,10 +140,10 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 	}
 
 	private final class BalanceQuery implements Callable<Void> {
-		private final CrptoNetworks nw;
+		private final CryptoNetwork nw;
 		private final String address;
 
-		public BalanceQuery(CrptoNetworks nw, String address) {
+		public BalanceQuery(CryptoNetwork nw, String address) {
 			this.nw = nw;
 			this.address = address;
 		}
@@ -159,7 +159,7 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(TxHistoryEvent<?> e) {
 		if (e.type.equals(TxHistoryEvent.Type.INSERT)) {
-			if (Arrays.asList(SIGNUM, ROTURA).contains(e.network)) {
+			if (e.network.isBurst()) {
 				Transaction tx = (Transaction) e.data;
 				if (tx.getType() == 1 && tx.getSubtype() == 5) {
 					var address = tx.getSender().getRawAddress();
@@ -185,7 +185,7 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 	public void onMessage(BalanceUpdateEvent e) {
 		var balance = e.getBalance();
 		for (int i = 0; i < getRowCount(); i++) {
-			var nw = (CrptoNetworks) getValueAt(i, 1);
+			var nw = (CryptoNetwork) getValueAt(i, 1);
 			if (nw.equals(e.getNetwork())) {
 				var adr = getValueAt(i, 2).toString().replace(",watch", "");
 				if (adr.equals(e.getAddress())) {
@@ -199,7 +199,7 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 	@Override
 	public synchronized void actionPerformed(ActionEvent e) {
 		for (int i = 0; i < getRowCount(); i++) {
-			var nw = (CrptoNetworks) getValueAt(i, 1);
+			var nw = (CryptoNetwork) getValueAt(i, 1);
 			var adr = getValueAt(i, 2).toString().replace(",watch", "");
 			var q = new BalanceQuery(nw, adr);
 			Util.submit(q);

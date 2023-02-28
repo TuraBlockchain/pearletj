@@ -21,16 +21,16 @@ import org.web3j.crypto.WalletUtils;
 import org.web3j.utils.Numeric;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class ImportWeb3JAccountFromText {
 
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
-	public static final void import_from_private_key(Component c) {
+	public static final void import_from_private_key(Component c, CryptoNetwork nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var panel = new JPanel(new GridBagLayout());
@@ -51,8 +51,7 @@ public class ImportWeb3JAccountFromText {
 			JOptionPane.showMessageDialog(w, "Private key cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		
-		
+
 		Credentials cred = null;
 
 		try {
@@ -63,18 +62,17 @@ public class ImportWeb3JAccountFromText {
 		}
 
 		ECKeyPair eckp = cred.getEcKeyPair();
-		boolean b = MyDb.insertAccount(CrptoNetworks.WEB3J, cred.getAddress(), Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
-		if(b) {
+		boolean b = MyDb.insertAccount(nw, cred.getAddress(), Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
+		if (b) {
 			UIUtil.displayMessage("Import Account", "done!", null);
 			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
-		}else {
+		} else {
 			JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 
 	}
-	
-	
-	public static final void load_from_mnemonic(Component c) {
+
+	public static final void load_from_mnemonic(Component c, CryptoNetwork nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var panel = new JPanel(new GridBagLayout());
@@ -120,14 +118,14 @@ public class ImportWeb3JAccountFromText {
 				JOptionPane.showMessageDialog(w, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			
+
 		}
 		ECKeyPair eckp = cred.getEcKeyPair();
-		boolean b = MyDb.insertAccount(CrptoNetworks.WEB3J, cred.getAddress(), Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
-		if(b) {
+		boolean b = MyDb.insertAccount(nw, cred.getAddress(), Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
+		if (b) {
 			UIUtil.displayMessage("Import Account", "Done!", null);
 			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
-		}else {
+		} else {
 			JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 

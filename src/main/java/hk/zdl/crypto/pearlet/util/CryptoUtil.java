@@ -164,7 +164,7 @@ public class CryptoUtil {
 	}
 
 	public static final Asset getAsset(CryptoNetwork network, String assetId) {
-		NodeService ns = NodeService.getInstance(network.getUrl());
+		var ns = NodeService.getInstance(network.getUrl());
 		return ns.getAsset(SignumID.fromLong(assetId)).blockingGet();
 	}
 
@@ -233,7 +233,7 @@ public class CryptoUtil {
 	}
 
 	public static final Account getAccount(CryptoNetwork network, String address) throws Exception {
-		NodeService ns = NodeService.getInstance(network.getUrl());
+		var ns = NodeService.getInstance(network.getUrl());
 		try {
 			return ns.getAccount(SignumAddress.fromEither(address), null, false, true).toFuture().get();
 		} catch (Exception e) {
@@ -249,7 +249,7 @@ public class CryptoUtil {
 
 	public static final BigDecimal getBalance(CryptoNetwork network, String address) throws Exception {
 		if (network.isBurst()) {
-			NodeService ns = NodeService.getInstance(network.getUrl());
+			var ns = NodeService.getInstance(network.getUrl());
 			try {
 				var account = ns.getAccount(SignumAddress.fromEither(address), null, false, true).toFuture().get();
 				var balance = account.getBalance();
@@ -360,7 +360,7 @@ public class CryptoUtil {
 			if (!server_url.endsWith("/")) {
 				server_url += "/";
 			}
-			NodeService ns = NodeService.getInstance(server_url);
+			var ns = NodeService.getInstance(server_url);
 			return ns.generateTransferAssetTransactionWithMessage(senderPublicKey, SignumAddress.fromEither(recipient), SignumID.fromLong(assetId),
 					SignumValue.fromNQT(new BigInteger(quantity.toPlainString())), SignumValue.ZERO, toSignumValue(nw, fee), 1440, message).blockingGet();
 		}
@@ -401,7 +401,7 @@ public class CryptoUtil {
 			if (!server_url.endsWith("/")) {
 				server_url += "/";
 			}
-			NodeService ns = NodeService.getInstance(server_url);
+			var ns = NodeService.getInstance(server_url);
 			return ns.generateTransaction(SignumAddress.fromEither(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, null).blockingGet();
 		}
 		throw new UnsupportedOperationException();
@@ -414,7 +414,7 @@ public class CryptoUtil {
 			if (!server_url.endsWith("/")) {
 				server_url += "/";
 			}
-			NodeService ns = NodeService.getInstance(server_url);
+			var ns = NodeService.getInstance(server_url);
 			byte[] nounce = new byte[32];// must be 32
 			new Random().nextBytes(nounce);
 			EncryptedMessage emsg = new EncryptedMessage(message, nounce, isText);
@@ -431,7 +431,7 @@ public class CryptoUtil {
 			if (!server_url.endsWith("/")) {
 				server_url += "/";
 			}
-			NodeService ns = NodeService.getInstance(server_url);
+			var ns = NodeService.getInstance(server_url);
 			byte[] nounce = new byte[32];// must be 32
 			new Random().nextBytes(nounce);
 			EncryptedMessage emsg = new EncryptedMessage(message, nounce, isText);
@@ -446,7 +446,7 @@ public class CryptoUtil {
 			if (!server_url.endsWith("/")) {
 				server_url += "/";
 			}
-			NodeService ns = NodeService.getInstance(server_url);
+			var ns = NodeService.getInstance(server_url);
 			return ns.generateTransactionWithMessage(SignumAddress.fromEither(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, message, null).blockingGet();
 		}
 		throw new UnsupportedOperationException();
@@ -458,7 +458,7 @@ public class CryptoUtil {
 			if (!server_url.endsWith("/")) {
 				server_url += "/";
 			}
-			NodeService ns = NodeService.getInstance(server_url);
+			var ns = NodeService.getInstance(server_url);
 			return ns.generateTransactionWithMessage(SignumAddress.fromEither(recipient), public_key, toSignumValue(nw, amount), toSignumValue(nw, fee), 1440, message, null).blockingGet();
 		}
 		throw new UnsupportedOperationException();
@@ -483,7 +483,7 @@ public class CryptoUtil {
 			if (!server_url.endsWith("/")) {
 				server_url += "/";
 			}
-			NodeService ns = NodeService.getInstance(server_url);
+			var ns = NodeService.getInstance(server_url);
 			return ns.generateTransactionWithEncryptedMessage(SignumAddress.fromEither(recipient), senderPublicKey, toSignumValue(nw, fee), 1440, message, "").blockingGet();
 		}
 		throw new UnsupportedOperationException();
@@ -590,7 +590,7 @@ public class CryptoUtil {
 
 	public static Object broadcastTransaction(CryptoNetwork nw, byte[] signedTransactionBytes) {
 		if (nw.isBurst()) {
-			NodeService ns = NodeService.getInstance(nw.getUrl());
+			var ns = NodeService.getInstance(nw.getUrl());
 			return ns.broadcastTransaction(signedTransactionBytes).blockingGet();
 		}
 		throw new UnsupportedOperationException();
@@ -649,7 +649,7 @@ public class CryptoUtil {
 		if (!server_url.endsWith("/")) {
 			server_url += "/";
 		}
-		NodeService ns = NodeService.getInstance(server_url);
+		var ns = NodeService.getInstance(server_url);
 		SignumID[] id_arr = new SignumID[] {};
 		try {
 			id_arr = ns.getAccountTransactionIDs(SignumAddress.fromRs(address)).toFuture().get();
@@ -681,7 +681,7 @@ public class CryptoUtil {
 		} else {
 			Optional<String> opt = get_server_url(nw);
 			if (get_server_url(nw).isPresent()) {
-				NodeService ns = NodeService.getInstance(opt.get());
+				var ns = NodeService.getInstance(opt.get());
 				Transaction tx = ns.getTransaction(id).toFuture().get();
 				if (tx != null) {
 					MyDb.putSignumTx(nw, tx);
@@ -738,7 +738,7 @@ public class CryptoUtil {
 	}
 
 	public static final FeeSuggestion getFeeSuggestion(CryptoNetwork network) {
-		NodeService ns = NodeService.getInstance(network.getUrl());
+		var ns = NodeService.getInstance(network.getUrl());
 		return ns.suggestFee().blockingGet();
 	}
 

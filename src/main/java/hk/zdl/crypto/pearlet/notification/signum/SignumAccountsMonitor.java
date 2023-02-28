@@ -12,23 +12,23 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.notification.signum.SignumTxHistWorker.TxListener;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 
 public class SignumAccountsMonitor implements TxListener {
 
 	private final Map<String, SignumTxHistWorker> map = new TreeMap<>();
-	private final CrptoNetworks nw;
+	private final CryptoNetwork nw;
 
-	public SignumAccountsMonitor(CrptoNetworks nw) {
+	public SignumAccountsMonitor(CryptoNetwork nw) {
 		this.nw = nw;
 		EventBus.getDefault().register(this);
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountListUpdateEvent e) {
-		List<String> l = e.getAccounts().stream().filter(o -> o.getStr("NETWORK").equals(nw.name())).map(o -> o.getStr("ADDRESS")).toList();
+		List<String> l = e.getAccounts().stream().filter(o -> o.getInt("NWID") == nw.getId()).map(o -> o.getStr("ADDRESS")).toList();
 		process_add_worker(l);
 		process_del_worker(l);
 	}
@@ -51,7 +51,7 @@ public class SignumAccountsMonitor implements TxListener {
 
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings("removal")
 	private void process_del_worker(List<String> l) {
 		var x = new LinkedList<String>();
 		for (var s : map.keySet()) {

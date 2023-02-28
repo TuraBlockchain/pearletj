@@ -1,14 +1,12 @@
 package hk.zdl.crypto.pearlet.component;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
-
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Optional;
 
 import javax.swing.JButton;
@@ -26,9 +24,9 @@ import org.greenrobot.eventbus.ThreadMode;
 import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -37,7 +35,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 	private static final String NONE = "None";
 	private static final long serialVersionUID = -8477305312112985648L;
 	private final JProgressBar bar = new JProgressBar();
-	private CrptoNetworks network;
+	private CryptoNetwork network;
 	private String account;
 
 	public JoinPoolPanel() {
@@ -56,14 +54,14 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 	public void onMessage(AccountChangeEvent e) {
 		this.network = e.network;
 		this.account = e.account;
-		if(account==null) {
+		if (account == null) {
 			return;
 		}
-		if (Arrays.asList(CrptoNetworks.ROTURA, CrptoNetworks.SIGNUM).contains(network)) {
+		if (network.isBurst()) {
 			try {
 				bar.setString(CryptoUtil.getRewardRecipient(network, account).orElse(NONE));
 			} catch (Exception x) {
-				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
+				UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
 			}
 		}
 	}
@@ -79,9 +77,12 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 		panel.add(new JLabel("Tx fee:"), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		panel.add(a, new GridBagConstraints(1, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		Util.submit(() -> {
-			var fee = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
-			a.setText("" + fee.doubleValue() / Math.pow(10, network == ROTURA ? CryptoUtil.peth_decimals : 8));
-		});		
+			var fee = CryptoUtil.getFeeSuggestion(network).getCheapFee();
+			var decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
+			var txt = new BigDecimal(fee.toNQT(), decimalPlaces).toPlainString();
+			a.setText(txt);
+			return null;
+		});
 		int i = JOptionPane.showConfirmDialog(getRootPane(), panel, "Pool Address", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.OK_OPTION) {
 			Util.submit(() -> {
@@ -103,13 +104,14 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 						return;
 					}
 					var fee_qnt = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
-					var fee_dml = new BigDecimal(fee_qnt, network == ROTURA ? CryptoUtil.peth_decimals : 8);
+					var decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
+					var fee_dml = new BigDecimal(fee_qnt, decimalPlaces);
 					byte[] unsigned = CryptoUtil.setRewardRecipient(network, account, public_key, txt_field.getText(), fee_dml);
 					byte[] signed = CryptoUtil.signTransaction(network, private_key, unsigned);
 					CryptoUtil.broadcastTransaction(network, signed);
-					UIUtil.displayMessage("Join Pool", "Join pool complete.", null);
+					UIUtil.displayMessage("Join Pool", "Join pool complete.");
 				} catch (Exception x) {
-					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
+					UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
 				} finally {
 					bar.setIndeterminate(false);
 					((JButton) e.getSource()).setEnabled(true);

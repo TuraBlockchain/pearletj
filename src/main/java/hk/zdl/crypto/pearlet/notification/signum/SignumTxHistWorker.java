@@ -10,13 +10,13 @@ import java.util.logging.Logger;
 
 import org.json.JSONObject;
 
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 
 public class SignumTxHistWorker extends Thread {
 
 	private boolean running = true;
-	private CrptoNetworks nw;
+	private CryptoNetwork nw;
 	private String address = "";
 	private long blockTimestamp = Long.MIN_VALUE;
 	private final List<TxListener> listeners = new LinkedList<>();
@@ -111,7 +111,7 @@ public class SignumTxHistWorker extends Thread {
 		this.address = address;
 	}
 
-	public void setCrptoNetworks(CrptoNetworks nw) {
+	public void setCrptoNetworks(CryptoNetwork nw) {
 		this.nw = nw;
 	}
 

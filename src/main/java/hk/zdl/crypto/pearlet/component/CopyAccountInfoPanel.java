@@ -1,7 +1,5 @@
 package hk.zdl.crypto.pearlet.component;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.*;
-
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
@@ -21,9 +19,9 @@ import org.greenrobot.eventbus.ThreadMode;
 import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
-import hk.zdl.crypto.pearlet.ds.RoturaAddress;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.SignumAddress;
@@ -32,7 +30,7 @@ import signumj.entity.SignumAddress;
 public class CopyAccountInfoPanel extends JPanel {
 	private JButton btn_0, btn_1, btn_2, btn_3, btn_4;
 	private List<JButton> btns = new LinkedList<>();
-	private CrptoNetworks network;
+	private CryptoNetwork network;
 	private String account;
 	private byte[] public_key;
 
@@ -55,65 +53,44 @@ public class CopyAccountInfoPanel extends JPanel {
 	}
 
 	private void copy_account_id() {
-		if(account==null)
+		if (account == null)
 			return;
-		String id = "";
-		switch (network) {
-		case ROTURA:
-			id = RoturaAddress.fromRs(account).getID();
+		if (network.isBurst()) {
+			var id = SignumAddress.fromEither(account).getID();
 			copy_to_clip_board(id);
-		case SIGNUM:
-			id = SignumAddress.fromRs(account).getID();
+		} else if (network.isWeb3J()) {
+			var id = MyDb.getAccount(network, account).get().getStr("ADDRESS");
 			copy_to_clip_board(id);
-			break;
-		case WEB3J:
-			id = MyDb.getAccount(network, account).get().getStr("ADDRESS");
-			copy_to_clip_board(id);
-			break;
-		default:
-			break;
-
 		}
 	}
 
 	private void copy_extended_address() {
-		if(account==null)
+		if (account == null)
 			return;
-		String id = "";
-		switch (network) {
-		case ROTURA:
-			id = RoturaAddress.fromPublicKey(public_key).getExtendedAddress();
+		if (network.isBurst()) {
+			var id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getExtendedAddress();
+			try {
+				var a = CryptoUtil.getConstants(network).getString("addressPrefix");
+				id = id.substring(0, id.indexOf('-'));
+				id = a + id;
+			} catch (Exception e) {
+			}
 			copy_to_clip_board(id);
-			break;
-		case SIGNUM:
-			id = SignumCrypto.getInstance().getAddressFromPublic(public_key).getExtendedAddress();
+		} else if (network.isWeb3J()) {
+			var id = MyDb.getAccount(network, account).get().getStr("ADDRESS");
 			copy_to_clip_board(id);
-			break;
-		case WEB3J:
-			id = MyDb.getAccount(network, account).get().getStr("ADDRESS");
-			copy_to_clip_board(id);
-			break;
-		default:
-			break;
-
 		}
 	}
 
 	private void copy_public_key() {
-		String str = "";
-		switch (network) {
-		case ROTURA:
-		case SIGNUM:
-			str = SignumCrypto.getInstance().getAddressFromPublic(public_key).getPublicKeyString().toUpperCase();
+		if (account == null)
+			return;
+		if (network.isBurst()) {
+			var str = SignumCrypto.getInstance().getAddressFromPublic(public_key).getPublicKeyString().toUpperCase();
 			copy_to_clip_board(str);
-			break;
-		case WEB3J:
-			str = Hex.toHexString(public_key);
+		} else if (network.isWeb3J()) {
+			var str = Hex.toHexString(public_key);
 			copy_to_clip_board(str);
-			break;
-		default:
-			break;
-
 		}
 	}
 
@@ -133,7 +110,7 @@ public class CopyAccountInfoPanel extends JPanel {
 			public_key = new byte[] {};
 		}
 		btns.stream().forEach(x -> x.setEnabled(true));
-		if (WEB3J.equals(network)) {
+		if (network.isWeb3J()) {
 			Stream.of(btn_0, btn_2).forEach(x -> x.setEnabled(false));
 			btn_3.setEnabled(public_key != null && public_key.length > 0);
 		} else {

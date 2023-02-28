@@ -3,16 +3,16 @@ package hk.zdl.crypto.pearlet.tx_history_query;
 import org.greenrobot.eventbus.EventBus;
 
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import signumj.entity.SignumID;
 import signumj.entity.response.Transaction;
 
 public class SignumTxHistoryQuery {
 
-	private final CrptoNetworks nw;
+	private final CryptoNetwork nw;
 
-	public SignumTxHistoryQuery(CrptoNetworks nw) {
+	public SignumTxHistoryQuery(CryptoNetwork nw) {
 		this.nw = nw;
 	}
 

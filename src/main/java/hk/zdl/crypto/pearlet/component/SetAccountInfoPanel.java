@@ -1,8 +1,5 @@
 package hk.zdl.crypto.pearlet.component;
 
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.ROTURA;
-import static hk.zdl.crypto.pearlet.util.CrptoNetworks.SIGNUM;
-
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -11,7 +8,6 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.TrayIcon.MessageType;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,10 +31,10 @@ import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.SpinableIcon;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.response.FeeSuggestion;
@@ -49,8 +45,9 @@ public class SetAccountInfoPanel extends JPanel {
 	private static final Dimension FIELD_DIMENSION = new Dimension(500, 20);
 	private final JComboBox<String> acc_combo_box = new JComboBox<>();
 	private final JSlider fee_slider = new JSlider();
+	private int decimalPlaces = 8;
 
-	private CrptoNetworks network;
+	private CryptoNetwork network;
 	private String account;
 
 	public SetAccountInfoPanel() {
@@ -82,11 +79,11 @@ public class SetAccountInfoPanel extends JPanel {
 		fee_panel.setPreferredSize(FIELD_DIMENSION);
 		Stream.of(fee_field, fee_slider).forEach(fee_panel::add);
 		fee_field.setEditable(false);
-		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / Math.pow(10, network == ROTURA ? CryptoUtil.peth_decimals : 8)));
+		fee_slider.addChangeListener(e -> fee_field.setText("" + fee_slider.getValue() / Math.pow(10, decimalPlaces)));
 		add(fee_panel, newGridConst(0, 7, 5));
 
 		var send_icon = MyToolbar.getIcon("paper-plane-solid.svg");
-		var send_btn = new JButton("Update Account Info",send_icon);
+		var send_btn = new JButton("Update Account Info", send_icon);
 		try {
 			var btn_img = ImageIO.read(Util.getResource("icon/spinner-solid.svg"));
 			var busy_icon = new SpinableIcon(btn_img, 32, 32);
@@ -105,12 +102,12 @@ public class SetAccountInfoPanel extends JPanel {
 				return;
 			}
 			send_btn.setEnabled(false);
-			Util.submit(()->{
+			Util.submit(() -> {
 				Optional<Record> o_r = MyDb.getAccount(network, account);
 				if (o_r.isPresent()) {
 					byte[] private_key = o_r.get().getBytes("PRIVATE_KEY");
 					byte[] public_key = o_r.get().getBytes("PUBLIC_KEY");
-					if (Arrays.asList(SIGNUM, ROTURA).contains(network)) {
+					if (network.isBurst()) {
 						try {
 							var feeNQT = fee_slider.getValue();
 							byte[] ugsigned_tx = CryptoUtil.setAccountInfo(network, name_field.getText().trim(), desc_field.getText().trim(), feeNQT, public_key);
@@ -118,7 +115,7 @@ public class SetAccountInfoPanel extends JPanel {
 							CryptoUtil.broadcastTransaction(network, signed_tx);
 							UIUtil.displayMessage("Set Account Info", "Account Info is set!", MessageType.INFO);
 						} catch (Exception x) {
-							JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+							UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
 						}
 					}
 				}
@@ -154,6 +151,7 @@ public class SetAccountInfoPanel extends JPanel {
 			fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
 			fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
 			fee_slider.setValue(g.getStandardFee().toNQT().intValue());
+			decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
 		} catch (Exception x) {
 		}
 	}

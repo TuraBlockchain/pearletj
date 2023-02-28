@@ -28,6 +28,7 @@ import com.jfinal.kit.Prop;
 import com.jfinal.kit.PropKit;
 import com.vaadin.open.Open;
 
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import net.harawata.appdirs.AppDirsFactory;
 import signumj.entity.response.Transaction;
 
@@ -141,16 +142,11 @@ public class Util {
 		}
 	}
 
-	public static final <E> boolean viewContractDetail(CrptoNetworks nw, E e) {
+	public static final <E> boolean viewContractDetail(CryptoNetwork nw, E e) {
 		if (!Desktop.isDesktopSupported()) {
 			return false;
 		}
-		switch (nw) {
-		case ROTURA:
-			break;
-		case SIGNUM:
-			break;
-		case WEB3J:
+		if (nw.isWeb3J()) {
 			try {
 				var address = ((JSONObject) e).getString("contract_address");
 				if ("0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee".equals(address)) {
@@ -160,15 +156,12 @@ public class Util {
 			} catch (Exception x) {
 				return false;
 			}
-			break;
-		default:
-			break;
 
 		}
 		return false;
 	}
 
-	public static final <E> boolean viewTxDetail(CrptoNetworks nw, E e) {
+	public static final <E> boolean viewTxDetail(CryptoNetwork nw, E e) {
 		if (e == null || !Desktop.isDesktopSupported()) {
 			return false;
 		}
@@ -206,7 +199,7 @@ public class Util {
 		return false;
 	}
 
-	public static final boolean viewAccountDetail(CrptoNetworks nw, String e) {
+	public static final boolean viewAccountDetail(CryptoNetwork nw, String e) {
 		if (e == null || !Desktop.isDesktopSupported()) {
 			return false;
 		}

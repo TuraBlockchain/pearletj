@@ -11,7 +11,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 
 public class CommitPanel extends JPanel {
 
@@ -32,7 +31,7 @@ public class CommitPanel extends JPanel {
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
-		if (e.network.equals(CrptoNetworks.WEB3J)) {
+		if (e.network.isWeb3J()) {
 			my_card_layout.show(this, "una");
 		} else {
 			cmp.onMessage(e);

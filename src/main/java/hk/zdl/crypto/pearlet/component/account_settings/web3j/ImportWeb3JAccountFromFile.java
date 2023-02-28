@@ -19,14 +19,14 @@ import org.web3j.crypto.WalletUtils;
 import org.web3j.utils.Numeric;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class ImportWeb3JAccountFromFile {
 
-	public static final void create_import_account_dialog(Component c) {
+	public static final void create_import_account_dialog(Component c,CryptoNetwork nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var file_dialog = new JFileChooser();
@@ -68,7 +68,7 @@ public class ImportWeb3JAccountFromFile {
 			return;
 		}
 		ECKeyPair eckp = cred.getEcKeyPair();
-		boolean b = MyDb.insertAccount(CrptoNetworks.WEB3J, cred.getAddress(),Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
+		boolean b = MyDb.insertAccount(nw, cred.getAddress(),Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
 		if (b) {
 			UIUtil.displayMessage("Import Account", "Done!", null);
 			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));

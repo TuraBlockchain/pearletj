@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,10 +47,10 @@ import com.jakewharton.byteunits.BinaryByteUnit;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.PlotDoneEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.ui.CloseableTabbedPaneLayerUI;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.SignumAddress;
 
@@ -67,7 +66,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 	private final JComboBox<String> fz_op = new JComboBox<>(new String[] { "MB", "GB" });
 	private final JButton plot_btn = new JButton("Plot");
 	private final JTabbedPane tabbed_pane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
-	private CrptoNetworks network;
+	private CryptoNetwork network;
 	private String account;
 	private Path jar_path, plot_path;
 	private ExecutorService es;
@@ -161,7 +160,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 		this.network = e.network;
 		this.account = e.account;
 		plot_btn.setEnabled(false);
-		if (Arrays.asList(CrptoNetworks.SIGNUM, CrptoNetworks.ROTURA).contains(network)) {
+		if (network.isBurst()) {
 			if (account != null) {
 				plot_btn.setEnabled(true);
 			}

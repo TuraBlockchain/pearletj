@@ -26,9 +26,9 @@ import hk.zdl.crypto.pearlet.component.dashboard.TxProc;
 import hk.zdl.crypto.pearlet.component.dashboard.TxTableModel;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
@@ -38,7 +38,7 @@ public class TranscationPanel extends JPanel {
 	private final TxTableModel table_model = new TxTableModel();
 	private final TableColumnModel table_column_model = new DefaultTableColumnModel();
 	private final JTable table = new JTable(table_model, table_column_model);
-	private CrptoNetworks nw;
+	private CryptoNetwork nw;
 
 	public TranscationPanel() {
 		super(new BorderLayout());
