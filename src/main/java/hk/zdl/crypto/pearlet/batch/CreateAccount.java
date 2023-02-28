@@ -10,12 +10,11 @@ import java.util.Random;
 
 import com.csvreader.CsvWriter;
 
-import hk.zdl.crypto.pearlet.component.account_settings.signum.CreateSignumAccount;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 
 public class CreateAccount {
 
-	private static final List<String> mnemoic = new BufferedReader(new InputStreamReader(CreateSignumAccount.class.getClassLoader().getResourceAsStream("en-mnemonic-word-list.txt"))).lines()
+	private static final List<String> mnemoic = new BufferedReader(new InputStreamReader(CreateAccount.class.getClassLoader().getResourceAsStream("en-mnemonic-word-list.txt"))).lines()
 			.filter(s -> !s.isEmpty()).toList();
 	public static void main(String[] args) throws Throwable {
 		var count = 100;
