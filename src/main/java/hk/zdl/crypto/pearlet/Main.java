@@ -12,7 +12,6 @@ import java.awt.TrayIcon;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.nio.file.Files;
-import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -40,14 +39,10 @@ import hk.zdl.crypto.pearlet.component.plot.PlotPanel;
 import hk.zdl.crypto.pearlet.component.settings.SettingsPanel;
 import hk.zdl.crypto.pearlet.laf.MyUIManager;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
-import hk.zdl.crypto.pearlet.notification.ether.EtherAccountsMonitor;
-import hk.zdl.crypto.pearlet.notification.signum.SignumAccountsMonitor;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
-import hk.zdl.crypto.pearlet.tx_history_query.TxHistoryQueryExecutor;
 import hk.zdl.crypto.pearlet.ui.AquaMagic;
 import hk.zdl.crypto.pearlet.ui.GnomeMagic;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CrptoNetworks;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class Main {
@@ -70,7 +65,6 @@ public class Main {
 			var msg = x.getLocalizedMessage();
 			if (x.getClass().equals(StandardException.class)) {
 				if (((StandardException) x).getSQLState().equals("XSDB6")) {
-//					msg = "Another instance of Derby may have already booted the database";
 					msg = "Only one instance can run concurrently.";
 				}
 			}
@@ -79,11 +73,7 @@ public class Main {
 		}
 		Util.submit(MyDb::create_missing_tables);
 		createFrame(otd, app_icon);
-		TimeUnit.SECONDS.sleep(5);
-		new TxHistoryQueryExecutor();
-		new EtherAccountsMonitor();
-		new SignumAccountsMonitor(CrptoNetworks.ROTURA);
-		new SignumAccountsMonitor(CrptoNetworks.SIGNUM);
+		
 	}
 
 	private static final void createFrame(OsThemeDetector otd, Image app_icon) {

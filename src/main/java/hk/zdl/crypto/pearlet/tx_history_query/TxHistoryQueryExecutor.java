@@ -17,7 +17,6 @@ import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 public class TxHistoryQueryExecutor {
 
 	private final List<MyThread> threads = Collections.synchronizedList(new ArrayList<>());
-	private final EtherTxQuery eth_tx_q = new EtherTxQuery();
 
 	public TxHistoryQueryExecutor() {
 		EventBus.getDefault().register(this);
@@ -62,7 +61,7 @@ public class TxHistoryQueryExecutor {
 					if (network.isBurst()) {
 						new SignumTxHistoryQuery(network).queryTxHistory(account);
 					} else if (network.isWeb3J()) {
-						eth_tx_q.queryTxHistory(account);
+						new EtherTxQuery(network).queryTxHistory(account);
 					}
 					is_finished = true;
 				} catch (InterruptedException e) {
