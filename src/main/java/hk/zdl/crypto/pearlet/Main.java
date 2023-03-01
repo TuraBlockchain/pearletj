@@ -75,11 +75,6 @@ public class Main {
 		Util.submit(MyDb::create_missing_tables);
 		Util.submit(() -> createFrame(otd, app_icon));
 		Util.submit(NWMon::new);
-//		TimeUnit.SECONDS.sleep(5);
-//		new TxHistoryQueryExecutor();
-//		new EtherAccountsMonitor();
-//		new SignumAccountsMonitor(CrptoNetworks.ROTURA);
-//		new SignumAccountsMonitor(CrptoNetworks.SIGNUM);
 	}
 
 	private static final void createFrame(OsThemeDetector otd, Image app_icon) {

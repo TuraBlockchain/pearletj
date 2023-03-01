@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.json.JSONObject;
 
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
+import hk.zdl.crypto.pearlet.notification.TxListener;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 
 public class SignumTxHistWorker extends Thread {
@@ -111,7 +112,7 @@ public class SignumTxHistWorker extends Thread {
 		this.address = address;
 	}
 
-	public void setCrptoNetworks(CryptoNetwork nw) {
+	public void setCryptoNetworks(CryptoNetwork nw) {
 		this.nw = nw;
 	}
 
@@ -121,10 +122,6 @@ public class SignumTxHistWorker extends Thread {
 
 	public boolean remove(TxListener o) {
 		return listeners.remove(o);
-	}
-
-	public static interface TxListener {
-		public void transcationReceived(JSONObject jobj);
 	}
 
 }

@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import org.json.JSONObject;
 
+import hk.zdl.crypto.pearlet.notification.TxListener;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 
 public class EtherTxHistWorker extends Thread {
@@ -129,10 +130,6 @@ public class EtherTxHistWorker extends Thread {
 
 	public boolean remove(TxListener o) {
 		return listeners.remove(o);
-	}
-
-	public static interface TxListener {
-		public void transcationReceived(JSONObject jobj);
 	}
 
 	public List<JSONObject> getRecords() {

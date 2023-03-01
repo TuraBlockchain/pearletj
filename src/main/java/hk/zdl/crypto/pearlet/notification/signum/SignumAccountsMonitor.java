@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
-import hk.zdl.crypto.pearlet.notification.signum.SignumTxHistWorker.TxListener;
+import hk.zdl.crypto.pearlet.notification.TxListener;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 
 public class SignumAccountsMonitor implements TxListener {
@@ -40,7 +40,7 @@ public class SignumAccountsMonitor implements TxListener {
 			}
 			if (!map.containsKey(s)) {
 				var worker = new SignumTxHistWorker();
-				worker.setCrptoNetworks(nw);
+				worker.setCryptoNetworks(nw);
 				worker.setAddress(s);
 				worker.setRunning(true);
 				map.put(s, worker);

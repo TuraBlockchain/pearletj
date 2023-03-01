@@ -12,22 +12,23 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
-import hk.zdl.crypto.pearlet.notification.ether.EtherTxHistWorker.TxListener;
-import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
+import hk.zdl.crypto.pearlet.notification.TxListener;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 
 public class EtherAccountsMonitor implements TxListener {
 
 	private final Map<String, EtherTxHistWorker> map = new TreeMap<>();
+	private final CryptoNetwork nw;
 
-	public EtherAccountsMonitor() {
+	public EtherAccountsMonitor(CryptoNetwork nw) {
+		this.nw = nw;
 		EventBus.getDefault().register(this);
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountListUpdateEvent e) {
-		var nws = MyDb.get_networks().stream().filter(o -> o.isBurst()).map(o -> o.getId()).toList();
-		List<String> l = e.getAccounts().stream().filter(o -> nws.contains(o.getInt("NWID"))).map(o -> o.getStr("ADDRESS")).toList();
+		List<String> l = e.getAccounts().stream().filter(o -> o.getInt("NWID") == nw.getId()).map(o -> o.getStr("ADDRESS")).toList();
 		process_add_worker(l);
 		process_del_worker(l);
 	}
