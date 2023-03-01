@@ -27,7 +27,6 @@ import com.jfinal.plugin.activerecord.Record;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
-import hk.zdl.crypto.pearlet.util.Util;
 
 public class IssueTokenPanel extends JPanel {
 
@@ -84,7 +83,7 @@ public class IssueTokenPanel extends JPanel {
 		var fee_label = new JLabel("Fee");
 		add(fee_label, new GridBagConstraints(0, 10, 4, 1, 1, 0, 17, 2, new Insets(0, 0, 0, 0), 0, 0));
 
-		String symbol = Util.default_currency_symbol.get(nw.getType().name());
+		var symbol = "";
 		fee_spinner.setToolTipText("The minimum fee to issue a token is 1,000 " + symbol + ".");
 		var symbol_label = new JLabel(symbol);
 		var fee_spinner_panel = new JPanel(new BorderLayout());

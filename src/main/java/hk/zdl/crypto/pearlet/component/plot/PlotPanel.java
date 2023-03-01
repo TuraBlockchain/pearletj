@@ -160,7 +160,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 		this.network = e.network;
 		this.account = e.account;
 		plot_btn.setEnabled(false);
-		if (network.isBurst()) {
+		if (network != null && network.isBurst()) {
 			if (account != null) {
 				plot_btn.setEnabled(true);
 			}

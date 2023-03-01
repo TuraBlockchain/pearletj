@@ -73,10 +73,10 @@ public class Main {
 			JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
-		Util.submit(MyDb::create_missing_tables);
-		Util.submit(() -> createFrame(otd, app_icon));
-		Util.submit(NWMon::new);
-		Util.submit(TxHistoryQueryExecutor::new);
+		MyDb.create_missing_tables();
+		createFrame(otd, app_icon);
+		new NWMon();
+		new TxHistoryQueryExecutor();
 	}
 
 	private static final void createFrame(OsThemeDetector otd, Image app_icon) {

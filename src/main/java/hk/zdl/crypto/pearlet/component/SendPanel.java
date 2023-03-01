@@ -340,7 +340,10 @@ public class SendPanel extends JPanel {
 		var network_change = this.network != e.network;
 		this.network = e.network;
 		this.account = e.account;
-		var symbol = Util.default_currency_symbol.get(network.getType().name());
+		if (network == null) {
+			return;
+		}
+		var symbol = "";
 		balance_label.setText("?");
 		balance_label.setToolTipText(null);
 		token_combo_box.setModel(new DefaultComboBoxModel<Object>(new String[] { symbol }));
@@ -381,7 +384,7 @@ public class SendPanel extends JPanel {
 	}
 
 	private final void update_balance() throws Exception {
-		var symbol = Util.default_currency_symbol.get(network.getType().name());
+		var symbol = "";
 		if (network.isBurst()) {
 			var account = CryptoUtil.getAccount(network, this.account);
 			var balance = account.getBalance();

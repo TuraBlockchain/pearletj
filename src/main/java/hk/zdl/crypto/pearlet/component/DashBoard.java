@@ -228,7 +228,7 @@ public class DashBoard extends JPanel {
 	public void onMessage(AccountChangeEvent e) {
 		this.nw = e.network;
 		this.account = e.account;
-		var symbol = Util.default_currency_symbol.get(nw.getType().name());
+		var symbol = "";
 		currency_label.setText(symbol);
 		token_list_card_layout.show(token_list_panel, "bar");
 		token_list.setModel(new DefaultComboBoxModel<AltTokenWrapper>());
@@ -278,7 +278,7 @@ public class DashBoard extends JPanel {
 				refresh_token_list();
 			}
 		}
-		manage_token_list_btn.setEnabled(!nw.isWeb3J());
+		manage_token_list_btn.setEnabled(nw != null && nw.isBurst());
 	}
 
 	@SuppressWarnings({ "removal" })

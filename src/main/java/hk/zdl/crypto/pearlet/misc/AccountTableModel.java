@@ -108,8 +108,7 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 		var nws = MyDb.get_networks();
 		for (int i = 0; i < e.getAccounts().size(); i++) {
 			var r = e.getAccounts().get(i);
-			int id = r.getInt("NWID");
-			var nw = nws.stream().filter(o -> o.getId() == id).findAny().get();
+			var nw = nws.stream().filter(o -> o.getId() == r.getInt("NWID")).findAny().get();
 			var address = r.getStr("ADDRESS");
 			Util.submit(new BalanceQuery(nw, address));
 			if (nw.isWeb3J()) {

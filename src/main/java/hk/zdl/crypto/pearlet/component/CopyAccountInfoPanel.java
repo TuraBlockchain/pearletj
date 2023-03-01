@@ -110,6 +110,9 @@ public class CopyAccountInfoPanel extends JPanel {
 	public void onMessage(AccountChangeEvent e) {
 		this.network = e.network;
 		this.account = e.account;
+		if(network==null) {
+			return;
+		}
 		Optional<Record> opt_r = MyDb.getAccount(network, account);
 		if (opt_r.isPresent()) {
 			public_key = opt_r.get().getBytes("PUBLIC_KEY");

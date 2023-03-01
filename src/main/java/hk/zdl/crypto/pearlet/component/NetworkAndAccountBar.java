@@ -73,7 +73,7 @@ public class NetworkAndAccountBar extends JPanel {
 			@Override
 			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				var o = (CryptoNetwork) value;
-				return super.getListCellRendererComponent(list, o.getName(), index, isSelected, cellHasFocus);
+				return super.getListCellRendererComponent(list, o==null?"":o.getName(), index, isSelected, cellHasFocus);
 			}
 		});
 
@@ -92,7 +92,7 @@ public class NetworkAndAccountBar extends JPanel {
 	@SuppressWarnings("unchecked")
 	private void refresh_account_combobox() {
 		var nw = (CryptoNetwork) network_combobox.getSelectedItem();
-		var l = MyDb.getAccounts().stream().filter(o -> o.getInt("NWID") == nw.getId()).map(o -> o.getStr("ADDRESS")).map(o -> new AccountComboboxEntry(nw, o, null)).toList();
+		var l = MyDb.getAccounts().stream().filter(o -> o.getInt("NWID") !=null).filter(o -> o.getInt("NWID") == nw.getId()).map(o -> o.getStr("ADDRESS")).map(o -> new AccountComboboxEntry(nw, o, null)).toList();
 		account_combobox.setModel(new MyListComboBoxModel<>(new ArrayList<>(l)));
 		account_combobox.setEnabled(!l.isEmpty());
 	}
