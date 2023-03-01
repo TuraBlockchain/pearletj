@@ -3,7 +3,7 @@
   "server url" : "http://mainnet.peth.world:6876",
   "explorer url":"http://explorer.peth.world:8000/search/?q=",
   "icon" : "peth-logo.png",
-  "epoch" : "20220827 10:00:00Z",
+  "epoch" : "2022-08-27 10:00:00+00",
   "valueSuffix" : "PETH",
   "addressPrefix" : "TS",
   "decimalPlaces" : 4
@@ -11,7 +11,7 @@
   "networkName" : "PETH Testnet",
   "server url" : "http://testnet.peth.world:6876",
   "icon" : "peth-logo.png",
-  "epoch" : "20220827 10:00:00Z",
+  "epoch" : "2022-08-27 10:00:00+00",
   "valueSuffix" : "PETH",
   "addressPrefix" : "TS",
   "decimalPlaces" : 4
@@ -20,7 +20,7 @@
   "server url" : "http://mainnet.ppcoin.cc:6876",
   "explorer url":"http://explorer.ppcoin.cc:9000/search/?q=",
   "icon" : "pp-logo.png",
-  "epoch" : "20220827 10:00:00Z",
+  "epoch" : "2022-08-27 10:00:00+00",
   "valueSuffix" : "PETH",
   "addressPrefix" : "TS",
   "decimalPlaces" : 4

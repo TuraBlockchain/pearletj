@@ -65,9 +65,7 @@ import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
-import signumj.entity.response.Account;
 import signumj.entity.response.Asset;
-import signumj.entity.response.AssetBalance;
 import signumj.entity.response.FeeSuggestion;
 
 @SuppressWarnings("serial")
@@ -372,7 +370,7 @@ public class SendPanel extends JPanel {
 					wuli.stop();
 				}
 			});
-			Optional<Boolean> o_b = MyDb.isWatchAccount(network, account);
+			var o_b = MyDb.isWatchAccount(network, account);
 			if (o_b.isPresent() && o_b.get() == false) {
 				send_btn.setEnabled(true);
 			} else {
@@ -385,22 +383,22 @@ public class SendPanel extends JPanel {
 	private final void update_balance() throws Exception {
 		var symbol = Util.default_currency_symbol.get(network.getType().name());
 		if (network.isBurst()) {
-			Account account = CryptoUtil.getAccount(network, this.account);
+			var account = CryptoUtil.getAccount(network, this.account);
 			var balance = account.getBalance();
 			var committed_balance = account.getCommittedBalance();
 			balance = balance.subtract(committed_balance);
 			var value = new BigDecimal(balance.toNQT(), decimalPlaces);
 			asset_balance.put(symbol, value);
 			EventBus.getDefault().post(new BalanceUpdateEvent(network, this.account, value));
-			for (AssetBalance ab : account.getAssetBalances()) {
-				Asset a = CryptoUtil.getAsset(network, ab.getAssetId().toString());
-				BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).divide(BigDecimal.TEN.pow(a.getDecimals()));
+			for (var ab : account.getAssetBalances()) {
+				var a = CryptoUtil.getAsset(network, ab.getAssetId().toString());
+				var val = new BigDecimal(a.getQuantity().toNQT()).movePointLeft(a.getDecimals());
 				asset_balance.put(a, val);
 				((DefaultComboBoxModel<Object>) token_combo_box.getModel()).addElement(a);
 			}
 		} else if (network.isWeb3J()) {
 			try {
-				BigDecimal value = CryptoUtil.getBalance(network, account);
+				var value = CryptoUtil.getBalance(network, account);
 				asset_balance.put(symbol, value);
 				EventBus.getDefault().post(new BalanceUpdateEvent(network, this.account, value));
 			} catch (Exception x) {
@@ -409,12 +407,12 @@ public class SendPanel extends JPanel {
 			Optional<JSONArray> o_arr = MyDb.getETHTokenList(account);
 			if (o_arr.isPresent()) {
 				var jarr = o_arr.get();
-				JSONObject[] arr = new JSONObject[jarr.length()];
+				var arr = new JSONObject[jarr.length()];
 				int j = -1;
 				for (int i = 0; i < arr.length; i++) {
 					var jobj = jarr.getJSONObject(i);
 					arr[i] = jobj;
-					BigDecimal val = new BigDecimal(jobj.getString("balance")).divide(BigDecimal.TEN.pow(jobj.getInt("contract_decimals")));
+					var val = new BigDecimal(jobj.getString("balance")).movePointLeft(jobj.getInt("contract_decimals"));
 					asset_balance.put(jobj, val);
 					if (jobj.getString("contract_name").equals("Ether") && jobj.getString("contract_ticker_symbol").equals("ETH")) {
 						j = i;
@@ -434,10 +432,10 @@ public class SendPanel extends JPanel {
 	}
 
 	private final void updat_balance_label(BigDecimal value) {
-		String raw = value.stripTrailingZeros().toPlainString();
-		String tip = raw;
+		var raw = value.stripTrailingZeros().toPlainString();
+		var tip = raw;
 		if (raw.contains(".")) {
-			String a = raw.substring(raw.indexOf('.'));
+			var a = raw.substring(raw.indexOf('.'));
 			if (a.length() > 3) {
 				raw = raw.substring(0, raw.indexOf('.') + 1 + 3);
 			}

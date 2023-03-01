@@ -70,7 +70,7 @@ public class ImportWeb3JAccountFromFile {
 		ECKeyPair eckp = cred.getEcKeyPair();
 		boolean b = MyDb.insertAccount(nw, cred.getAddress(),Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
 		if (b) {
-			UIUtil.displayMessage("Import Account", "Done!", null);
+			UIUtil.displayMessage("Import Account", "Done!");
 			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 		} else {
 			JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);

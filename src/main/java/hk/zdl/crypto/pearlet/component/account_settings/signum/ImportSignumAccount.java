@@ -70,6 +70,7 @@ public class ImportSignumAccount {
 			}
 
 			if (b) {
+				UIUtil.displayMessage("Import Account", "Done!");
 				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 			} else {
 				JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);

@@ -6,26 +6,31 @@ import java.util.Date;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
+import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import signumj.entity.response.Transaction;
 
 @SuppressWarnings("serial")
 public class InstantCellRenderer extends DefaultTableCellRenderer {
 
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ssX");
+	private long epochBeginning = 0;
 
-	public InstantCellRenderer() {
+	public InstantCellRenderer(CryptoNetwork network) {
 		setHorizontalAlignment(SwingConstants.RIGHT);
+		try {
+			var epoch_str = CryptoUtil.getConstants(network).getString("epoch");
+			epochBeginning = sdf.parse(epoch_str).getTime();
+		} catch (Exception e) {
+		}
 	}
-
 
 	@Override
 	protected void setValue(Object value) {
 		Transaction tx = (Transaction) value;
-		Date date = tx.getTimestamp().getAsDate();
-		try {
-			setText(sdf.format(date));
-		} catch (Exception e) {
-		}
+		int burstTime = tx.getTimestamp().getTimestamp();
+		Date date = new Date(epochBeginning + (burstTime * 1000L));
+		setText(sdf.format(date));
 	}
 
 }

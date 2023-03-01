@@ -2,6 +2,8 @@ package hk.zdl.crypto.pearlet.component.dashboard.signum;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.math.BigDecimal;
+import java.util.Optional;
 
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -9,6 +11,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import com.jthemedetecor.OsThemeDetector;
 
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
+import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import signumj.entity.SignumValue;
 import signumj.entity.response.Transaction;
 import signumj.response.attachment.CommitmentAddAttachment;
@@ -20,10 +24,17 @@ public class SignumValueCellRenderer extends DefaultTableCellRenderer {
 	private static final OsThemeDetector otd = OsThemeDetector.getDetector();
 	private static final Color my_cyan = new Color(0, 175, 175), my_green = new Color(175, 255, 175);
 	private final String address;
+	private Optional<Integer> decimalPlaces = Optional.empty();
 
-	public SignumValueCellRenderer(String address) {
+	public SignumValueCellRenderer(CryptoNetwork network, String address) {
 		this.address = address;
 		setHorizontalAlignment(SwingConstants.RIGHT);
+		try {
+			int i = CryptoUtil.getConstants(network).getInt("decimalPlaces");
+			decimalPlaces = Optional.of(i);
+		} catch (Exception x) {
+
+		}
 	}
 
 	@Override
@@ -54,7 +65,11 @@ public class SignumValueCellRenderer extends DefaultTableCellRenderer {
 				val = SignumValue.fromNQT(((CommitmentRemoveAttachment) tx.getAttachment()).getAmountNQT());
 			}
 		}
-		super.setValue(Character.valueOf((char) 0xA7A8) + val.toSigna().toPlainString());
+		if (decimalPlaces.isPresent()) {
+			super.setValue(new BigDecimal(val.toNQT(), decimalPlaces.get()).toPlainString());
+		} else {
+			super.setValue(val.toSigna().toPlainString());
+		}
 	}
 
 	private static final Color darker(Color c) {
