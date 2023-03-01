@@ -202,11 +202,13 @@ public class Util {
 			String tx_id = tx.getId().toString();
 			browse(new URI("https://chain.signum.network/tx/" + tx_id));
 		} else {
+			Transaction tx = (Transaction) e;
+			String tx_id = tx.getId().toString();
 			var jarr = get_predefined_networks();
 			for (var i = 0; i < jarr.length(); i++) {
 				var jobj = jarr.getJSONObject(i);
 				if (nw.getUrl().equals(jobj.getString("server url"))) {
-					browse(new URI(jobj.getString("explorer url") + e));
+					browse(new URI(jobj.getString("explorer url") + tx_id));
 				}
 			}
 		}

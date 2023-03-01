@@ -13,14 +13,14 @@ import signumj.entity.response.Transaction;
 @SuppressWarnings("serial")
 public class InstantCellRenderer extends DefaultTableCellRenderer {
 
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ssX");
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
 	private long epochBeginning = 0;
 
 	public InstantCellRenderer(CryptoNetwork network) {
 		setHorizontalAlignment(SwingConstants.RIGHT);
 		try {
 			var epoch_str = CryptoUtil.getConstants(network).getString("epoch");
-			epochBeginning = sdf.parse(epoch_str).getTime();
+			epochBeginning = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ssX").parse(epoch_str).getTime();
 		} catch (Exception e) {
 		}
 	}
@@ -32,5 +32,4 @@ public class InstantCellRenderer extends DefaultTableCellRenderer {
 		Date date = new Date(epochBeginning + (burstTime * 1000L));
 		setText(sdf.format(date));
 	}
-
 }

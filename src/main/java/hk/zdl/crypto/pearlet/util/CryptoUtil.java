@@ -9,8 +9,6 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -659,26 +657,13 @@ public class CryptoUtil {
 	}
 
 	public static final Transaction getSignumTx(CryptoNetwork nw, SignumID id) throws Exception {
-		Optional<Transaction> o_tx = Optional.empty();
-		try {
-			o_tx = MyDb.getSignumTxFromLocal(nw, id);
-		} catch (Exception x) {
-			Logger.getLogger(CryptoUtil.class.getName()).log(Level.WARNING, x.getMessage(), x);
+		var o  = get_server_url(nw);
+		if(o.isPresent()){
+			var ns = NodeService.getInstance(o.get());
+			var tx = ns.getTransaction(id).toFuture().get();
+			return tx;
 		}
-		if (o_tx.isPresent()) {
-			return o_tx.get();
-		} else {
-			Optional<String> opt = get_server_url(nw);
-			if (get_server_url(nw).isPresent()) {
-				var ns = NodeService.getInstance(opt.get());
-				Transaction tx = ns.getTransaction(id).toFuture().get();
-				if (tx != null) {
-					MyDb.putSignumTx(nw, tx);
-				}
-				return tx;
-			}
-		}
-		throw new InterruptedException();
+		throw new IllegalStateException();
 	}
 
 	public static final synchronized Optional<String> get_server_url(CryptoNetwork network) {

@@ -40,6 +40,7 @@ import hk.zdl.crypto.pearlet.component.settings.SettingsPanel;
 import hk.zdl.crypto.pearlet.laf.MyUIManager;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.tx_history_query.TxHistoryQueryExecutor;
 import hk.zdl.crypto.pearlet.ui.AquaMagic;
 import hk.zdl.crypto.pearlet.ui.GnomeMagic;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
@@ -75,6 +76,7 @@ public class Main {
 		Util.submit(MyDb::create_missing_tables);
 		Util.submit(() -> createFrame(otd, app_icon));
 		Util.submit(NWMon::new);
+		Util.submit(TxHistoryQueryExecutor::new);
 	}
 
 	private static final void createFrame(OsThemeDetector otd, Image app_icon) {
