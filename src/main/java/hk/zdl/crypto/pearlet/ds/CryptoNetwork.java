@@ -29,7 +29,7 @@ public class CryptoNetwork {
 	}
 
 	public String getName() {
-		return name==null?"":name;
+		return name == null ? "" : name;
 	}
 
 	public void setName(String name) {
