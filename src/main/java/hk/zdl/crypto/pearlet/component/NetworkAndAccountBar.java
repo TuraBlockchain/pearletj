@@ -1,25 +1,22 @@
 package hk.zdl.crypto.pearlet.component;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jdesktop.swingx.combobox.ListComboBoxModel;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
@@ -66,15 +63,6 @@ public class NetworkAndAccountBar extends JPanel {
 		right.add(manage_account_btn);
 
 		network_combobox.addActionListener(e -> update_account_combobox());
-		network_combobox.setRenderer(new DefaultListCellRenderer() {
-
-			@Override
-			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-				var o = (CryptoNetwork) value;
-				return super.getListCellRendererComponent(list, o == null ? null : o.getName(), index, isSelected, cellHasFocus);
-			}
-		});
-
 		manage_network_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.NET)));
 		manage_account_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.ACC)));
 
@@ -108,11 +96,16 @@ public class NetworkAndAccountBar extends JPanel {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Subscribe(threadMode = ThreadMode.ASYNC)
-	public void onMessage(NetworkChangeEvent e) {
-		var l = MyDb.get_networks();
-		network_combobox.setModel(new ListComboBoxModel<>(l));
+	public synchronized void onMessage(NetworkChangeEvent e) {
+		DefaultComboBoxModel<CryptoNetwork> model = (DefaultComboBoxModel<CryptoNetwork>) network_combobox.getModel();
+		CryptoNetwork selected = (CryptoNetwork) model.getSelectedItem();
+		var l = MyDb.get_networks().stream().filter(o -> o.isBurst() || o.isWeb3J()).toList();
+		model.removeAllElements();
+		model.addAll(0, l);
+		if (selected != null && l.contains(selected)) {
+			model.setSelectedItem(selected);
+		}
 		network_combobox.setEnabled(l.size() > 0);
 	}
 

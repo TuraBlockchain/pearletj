@@ -73,7 +73,7 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 			return r.get("ID");
 		} else if (columnIndex == 1) {
 			var i = r.getInt("NWID");
-			return MyDb.get_networks().stream().filter(o -> o.getId() == i).findAny().get();
+			return i == null ? null : MyDb.get_networks().stream().filter(o -> o.getId() == i).findAny().get();
 		} else if (columnIndex == 2) {
 			var o = r.get("ADDRESS");
 			var b = r.getBytes("PRIVATE_KEY");
@@ -108,6 +108,8 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 		var nws = MyDb.get_networks();
 		for (int i = 0; i < e.getAccounts().size(); i++) {
 			var r = e.getAccounts().get(i);
+			if (r.getInt("NWID") == null)
+				continue;
 			var nw = nws.stream().filter(o -> o.getId() == r.getInt("NWID")).findAny().get();
 			var address = r.getStr("ADDRESS");
 			Util.submit(new BalanceQuery(nw, address));
