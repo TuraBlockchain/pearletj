@@ -41,6 +41,7 @@ import hk.zdl.crypto.pearlet.component.account_settings.signum.WatchSignumAccoun
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.WatchWeb3JAccount;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
+import hk.zdl.crypto.pearlet.component.event.NetworkChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.SetNAABarEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.misc.AccountTableModel;
@@ -57,6 +58,7 @@ public class AccountSettingsPanel extends JPanel {
 	private final AccountTableModel account_table_model = new AccountTableModel();
 	private final JTable table = buildAccountTable();
 	private CryptoNetwork nw;
+	private JButton create_account_btn, import_account_btn, export_account_btn, watch_account_btn, del_btn;
 
 	public AccountSettingsPanel() {
 		super(new BorderLayout());
@@ -66,11 +68,11 @@ public class AccountSettingsPanel extends JPanel {
 
 		table.getColumnModel().removeColumn(table.getColumnModel().getColumn(0));
 		var btn_panel = new JPanel(new GridBagLayout());
-		var create_account_btn = new JButton("Create");
-		var import_account_btn = new JButton("Import");
-		var export_account_btn = new JButton("Export");
-		var watch_account_btn = new JButton("Watch");
-		var del_btn = new JButton("Delete");
+		create_account_btn = new JButton("Create");
+		import_account_btn = new JButton("Import");
+		export_account_btn = new JButton("Export");
+		watch_account_btn = new JButton("Watch");
+		del_btn = new JButton("Delete");
 		btn_panel.add(create_account_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		btn_panel.add(import_account_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		btn_panel.add(export_account_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
@@ -250,4 +252,11 @@ public class AccountSettingsPanel extends JPanel {
 	public void onMessage(AccountChangeEvent e) {
 		this.nw = e.network;
 	}
+
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(NetworkChangeEvent e) {
+		var l = MyDb.get_networks().stream().filter(o -> o.isBurst() || o.isWeb3J()).toList();
+		Stream.of(create_account_btn, import_account_btn, watch_account_btn).forEach(o->o.setEnabled(!l.isEmpty()));
+	}
+
 }
