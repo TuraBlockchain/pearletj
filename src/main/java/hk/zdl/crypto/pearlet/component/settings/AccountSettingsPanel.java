@@ -78,23 +78,35 @@ public class AccountSettingsPanel extends JPanel {
 		btn_panel.add(del_btn, new GridBagConstraints(0, 4, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
 		create_account_btn.addActionListener(e -> {
+			if (nw == null) {
+				return;
+			}
 			var nws = MyDb.get_networks();
-			if (nws.size() > 0) {
+			if (nws.isEmpty()) {
+				return;
+			} else if (nws.size() == 1) {
+				CreateAccount.create_new_account_dialog(this, nw);
+			} else {
 				var menu = new JPopupMenu();
 				for (var n : nws) {
-					var item = new JMenuItem(n.getName());
-					item.addActionListener(a -> CreateAccount.create_new_account_dialog(this, n));
-					menu.add(item);
+					menu.add(n.getName()).addActionListener(a -> CreateAccount.create_new_account_dialog(this, n));
 				}
 				menu.show(create_account_btn, 0, 0);
 			}
 		});
 		import_account_btn.addActionListener(e -> {
+			if (nw == null) {
+				return;
+			}
 			if (UIUtil.isAltDown(e)) {
 				ImportSignumAccount.batch_import(this, nw);
 			} else {
 				var nws = MyDb.get_networks();
-				if (nws.size() > 0) {
+				if (nws.isEmpty()) {
+					return;
+				} else if (nws.size() == 1 && nw.isBurst()) {
+					ImportSignumAccount.create_import_account_dialog(this, nw);
+				} else {
 					var menu = new JPopupMenu();
 					for (var n : nws) {
 						if (n.isBurst()) {
@@ -126,8 +138,19 @@ public class AccountSettingsPanel extends JPanel {
 		export_csv_item.addActionListener(e -> ExportAccountTable.export_csv(this, account_table_model));
 
 		watch_account_btn.addActionListener(e -> {
+			if (nw == null) {
+				return;
+			}
 			var nws = MyDb.get_networks();
-			if (nws.size() > 0) {
+			if (nws.isEmpty()) {
+				return;
+			} else if (nws.size() == 1) {
+				if (nw.isBurst()) {
+					WatchSignumAccount.create_watch_account_dialog(this, nw);
+				} else if (nw.isWeb3J()) {
+					WatchWeb3JAccount.create_watch_account_dialog(this, nw);
+				}
+			} else {
 				var menu = new JPopupMenu();
 				for (var n : nws) {
 					if (n.isBurst()) {
@@ -142,7 +165,6 @@ public class AccountSettingsPanel extends JPanel {
 				}
 				menu.show(watch_account_btn, 0, 0);
 			}
-
 		});
 
 		del_btn.addActionListener(e -> Util.submit(() -> {
