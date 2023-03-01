@@ -353,11 +353,11 @@ public class SendPanel extends JPanel {
 			wuli.start();
 			if (network_change || fee_field.getText().isBlank()) {
 				Util.submit(() -> {
+					decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
 					FeeSuggestion g = CryptoUtil.getFeeSuggestion(network);
 					fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
 					fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
 					fee_slider.setValue(g.getStandardFee().toNQT().intValue());
-					decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
 					return null;
 				});
 			}
