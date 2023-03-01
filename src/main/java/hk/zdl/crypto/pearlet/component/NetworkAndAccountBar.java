@@ -3,7 +3,7 @@ package hk.zdl.crypto.pearlet.component;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -36,6 +36,7 @@ public class NetworkAndAccountBar extends JPanel {
 	private final JPanel left = new JPanel(new FlowLayout()), right = new JPanel(new FlowLayout());
 	private final JComboBox<CryptoNetwork> network_combobox = new JComboBox<>();
 	private final JComboBox<AccountComboboxEntry> account_combobox = new JComboBox<>();
+	private boolean magic = true;
 
 	public NetworkAndAccountBar() {
 		super(new BorderLayout());
@@ -62,7 +63,10 @@ public class NetworkAndAccountBar extends JPanel {
 		left.add(manage_network_btn);
 		right.add(manage_account_btn);
 
-		network_combobox.addActionListener(e -> update_account_combobox());
+		network_combobox.addActionListener(e -> {
+			if (magic)
+				update_account_combobox();
+		});
 		manage_network_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.NET)));
 		manage_account_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.ACC)));
 
@@ -78,9 +82,10 @@ public class NetworkAndAccountBar extends JPanel {
 	@SuppressWarnings("unchecked")
 	private void refresh_account_combobox() {
 		var nw = (CryptoNetwork) network_combobox.getSelectedItem();
-		var l = MyDb.getAccounts().stream().filter(o -> o.getInt("NWID") != null).filter(o -> o.getInt("NWID") == nw.getId()).map(o -> o.getStr("ADDRESS"))
-				.map(o -> new AccountComboboxEntry(nw, o, null)).toList();
-		account_combobox.setModel(new MyListComboBoxModel<>(new ArrayList<>(l)));
+		var l = nw == null ? Arrays.asList()
+				: MyDb.getAccounts().stream().filter(o -> o.getInt("NWID") != null).filter(o -> o.getInt("NWID") == nw.getId()).map(o -> o.getStr("ADDRESS"))
+						.map(o -> new AccountComboboxEntry(nw, o, null)).toList();
+		account_combobox.setModel(new MyListComboBoxModel<>(l));
 		account_combobox.setEnabled(!l.isEmpty());
 	}
 
@@ -101,10 +106,14 @@ public class NetworkAndAccountBar extends JPanel {
 		DefaultComboBoxModel<CryptoNetwork> model = (DefaultComboBoxModel<CryptoNetwork>) network_combobox.getModel();
 		CryptoNetwork selected = (CryptoNetwork) model.getSelectedItem();
 		var l = MyDb.get_networks().stream().filter(o -> o.isBurst() || o.isWeb3J()).toList();
+		magic = false;
 		model.removeAllElements();
 		model.addAll(0, l);
+		magic = true;
 		if (selected != null && l.contains(selected)) {
 			model.setSelectedItem(selected);
+		} else if (l.size() > 0) {
+			network_combobox.setSelectedIndex(0);
 		}
 		network_combobox.setEnabled(l.size() > 0);
 	}

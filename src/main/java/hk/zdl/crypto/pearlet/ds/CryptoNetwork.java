@@ -1,5 +1,7 @@
 package hk.zdl.crypto.pearlet.ds;
 
+import java.util.Objects;
+
 public class CryptoNetwork {
 
 	public enum Type {
@@ -53,5 +55,22 @@ public class CryptoNetwork {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, name, type, url);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CryptoNetwork other = (CryptoNetwork) obj;
+		return id == other.id && Objects.equals(name, other.name) && type == other.type && Objects.equals(url, other.url);
 	}
 }
