@@ -40,6 +40,8 @@ public class StartPanel extends JPanel {
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private static final long serialVersionUID = 1278363752513931443L;
 	private final JList<String> path_list = new JList<>(new DefaultListModel<String>());
+	private final JButton add_btn = new JButton("Add");
+	private final JButton del_btn = new JButton("Delete");
 	private final JButton run_btn = new JButton("Run");
 	private LocalMinerPanel pane;
 	private CryptoNetwork network;
@@ -54,8 +56,6 @@ public class StartPanel extends JPanel {
 		add(scr, BorderLayout.CENTER);
 
 		var btn_panel = new JPanel(new GridBagLayout());
-		var add_btn = new JButton("Add");
-		var del_btn = new JButton("Delete");
 		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		btn_panel.add(del_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		btn_panel.add(run_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
@@ -168,12 +168,12 @@ public class StartPanel extends JPanel {
 		this.account = e.account;
 		var l_m = ((DefaultListModel<String>) path_list.getModel());
 		l_m.clear();
+		var b = new boolean[] { false };
 		if (account != null && network.isBurst()) {
 			var id = SignumAddress.fromRs(account.replace("TS-", "S-")).getID();
 			MyDb.getMinerPaths(network, id).stream().map(o -> o.toAbsolutePath().toString()).forEach(l_m::addElement);
-			run_btn.setEnabled(true);
-		} else {
-			run_btn.setEnabled(false);
+			b[0] = true;
 		}
+		Stream.of(add_btn, del_btn, run_btn).forEach(o -> o.setEnabled(b[0]));
 	}
 }

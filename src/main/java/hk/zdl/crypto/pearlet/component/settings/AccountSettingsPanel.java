@@ -227,6 +227,7 @@ public class AccountSettingsPanel extends JPanel {
 				}
 			}
 		});
+		onMessage(new NetworkChangeEvent());
 	}
 
 	private final JTable buildAccountTable() {
@@ -256,7 +257,7 @@ public class AccountSettingsPanel extends JPanel {
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(NetworkChangeEvent e) {
 		var l = MyDb.get_networks().stream().filter(o -> o.isBurst() || o.isWeb3J()).toList();
-		Stream.of(create_account_btn, import_account_btn, watch_account_btn).forEach(o->o.setEnabled(!l.isEmpty()));
+		Stream.of(create_account_btn, import_account_btn, watch_account_btn).forEach(o -> o.setEnabled(!l.isEmpty()));
 	}
 
 }
