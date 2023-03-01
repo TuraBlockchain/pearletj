@@ -46,7 +46,6 @@ public class NetworkAndAccountBar extends JPanel {
 		EventBus.getDefault().register(this);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void init() {
 		add(left, BorderLayout.WEST);
 		add(right, BorderLayout.EAST);
@@ -66,14 +65,13 @@ public class NetworkAndAccountBar extends JPanel {
 		left.add(manage_network_btn);
 		right.add(manage_account_btn);
 
-		network_combobox.setModel(new ListComboBoxModel<>(MyDb.get_networks()));
 		network_combobox.addActionListener(e -> update_account_combobox());
 		network_combobox.setRenderer(new DefaultListCellRenderer() {
 
 			@Override
 			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				var o = (CryptoNetwork) value;
-				return super.getListCellRendererComponent(list, o==null?"":o.getName(), index, isSelected, cellHasFocus);
+				return super.getListCellRendererComponent(list, o == null ? null : o.getName(), index, isSelected, cellHasFocus);
 			}
 		});
 
@@ -92,7 +90,8 @@ public class NetworkAndAccountBar extends JPanel {
 	@SuppressWarnings("unchecked")
 	private void refresh_account_combobox() {
 		var nw = (CryptoNetwork) network_combobox.getSelectedItem();
-		var l = MyDb.getAccounts().stream().filter(o -> o.getInt("NWID") !=null).filter(o -> o.getInt("NWID") == nw.getId()).map(o -> o.getStr("ADDRESS")).map(o -> new AccountComboboxEntry(nw, o, null)).toList();
+		var l = MyDb.getAccounts().stream().filter(o -> o.getInt("NWID") != null).filter(o -> o.getInt("NWID") == nw.getId()).map(o -> o.getStr("ADDRESS"))
+				.map(o -> new AccountComboboxEntry(nw, o, null)).toList();
 		account_combobox.setModel(new MyListComboBoxModel<>(new ArrayList<>(l)));
 		account_combobox.setEnabled(!l.isEmpty());
 	}
@@ -112,7 +111,9 @@ public class NetworkAndAccountBar extends JPanel {
 	@SuppressWarnings("unchecked")
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(NetworkChangeEvent e) {
-		network_combobox.setModel(new ListComboBoxModel<>(MyDb.get_networks()));
+		var l = MyDb.get_networks();
+		network_combobox.setModel(new ListComboBoxModel<>(l));
+		network_combobox.setEnabled(l.size() > 0);
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
