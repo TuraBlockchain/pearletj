@@ -186,7 +186,7 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 		var balance = e.getBalance();
 		for (int i = 0; i < getRowCount(); i++) {
 			var nw = (CryptoNetwork) getValueAt(i, 1);
-			if (nw.equals(e.getNetwork())) {
+			if (nw.getId() == e.getNetwork().getId()) {
 				var adr = getValueAt(i, 2).toString().replace(",watch", "");
 				if (adr.equals(e.getAddress())) {
 					setValueAt(balance, i, 3);

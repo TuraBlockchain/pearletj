@@ -112,6 +112,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		committed_balance = _c_bal;
 
 		var chart = chart_panel.getChart();
+		chart.setTitle(e.account);
 		@SuppressWarnings("unchecked")
 		var plot = (PiePlot<String>) chart.getPlot();
 		var dataset = new DefaultPieDataset<String>();

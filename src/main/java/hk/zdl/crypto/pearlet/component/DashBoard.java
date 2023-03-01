@@ -159,7 +159,7 @@ public class DashBoard extends JPanel {
 					var desc = a.getDescription();
 					asset_info_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()), desc, TitledBorder.LEFT, TitledBorder.TOP, asset_box_font));
 					asset_name_label.setText(a.getName());
-					BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).divide(BigDecimal.TEN.pow(a.getDecimals()));
+					BigDecimal val = new BigDecimal(a.getQuantity().toNQT()).movePointLeft(a.getDecimals());
 					asset_balance_label.setText(val.toString());
 					asset_info_panel.setVisible(true);
 				} else if (atw.network.isWeb3J()) {
@@ -171,7 +171,7 @@ public class DashBoard extends JPanel {
 					var desc = contract_name;
 					asset_info_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()), desc, TitledBorder.LEFT, TitledBorder.TOP, asset_box_font));
 					asset_name_label.setText(contract_ticker_symbol);
-					BigDecimal val = new BigDecimal(jobj.getString("balance")).divide(BigDecimal.TEN.pow(jobj.getInt("contract_decimals")));
+					BigDecimal val = new BigDecimal(jobj.getString("balance")).movePointLeft(jobj.getInt("contract_decimals"));
 					asset_balance_label.setText(val.stripTrailingZeros().toPlainString());
 					asset_info_panel.setVisible(true);
 				}

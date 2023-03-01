@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -61,7 +63,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 			try {
 				bar.setString(CryptoUtil.getRewardRecipient(network, account).orElse(NONE));
 			} catch (Exception x) {
-				UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 			}
 		}
 	}

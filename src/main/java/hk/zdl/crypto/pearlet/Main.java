@@ -43,6 +43,7 @@ import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.AquaMagic;
 import hk.zdl.crypto.pearlet.ui.GnomeMagic;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.NWMon;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class Main {
@@ -51,7 +52,7 @@ public class Main {
 		AquaMagic.do_trick();
 		GnomeMagic.do_trick();
 		UIUtil.printVersionOnSplashScreen();
-		Image app_icon = ImageIO.read(Util.getResource("app_icon.png"));
+		var app_icon = ImageIO.read(Util.getResource("app_icon.png"));
 		Util.submit(() -> Taskbar.getTaskbar().setIconImage(app_icon));
 		var otd = OsThemeDetector.getDetector();
 		MyUIManager.setLookAndFeel();
@@ -72,8 +73,13 @@ public class Main {
 			System.exit(1);
 		}
 		Util.submit(MyDb::create_missing_tables);
-		createFrame(otd, app_icon);
-		
+		Util.submit(() -> createFrame(otd, app_icon));
+		Util.submit(NWMon::new);
+//		TimeUnit.SECONDS.sleep(5);
+//		new TxHistoryQueryExecutor();
+//		new EtherAccountsMonitor();
+//		new SignumAccountsMonitor(CrptoNetworks.ROTURA);
+//		new SignumAccountsMonitor(CrptoNetworks.SIGNUM);
 	}
 
 	private static final void createFrame(OsThemeDetector otd, Image app_icon) {
