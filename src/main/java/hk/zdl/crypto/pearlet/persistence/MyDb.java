@@ -195,7 +195,7 @@ public class MyDb {
 			Logger.getLogger(MyDb.class.getName()).log(Level.WARNING, e.getMessage(), e);
 		}
 		byte[] bArr = baos.toByteArray();
-		return Db.save("SIGNUM_TX", "ID", new Record().set("id", id).set("network", nw.getType().name()).set("content", bArr));
+		return Db.save("SIGNUM_TX", "ID", new Record().set("ID", id).set("NWID", nw.getId()).set("CONTENT", bArr));
 	}
 
 	public static final Optional<Transaction> getSignumTxFromLocal(CryptoNetwork nw, SignumID id) throws Exception {
@@ -203,8 +203,8 @@ public class MyDb {
 			return Optional.empty();
 		}
 		Connection conn = Db.use().getConfig().getConnection();
-		PreparedStatement pst = conn.prepareStatement("SELECT CONTENT FROM APP.SIGNUM_TX WHERE NETWORK = ? AND ID = ?");
-		Db.use().getConfig().getDialect().fillStatement(pst, nw.getType().name(), id.getSignedLongId());
+		PreparedStatement pst = conn.prepareStatement("SELECT CONTENT FROM APP.SIGNUM_TX WHERE NWID = ? AND ID = ?");
+		Db.use().getConfig().getDialect().fillStatement(pst, nw.getId(), id.getSignedLongId());
 		ResultSet rs = pst.executeQuery();
 		if (rs.next()) {
 			InputStream in = rs.getBinaryStream(1);
