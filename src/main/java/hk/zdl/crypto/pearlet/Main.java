@@ -11,7 +11,10 @@ import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -21,6 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.apache.derby.shared.common.error.StandardException;
+import org.json.JSONArray;
+import org.json.JSONTokener;
 
 import com.formdev.flatlaf.extras.FlatDesktop;
 import com.formdev.flatlaf.util.SystemInfo;
@@ -37,6 +42,7 @@ import hk.zdl.crypto.pearlet.component.TranscationPanel;
 import hk.zdl.crypto.pearlet.component.miner.MinerPanel;
 import hk.zdl.crypto.pearlet.component.plot.PlotPanel;
 import hk.zdl.crypto.pearlet.component.settings.SettingsPanel;
+import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.laf.MyUIManager;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
@@ -57,6 +63,7 @@ public class Main {
 		Util.submit(() -> Taskbar.getTaskbar().setIconImage(app_icon));
 		var otd = OsThemeDetector.getDetector();
 		MyUIManager.setLookAndFeel();
+		var db_empty = is_db_empty();
 		try {
 			System.setProperty("derby.system.home", Files.createTempDirectory(null).toFile().getAbsolutePath());
 			MyDb.getTables();
@@ -74,9 +81,36 @@ public class Main {
 			System.exit(1);
 		}
 		MyDb.create_missing_tables();
+		if (db_empty) {
+			create_default_networks();
+		}
 		createFrame(otd, app_icon);
 		new NWMon();
 		new TxHistoryQueryExecutor();
+	}
+
+	private static void create_default_networks() {
+		var jarr = new JSONArray(new JSONTokener(Main.class.getClassLoader().getResourceAsStream("network/predefined.json")));
+		for (var i = 0; i < jarr.length(); i++) {
+			var jobj = jarr.getJSONObject(i);
+			if (jobj.optBoolean("add by default")) {
+				var new_network = new CryptoNetwork();
+				new_network.setName(jobj.getString("networkName"));
+				new_network.setUrl(jobj.getString("server url"));
+				new_network.setType(CryptoNetwork.Type.BURST);
+				MyDb.insert_network(new_network);
+			}
+		}
+	}
+
+	private static boolean is_db_empty() throws IOException {
+		var db_path = Paths.get(URI.create(Util.getDBURL()));
+		if (!Files.exists(db_path)) {
+			return true;
+		} else if (Files.list(db_path).filter(p -> Files.isRegularFile(p)).count() < 1) {
+			return true;
+		}
+		return false;
 	}
 
 	private static final void createFrame(OsThemeDetector otd, Image app_icon) {
