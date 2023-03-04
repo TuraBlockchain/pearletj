@@ -15,11 +15,11 @@ public class IDRenderer extends DefaultTableCellRenderer {
 	 * 
 	 */
 	private static final long serialVersionUID = -5343725138634437356L;
-	private static boolean show_numberic = Boolean.parseBoolean(Util.getUserSettings().getProperty("show_numberic_id"));
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		var adr = RoturaAddress.fromEither(value.toString());
+		var show_numberic = Util.getUserSettings().getBoolean("show_numberic_id", false);
 		if (show_numberic) {
 			value = adr.getID();
 		} else {

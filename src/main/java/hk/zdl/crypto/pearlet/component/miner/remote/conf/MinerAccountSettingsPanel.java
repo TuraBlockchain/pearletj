@@ -96,11 +96,11 @@ public class MinerAccountSettingsPanel extends JPanel {
 			 * 
 			 */
 			private static final long serialVersionUID = 1165392686465658238L;
-			private boolean show_numberic = Boolean.parseBoolean(Util.getUserSettings().getProperty("show_numberic_id"));
 
 			@Override
 			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				var adr = RoturaAddress.fromEither(value.toString());
+				var show_numberic = Util.getUserSettings().getBoolean("show_numberic_id", false);
 				if (show_numberic) {
 					value = adr.getID();
 				} else {

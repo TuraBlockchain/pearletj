@@ -11,9 +11,8 @@ import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.net.URI;
+import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -102,7 +101,7 @@ public class Main {
 	}
 
 	private static boolean is_db_empty() throws Exception {
-		var db_path = Paths.get(new URI("file",Util.getUserDataDir(),null));
+		var db_path = new File(Util.getUserDataDir()).toPath();
 		if (!Files.exists(db_path)) {
 			return true;
 		} else if (Files.list(db_path).filter(p -> Files.isRegularFile(p)||Files.isDirectory(p)).count() < 1) {

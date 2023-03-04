@@ -104,6 +104,11 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public synchronized void onMessage(AccountListUpdateEvent e) {
+		var arr_a = e.getAccounts().stream().mapToInt(o -> o.getInt("ID")).toArray();
+		var arr_b = accounts.stream().mapToInt(o -> o.getInt("ID")).toArray();
+		if (Arrays.equals(arr_a, arr_b)) {
+			return;
+		}
 		setAccounts(e.getAccounts());
 		var nws = MyDb.get_networks();
 		for (int i = 0; i < e.getAccounts().size(); i++) {

@@ -36,7 +36,7 @@ public class NetworkAndAccountBar extends JPanel {
 	private final JPanel left = new JPanel(new FlowLayout()), right = new JPanel(new FlowLayout());
 	private final JComboBox<CryptoNetwork> network_combobox = new JComboBox<>();
 	private final JComboBox<AccountComboboxEntry> account_combobox = new JComboBox<>();
-	private boolean magic = true;
+	private boolean magic_1 = true, magic_2 = true;
 
 	public NetworkAndAccountBar() {
 		super(new BorderLayout());
@@ -64,13 +64,16 @@ public class NetworkAndAccountBar extends JPanel {
 		right.add(manage_account_btn);
 
 		network_combobox.addActionListener(e -> {
-			if (magic)
+			if (magic_1)
 				update_account_combobox();
 		});
 		manage_network_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.NET)));
 		manage_account_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.ACC)));
 
-		account_combobox.addActionListener(e -> update_current_account());
+		account_combobox.addActionListener(e -> {
+			if (magic_2)
+				update_current_account();
+		});
 		account_combobox.setRenderer(new AccountComboboxRenderer());
 	}
 
@@ -82,11 +85,25 @@ public class NetworkAndAccountBar extends JPanel {
 	@SuppressWarnings("unchecked")
 	private void refresh_account_combobox() {
 		var nw = (CryptoNetwork) network_combobox.getSelectedItem();
-		var l = nw == null ? Arrays.asList()
+		var l = nw == null ? Arrays.<AccountComboboxEntry>asList()
 				: MyDb.getAccounts().stream().filter(o -> o.getInt("NWID") != null).filter(o -> o.getInt("NWID") == nw.getId()).map(o -> o.getStr("ADDRESS"))
 						.map(o -> new AccountComboboxEntry(nw, o, null)).toList();
+		var selected = account_combobox.getSelectedItem();
+		if (selected != null) {
+			selected = ((AccountComboboxEntry) selected).address;
+			magic_2 = false;
+		}
 		account_combobox.setModel(new MyListComboBoxModel<>(l));
 		account_combobox.setEnabled(!l.isEmpty());
+		if (selected != null) {
+			for (var i = 0; i < l.size(); i++) {
+				if (l.get(i).address == selected) {
+					account_combobox.setSelectedIndex(i);
+					break;
+				}
+			}
+		}
+		magic_2 = true;
 	}
 
 	private void update_current_account() {
@@ -106,10 +123,10 @@ public class NetworkAndAccountBar extends JPanel {
 		DefaultComboBoxModel<CryptoNetwork> model = (DefaultComboBoxModel<CryptoNetwork>) network_combobox.getModel();
 		CryptoNetwork selected = (CryptoNetwork) model.getSelectedItem();
 		var l = MyDb.get_networks().stream().filter(o -> o.isBurst() || o.isWeb3J()).toList();
-		magic = false;
+		magic_1 = false;
 		model.removeAllElements();
 		model.addAll(0, l);
-		magic = true;
+		magic_1 = true;
 		if (selected != null && l.contains(selected)) {
 			model.setSelectedItem(selected);
 		} else if (l.size() > 0) {

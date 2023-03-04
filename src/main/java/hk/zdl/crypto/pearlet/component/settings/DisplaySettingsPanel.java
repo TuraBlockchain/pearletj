@@ -4,7 +4,6 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,6 +11,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.greenrobot.eventbus.EventBus;
+
+import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
+import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class DisplaySettingsPanel extends JPanel {
@@ -26,14 +29,17 @@ public class DisplaySettingsPanel extends JPanel {
 		panel.add(cbox1, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		add(panel);
 
-		cbox1.setSelected(Boolean.parseBoolean(Util.getUserSettings().getProperty("show_numberic_id")));
+		var perf = Util.getUserSettings();
+		var show_numberic = perf.getBoolean("show_numberic_id", false);
+		cbox1.setSelected(show_numberic);
 		cbox1.addActionListener(e -> {
+			perf.putBoolean("show_numberic_id", cbox1.isSelected());
 			try {
-				Util.getUserSettings().setProperty("show_numberic_id", "" + cbox1.isSelected());
-				Util.saveUserSettings();
-			} catch (IOException x) {
+				perf.flush();
+			} catch (Exception x) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 			}
+			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 		});
 	}
 

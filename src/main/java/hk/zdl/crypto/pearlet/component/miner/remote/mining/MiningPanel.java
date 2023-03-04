@@ -139,6 +139,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 				int row = table.rowAtPoint(point);
 				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
 					if (table.getSelectedColumn() == 0) {
+						//TODO:
 //						var str = table.getModel().getValueAt(row, 0).toString();
 //						Util.viewAccountDetail(CrptoNetworks.ROTURA, str);
 					} else if (table.getSelectedColumn() == 4) {
@@ -177,7 +178,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 
 	public boolean start_miner() {
 		var icon = UIUtil.getStretchIcon("icon/" + "signpost-2.svg", 64, 64);
-		var show_numberic = Boolean.parseBoolean(Util.getUserSettings().getProperty("show_numberic_id"));
+		var show_numberic = Util.getUserSettings().getBoolean("show_numberic_id", false);
 		try {
 			var options = new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().toArray();
 			if (!show_numberic) {
@@ -202,7 +203,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 					var response = httpclient.execute(httpPost);
 					response.getEntity().getContent().close();
 					if (response.getStatusLine().getStatusCode() == 200) {
-						UIUtil.displayMessage("Succeed", "Miner has started.", null);
+						UIUtil.displayMessage("Succeed", "Miner has started.");
 					} else {
 						UIUtil.displayMessage("Failed", "Failed to start miner.", MessageType.ERROR);
 					}
@@ -234,7 +235,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 				var response = httpclient.execute(httpPost);
 				response.getEntity().getContent().close();
 				if (response.getStatusLine().getStatusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Miner has stopped.", null);
+					UIUtil.displayMessage("Succeed", "Miner has stopped.");
 				} else {
 					UIUtil.displayMessage("Failed", "Failed to stop miner.", MessageType.ERROR);
 				}
@@ -264,7 +265,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 				var response = httpclient.execute(httpPost);
 				response.getEntity().getContent().close();
 				if (response.getStatusLine().getStatusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Miner has stopped.", null);
+					UIUtil.displayMessage("Succeed", "Miner has stopped.");
 				} else {
 					UIUtil.displayMessage("Failed", "Failed to stop miner.", MessageType.ERROR);
 					return false;
@@ -277,7 +278,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 				response = httpclient.execute(httpPost);
 				response.close();
 				if (response.getStatusLine().getStatusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Miner has started.", null);
+					UIUtil.displayMessage("Succeed", "Miner has started.");
 				} else {
 					UIUtil.displayMessage("Failed", "Failed to start miner.", MessageType.ERROR);
 					return false;
@@ -299,7 +300,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 				var response = httpclient.execute(httpPost);
 				response.getEntity().getContent().close();
 				if (response.getStatusLine().getStatusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Miners have restarted.", null);
+					UIUtil.displayMessage("Succeed", "Miners have restarted.");
 				} else {
 					UIUtil.displayMessage("Failed", "Failed to restart miners.", MessageType.ERROR);
 					return false;

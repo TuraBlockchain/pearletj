@@ -139,8 +139,8 @@ public class PlotProgressPanel extends JPanel {
 		var chech_box_1 = new JCheckBox("Restart miner on plot finish", true);
 		panel.add(chech_box_1, new GridBagConstraints(0, 3, 3, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		fz_op.getModel().setSelectedItem("GB");
-		var show_numberic = Boolean.parseBoolean(Util.getUserSettings().getProperty("show_numberic_id"));
 		Util.submit(() -> {
+			var show_numberic = Util.getUserSettings().getBoolean("show_numberic_id", false);
 			var list = new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().stream().map(String::valueOf).toList();
 			list = list.stream().map(RoturaAddress::fromEither).map(r -> show_numberic ? r.getID() : r.getFullAddress()).toList();
 			combo_box_1.setModel(new ListComboBoxModel<String>(list));
@@ -192,7 +192,7 @@ public class PlotProgressPanel extends JPanel {
 				var response = httpclient.execute(httpPost);
 				if (response.getStatusLine().getStatusCode() == 200) {
 					response.close();
-					UIUtil.displayMessage("Succeed", "Plot queued!", null);
+					UIUtil.displayMessage("Succeed", "Plot queued!");
 					Util.submit(() -> {
 						for (var a = 0; a < 5; a++) {
 							refresh_current_plots();
@@ -225,7 +225,7 @@ public class PlotProgressPanel extends JPanel {
 			var response = httpclient.execute(httpPost);
 			if (response.getStatusLine().getStatusCode() == 200) {
 				response.close();
-				UIUtil.displayMessage("Succeed", "", null);
+				UIUtil.displayMessage("Succeed", "");
 				Util.submit(() -> refresh_current_plots());
 			} else {
 				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
@@ -244,7 +244,7 @@ public class PlotProgressPanel extends JPanel {
 			var response = httpclient.execute(httpPost);
 			if (response.getStatusLine().getStatusCode() == 200) {
 				response.close();
-				UIUtil.displayMessage("Succeed", "", null);
+				UIUtil.displayMessage("Succeed", "");
 				Util.submit(() -> refresh_current_plots());
 			} else {
 				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
