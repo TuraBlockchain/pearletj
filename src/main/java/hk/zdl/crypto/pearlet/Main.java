@@ -11,7 +11,6 @@ import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -66,7 +65,7 @@ public class Main {
 		var db_empty = is_db_empty();
 		try {
 			System.setProperty("derby.system.home", Files.createTempDirectory(null).toFile().getAbsolutePath());
-			MyDb.getTables();
+			MyDb.create_missing_tables();
 		} catch (Throwable x) {
 			while (x.getCause() != null && x.getCause() != x) {
 				x = x.getCause();
@@ -80,7 +79,6 @@ public class Main {
 			JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
-		MyDb.create_missing_tables();
 		if (db_empty) {
 			create_default_networks();
 		}
@@ -103,11 +101,11 @@ public class Main {
 		}
 	}
 
-	private static boolean is_db_empty() throws IOException {
-		var db_path = Paths.get(URI.create(Util.getDBURL()));
+	private static boolean is_db_empty() throws Exception {
+		var db_path = Paths.get(new URI("file",Util.getUserDataDir(),null));
 		if (!Files.exists(db_path)) {
 			return true;
-		} else if (Files.list(db_path).filter(p -> Files.isRegularFile(p)).count() < 1) {
+		} else if (Files.list(db_path).filter(p -> Files.isRegularFile(p)||Files.isDirectory(p)).count() < 1) {
 			return true;
 		}
 		return false;

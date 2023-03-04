@@ -33,6 +33,7 @@ import signumj.entity.response.Transaction;
 
 public class Util {
 
+	private static final Properties user_settings = new Properties();
 	private static final ExecutorService es = Executors.newCachedThreadPool((r) -> {
 		var t = new Thread(r, "");
 		t.setDaemon(true);
@@ -44,20 +45,20 @@ public class Util {
 	}
 
 	public static final String getDBURL() {
-		var prop = getProp();
-		return getDBURL(prop.get("appName"), prop.get("appVersion"), prop.get("appAuthor"), prop.get("dbName"));
-	}
-
-	public static final String getDBURL(String app_name, String app_version, String author, String db_name) {
-		var appDirs = AppDirsFactory.getInstance();
-		var user_dir = appDirs.getUserDataDir(app_name, app_version, author, false);
+		var db_name = getProp().get("dbName");
+		var user_dir = getUserDataDir();
 		user_dir += File.separator + db_name;
 		user_dir = user_dir.replace('\\', '/');
 		var db_url = "jdbc:derby:directory:" + user_dir + ";create=true";
 		return db_url;
 	}
 
-	private static final Properties user_settings = new Properties();
+	
+	public static final String getUserDataDir() {
+		var prop = getProp();
+		return AppDirsFactory.getInstance().getUserDataDir(prop.get("appName"), prop.get("appVersion"), prop.get("appAuthor"), false);
+	}
+
 
 	public static final Properties getUserSettings() {
 		if (user_settings.isEmpty()) {
@@ -70,9 +71,7 @@ public class Util {
 	}
 
 	public static final void loadUserSettings() throws IOException {
-		var prop = getProp();
-		var appDirs = AppDirsFactory.getInstance();
-		var user_dir = appDirs.getUserDataDir(prop.get("appName"), prop.get("appVersion"), prop.get("appAuthor"), false);
+		var user_dir = getUserDataDir();
 		user_dir += File.separator + "settings.txt";
 		var path = Paths.get(user_dir);
 		if (Files.exists(path)) {
@@ -81,9 +80,7 @@ public class Util {
 	}
 
 	public static final void saveUserSettings() throws IOException {
-		var appDirs = AppDirsFactory.getInstance();
-		var prop = getProp();
-		var user_dir = appDirs.getUserDataDir(prop.get("appName"), prop.get("appVersion"), prop.get("appAuthor"), false);
+		var user_dir = getUserDataDir();
 		user_dir += File.separator + "settings.txt";
 		user_settings.store(Files.newOutputStream(Paths.get(user_dir), StandardOpenOption.CREATE), null);
 	}
