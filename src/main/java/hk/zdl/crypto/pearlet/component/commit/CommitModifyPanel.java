@@ -107,36 +107,33 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		btn.setEnabled(false);
 		busy_icon.start();
 		wuli.start();
-		Util.submit(() -> {
-			BigDecimal _bal = new BigDecimal(0), _c_bal = new BigDecimal(0), _a_bal = new BigDecimal(0);
-			try {
-				var account = CryptoUtil.getAccount(e.network, e.account);
-				var balance = account.getBalance();
-				var committed_balance = account.getCommittedBalance();
-				var decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
-				_bal = new BigDecimal(balance.toNQT(), decimalPlaces);
-				_c_bal = new BigDecimal(committed_balance.toNQT(), decimalPlaces);
-				_a_bal = _bal.subtract(_c_bal);
-				EventBus.getDefault().post(new BalanceUpdateEvent(e.network, e.account, _a_bal));
-			} catch (Exception x) {
-			}
-			committed_balance = _c_bal;
+		BigDecimal _bal = new BigDecimal(0), _c_bal = new BigDecimal(0), _a_bal = new BigDecimal(0);
+		try {
+			var account = CryptoUtil.getAccount(e.network, e.account);
+			var balance = account.getBalance();
+			var committed_balance = account.getCommittedBalance();
+			var decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
+			_bal = new BigDecimal(balance.toNQT(), decimalPlaces);
+			_c_bal = new BigDecimal(committed_balance.toNQT(), decimalPlaces);
+			_a_bal = _bal.subtract(_c_bal);
+			EventBus.getDefault().post(new BalanceUpdateEvent(e.network, e.account, _a_bal));
+		} catch (Exception x) {
+		}
+		committed_balance = _c_bal;
 
-			var chart = chart_panel.getChart();
-			chart.setTitle(e.account);
-			@SuppressWarnings("unchecked")
-			var plot = (PiePlot<String>) chart.getPlot();
-			var dataset = new DefaultPieDataset<String>();
-			dataset.setValue("Available Balance", _a_bal);
-			dataset.setValue("Committed Balance", _c_bal);
-			plot.setDataset(dataset);
-			plot.setSectionPaint("Available Balance", Color.green.darker());
-			plot.setSectionPaint("Committed Balance", Color.blue.darker());
-			btn.setEnabled(true);
-			busy_icon.stop();
-			wuli.stop();
-
-		});
+		var chart = chart_panel.getChart();
+		chart.setTitle(e.account);
+		@SuppressWarnings("unchecked")
+		var plot = (PiePlot<String>) chart.getPlot();
+		var dataset = new DefaultPieDataset<String>();
+		dataset.setValue("Available Balance", _a_bal);
+		dataset.setValue("Committed Balance", _c_bal);
+		plot.setDataset(dataset);
+		plot.setSectionPaint("Available Balance", Color.green.darker());
+		plot.setSectionPaint("Committed Balance", Color.blue.darker());
+		btn.setEnabled(true);
+		busy_icon.stop();
+		wuli.stop();
 	}
 
 	@Override
