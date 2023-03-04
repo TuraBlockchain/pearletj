@@ -657,23 +657,10 @@ public class CryptoUtil {
 	}
 
 	public static final Transaction getSignumTx(CryptoNetwork nw, SignumID id) throws Exception {
-		var o_x = MyDb.getSignumTxFromLocal(nw, id);
-		if(o_x.isPresent()) {
-			return o_x.get();
-		}else {
-			var o_u  = get_server_url(nw);
-			if(o_u.isPresent()){
-				var ns = NodeService.getInstance(o_u.get());
-				var tx = ns.getTransaction(id).toFuture().get();
-				MyDb.putSignumTx(nw, tx);
-				return tx;
-			}
-		}
-		throw new IllegalStateException();
-	}
-
-	public static final synchronized Optional<String> get_server_url(CryptoNetwork network) {
-		return MyDb.get_server_url(network);
+		return MyDb.getSignumTxFromLocal(nw, id).orElseGet(() -> MyDb.get_server_url(nw).map(NodeService::getInstance).map(s -> s.getTransaction(id)).get().map(o -> {
+			MyDb.putSignumTx(nw, o);
+			return o;
+		}).blockingGet());
 	}
 
 	public static final SignumValue toSignumValue(CryptoNetwork network, BigDecimal amount) throws Exception {
