@@ -20,6 +20,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JLayer;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -42,6 +43,7 @@ import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.SpinableIcon;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -49,6 +51,8 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private static final long serialVersionUID = -4996189634836777005L;
+	private final JLayer<JPanel> jlayer = new JLayer<>();
+	private final WaitLayerUI wuli = new WaitLayerUI();
 	private final ChartPanel chart_panel = new ChartPanel(ChartFactory.createPieChart(null, new DefaultPieDataset<String>(), true, true, false));
 	private final JButton btn = new JButton("Commit", MyToolbar.getIcon("paper-plane-solid.svg"));
 	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32, 32, BufferedImage.TYPE_4BYTE_ABGR), 32, 32);
@@ -71,9 +75,12 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 		}
 		top_panel.add(btn);
+		jlayer.setView(chart_panel);
+		jlayer.setUI(wuli);
 		add(top_panel, new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-		add(chart_panel, new GridBagConstraints(0, 1, 1, 2, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+		add(jlayer, new GridBagConstraints(0, 1, 1, 2, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 		btn.addActionListener(this);
+		busy_icon.start();
 		SwingUtilities.invokeLater(() -> init_chart());
 	}
 
@@ -95,34 +102,41 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 	public void onMessage(AccountChangeEvent e) {
 		this.network = e.network;
 		this.account = e.account;
-		if (account == null)
+		if (network == null || account == null)
 			return;
-		BigDecimal _bal = new BigDecimal(0), _c_bal = new BigDecimal(0), _a_bal = new BigDecimal(0);
-		try {
-			var account = CryptoUtil.getAccount(e.network, e.account);
-			var balance = account.getBalance();
-			var committed_balance = account.getCommittedBalance();
-			var decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
-			_bal = new BigDecimal(balance.toNQT(), decimalPlaces);
-			_c_bal = new BigDecimal(committed_balance.toNQT(), decimalPlaces);
-			_a_bal = _bal.subtract(_c_bal);
-			EventBus.getDefault().post(new BalanceUpdateEvent(e.network, e.account, _a_bal));
-		} catch (Exception x) {
-		}
-		committed_balance = _c_bal;
+		btn.setEnabled(false);
+		busy_icon.start();
+		wuli.start();
+		Util.submit(() -> {
+			BigDecimal _bal = new BigDecimal(0), _c_bal = new BigDecimal(0), _a_bal = new BigDecimal(0);
+			try {
+				var account = CryptoUtil.getAccount(e.network, e.account);
+				var balance = account.getBalance();
+				var committed_balance = account.getCommittedBalance();
+				var decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
+				_bal = new BigDecimal(balance.toNQT(), decimalPlaces);
+				_c_bal = new BigDecimal(committed_balance.toNQT(), decimalPlaces);
+				_a_bal = _bal.subtract(_c_bal);
+				EventBus.getDefault().post(new BalanceUpdateEvent(e.network, e.account, _a_bal));
+			} catch (Exception x) {
+			}
+			committed_balance = _c_bal;
 
-		var chart = chart_panel.getChart();
-		chart.setTitle(e.account);
-		@SuppressWarnings("unchecked")
-		var plot = (PiePlot<String>) chart.getPlot();
-		var dataset = new DefaultPieDataset<String>();
-		dataset.setValue("Available Balance", _a_bal);
-		dataset.setValue("Committed Balance", _c_bal);
-		plot.setDataset(dataset);
-		plot.setSectionPaint("Available Balance", Color.green.darker());
-		plot.setSectionPaint("Committed Balance", Color.blue.darker());
-		btn.setEnabled(true);
-		busy_icon.stop();
+			var chart = chart_panel.getChart();
+			chart.setTitle(e.account);
+			@SuppressWarnings("unchecked")
+			var plot = (PiePlot<String>) chart.getPlot();
+			var dataset = new DefaultPieDataset<String>();
+			dataset.setValue("Available Balance", _a_bal);
+			dataset.setValue("Committed Balance", _c_bal);
+			plot.setDataset(dataset);
+			plot.setSectionPaint("Available Balance", Color.green.darker());
+			plot.setSectionPaint("Committed Balance", Color.blue.darker());
+			btn.setEnabled(true);
+			busy_icon.stop();
+			wuli.stop();
+
+		});
 	}
 
 	@Override
@@ -179,6 +193,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 					var fee_dml = new BigDecimal(fee_qnt, CryptoUtil.getConstants(network).getInt("decimalPlaces"));
 					btn.setEnabled(false);
 					busy_icon.start();
+					wuli.start();
 					if (add_btn.isSelected()) {
 						do_add_commit(public_key, private_key, amount, fee_dml);
 					} else {
@@ -187,6 +202,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 				} catch (Exception x) {
 					btn.setEnabled(true);
 					busy_icon.stop();
+					wuli.stop();
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 					return null;
 				}
@@ -196,6 +212,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 				for (var j = 0; j < 10; j++) {
 					btn.setEnabled(false);
 					busy_icon.start();
+					wuli.start();
 					TimeUnit.SECONDS.sleep(2);
 					onMessage(new AccountChangeEvent(network, account));
 					if (acc != account || !committed_balance.equals(old_committed_balance)) {

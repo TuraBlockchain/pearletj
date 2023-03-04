@@ -31,12 +31,11 @@ public class CommitPanel extends JPanel {
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
-		if (e.network == null || e.network.isWeb3J()) {
-			my_card_layout.show(this, "una");
-		} else {
+		if (e.network != null && e.network.isBurst()) {
 			cmp.onMessage(e);
 			my_card_layout.show(this, "cmp");
+		} else {
+			my_card_layout.show(this, "una");
 		}
-
 	}
 }
