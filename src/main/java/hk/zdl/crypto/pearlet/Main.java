@@ -7,6 +7,7 @@ import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Taskbar;
+import java.awt.Taskbar.Feature;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.event.WindowAdapter;
@@ -56,7 +57,9 @@ public class Main {
 		AquaMagic.do_trick();
 		GnomeMagic.do_trick();
 		var app_icon = ImageIO.read(Util.getResource("app_icon.png"));
-		Taskbar.getTaskbar().setIconImage(app_icon);
+		if (Taskbar.getTaskbar().isSupported(Feature.ICON_IMAGE)) {
+			Taskbar.getTaskbar().setIconImage(app_icon);
+		}
 		UIUtil.printVersionOnSplashScreen();
 		MyUIManager.setLookAndFeel();
 		var db_empty = is_db_empty();
