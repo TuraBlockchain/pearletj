@@ -32,7 +32,7 @@ import signumj.response.attachment.AccountInfoAttachment;
 @SuppressWarnings("serial")
 public class AccountTableModel extends AbstractTableModel implements ActionListener {
 
-	private static final List<String> columnNames = Arrays.asList("Id", "Network", "Address", "Balance", "Alias", "Description");
+	private static final List<String> columnNames = Arrays.asList("Id", "Network", "Address", "Balance", "Alia", "Description");
 	private final Timer mTimer = new Timer((int) TimeUnit.SECONDS.toMillis(30), this);
 	private Map<List<Integer>, Object> sparse = new HashMap<>();
 	private List<Record> accounts = Arrays.asList();
