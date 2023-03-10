@@ -55,7 +55,7 @@ public class Util {
 	}
 
 	public static final Preferences getUserSettings() {
-		return Preferences.systemNodeForPackage(Util.class);
+		return Preferences.userNodeForPackage(Util.class);
 	}
 
 	public static final String getAppVersion() {

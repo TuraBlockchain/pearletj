@@ -4,8 +4,6 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -34,11 +32,10 @@ public class DisplaySettingsPanel extends JPanel {
 		cbox1.setSelected(show_numberic);
 		cbox1.addActionListener(e -> {
 			perf.putBoolean("show_numberic_id", cbox1.isSelected());
-			try {
+			Util.submit(() -> {
 				perf.flush();
-			} catch (Exception x) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-			}
+				return null;
+			});
 			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
 		});
 	}

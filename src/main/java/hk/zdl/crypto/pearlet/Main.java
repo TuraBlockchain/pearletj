@@ -27,7 +27,6 @@ import org.json.JSONTokener;
 
 import com.formdev.flatlaf.extras.FlatDesktop;
 import com.formdev.flatlaf.util.SystemInfo;
-import com.jthemedetecor.OsThemeDetector;
 
 import hk.zdl.crypto.pearlet.component.AboutPanel;
 import hk.zdl.crypto.pearlet.component.AccountInfoPanel;
@@ -56,10 +55,9 @@ public class Main {
 	public static void main(String[] args) throws Throwable {
 		AquaMagic.do_trick();
 		GnomeMagic.do_trick();
-		UIUtil.printVersionOnSplashScreen();
 		var app_icon = ImageIO.read(Util.getResource("app_icon.png"));
-		Util.submit(() -> Taskbar.getTaskbar().setIconImage(app_icon));
-		var otd = OsThemeDetector.getDetector();
+		Taskbar.getTaskbar().setIconImage(app_icon);
+		UIUtil.printVersionOnSplashScreen();
 		MyUIManager.setLookAndFeel();
 		var db_empty = is_db_empty();
 		try {
@@ -81,7 +79,7 @@ public class Main {
 		if (db_empty) {
 			create_default_networks();
 		}
-		createFrame(otd, app_icon);
+		createFrame(app_icon);
 		new NWMon();
 		new TxHistoryQueryExecutor();
 	}
@@ -110,7 +108,7 @@ public class Main {
 		return false;
 	}
 
-	private static final void createFrame(OsThemeDetector otd, Image app_icon) {
+	private static final void createFrame(Image app_icon) {
 		SwingUtilities.invokeLater(() -> {
 			var appName = Util.getProp().get("appName");
 			var frame = new JFrame(appName);
