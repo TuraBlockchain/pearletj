@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
@@ -19,6 +20,15 @@ import com.formdev.flatlaf.util.SystemInfo;
 
 public class LocalMiner {
 
+	static {
+		try {
+			var path = Files.createTempDirectory(null);
+			tmp_dir = path.getParent().toFile();
+			Files.delete(path);
+		} catch (IOException e) {
+		}
+	}
+	private static File tmp_dir;
 	private static final String default_console_log_pattern = "{({d(%H:%M:%S)} [{l}]):16.16} {m}{n}";
 
 	public static File build_conf_file(String id, String passphrase, Collection<Path> plot_dirs, URL server_url, String console_log_pattern) throws Exception {
@@ -31,13 +41,27 @@ public class LocalMiner {
 		}
 		m.put("plot_dirs", plot_dirs.stream().map(o -> o.toAbsolutePath().toString()).toList());
 		m.put("url", server_url.toString());
-		m.put("cpu_worker_task_count", Runtime.getRuntime().availableProcessors());
+		m.put("cpu_worker_task_count", 1);
 		m.put("console_log_pattern", console_log_pattern);
 		m.put("logfile_log_pattern", "");
 		m.put("logfile_max_count", 0);
 		m.put("logfile_max_size", 0);
 		m.put("get_mining_info_interval", 10000);
 		m.put("show_progress", false);
+		var fz = plot_dirs.parallelStream().flatMap(t -> {
+			try {
+				return Files.list(t);
+			} catch (IOException e) {
+				return Stream.empty();
+			}
+		}).filter(p->p.toFile().getName().startsWith(id+"_")&&Files.isRegularFile(p)).mapToLong(value -> {
+			try {
+				return Files.size(value);
+			} catch (IOException e) {
+			return 0;
+			}
+		}).sum();
+		m.put("additional_headers", Collections.singletonMap("X-Filesize", fz));
 		File conf_file = File.createTempFile("config-", ".yaml");
 		conf_file.deleteOnExit();
 		Files.writeString(conf_file.toPath(), new Yaml().dump(m));
@@ -45,7 +69,7 @@ public class LocalMiner {
 	}
 
 	public static Process build_process(File miner_bin, File conf_file) throws Exception {
-		return new ProcessBuilder(miner_bin.getAbsolutePath(), "-c", conf_file.getAbsolutePath()).directory(Files.createTempDirectory(null).getParent().toFile()).start();
+		return new ProcessBuilder(miner_bin.getAbsolutePath(), "-c", conf_file.getAbsolutePath()).directory(tmp_dir).start();
 	}
 
 	public static File copy_miner() throws IOException {

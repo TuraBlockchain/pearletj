@@ -116,12 +116,11 @@ public class StartPanel extends JPanel {
 			if (solo) {
 				var icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 				passphrase = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input account passphrase:", "Start Mining", JOptionPane.INFORMATION_MESSAGE, icon, null, null)).trim();
-				if ("null".equals(String.valueOf(passphrase))) {
+				if (passphrase == null) {
 					return;
 				} else if (passphrase.isBlank()) {
 					JOptionPane.showMessageDialog(getRootPane(), "Passphrase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
 					return;
-
 				}
 				var _id = SignumCrypto.getInstance().getAddressFromPassphrase(passphrase).getID();
 				if (!id.equals(_id)) {
@@ -130,7 +129,7 @@ public class StartPanel extends JPanel {
 				}
 			} else {
 				url = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input URL of pool:")).trim();
-				if ("null".equals(String.valueOf(url))) {
+				if (url == null) {
 					return;
 				} else if (url.isBlank()) {
 					JOptionPane.showMessageDialog(getRootPane(), "Pool URL cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
