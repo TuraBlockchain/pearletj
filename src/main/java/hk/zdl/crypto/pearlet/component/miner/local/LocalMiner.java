@@ -33,6 +33,10 @@ public class LocalMiner {
 		m.put("url", server_url.toString());
 		m.put("cpu_worker_task_count", Runtime.getRuntime().availableProcessors());
 		m.put("console_log_pattern", console_log_pattern);
+		m.put("logfile_log_pattern", "");
+		m.put("logfile_max_count", 0);
+		m.put("logfile_max_size", 0);
+		m.put("get_mining_info_interval", 10000);
 		m.put("show_progress", false);
 		File conf_file = File.createTempFile("config-", ".yaml");
 		conf_file.deleteOnExit();
