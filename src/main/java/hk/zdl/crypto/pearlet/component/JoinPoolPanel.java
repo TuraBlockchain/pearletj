@@ -56,42 +56,42 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 	public void onMessage(AccountChangeEvent e) {
 		this.network = e.network;
 		this.account = e.account;
+		bar.setString("");
+		bar.setIndeterminate(true);
+		btn.setEnabled(false);
 		if (account == null) {
 			return;
 		}
 		if (network.isBurst()) {
-			try {
-				bar.setString(CryptoUtil.getRewardRecipient(network, account).orElse(NONE));
-			} catch (Exception x) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
-			}
+			update();
 			btn.setEnabled(true);
-		}else {
+		} else {
 			btn.setEnabled(false);
 		}
+		bar.setIndeterminate(false);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		var panel = new JPanel(new GridBagLayout());
 		var txt_field = new JTextField(30);
-		var a = new JLabel();
-		a.setHorizontalAlignment(SwingConstants.RIGHT);
+		var label = new JLabel();
+		label.setHorizontalAlignment(SwingConstants.RIGHT);
 		panel.add(new JLabel("Please specify reward recipient:"), new GridBagConstraints(0, 0, 2, 1, 2, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 		panel.add(txt_field, new GridBagConstraints(0, 1, 2, 1, 2, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 		panel.add(new JLabel("Tx fee:"), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		panel.add(a, new GridBagConstraints(1, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(label, new GridBagConstraints(1, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		Util.submit(() -> {
 			var fee = CryptoUtil.getFeeSuggestion(network).getCheapFee();
 			var decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
 			var txt = new BigDecimal(fee.toNQT(), decimalPlaces).toPlainString();
-			a.setText(txt);
+			label.setText(txt);
 			return null;
 		});
 		int i = JOptionPane.showConfirmDialog(getRootPane(), panel, "Reward Recipient", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.OK_OPTION) {
 			var target = txt_field.getText();
-			if(target.isBlank()) {
+			if (target.isBlank()) {
 				JOptionPane.showMessageDialog(getRootPane(), "Reward recipient cannot be empty!", "ERROR", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -121,6 +121,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 					byte[] signed = CryptoUtil.signTransaction(network, private_key, unsigned);
 					CryptoUtil.broadcastTransaction(network, signed);
 					UIUtil.displayMessage("Join Pool", "Join pool complete.");
+					update();
 				} catch (Exception x) {
 					UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
 				} finally {
@@ -138,6 +139,22 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 			var _c_bal = new BigDecimal(committed_balance.toNQT(), decimalPlaces);
 			if (_c_bal.compareTo(new BigDecimal("10000")) < 0) {
 				throw new IllegalStateException("Insufficient Commitment!");
+			}
+		}
+	}
+	
+	private void update() {
+		var n = network;
+		var a = account;
+		for (int j = 0; j < 100; j++) {
+			try {
+				bar.setString(CryptoUtil.getRewardRecipient(network, account).orElse(NONE));
+				break;
+			} catch (Exception x) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+			}
+			if (n != network || a != account) {
+				break;
 			}
 		}
 	}
