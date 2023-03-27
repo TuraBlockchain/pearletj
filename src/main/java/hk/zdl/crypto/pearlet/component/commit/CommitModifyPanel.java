@@ -134,6 +134,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		btn.setEnabled(true);
 		busy_icon.stop();
 		wuli.stop();
+		SwingUtilities.updateComponentTreeUI(chart_panel);
 	}
 
 	@Override
@@ -212,7 +213,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 					wuli.start();
 					TimeUnit.SECONDS.sleep(2);
 					onMessage(new AccountChangeEvent(network, account));
-					if (acc != account || !committed_balance.equals(old_committed_balance)) {
+					if (acc != account || committed_balance.intValue() != old_committed_balance.intValue()) {
 						break;
 					}
 				}
