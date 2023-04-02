@@ -107,6 +107,8 @@ public class MinerPanel extends JPanel implements Runnable {
 							proc.destroy();
 						}
 					}
+				} else if (line.contains("secretPhrase=")) {
+					continue;
 				}
 				taos.write(line);
 			}
