@@ -57,7 +57,7 @@ public class Main {
 		AquaMagic.do_trick();
 		GnomeMagic.do_trick();
 		var app_icon = ImageIO.read(Util.getResource("app_icon.png"));
-		if (Taskbar.getTaskbar().isSupported(Feature.ICON_IMAGE)) {
+		if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Feature.ICON_IMAGE)) {
 			Taskbar.getTaskbar().setIconImage(app_icon);
 		}
 		UIUtil.printVersionOnSplashScreen();
@@ -88,7 +88,8 @@ public class Main {
 	}
 
 	private static void create_default_networks() {
-		var jarr = new JSONArray(new JSONTokener(Main.class.getClassLoader().getResourceAsStream("network/predefined.json")));
+		var jarr = new JSONArray(
+				new JSONTokener(Main.class.getClassLoader().getResourceAsStream("network/predefined.json")));
 		for (var i = 0; i < jarr.length(); i++) {
 			var jobj = jarr.getJSONObject(i);
 			if (jobj.optBoolean("add by default")) {
@@ -105,7 +106,7 @@ public class Main {
 		var db_path = new File(Util.getUserDataDir()).toPath();
 		if (!Files.exists(db_path)) {
 			return true;
-		} else if (Files.list(db_path).filter(p -> Files.isRegularFile(p)||Files.isDirectory(p)).count() < 1) {
+		} else if (Files.list(db_path).filter(p -> Files.isRegularFile(p) || Files.isDirectory(p)).count() < 1) {
 			return true;
 		}
 		return false;
@@ -139,7 +140,8 @@ public class Main {
 			toolbar.clickButton("dashboard");
 			frame.add(toolbar, BorderLayout.WEST);
 
-			var frame_size = new Dimension(Util.getProp().getInt("default_window_width"), Util.getProp().getInt("default_window_height"));
+			var frame_size = new Dimension(Util.getProp().getInt("default_window_width"),
+					Util.getProp().getInt("default_window_height"));
 			frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			frame.setPreferredSize(frame_size);
 			frame.setMinimumSize(frame_size);
@@ -165,7 +167,8 @@ public class Main {
 				});
 				var menu = new PopupMenu();
 				menu.add(quit_menu_item);
-				TrayIcon trayIcon = new TrayIcon(ImageIO.read(Util.getResource("app_icon.png")), Util.getProp().get("appName"), menu);
+				TrayIcon trayIcon = new TrayIcon(ImageIO.read(Util.getResource("app_icon.png")),
+						Util.getProp().get("appName"), menu);
 				trayIcon.setImageAutoSize(true);
 				SystemTray.getSystemTray().add(trayIcon);
 			} catch (Exception e) {
