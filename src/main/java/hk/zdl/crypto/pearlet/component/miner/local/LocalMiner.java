@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 import java.util.zip.ZipFile;
 
@@ -87,7 +88,7 @@ public class LocalMiner {
 			} else {
 				var l = new LinkedList<String>();
 				l.addAll(Arrays.asList("docker", "run", "--platform", "linux/amd64", "--mount", "type=bind,source=" + miner_bin.getAbsolutePath() + ",target=/app/signum-miner"));
-				var x = new LinkedList<String>();
+				var x = new TreeSet<String>();
 				x.add(conf_file.getAbsolutePath());
 				x.addAll((List<String>)new Yaml().loadAs(new FileInputStream(conf_file), Map.class).get("plot_dirs"));
 				x.forEach(s -> {
