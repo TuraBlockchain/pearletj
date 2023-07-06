@@ -7,6 +7,7 @@ import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +32,7 @@ import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
+import signumj.entity.SignumAddress;
 
 public class JoinPoolPanel extends JPanel implements ActionListener {
 
@@ -39,6 +41,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 	private final JProgressBar bar = new JProgressBar();
 	private final JButton btn = new JButton("Change");
 	private CryptoNetwork network;
+	private BigInteger cheap_fee = BigInteger.ZERO;
 	private String account;
 
 	public JoinPoolPanel() {
@@ -82,9 +85,8 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 		panel.add(new JLabel("Tx fee:"), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		panel.add(label, new GridBagConstraints(1, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		Util.submit(() -> {
-			var fee = CryptoUtil.getFeeSuggestion(network).getCheapFee();
 			var decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
-			var txt = new BigDecimal(fee.toNQT(), decimalPlaces).toPlainString();
+			var txt = new BigDecimal(cheap_fee, decimalPlaces).toPlainString();
 			label.setText(txt);
 			return null;
 		});
@@ -94,11 +96,14 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 			if (target.isBlank()) {
 				JOptionPane.showMessageDialog(getRootPane(), "Reward recipient cannot be empty!", "ERROR", JOptionPane.ERROR_MESSAGE);
 				return;
+			} else if (SignumAddress.fromEither(target) == null) {
+				JOptionPane.showMessageDialog(getRootPane(), "Invalid address!", "ERROR", JOptionPane.ERROR_MESSAGE);
+				return;
 			}
 			Util.submit(() -> {
 				try {
 					bar.setIndeterminate(true);
-					((JButton) e.getSource()).setEnabled(false);
+					btn.setEnabled(false);
 					var public_key = new byte[] {};
 					var private_key = new byte[] {};
 					Optional<Record> opt_r = MyDb.getAccount(network, account);
@@ -113,10 +118,8 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 						JOptionPane.showMessageDialog(getRootPane(), "Account not found in database!", "ERROR", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
-					var fee_qnt = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
-					var decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
-					var fee_dml = new BigDecimal(fee_qnt, decimalPlaces);
 					check_permission();
+					var fee_dml = new BigDecimal(cheap_fee, CryptoUtil.getConstants(network).getInt("decimalPlaces"));
 					byte[] unsigned = CryptoUtil.setRewardRecipient(network, account, public_key, target, fee_dml);
 					byte[] signed = CryptoUtil.signTransaction(network, private_key, unsigned);
 					CryptoUtil.broadcastTransaction(network, signed);
@@ -126,7 +129,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 					UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
 				} finally {
 					bar.setIndeterminate(false);
-					((JButton) e.getSource()).setEnabled(true);
+					btn.setEnabled(true);
 				}
 			});
 		}
@@ -142,10 +145,11 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 			}
 		}
 	}
-	
+
 	private void update() {
 		var n = network;
 		var a = account;
+		Util.submit(() -> cheap_fee = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT());
 		for (int j = 0; j < 100; j++) {
 			try {
 				bar.setString(CryptoUtil.getRewardRecipient(network, account).orElse(NONE));

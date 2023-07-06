@@ -9,7 +9,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,19 +83,13 @@ public class EnterNetworkDetail extends AbstractWizardPage {
 	}
 
 	private void add_signum_networks(Container c) {
-		try {
-			var list = IOUtils.readLines(UIUtil.class.getClassLoader().getResourceAsStream("network/signum.txt"), Charset.defaultCharset());
-			c.add(generate_network_component("Signum", "icon/Signum_Logomark_black.png", list.toArray(new String[0])));
-		} catch (IOException e) {
-		}
+		var list = IOUtils.readLines(UIUtil.class.getClassLoader().getResourceAsStream("network/signum.txt"), Charset.defaultCharset());
+		c.add(generate_network_component("Signum", "icon/Signum_Logomark_black.png", list.toArray(new String[0])));
 	}
 
 	private void add_web3j_networks(Container c) {
-		try {
-			var list = IOUtils.readLines(UIUtil.class.getClassLoader().getResourceAsStream("network/web3j.txt"), Charset.defaultCharset());
-			c.add(generate_network_component("Ethereum", "icon/ethereum-crypto-cryptocurrency-2-svgrepo-com.svg", list.toArray(new String[0])));
-		} catch (IOException e) {
-		}
+		var list = IOUtils.readLines(UIUtil.class.getClassLoader().getResourceAsStream("network/web3j.txt"), Charset.defaultCharset());
+		c.add(generate_network_component("Ethereum", "icon/ethereum-crypto-cryptocurrency-2-svgrepo-com.svg", list.toArray(new String[0])));
 	}
 
 	private void add_custom_networks(Container c) {
