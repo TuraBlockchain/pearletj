@@ -11,9 +11,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -113,7 +112,8 @@ public class MinerPanel extends JPanel implements Runnable {
 				taos.write(line);
 			}
 		} catch (Exception x) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+//			Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
+			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 		} finally {
 			taos.close();
 		}

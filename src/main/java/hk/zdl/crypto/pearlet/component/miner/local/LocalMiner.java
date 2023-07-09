@@ -79,7 +79,7 @@ public class LocalMiner {
 
 	@SuppressWarnings("unchecked")
 	public static Process build_process(File miner_bin, File conf_file) throws Exception {
-		if (SystemInfo.isAARCH64) {
+		if (SystemInfo.isAARCH64 && !SystemInfo.isMacOS) {
 			var proc = new ProcessBuilder("docker", "run", "--privileged", "--rm", "tonistiigi/binfmt", "--install", "linux/amd64").start();
 			var i = proc.waitFor();
 			if (i != 0) {
@@ -90,7 +90,7 @@ public class LocalMiner {
 				l.addAll(Arrays.asList("docker", "run", "--platform", "linux/amd64", "--mount", "type=bind,source=" + miner_bin.getAbsolutePath() + ",target=/app/signum-miner"));
 				var x = new TreeSet<String>();
 				x.add(conf_file.getAbsolutePath());
-				x.addAll((List<String>)new Yaml().loadAs(new FileInputStream(conf_file), Map.class).get("plot_dirs"));
+				x.addAll((List<String>) new Yaml().loadAs(new FileInputStream(conf_file), Map.class).get("plot_dirs"));
 				x.forEach(s -> {
 					l.addAll(Arrays.asList("--mount", "type=bind,source=" + s + ",target=" + s));
 				});
