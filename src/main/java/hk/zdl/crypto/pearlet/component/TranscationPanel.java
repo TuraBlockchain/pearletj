@@ -1,7 +1,6 @@
 package hk.zdl.crypto.pearlet.component;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -9,8 +8,6 @@ import java.awt.event.MouseEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JLayer;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -46,28 +43,21 @@ public class TranscationPanel extends JPanel {
 		super(new BorderLayout());
 		EventBus.getDefault().register(this);
 		add(jlayer, BorderLayout.CENTER);
-		var _panel = new JPanel(new BorderLayout());
-		jlayer.setView(_panel);
-		jlayer.setUI(wuli);
 		for (int i = 0; i < table_model.getColumnCount(); i++) {
 			var tc = new TableColumn(i, 0);
 			tc.setHeaderValue(table_model.getColumnName(i));
 			table_column_model.addColumn(tc);
 		}
 		table.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
-		JScrollPane scrollpane = new JScrollPane(table);
 		table.getTableHeader().setReorderingAllowed(false);
 		table.getTableHeader().setResizingAllowed(false);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setShowGrid(true);
-		_panel.add(scrollpane, BorderLayout.CENTER);
-		var pages_panel = new JPanel(new FlowLayout(2));
-		pages_panel.add(new JLabel("Pages:"));
-		var page_combobox = new JComboBox<Integer>();
-		page_combobox.setEnabled(false);
-		pages_panel.add(page_combobox);
-		_panel.add(pages_panel, BorderLayout.SOUTH);
+		var _panel = new JPanel(new BorderLayout());
+		_panel.add(new JScrollPane(table), BorderLayout.CENTER);
+		jlayer.setView(_panel);
+		jlayer.setUI(wuli);
 
 		UIUtil.adjust_table_width(table, table_column_model);
 		table_model.addTableModelListener(e -> UIUtil.adjust_table_width(table, table_column_model));
