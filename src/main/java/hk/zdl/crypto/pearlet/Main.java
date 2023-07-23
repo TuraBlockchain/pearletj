@@ -14,6 +14,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.nio.file.Files;
+import java.util.concurrent.Callable;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -85,16 +86,31 @@ public class Main {
 		createFrame(app_icon);
 		new NWMon();
 		new TxHistoryQueryExecutor();
+		Util.submit(new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				var jarr = new JSONArray(new JSONTokener(Main.class.getClassLoader().getResourceAsStream("network/predefined.json")));
+				var jobj = jarr.getJSONObject(0);
+				var name = jobj.getString("network name");
+				var url = jobj.getString("server url");
+				MyDb.get_networks().stream().filter(n -> n.getUrl().equals("http://mainnet.peth.world:6876")).findFirst().ifPresent(nw -> {
+					nw.setName(name);
+					nw.setUrl(url);
+					MyDb.update_network(nw);
+				});
+				return null;
+			}
+		});
 	}
 
 	private static void create_default_networks() {
-		var jarr = new JSONArray(
-				new JSONTokener(Main.class.getClassLoader().getResourceAsStream("network/predefined.json")));
+		var jarr = new JSONArray(new JSONTokener(Main.class.getClassLoader().getResourceAsStream("network/predefined.json")));
 		for (var i = 0; i < jarr.length(); i++) {
 			var jobj = jarr.getJSONObject(i);
 			if (jobj.optBoolean("add by default")) {
 				var new_network = new CryptoNetwork();
-				new_network.setName(jobj.getString("networkName"));
+				new_network.setName(jobj.getString("network name"));
 				new_network.setUrl(jobj.getString("server url"));
 				new_network.setType(CryptoNetwork.Type.BURST);
 				MyDb.insert_network(new_network);
@@ -140,8 +156,7 @@ public class Main {
 			toolbar.clickButton("dashboard");
 			frame.add(toolbar, BorderLayout.WEST);
 
-			var frame_size = new Dimension(Util.getProp().getInt("default_window_width"),
-					Util.getProp().getInt("default_window_height"));
+			var frame_size = new Dimension(Util.getProp().getInt("default_window_width"), Util.getProp().getInt("default_window_height"));
 			frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			frame.setPreferredSize(frame_size);
 			frame.setMinimumSize(frame_size);
@@ -167,8 +182,7 @@ public class Main {
 				});
 				var menu = new PopupMenu();
 				menu.add(quit_menu_item);
-				TrayIcon trayIcon = new TrayIcon(ImageIO.read(Util.getResource("app_icon.png")),
-						Util.getProp().get("appName"), menu);
+				TrayIcon trayIcon = new TrayIcon(ImageIO.read(Util.getResource("app_icon.png")), Util.getProp().get("appName"), menu);
 				trayIcon.setImageAutoSize(true);
 				SystemTray.getSystemTray().add(trayIcon);
 			} catch (Exception e) {
