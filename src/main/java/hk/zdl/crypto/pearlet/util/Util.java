@@ -125,7 +125,7 @@ public class Util {
 		return "blockchain-dot-com-svgrepo-com.svg";
 	}
 
-	private static final JSONArray get_predefined_networks() throws Exception {
+	public static final JSONArray get_predefined_networks() throws Exception {
 		var in = UIUtil.class.getClassLoader().getResourceAsStream("network/predefined.json");
 		var jarr = new JSONArray(new JSONTokener(in));
 		in.close();

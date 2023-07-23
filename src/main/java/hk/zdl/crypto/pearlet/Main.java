@@ -92,7 +92,7 @@ public class Main {
 			public Void call() throws Exception {
 				var jarr = new JSONArray(new JSONTokener(Main.class.getClassLoader().getResourceAsStream("network/predefined.json")));
 				var jobj = jarr.getJSONObject(0);
-				var name = jobj.getString("network name");
+				var name = jobj.getString("networkName");
 				var url = jobj.getString("server url");
 				MyDb.get_networks().stream().filter(n -> n.getUrl().equals("http://mainnet.peth.world:6876")).findFirst().ifPresent(nw -> {
 					nw.setName(name);
@@ -104,13 +104,13 @@ public class Main {
 		});
 	}
 
-	private static void create_default_networks() {
-		var jarr = new JSONArray(new JSONTokener(Main.class.getClassLoader().getResourceAsStream("network/predefined.json")));
+	private static void create_default_networks() throws Exception {
+		var jarr = Util.get_predefined_networks();
 		for (var i = 0; i < jarr.length(); i++) {
 			var jobj = jarr.getJSONObject(i);
 			if (jobj.optBoolean("add by default")) {
 				var new_network = new CryptoNetwork();
-				new_network.setName(jobj.getString("network name"));
+				new_network.setName(jobj.getString("networkName"));
 				new_network.setUrl(jobj.getString("server url"));
 				new_network.setType(CryptoNetwork.Type.BURST);
 				MyDb.insert_network(new_network);

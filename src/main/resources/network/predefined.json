@@ -1,5 +1,5 @@
 [ {
-  "network name" : "Tura",
+  "networkName" : "Tura",
   "server url" : "http://mainnet.tura.world:6876",
   "explorer url" : "http://explorer.tura.world:8000/search/?q=",
   "icon" : "peth-logo.png",
@@ -9,17 +9,17 @@
   "decimalPlaces" : 4,
   "add by default" : true
 }, {
-  "network name" : "Tura Testnet",
+  "networkName" : "Tura Testnet",
   "server url" : "http://testnet.peth.world:6876",
   "explorer url" : "http://explorertestnet.ppcoin.cc:9001/search/?q=",
   "icon" : "peth-logo.png",
   "epoch" : "2022-08-27 10:00:00+00",
-  "valueSuffix" : "PETH",
+  "valueSuffix" : "Tura",
   "addressPrefix" : "TS",
   "decimalPlaces" : 4,
   "add by default" : false
 }, {
-  "network name" : "PETH Pioneer",
+  "networkName" : "PETH Pioneer",
   "server url" : "http://mainnet.ppcoin.cc:6876",
   "explorer url" : "http://explorer.ppcoin.cc:9000/search/?q=",
   "icon" : "pp-logo.png",

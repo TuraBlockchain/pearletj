@@ -5,7 +5,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -30,7 +32,6 @@ import hk.zdl.crypto.pearlet.component.account_settings.signum.PKT;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
-import hk.zdl.crypto.pearlet.ui.UIUtil;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -53,7 +54,8 @@ public class CryptoUtil {
 	public static final int peth_decimals = 4;
 
 	private static final OkHttpClient _client = new OkHttpClient();
-
+	private static final Map<CryptoNetwork, JSONObject> nwc_cache = new HashMap<>();
+	private static final Map<CryptoNetwork, FeeSuggestion> fee_cache = new HashMap<>();
 	private static Web3j _web3j;
 
 	private static final synchronized void build_web3j() {
@@ -670,32 +672,45 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	public static final JSONObject getConstants(CryptoNetwork network) throws Exception {
+	public static final synchronized JSONObject getConstants(CryptoNetwork network) throws Exception {
 		if (network.isBurst()) {
 			var url = network.getUrl();
-			var jarr = new JSONArray(new JSONTokener(UIUtil.class.getClassLoader().getResourceAsStream("network/predefined.json")));
+			var jarr = Util.get_predefined_networks();
 			for (var i = 0; i < jarr.length(); i++) {
 				var jobj = jarr.getJSONObject(i);
 				if (url.equals(jobj.getString("server url"))) {
 					return jobj;
 				}
 			}
-			var httpGet = new HttpGet();
-			var httpclient = WebUtil.getHttpclient();
-			var response = httpclient.execute(httpGet);
-			var bis = response.getEntity().getContent();
-			try {
-				return new JSONObject(new JSONTokener(bis));
-			} finally {
-				bis.close();
+			if (nwc_cache.containsKey(network)) {
+				return nwc_cache.get(network);
+			} else {
+				var httpGet = new HttpGet(url + "/burst?requestType=getConstants");
+				var httpclient = WebUtil.getHttpclient();
+				var response = httpclient.execute(httpGet);
+				var bis = response.getEntity().getContent();
+				try {
+					var o = new JSONObject(new JSONTokener(bis));
+					nwc_cache.put(network, o);
+					return o;
+				} finally {
+					bis.close();
+				}
+
 			}
 		}
 		throw new UnsupportedOperationException();
 	}
 
-	public static final FeeSuggestion getFeeSuggestion(CryptoNetwork network) {
-		var ns = NodeService.getInstance(network.getUrl());
-		return ns.suggestFee().blockingGet();
+	public static final synchronized FeeSuggestion getFeeSuggestion(CryptoNetwork network) {
+		if(fee_cache.containsKey(network)) {
+			return fee_cache.get(network);
+		}else {
+			var ns = NodeService.getInstance(network.getUrl());
+			var f = ns.suggestFee().blockingGet();
+			fee_cache.put(network, f);
+			return f;
+		}
 	}
 
 	public static final byte[] setRewardRecipient(CryptoNetwork network, String account, byte[] public_key, String recipient, BigDecimal fee) throws Exception {

@@ -66,7 +66,6 @@ import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.response.Asset;
-import signumj.entity.response.FeeSuggestion;
 
 @SuppressWarnings("serial")
 public class SendPanel extends JPanel {
@@ -340,10 +339,15 @@ public class SendPanel extends JPanel {
 		var network_change = this.network != e.network;
 		this.network = e.network;
 		this.account = e.account;
+		var symbol = "";
 		if (network == null) {
 			return;
+		}else if(network.isBurst()) {
+			try {
+				symbol = CryptoUtil.getConstants(network).getString("valueSuffix");
+			} catch (Exception x) {
+			}
 		}
-		var symbol = "";
 		balance_label.setText("?");
 		balance_label.setToolTipText(null);
 		token_combo_box.setModel(new DefaultComboBoxModel<Object>(new String[] { symbol }));
@@ -357,7 +361,7 @@ public class SendPanel extends JPanel {
 			if (network_change || fee_field.getText().isBlank()) {
 				Util.submit(() -> {
 					decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
-					FeeSuggestion g = CryptoUtil.getFeeSuggestion(network);
+					var g = CryptoUtil.getFeeSuggestion(network);
 					fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
 					fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
 					fee_slider.setValue(g.getStandardFee().toNQT().intValue());
@@ -386,6 +390,7 @@ public class SendPanel extends JPanel {
 	private final void update_balance() throws Exception {
 		var symbol = "";
 		if (network.isBurst()) {
+			symbol = CryptoUtil.getConstants(network).getString("valueSuffix");
 			var account = CryptoUtil.getAccount(network, this.account);
 			var balance = account.getBalance();
 			var committed_balance = account.getCommittedBalance();
