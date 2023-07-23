@@ -641,7 +641,7 @@ public class CryptoUtil {
 		var ns = NodeService.getInstance(server_url);
 		SignumID[] id_arr = new SignumID[] {};
 		try {
-			id_arr = ns.getAccountTransactionIDs(SignumAddress.fromRs(address)).toFuture().get();
+			id_arr = ns.getAccountTransactionIDs(SignumAddress.fromEither(address)).toFuture().get();
 		} catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
 			if (e.getCause() != null) {
 				if (e.getCause().getClass().getName().equals("signumj.entity.response.http.BRSError")) {

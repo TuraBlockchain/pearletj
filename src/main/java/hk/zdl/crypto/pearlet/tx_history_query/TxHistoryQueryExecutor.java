@@ -35,7 +35,7 @@ public class TxHistoryQueryExecutor {
 			}
 		}
 		threads.clear();
-		MyThread t = new MyThread(e.network, e.account);
+		var t = new MyThread(e.network, e.account);
 		t.start();
 		threads.add(t);
 	}

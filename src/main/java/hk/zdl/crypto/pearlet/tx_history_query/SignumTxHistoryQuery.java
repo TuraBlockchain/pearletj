@@ -17,7 +17,7 @@ public class SignumTxHistoryQuery {
 	}
 
 	public void queryTxHistory(String address) throws Exception {
-		SignumID[] tx_id_arr = CryptoUtil.getSignumTxID(nw, address);
+		var tx_id_arr = CryptoUtil.getSignumTxID(nw, address);
 		for (SignumID id : tx_id_arr) {
 			try {
 				Transaction tx = CryptoUtil.getSignumTx(nw, id);
