@@ -38,7 +38,6 @@ import hk.zdl.crypto.pearlet.ui.SpinableIcon;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
-import signumj.entity.response.FeeSuggestion;
 
 @SuppressWarnings("serial")
 public class SetAccountInfoPanel extends JPanel {
@@ -147,13 +146,13 @@ public class SetAccountInfoPanel extends JPanel {
 		acc_combo_box.setModel(new DefaultComboBoxModel<String>(new String[] { e.account }));
 		this.network = e.network;
 		this.account = e.account;
-		try {
-			FeeSuggestion g = CryptoUtil.getFeeSuggestion(network);
+		Util.submit(() -> {
+			decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
+			var g = CryptoUtil.getFeeSuggestion(network);
 			fee_slider.setMinimum(g.getCheapFee().toNQT().intValue());
 			fee_slider.setMaximum(g.getPriorityFee().toNQT().intValue());
 			fee_slider.setValue(g.getStandardFee().toNQT().intValue());
-			decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
-		} catch (Exception x) {
-		}
+			return null;
+		});
 	}
 }
