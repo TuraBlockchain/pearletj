@@ -52,6 +52,7 @@ import hk.zdl.crypto.pearlet.ui.CloseableTabbedPaneLayerUI;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
+import hk.zdl.crypto.peth.plot.gui.PlotProgressListener;
 import signumj.entity.SignumAddress;
 
 public class PlotPanel extends JPanel implements ActionListener {
@@ -170,10 +171,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 	@SuppressWarnings("serial")
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (jar_path == null) {
-			JOptionPane.showMessageDialog(getRootPane(), "JAR file not specified!", "Error", JOptionPane.ERROR_MESSAGE);
-			return;
-		} else if (plot_path == null) {
+		if (plot_path == null) {
 			JOptionPane.showMessageDialog(getRootPane(), "Plot path not specified!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		} else {
@@ -197,17 +195,10 @@ public class PlotPanel extends JPanel implements ActionListener {
 			JOptionPane.showMessageDialog(getRootPane(), "File size too small!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
+		var _l = new long[] { l };
 
 		var count = (Integer) pcs_spinner.getValue();
-		var jobj = new JSONObject();
 		var id = SignumAddress.fromRs(account).getID();
-		jobj.put("id", id);
-		jobj.put("path", plot_path.toFile().getAbsolutePath());
-		jobj.put("count", count);
-		jobj.put("nounce", l);
-		jobj.put("exitOnDone", true);
-
-		var str = Base64.getEncoder().encodeToString(jobj.toString().getBytes(Charset.defaultCharset()));
 
 		Util.submit(() -> {
 			var table = new JTable(new DefaultTableModel(new Object[][] {}, new Object[] { "No.", "Progress" })) {
@@ -249,28 +240,58 @@ public class PlotPanel extends JPanel implements ActionListener {
 					});
 				}
 			}
-			es.submit(() -> {
-				try {
-					var proc = new ProcessBuilder("java", "-jar", jar_path.toFile().getAbsolutePath(), str).start();
-					var in = proc.getInputStream();
-					var reader = new BufferedReader(new InputStreamReader(in));
-					while (true) {
-						var line = reader.readLine();
-						if (line == null) {
-							break;
-						}
-						var o = new JSONObject(new JSONTokener(line));
-						var i = o.getInt("index");
-						var p = o.getFloat("progress");
-						model.setValueAt(p, i, 1);
-						if (p >= 100) {
-							EventBus.getDefault().post(new PlotDoneEvent(plot_path));
-						}
+			if (jar_path == null) {
+				for (var i = 0; i < count; i++) {
+					var _i = i;
+					try {
+						hk.zdl.crypto.peth.plot.gui.Main.do_plot(plot_path, id, _l[0], new PlotProgressListener() {
+
+							@Override
+							public void onProgress(Type type, float progress, String rate, String ETA) {
+								if (type == Type.WRIT) {
+									model.setValueAt(progress, _i, 1);
+									if (progress >= 100) {
+										EventBus.getDefault().post(new PlotDoneEvent(plot_path));
+									}
+								}
+							}});
+					} catch (Exception x) {
+						JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+						break;
 					}
-				} catch (Exception x) {
-					UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
 				}
-			});
+			} else {
+				es.submit(() -> {
+					try {
+						var jobj = new JSONObject();
+						jobj.put("id", id);
+						jobj.put("path", plot_path.toFile().getAbsolutePath());
+						jobj.put("count", count);
+						jobj.put("nounce", _l[0]);
+						jobj.put("exitOnDone", true);
+
+						var str = Base64.getEncoder().encodeToString(jobj.toString().getBytes(Charset.defaultCharset()));
+						var proc = new ProcessBuilder("java", "-jar", jar_path.toFile().getAbsolutePath(), str).start();
+						var in = proc.getInputStream();
+						var reader = new BufferedReader(new InputStreamReader(in));
+						while (true) {
+							var line = reader.readLine();
+							if (line == null) {
+								break;
+							}
+							var o = new JSONObject(new JSONTokener(line));
+							var i = o.getInt("index");
+							var p = o.getFloat("progress");
+							model.setValueAt(p, i, 1);
+							if (p >= 100) {
+								EventBus.getDefault().post(new PlotDoneEvent(plot_path));
+							}
+						}
+					} catch (Exception x) {
+						UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
+					}
+				});
+			}
 		});
 	}
 
