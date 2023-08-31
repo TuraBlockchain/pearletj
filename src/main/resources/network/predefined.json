@@ -2,7 +2,7 @@
   "networkName" : "Tura",
   "server url" : "http://mainnet.tura.world:6876",
   "explorer url" : "http://explorer.tura.world:8000/search/?q=",
-  "icon" : "peth-logo.png",
+  "icon" : "Tura LOGO_01.png",
   "epoch" : "2022-08-27 10:00:00+00",
   "valueSuffix" : "Tura",
   "addressPrefix" : "TS",
