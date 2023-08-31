@@ -102,6 +102,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 			}
 			Util.submit(() -> {
 				try {
+					bar.setString("");
 					bar.setIndeterminate(true);
 					btn.setEnabled(false);
 					var public_key = new byte[] {};
