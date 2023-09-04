@@ -5,8 +5,6 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,13 +36,8 @@ import hk.zdl.crypto.pearlet.util.Util;
 
 public class BlocksPanel extends JPanel {
 
-	private static final ExecutorService es = Executors.newFixedThreadPool(10, (r) -> {
-		var t = new Thread(r, "");
-		t.setDaemon(true);
-		return t;
-	});
-
 	private static final long serialVersionUID = 1455088889510667002L;
+	private final Object lock = new Object();
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final WaitLayerUI wuli = new WaitLayerUI();
 	private final BlocksTableModel table_model = new BlocksTableModel();
@@ -90,17 +83,24 @@ public class BlocksPanel extends JPanel {
 		});
 		table.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent mouseEvent) {
+				if (!nw.isBurst()) {
+					return;
+				}
 				Point point = mouseEvent.getPoint();
 				int row = table.rowAtPoint(point);
 				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
 					try {
-						Util.viewBlockDetail(nw, table_model.getValueAt(row, 0).toString());
+						var o = table_model.getValueAt(row, 1);
+						if (o != null) {
+							Util.viewBlockDetail(nw, o.toString());
+						}
 					} catch (Exception x) {
 						Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 					}
 				}
 			}
 		});
+		Util.submit(new BlockQuery());
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
@@ -110,18 +110,17 @@ public class BlocksPanel extends JPanel {
 		if (nw == null || e.account == null || e.account.isBlank()) {
 			return;
 		}
-		es.submit(() -> {
+		Util.submit(() -> {
 			try {
-				EventBus.getDefault().post(new BlockEvent<>(e.network, BlockEvent.Type.START, null));
-				if (!nw.isBurst()) {
-					return;
-				}
-				var jarr = CryptoUtil.getSignumBlockID(nw, account, 0, 0);
-				if (nw.equals(e.network) && account.equals(e.account)) {
+				synchronized (lock) {
+					EventBus.getDefault().post(new BlockEvent<>(e.network, BlockEvent.Type.START, null));
+					if (!nw.isBurst()) {
+						return;
+					}
+					var jarr = CryptoUtil.getSignumBlockID(nw, account, 0, 0);
 					for (int i = 0; i < jarr.length(); i++) {
 						var str = jarr.getString(i);
-						table_model.insertData(new Object[] { str, null, null, null, null });
-						es.submit(new BlockQuery(nw, account, str, i));
+						EventBus.getDefault().post(new BlockEvent<>(e.network, BlockEvent.Type.INSERT, str));
 					}
 				}
 			} catch (Exception x) {
@@ -148,8 +147,7 @@ public class BlocksPanel extends JPanel {
 			wuli.stop();
 			break;
 		case INSERT:
-			Object o = e.data;
-			table_model.insertData(new Object[] { o, null, null, null, null });
+			table_model.insertData(new Object[] { e.data, null, null, null, null });
 			break;
 		default:
 			break;
@@ -158,44 +156,39 @@ public class BlocksPanel extends JPanel {
 	}
 
 	private class BlockQuery implements Runnable {
-
-		private final CryptoNetwork my_nw;
-		private final String my_account, my_block_id;
-		private final int index;
-
-		private BlockQuery(CryptoNetwork my_nw, String my_account, String my_block_id, int index) {
-			super();
-			this.my_nw = my_nw;
-			this.my_account = my_account;
-			this.my_block_id = my_block_id;
-			this.index = index;
-		}
+		private int i = 0;
 
 		@Override
 		public void run() {
-			try {
-				var jobj = CryptoUtil.getSignumBlock(my_nw, my_block_id);
-				SwingUtilities.invokeLater(()->{
-					long height = jobj.getLong("height");
-					long timestamp = jobj.getLong("timestamp");
-					long reward = jobj.getLong("blockRewardNQT");
-					int notx = jobj.getInt("numberOfTransactions");
-					if (my_nw.equals(nw) && my_account.equals(account) && table_model.getValueAt(index, 0).equals(my_block_id)) {
-						table_model.setValueAt(height, index, 1);
-						table_model.setValueAt(timestamp, index, 2);
-						table_model.setValueAt(reward, index, 3);
-						table_model.setValueAt(notx, index, 4);
+			while (true) {
+				try {
+					Thread.sleep(50);
+					if (i >= table_model.getRowCount()) {
+						i = 0;
+						continue;
 					}
-				});
-			} catch (Exception x) {
-				Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
-			} finally {
+					synchronized (lock) {
+						var block_id = table_model.getValueAt(i, 0).toString();
+						var jobj = BlockCache.getSignumBlock(nw, block_id);
+						long height = jobj.getLong("height");
+						long timestamp = jobj.getLong("timestamp");
+						long reward = jobj.getLong("blockRewardNQT");
+						int notx = jobj.getInt("numberOfTransactions");
+						table_model.setValueAt(height, i, 1);
+						table_model.setValueAt(timestamp, i, 2);
+						table_model.setValueAt(reward, i, 3);
+						table_model.setValueAt(notx, i, 4);
+					}
+					i++;
+				} catch (Exception x) {
+					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
+				}
 			}
 		}
 
 	}
-	
-	private static class RightAlignCellRanderer extends DefaultTableCellRenderer{
+
+	private static class RightAlignCellRanderer extends DefaultTableCellRenderer {
 		private static final long serialVersionUID = 8124066930956045072L;
 
 		public RightAlignCellRanderer() {

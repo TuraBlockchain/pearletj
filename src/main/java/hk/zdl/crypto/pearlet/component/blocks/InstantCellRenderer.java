@@ -26,10 +26,12 @@ public class InstantCellRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	protected void setValue(Object value) {
-		if(value!=null) {
+		if (value != null) {
 			long burstTime = Long.valueOf(value.toString());
 			Date date = new Date(epochBeginning + (burstTime * 1000L));
 			setText(sdf.format(date));
+		} else {
+			setText("");
 		}
 	}
 }

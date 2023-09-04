@@ -26,8 +26,12 @@ public class SignumValueCellRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	protected void setValue(Object value) {
-		var val = new BigDecimal(value.toString()).movePointLeft(decimalPlaces.get());
-		setText(val.toPlainString());
+		if (value != null) {
+			var val = new BigDecimal(value.toString()).movePointLeft(decimalPlaces.get());
+			setText(val.toPlainString());
+		} else {
+			setText("");
+		}
 	}
 
 }
