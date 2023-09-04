@@ -27,7 +27,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
-import hk.zdl.crypto.pearlet.component.event.BlockEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
@@ -112,21 +111,22 @@ public class BlocksPanel extends JPanel {
 		}
 		Util.submit(() -> {
 			try {
+				wuli.start();
 				synchronized (lock) {
-					EventBus.getDefault().post(new BlockEvent<>(e.network, BlockEvent.Type.START, null));
+					table_model.clearData();
 					if (!nw.isBurst()) {
 						return;
 					}
 					var jarr = CryptoUtil.getSignumBlockID(nw, account, 0, 0);
 					for (int i = 0; i < jarr.length(); i++) {
 						var str = jarr.getString(i);
-						EventBus.getDefault().post(new BlockEvent<>(e.network, BlockEvent.Type.INSERT, str));
+						table_model.insertData(new Object[] { str, null, null, null, null });
 					}
 				}
 			} catch (Exception x) {
 				Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 			} finally {
-				EventBus.getDefault().post(new BlockEvent<>(e.network, BlockEvent.Type.FINISH, null));
+				wuli.stop();
 			}
 		});
 		table_column_model.getColumn(0).setCellRenderer(new RightAlignCellRanderer());
@@ -134,25 +134,6 @@ public class BlocksPanel extends JPanel {
 		table_column_model.getColumn(2).setCellRenderer(new InstantCellRenderer(e.network));
 		table_column_model.getColumn(3).setCellRenderer(new SignumValueCellRenderer(e.network));
 		table_column_model.getColumn(4).setCellRenderer(new RightAlignCellRanderer());
-	}
-
-	@Subscribe(threadMode = ThreadMode.ASYNC)
-	public void onMessage(BlockEvent<?> e) {
-		switch (e.type) {
-		case START:
-			wuli.start();
-			table_model.clearData();
-			break;
-		case FINISH:
-			wuli.stop();
-			break;
-		case INSERT:
-			table_model.insertData(new Object[] { e.data, null, null, null, null });
-			break;
-		default:
-			break;
-
-		}
 	}
 
 	private class BlockQuery implements Runnable {
