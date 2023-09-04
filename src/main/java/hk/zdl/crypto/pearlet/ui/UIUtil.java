@@ -9,7 +9,7 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
+import java.awt.image.BufferedImage;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -60,11 +60,12 @@ public class UIUtil {
 	}
 
 	public static final MyStretchIcon getStretchIcon(String path, int w, int h) {
+		var img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 		try {
-			return new MyStretchIcon(ImageIO.read(Util.getResource(path)), w, h);
-		} catch (IOException e) {
-			return null;
+			img = ImageIO.read(Util.getResource(path));
+		} catch (Exception x) {
 		}
+		return new MyStretchIcon(img, w, h);
 	}
 
 	public static final boolean isAltDown(ActionEvent e) {

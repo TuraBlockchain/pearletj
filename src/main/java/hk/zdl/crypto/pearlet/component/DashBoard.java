@@ -37,6 +37,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
@@ -81,6 +82,7 @@ public class DashBoard extends JPanel {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private final JLayer<JScrollPane> scroll_pane_layer = new JLayer(table_scroll_pane, wuli);
 	private final JButton manage_token_list_btn = new JButton("Manage Token List");
+	private long _last_table_update;
 	private CryptoNetwork nw;
 	private String account;
 	private Thread token_list_thread = null;
@@ -355,9 +357,11 @@ public class DashBoard extends JPanel {
 		case INSERT:
 			Object o = e.data;
 			table_model.insertData(new Object[] { o, o, o, o, o });
-			try {
-				table.updateUI();
-			} catch (Exception x) {
+			if (System.currentTimeMillis() - _last_table_update > 1000) {
+				SwingUtilities.invokeLater(() -> {
+					table.updateUI();
+					_last_table_update = System.currentTimeMillis();
+				});
 			}
 			break;
 		default:

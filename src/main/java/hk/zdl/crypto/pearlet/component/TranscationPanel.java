@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -30,13 +31,14 @@ import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
 import hk.zdl.crypto.pearlet.util.Util;
 
-@SuppressWarnings("serial")
 public class TranscationPanel extends JPanel {
+	private static final long serialVersionUID = -3430209712761314513L;
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final WaitLayerUI wuli = new WaitLayerUI();
 	private final TxTableModel table_model = new TxTableModel();
 	private final TableColumnModel table_column_model = new DefaultTableColumnModel();
 	private final JTable table = new JTable(table_model, table_column_model);
+	private long _last_table_update;
 	private CryptoNetwork nw;
 
 	public TranscationPanel() {
@@ -99,9 +101,11 @@ public class TranscationPanel extends JPanel {
 		case INSERT:
 			Object o = e.data;
 			table_model.insertData(new Object[] { o, o, o, o, o });
-			try {
-				table.updateUI();
-			} catch (Exception x) {
+			if (System.currentTimeMillis() - _last_table_update > 1000) {
+				SwingUtilities.invokeLater(() -> {
+					table.updateUI();
+					_last_table_update = System.currentTimeMillis();
+				});
 			}
 			break;
 		default:

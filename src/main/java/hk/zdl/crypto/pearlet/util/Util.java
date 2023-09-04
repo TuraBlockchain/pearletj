@@ -173,6 +173,22 @@ public class Util {
 		}
 	}
 
+	public static final void viewBlockDetail(CryptoNetwork nw, String block_id) throws Exception {
+		if (nw.isWeb3J()) {
+			browse(new URI("https://www.blockchain.com/eth/block/" + block_id));
+		} else if (is_signum_server_address(nw.getUrl())) {
+			browse(new URI("https://chain.signum.network/block/" + block_id));
+		} else {
+			var jarr = get_predefined_networks();
+			for (var i = 0; i < jarr.length(); i++) {
+				var jobj = jarr.getJSONObject(i);
+				if (nw.getUrl().equals(jobj.getString("server url"))) {
+					browse(new URI(jobj.getString("explorer url") + block_id));
+				}
+			}
+		}
+	}
+
 	public static final void viewAccountDetail(CryptoNetwork nw, String e) throws Exception {
 		if (nw.isWeb3J()) {
 			browse(new URI("https://www.blockchain.com/eth/address/" + e));

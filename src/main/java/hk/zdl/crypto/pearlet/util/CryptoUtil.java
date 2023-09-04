@@ -585,6 +585,60 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
+	public static final JSONObject getSignumBlock(CryptoNetwork nw, String block_id) throws Exception {
+		if (nw == null || block_id == null || block_id.isBlank()) {
+			throw new IllegalArgumentException();
+		} else if (!nw.isBurst()) {
+			throw new UnsupportedOperationException();
+		}
+		var server_url = nw.getUrl();
+		if (!server_url.endsWith("/")) {
+			server_url += "/";
+		}
+		var request = new Request.Builder().url(server_url + "burst?requestType=getBlock&block=" + block_id).build();
+		var response = _client.newCall(request).execute();
+		try {
+			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			if (jobj.optInt("errorCode") > 0) {
+				throw new IOException(jobj.optString("errorDescription"));
+			} else {
+				return jobj;
+			}
+		} finally {
+			response.body().byteStream().close();
+			response.close();
+		}
+	}
+
+	public static final JSONArray getSignumBlockID(CryptoNetwork nw, String address, int from, int to) throws Exception {
+		if (nw == null || address == null || address.isBlank() || from < 0 || to < 0) {
+			throw new IllegalArgumentException();
+		} else if (!nw.isBurst()) {
+			throw new UnsupportedOperationException();
+		}
+		var server_url = nw.getUrl();
+		if (!server_url.endsWith("/")) {
+			server_url += "/";
+		}
+		var request = new Request.Builder().url(server_url + "burst?requestType=getAccountBlockIds&account=" + address + "&firstIndex=" + from + "&lastIndex=" + to).build();
+		var response = _client.newCall(request).execute();
+		try {
+			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			if (jobj.optInt("errorCode") > 0) {
+				if (jobj.optInt("errorCode") == 5) {
+					return new JSONArray();
+				} else {
+					throw new IOException(jobj.optString("errorDescription"));
+				}
+			}
+			var items = jobj.getJSONArray("blockIds");
+			return items;
+		} finally {
+			response.body().byteStream().close();
+			response.close();
+		}
+	}
+
 	public static final JSONArray getSignumTxID(CryptoNetwork nw, String address, int from, int to) throws Exception {
 		if (nw == null || address == null || address.isBlank() || from < 0 || to < 0) {
 			throw new IllegalArgumentException();
@@ -703,9 +757,9 @@ public class CryptoUtil {
 	}
 
 	public static final synchronized FeeSuggestion getFeeSuggestion(CryptoNetwork network) {
-		if(fee_cache.containsKey(network)) {
+		if (fee_cache.containsKey(network)) {
 			return fee_cache.get(network);
-		}else {
+		} else {
 			var ns = NodeService.getInstance(network.getUrl());
 			var f = ns.suggestFee().blockingGet();
 			fee_cache.put(network, f);

@@ -22,12 +22,12 @@ public class TxHistoryQueryExecutor {
 		EventBus.getDefault().register(this);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes", "removal" })
+	@SuppressWarnings("removal")
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public synchronized void onMessage(AccountChangeEvent e) {
 		if (e.account == null)
 			return;
-		EventBus.getDefault().post(new TxHistoryEvent(e.network, TxHistoryEvent.Type.START, null));
+		EventBus.getDefault().post(new TxHistoryEvent<>(e.network, TxHistoryEvent.Type.START, null));
 		for (MyThread t : threads) {
 			try {
 				t.stop();
@@ -74,9 +74,8 @@ public class TxHistoryQueryExecutor {
 			}
 		}
 
-		@SuppressWarnings({ "unchecked", "rawtypes" })
 		private void send_finish_msg() {
-			EventBus.getDefault().post(new TxHistoryEvent(network, TxHistoryEvent.Type.FINISH, null));
+			EventBus.getDefault().post(new TxHistoryEvent<>(network, TxHistoryEvent.Type.FINISH, null));
 		}
 
 		@Override

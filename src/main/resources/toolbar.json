@@ -1,52 +1,45 @@
-[
-	{
-		"id": "dashboard",
-		"text": "Dashboard",
-		"icon": "gauge-solid.svg"
-	},
-	{
-		"id": "txs",
-		"text": "Transactions",
-		"icon": "swap_vert_black_48dp.svg"
-	},
-	{
-		"id": "send",
-		"text": "Send",
-		"icon": "plane-departure-solid.svg"
-	},
-	{
-		"id": "rcv",
-		"text": "Receive",
-		"icon": "plane-arrival-solid.svg"
-	},
-	{
-		"id": "acc_info",
-		"text": "Account Info",
-		"icon": "account_balance_wallet_black_48dp.svg"
-	},	
-	{
-		"id": "alis",
-		"text": "Alias",
-		"icon": "alt_route_black_48dp.svg"
-	},
-	{
-		"id": "plot",
-		"text": "Plot",
-		"icon": "tractor-200.png"
-	},
-	{
-		"id": "miner",
-		"text": "Miner/Mining",
-		"icon": "minecart-loaded.svg"
-	},
-	{
-		"id": "sets",
-		"text": "Settings",
-		"icon": "gear-solid.svg"
-	},
-	{
-		"id": "about",
-		"text": "About",
-		"icon": "help_outline_black_48dp.svg"
-	}
-]
+[ {
+  "id" : "dashboard",
+  "text" : "Dashboard",
+  "icon" : "gauge-solid.svg"
+}, {
+  "id" : "txs",
+  "text" : "Transactions",
+  "icon" : "swap_vert_black_48dp.svg"
+}, {
+  "id" : "blocks",
+  "text" : "Blocks",
+  "icon" : "blocks.png"
+}, {
+  "id" : "send",
+  "text" : "Send",
+  "icon" : "plane-departure-solid.svg"
+}, {
+  "id" : "rcv",
+  "text" : "Receive",
+  "icon" : "plane-arrival-solid.svg"
+}, {
+  "id" : "acc_info",
+  "text" : "Account Info",
+  "icon" : "account_balance_wallet_black_48dp.svg"
+}, {
+  "id" : "alis",
+  "text" : "Alias",
+  "icon" : "alt_route_black_48dp.svg"
+}, {
+  "id" : "plot",
+  "text" : "Plot",
+  "icon" : "tractor-200.png"
+}, {
+  "id" : "miner",
+  "text" : "Miner/Mining",
+  "icon" : "minecart-loaded.svg"
+}, {
+  "id" : "sets",
+  "text" : "Settings",
+  "icon" : "gear-solid.svg"
+}, {
+  "id" : "about",
+  "text" : "About",
+  "icon" : "help_outline_black_48dp.svg"
+} ]
