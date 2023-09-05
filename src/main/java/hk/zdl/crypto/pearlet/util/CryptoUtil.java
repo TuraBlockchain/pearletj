@@ -610,6 +610,35 @@ public class CryptoUtil {
 		}
 	}
 
+	public static final JSONArray getSignumBlockID(CryptoNetwork nw, String address, long timestamp) throws Exception {
+		if (nw == null || address == null || address.isBlank()) {
+			throw new IllegalArgumentException();
+		} else if (!nw.isBurst()) {
+			throw new UnsupportedOperationException();
+		}
+		var server_url = nw.getUrl();
+		if (!server_url.endsWith("/")) {
+			server_url += "/";
+		}
+		var request = new Request.Builder().url(server_url + "burst?requestType=getAccountBlockIds&account=" + address + "&timestamp=" + timestamp).build();
+		var response = _client.newCall(request).execute();
+		try {
+			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			if (jobj.optInt("errorCode") > 0) {
+				if (jobj.optInt("errorCode") == 5) {
+					return new JSONArray();
+				} else {
+					throw new IOException(jobj.optString("errorDescription"));
+				}
+			}
+			var items = jobj.getJSONArray("blockIds");
+			return items;
+		} finally {
+			response.body().byteStream().close();
+			response.close();
+		}
+	}
+
 	public static final JSONArray getSignumBlockID(CryptoNetwork nw, String address, int from, int to) throws Exception {
 		if (nw == null || address == null || address.isBlank() || from < 0 || to < 0) {
 			throw new IllegalArgumentException();
@@ -751,6 +780,22 @@ public class CryptoUtil {
 					bis.close();
 				}
 
+			}
+		}
+		throw new UnsupportedOperationException();
+	}
+
+	public static final synchronized JSONObject getBlockchainStatus(CryptoNetwork network) throws Exception {
+		if (network.isBurst()) {
+			var url = network.getUrl();
+			var httpGet = new HttpGet(url + "/burst?requestType=getBlockchainStatus");
+			var httpclient = WebUtil.getHttpclient();
+			var response = httpclient.execute(httpGet);
+			var bis = response.getEntity().getContent();
+			try {
+				return new JSONObject(new JSONTokener(bis));
+			} finally {
+				bis.close();
 			}
 		}
 		throw new UnsupportedOperationException();

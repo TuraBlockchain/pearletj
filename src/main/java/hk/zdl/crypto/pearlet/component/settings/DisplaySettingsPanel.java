@@ -1,12 +1,9 @@
 package hk.zdl.crypto.pearlet.component.settings;
 
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.GridLayout;
 
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.greenrobot.eventbus.EventBus;
@@ -21,22 +18,31 @@ public class DisplaySettingsPanel extends JPanel {
 
 	public DisplaySettingsPanel() {
 		super(new FlowLayout());
-		var panel = new JPanel(new GridBagLayout());
-		panel.add(new JLabel("Display PETH address as numeric ID"), new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
-		var cbox1 = new JCheckBox();
-		panel.add(cbox1, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		var panel = new JPanel(new GridLayout(0, 1));
+		var cbox1 = new JCheckBox("Display PETH address as numeric ID");
+		panel.add(cbox1);
+		var cbox2 = new JCheckBox("Show notification for solo local miner(s)");
+		panel.add(cbox2);
 		add(panel);
 
 		var perf = Util.getUserSettings();
-		var show_numberic = perf.getBoolean("show_numberic_id", false);
-		cbox1.setSelected(show_numberic);
+		cbox1.setSelected(perf.getBoolean(DisplaySettings.SNID, false));
 		cbox1.addActionListener(e -> {
-			perf.putBoolean("show_numberic_id", cbox1.isSelected());
+			perf.putBoolean(DisplaySettings.SNID, cbox1.isSelected());
 			Util.submit(() -> {
 				perf.flush();
 				return null;
 			});
 			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+		});
+
+		cbox2.setSelected(perf.getBoolean(DisplaySettings.SNSM, false));
+		cbox2.addActionListener(e -> {
+			perf.putBoolean(DisplaySettings.SNSM, cbox2.isSelected());
+			Util.submit(() -> {
+				perf.flush();
+				return null;
+			});
 		});
 	}
 

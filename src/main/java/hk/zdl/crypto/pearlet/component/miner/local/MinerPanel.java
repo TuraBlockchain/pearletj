@@ -93,7 +93,7 @@ public class MinerPanel extends JPanel implements Runnable {
 				}
 				if (line.isBlank() || line.startsWith("Searching")) {
 					continue;
-				} else if (network.getName().startsWith("PETH")) {
+				} else if (network.getName().startsWith("PETH") || network.getName().toLowerCase().startsWith("tura")) {
 					line = line.replace("signum-miner", "pearletj-miner");
 				}
 				if (line.startsWith("message:")) {

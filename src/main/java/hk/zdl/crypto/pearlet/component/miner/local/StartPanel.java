@@ -155,6 +155,9 @@ public class StartPanel extends JPanel {
 			m_p.setPlotDirs(plot_dirs);
 			pane.addTab(id, m_p);
 			Util.submit(m_p);
+			if (solo) {
+				Util.submit(new ForgeNortiWorker(network,account));
+			}
 		} catch (Exception x) {
 			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 			return;
