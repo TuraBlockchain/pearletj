@@ -150,13 +150,23 @@ public class StartPanel extends JPanel {
 			var plot_dirs = Stream.of(l_m.toArray()).map(o -> Path.of(o.toString())).toList();
 			var conf_file = LocalMiner.build_conf_file(id, passphrase, plot_dirs, new URL(url), null);
 			var miner_bin = LocalMiner.copy_miner();
-			var m_p = new MinerPanel(miner_bin, conf_file);
+			var fnw = new ForgeNortiWorker(network, account);
+			var m_p = new MinerPanel(miner_bin, conf_file) {
+
+				private static final long serialVersionUID = 7669915543044846972L;
+
+				@Override
+				public void stop() {
+					super.stop();
+					fnw.stop();
+				}
+			};
 			m_p.setNetwork(network);
 			m_p.setPlotDirs(plot_dirs);
 			pane.addTab(id, m_p);
 			Util.submit(m_p);
 			if (solo) {
-				Util.submit(new ForgeNortiWorker(network,account));
+				Util.submit(fnw);
 			}
 		} catch (Exception x) {
 			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);

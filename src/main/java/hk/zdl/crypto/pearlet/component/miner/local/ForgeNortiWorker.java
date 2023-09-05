@@ -13,6 +13,7 @@ public class ForgeNortiWorker implements Runnable {
 
 	private final CryptoNetwork network;
 	private final String account;
+	private boolean running = true;
 
 	ForgeNortiWorker(CryptoNetwork network, String account) {
 		super();
@@ -23,13 +24,13 @@ public class ForgeNortiWorker implements Runnable {
 	@Override
 	public void run() {
 		var timestamp = -1L;
-		while (timestamp < 0) {
+		while (timestamp < 0 && running) {
 			try {
 				timestamp = CryptoUtil.getBlockchainStatus(network).getLong("time");
 			} catch (Exception x) {
 			}
 		}
-		while (true) {
+		while (running) {
 			try {
 				if (Util.getUserSettings().getBoolean(DisplaySettings.SNSM, false)) {
 					var block_ids = CryptoUtil.getSignumBlockID(network, account, timestamp);
@@ -45,6 +46,10 @@ public class ForgeNortiWorker implements Runnable {
 			} catch (Exception x) {
 			}
 		}
+	}
+
+	public void stop() {
+		running = false;
 	}
 
 }
