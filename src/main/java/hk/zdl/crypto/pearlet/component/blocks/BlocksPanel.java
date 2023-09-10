@@ -27,6 +27,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crypto.pearlet.component.settings.DisplaySettings;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
@@ -36,7 +37,6 @@ import hk.zdl.crypto.pearlet.util.Util;
 public class BlocksPanel extends JPanel {
 
 	private static final long serialVersionUID = 1455088889510667002L;
-	private static final int MAX_TABLE_ROW = 500;
 	private final Object lock = new Object();
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final WaitLayerUI wuli = new WaitLayerUI();
@@ -110,26 +110,25 @@ public class BlocksPanel extends JPanel {
 		if (nw == null || e.account == null || e.account.isBlank()) {
 			return;
 		}
-		Util.submit(() -> {
-			try {
-				wuli.start();
-				synchronized (lock) {
-					table_model.clearData();
-					if (!nw.isBurst()) {
-						return;
-					}
-					var jarr = CryptoUtil.getSignumBlockID(nw, account, 0, 0);
-					for (int i = 0; i < jarr.length() && i < MAX_TABLE_ROW; i++) {
-						var str = jarr.getString(i);
-						table_model.insertData(new Object[] { str, null, null, null, null });
-					}
+		try {
+			wuli.start();
+			synchronized (lock) {
+				table_model.clearData();
+				if (!nw.isBurst()) {
+					return;
 				}
-			} catch (Exception x) {
-				Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
-			} finally {
-				wuli.stop();
+				var jarr = CryptoUtil.getSignumBlockID(nw, account, 0, 0);
+				var limit = Util.getUserSettings().getInt(DisplaySettings.BLOCK_COUNT, 100);
+				for (int i = 0; i < jarr.length() && i < limit; i++) {
+					var str = jarr.getString(i);
+					table_model.insertData(new Object[] { str, null, null, null, null });
+				}
 			}
-		});
+		} catch (Exception x) {
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
+		} finally {
+			wuli.stop();
+		}
 		table_column_model.getColumn(0).setCellRenderer(new RightAlignCellRanderer());
 		table_column_model.getColumn(1).setCellRenderer(new RightAlignCellRanderer());
 		table_column_model.getColumn(2).setCellRenderer(new InstantCellRenderer(e.network));

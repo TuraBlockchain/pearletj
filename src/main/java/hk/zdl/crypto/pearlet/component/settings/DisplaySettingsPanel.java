@@ -1,10 +1,14 @@
 package hk.zdl.crypto.pearlet.component.settings;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -25,7 +29,12 @@ public class DisplaySettingsPanel extends JPanel {
 		panel.add(cbox2);
 		var cbox3 = new JCheckBox("Show notification on plot finish");
 		panel.add(cbox3);
-
+		var label_1 = new JLabel("Number of blocks to show:");
+		var spinner_1 = new JSpinner(new SpinnerNumberModel(100, 100, 1000, 100));
+		var panel_1 = new JPanel(new BorderLayout());
+		panel_1.add(label_1, BorderLayout.WEST);
+		panel_1.add(spinner_1, BorderLayout.CENTER);
+		panel.add(panel_1);
 		add(panel);
 
 		var perf = Util.getUserSettings();
@@ -42,20 +51,25 @@ public class DisplaySettingsPanel extends JPanel {
 		cbox2.setSelected(perf.getBoolean(DisplaySettings.SNSM, false));
 		cbox2.addActionListener(e -> {
 			perf.putBoolean(DisplaySettings.SNSM, cbox2.isSelected());
-			Util.submit(() -> {
-				perf.flush();
-				return null;
-			});
+			flush();
 		});
 
 		cbox3.setSelected(perf.getBoolean(DisplaySettings.SNPF, false));
 		cbox3.addActionListener(e -> {
 			perf.putBoolean(DisplaySettings.SNPF, cbox3.isSelected());
-			Util.submit(() -> {
-				perf.flush();
-				return null;
-			});
+			flush();
+		});
+		spinner_1.setValue(perf.getInt(DisplaySettings.BLOCK_COUNT, 100));
+		spinner_1.addChangeListener(e -> {
+			perf.putInt(DisplaySettings.BLOCK_COUNT, (Integer) spinner_1.getValue());
+			flush();
 		});
 	}
 
+	private static final void flush() {
+		Util.submit(() -> {
+			Util.getUserSettings().flush();
+			return null;
+		});
+	}
 }
