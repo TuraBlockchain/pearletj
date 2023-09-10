@@ -36,6 +36,7 @@ import hk.zdl.crypto.pearlet.util.Util;
 public class BlocksPanel extends JPanel {
 
 	private static final long serialVersionUID = 1455088889510667002L;
+	private static final int MAX_TABLE_ROW = 500;
 	private final Object lock = new Object();
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final WaitLayerUI wuli = new WaitLayerUI();
@@ -118,7 +119,7 @@ public class BlocksPanel extends JPanel {
 						return;
 					}
 					var jarr = CryptoUtil.getSignumBlockID(nw, account, 0, 0);
-					for (int i = 0; i < jarr.length(); i++) {
+					for (int i = 0; i < jarr.length() && i < MAX_TABLE_ROW; i++) {
 						var str = jarr.getString(i);
 						table_model.insertData(new Object[] { str, null, null, null, null });
 					}

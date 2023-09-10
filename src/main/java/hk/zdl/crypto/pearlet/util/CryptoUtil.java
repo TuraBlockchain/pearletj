@@ -290,7 +290,7 @@ public class CryptoUtil {
 		var request = new Request.Builder().url("https://api.covalenthq.com/v1/1/address/" + address + "/balances_v2/?quote-currency=ETH&format=JSON&nft=true&no-nft-fetch=true&key=" + _key).build();
 		var response = _client.newCall(request).execute();
 		try {
-			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 			if (jobj.optBoolean("error")) {
 				throw new IOException(jobj.optString("error_message"));
 			} else {
@@ -298,7 +298,7 @@ public class CryptoUtil {
 				return items;
 			}
 		} finally {
-			response.body().byteStream().close();
+			response.body().charStream().close();
 			response.close();
 		}
 	}
@@ -313,14 +313,14 @@ public class CryptoUtil {
 				.build();
 		var response = _client.newCall(request).execute();
 		try {
-			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 			if (jobj.optBoolean("error")) {
 				throw new IOException(jobj.optString("error_message"));
 			}
 			var items = jobj.getJSONObject("data").getJSONArray("items");
 			return items;
 		} finally {
-			response.body().byteStream().close();
+			response.body().charStream().close();
 			response.close();
 		}
 	}
@@ -338,11 +338,11 @@ public class CryptoUtil {
 					.build();
 			var response = client.newCall(request).execute();
 			try {
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 				return bArr;
 			} finally {
-				response.body().byteStream().close();
+				response.body().charStream().close();
 				response.body().close();
 			}
 		}
@@ -379,11 +379,11 @@ public class CryptoUtil {
 					.build();
 			var response = client.newCall(request).execute();
 			try {
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 				return bArr;
 			} finally {
-				response.body().byteStream().close();
+				response.body().charStream().close();
 				response.body().close();
 			}
 		}
@@ -498,11 +498,11 @@ public class CryptoUtil {
 					.build();
 			var response = client.newCall(request).execute();
 			try {
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 				return bArr;
 			} finally {
-				response.body().byteStream().close();
+				response.body().charStream().close();
 				response.body().close();
 			}
 		}
@@ -511,9 +511,9 @@ public class CryptoUtil {
 
 	public static byte[] issueAsset(CryptoNetwork nw, String asset_name, String description, long quantityQNT, long feeNQT, byte[] public_key) throws Exception {
 		if (nw.isBurst()) {
-			if (feeNQT < 100000000000L) {
-				throw new IllegalArgumentException("not enought fee");
-			}
+//			if (feeNQT < 100000000000L) {
+//				throw new IllegalArgumentException("not enought fee");
+//			}
 			var server_url = nw.getUrl();
 			if (!server_url.endsWith("/")) {
 				server_url += "/";
@@ -526,14 +526,14 @@ public class CryptoUtil {
 					.build();
 			var response = client.newCall(request).execute();
 			try {
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 				if (jobj.optInt("errorCode", 0) != 0) {
 					throw new IOException(jobj.optString("errorDescription"));
 				}
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 				return bArr;
 			} finally {
-				response.body().byteStream().close();
+				response.body().charStream().close();
 				response.body().close();
 			}
 		}
@@ -556,14 +556,14 @@ public class CryptoUtil {
 					.build();
 			var response = client.newCall(request).execute();
 			try {
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 				if (jobj.optInt("errorCode", 0) != 0) {
 					throw new IOException(jobj.optString("errorDescription"));
 				}
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 				return bArr;
 			} finally {
-				response.body().byteStream().close();
+				response.body().charStream().close();
 				response.body().close();
 			}
 		}
@@ -598,14 +598,14 @@ public class CryptoUtil {
 		var request = new Request.Builder().url(server_url + "burst?requestType=getBlock&block=" + block_id).build();
 		var response = _client.newCall(request).execute();
 		try {
-			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 			if (jobj.optInt("errorCode") > 0) {
 				throw new IOException(jobj.optString("errorDescription"));
 			} else {
 				return jobj;
 			}
 		} finally {
-			response.body().byteStream().close();
+			response.body().charStream().close();
 			response.close();
 		}
 	}
@@ -623,7 +623,7 @@ public class CryptoUtil {
 		var request = new Request.Builder().url(server_url + "burst?requestType=getAccountBlockIds&account=" + address + "&timestamp=" + timestamp).build();
 		var response = _client.newCall(request).execute();
 		try {
-			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 			if (jobj.optInt("errorCode") > 0) {
 				if (jobj.optInt("errorCode") == 5) {
 					return new JSONArray();
@@ -634,7 +634,7 @@ public class CryptoUtil {
 			var items = jobj.getJSONArray("blockIds");
 			return items;
 		} finally {
-			response.body().byteStream().close();
+			response.body().charStream().close();
 			response.close();
 		}
 	}
@@ -652,7 +652,7 @@ public class CryptoUtil {
 		var request = new Request.Builder().url(server_url + "burst?requestType=getAccountBlockIds&account=" + address + "&firstIndex=" + from + "&lastIndex=" + to).build();
 		var response = _client.newCall(request).execute();
 		try {
-			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 			if (jobj.optInt("errorCode") > 0) {
 				if (jobj.optInt("errorCode") == 5) {
 					return new JSONArray();
@@ -663,7 +663,7 @@ public class CryptoUtil {
 			var items = jobj.getJSONArray("blockIds");
 			return items;
 		} finally {
-			response.body().byteStream().close();
+			response.body().charStream().close();
 			response.close();
 		}
 	}
@@ -679,14 +679,14 @@ public class CryptoUtil {
 		var request = new Request.Builder().url(server_url + "burst?requestType=getAccountTransactionIds&account=" + address + "&firstIndex=" + from + "&lastIndex=" + to).build();
 		var response = _client.newCall(request).execute();
 		try {
-			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 			if (jobj.optInt("errorCode") > 0) {
 				throw new IOException(jobj.optString("errorDescription"));
 			}
 			var items = jobj.getJSONArray("transactionIds");
 			return items;
 		} finally {
-			response.body().byteStream().close();
+			response.body().charStream().close();
 			response.close();
 		}
 	}
@@ -702,13 +702,13 @@ public class CryptoUtil {
 		var request = new Request.Builder().url(server_url + "burst?requestType=getTransaction&transaction=" + tx_id).build();
 		var response = _client.newCall(request).execute();
 		try {
-			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 			if (jobj.optInt("errorCode") > 0) {
 				throw new IOException(jobj.optString("errorDescription"));
 			}
 			return jobj;
 		} finally {
-			response.body().byteStream().close();
+			response.body().charStream().close();
 			response.close();
 		}
 	}
@@ -824,14 +824,14 @@ public class CryptoUtil {
 				.build();
 		var response = client.newCall(request).execute();
 		try {
-			var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+			var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 			if (jobj.optInt("errorCode", 0) != 0) {
 				throw new IOException(jobj.optString("errorDescription"));
 			}
 			byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 			return bArr;
 		} finally {
-			response.body().byteStream().close();
+			response.body().charStream().close();
 			response.body().close();
 		}
 	}
@@ -849,7 +849,7 @@ public class CryptoUtil {
 			var request = new Request.Builder().url(server_url + "burst?requestType=getRewardRecipient&account=" + account).get().build();
 			var response = client.newCall(request).execute();
 			try {
-				var jobj = new JSONObject(new JSONTokener(response.body().byteStream()));
+				var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
 				if (jobj.optInt("errorCode", 0) == 5) {// Unknown account
 					return Optional.empty();
 				} else if (jobj.has("errorDescription")) {
@@ -859,7 +859,7 @@ public class CryptoUtil {
 				}
 				return Optional.empty();
 			} finally {
-				response.body().byteStream().close();
+				response.body().charStream().close();
 				response.close();
 			}
 		}
