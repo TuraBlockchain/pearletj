@@ -23,6 +23,9 @@ public class DisplaySettingsPanel extends JPanel {
 		panel.add(cbox1);
 		var cbox2 = new JCheckBox("Show notification for solo local miner(s)");
 		panel.add(cbox2);
+		var cbox3 = new JCheckBox("Show notification on plot finish");
+		panel.add(cbox3);
+
 		add(panel);
 
 		var perf = Util.getUserSettings();
@@ -39,6 +42,15 @@ public class DisplaySettingsPanel extends JPanel {
 		cbox2.setSelected(perf.getBoolean(DisplaySettings.SNSM, false));
 		cbox2.addActionListener(e -> {
 			perf.putBoolean(DisplaySettings.SNSM, cbox2.isSelected());
+			Util.submit(() -> {
+				perf.flush();
+				return null;
+			});
+		});
+
+		cbox3.setSelected(perf.getBoolean(DisplaySettings.SNPF, false));
+		cbox3.addActionListener(e -> {
+			perf.putBoolean(DisplaySettings.SNPF, cbox3.isSelected());
 			Util.submit(() -> {
 				perf.flush();
 				return null;

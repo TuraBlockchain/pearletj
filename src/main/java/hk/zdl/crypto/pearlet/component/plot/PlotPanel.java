@@ -48,6 +48,7 @@ import com.jakewharton.byteunits.BinaryByteUnit;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.PlotDoneEvent;
+import hk.zdl.crypto.pearlet.component.settings.DisplaySettings;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.ui.CloseableTabbedPaneLayerUI;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
@@ -191,13 +192,13 @@ public class PlotPanel extends JPanel implements ActionListener {
 		} else if (fz_op.getSelectedItem().equals("GB")) {
 			l = BinaryByteUnit.GIBIBYTES.toBytes(l);
 		}
-		l = l / byte_per_nounce;
+		var file_size = l;
+		var nounces = l / byte_per_nounce;
 
-		if (l < 10) {
+		if (nounces < 10) {
 			JOptionPane.showMessageDialog(getRootPane(), "File size too small!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		var _l = new long[] { l };
 
 		var count = (Integer) pcs_spinner.getValue();
 		var id = SignumAddress.fromRs(account).getID();
@@ -247,14 +248,14 @@ public class PlotPanel extends JPanel implements ActionListener {
 					for (var i = 0; i < count; i++) {
 						var _i = i;
 						try {
-							hk.zdl.crypto.peth.plot.gui.Main.do_plot(Paths.get(plot_path_str), id, _l[0], new PlotProgressListener() {
+							hk.zdl.crypto.peth.plot.gui.Main.do_plot(Paths.get(plot_path_str), id, nounces, new PlotProgressListener() {
 
 								@Override
 								public void onProgress(Type type, float progress, String rate, String ETA) {
 									if (type == Type.WRIT) {
 										model.setValueAt(progress, _i, 1);
 										if (progress >= 100) {
-											EventBus.getDefault().post(new PlotDoneEvent(plot_path));
+											on_plot_done(plot_path, file_size, id);
 										}
 									}
 								}
@@ -271,7 +272,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 						jobj.put("id", id);
 						jobj.put("path", plot_path_str);
 						jobj.put("count", count);
-						jobj.put("nounce", _l[0]);
+						jobj.put("nounce", nounces);
 						jobj.put("exitOnDone", true);
 
 						var str = Base64.getEncoder().encodeToString(jobj.toString().getBytes(Charset.defaultCharset()));
@@ -288,7 +289,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 							var p = o.getFloat("progress");
 							model.setValueAt(p, i, 1);
 							if (p >= 100) {
-								EventBus.getDefault().post(new PlotDoneEvent(plot_path));
+								on_plot_done(plot_path, file_size, id);
 							}
 						}
 					} catch (Exception x) {
@@ -299,4 +300,23 @@ public class PlotPanel extends JPanel implements ActionListener {
 		});
 	}
 
+	private static final void on_plot_done(Path path, long fz, String id) {
+		EventBus.getDefault().post(new PlotDoneEvent(path));
+		var perf = Util.getUserSettings();
+		if (perf.getBoolean(DisplaySettings.SNPF, false)) {
+			var msg = "File Size: ";
+			if (fz > BinaryByteUnit.GIBIBYTES.toBytes(1)) {
+				msg += BinaryByteUnit.BYTES.toGibibytes(fz) + "GB";
+			} else {
+				msg += BinaryByteUnit.BYTES.toMebibytes(fz) + "MB";
+			}
+			msg += "\nID: ";
+			if (perf.getBoolean(DisplaySettings.SNID, false)) {
+				msg += id;
+			} else {
+				msg += SignumAddress.fromEither(id).getRawAddress();
+			}
+			UIUtil.displayMessage("Plot Done!", msg, MessageType.INFO);
+		}
+	}
 }
