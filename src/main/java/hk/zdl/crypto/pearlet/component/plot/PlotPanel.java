@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -182,6 +183,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 				}
 			}
 		}
+		var plot_path_str = plot_path.toFile().getAbsolutePath();
 
 		long l = (Integer) fz_spinner.getValue();
 		if (fz_op.getSelectedItem().equals("MB")) {
@@ -241,31 +243,33 @@ public class PlotPanel extends JPanel implements ActionListener {
 				}
 			}
 			if (jar_path == null) {
-				for (var i = 0; i < count; i++) {
-					var _i = i;
-					try {
-						hk.zdl.crypto.peth.plot.gui.Main.do_plot(plot_path, id, _l[0], new PlotProgressListener() {
+				es.submit(() -> {
+					for (var i = 0; i < count; i++) {
+						var _i = i;
+						try {
+							hk.zdl.crypto.peth.plot.gui.Main.do_plot(Paths.get(plot_path_str), id, _l[0], new PlotProgressListener() {
 
-							@Override
-							public void onProgress(Type type, float progress, String rate, String ETA) {
-								if (type == Type.WRIT) {
-									model.setValueAt(progress, _i, 1);
-									if (progress >= 100) {
-										EventBus.getDefault().post(new PlotDoneEvent(plot_path));
+								@Override
+								public void onProgress(Type type, float progress, String rate, String ETA) {
+									if (type == Type.WRIT) {
+										model.setValueAt(progress, _i, 1);
+										if (progress >= 100) {
+											EventBus.getDefault().post(new PlotDoneEvent(plot_path));
+										}
 									}
 								}
-							}});
-					} catch (Exception x) {
-						JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-						break;
+							});
+						} catch (Exception x) {
+							UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
+						}
 					}
-				}
+				});
 			} else {
 				es.submit(() -> {
 					try {
 						var jobj = new JSONObject();
 						jobj.put("id", id);
-						jobj.put("path", plot_path.toFile().getAbsolutePath());
+						jobj.put("path", plot_path_str);
 						jobj.put("count", count);
 						jobj.put("nounce", _l[0]);
 						jobj.put("exitOnDone", true);
