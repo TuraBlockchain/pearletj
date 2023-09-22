@@ -11,7 +11,7 @@ import hk.zdl.crypto.pearlet.util.CryptoUtil;
 
 public class BlockCache {
 
-	private static final Map<Entry, JSONObject> map = new WeakHashMap<>();
+	private static final Map<Entry, JSONObject> map = new WeakHashMap<>(5000);
 
 	static class Entry {
 		private final CryptoNetwork nw;
@@ -48,6 +48,8 @@ public class BlockCache {
 		if (o == null) {
 			o = CryptoUtil.getSignumBlock(nw, block_id);
 			map.put(e, o);
+		} else {
+//			System.out.println("CACHE HIT!!!!!");
 		}
 		return o;
 	}

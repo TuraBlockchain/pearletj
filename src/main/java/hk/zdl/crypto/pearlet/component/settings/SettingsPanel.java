@@ -15,6 +15,7 @@ public class SettingsPanel extends JTabbedPane {
 		addTab(SettingsPanelEvent.NET, new NetworkSettingsPanel());
 		addTab(SettingsPanelEvent.ACC, new AccountSettingsPanel());
 		addTab("Display", new DisplaySettingsPanel());
+		addTab("Lock", new LockWalletPanel());
 		EventBus.getDefault().register(this);
 	}
 

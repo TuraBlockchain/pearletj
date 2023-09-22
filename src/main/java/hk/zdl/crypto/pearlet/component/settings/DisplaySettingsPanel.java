@@ -23,7 +23,7 @@ public class DisplaySettingsPanel extends JPanel {
 	public DisplaySettingsPanel() {
 		super(new FlowLayout());
 		var panel = new JPanel(new GridLayout(0, 1));
-		var cbox1 = new JCheckBox("Display PETH address as numeric ID");
+		var cbox1 = new JCheckBox("Display Tura address as numeric id");
 		panel.add(cbox1);
 		var cbox2 = new JCheckBox("Show notification for solo local miner(s)");
 		panel.add(cbox2);

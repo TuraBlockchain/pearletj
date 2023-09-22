@@ -298,7 +298,7 @@ public class CryptoUtil {
 				return items;
 			}
 		} finally {
-			response.body().charStream().close();
+			response.body().close();
 			response.close();
 		}
 	}
@@ -320,7 +320,7 @@ public class CryptoUtil {
 			var items = jobj.getJSONObject("data").getJSONArray("items");
 			return items;
 		} finally {
-			response.body().charStream().close();
+			response.body().close();
 			response.close();
 		}
 	}
@@ -342,8 +342,8 @@ public class CryptoUtil {
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 				return bArr;
 			} finally {
-				response.body().charStream().close();
 				response.body().close();
+				response.close();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -383,8 +383,8 @@ public class CryptoUtil {
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 				return bArr;
 			} finally {
-				response.body().charStream().close();
 				response.body().close();
+				response.close();
 			}
 		}
 
@@ -502,8 +502,8 @@ public class CryptoUtil {
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 				return bArr;
 			} finally {
-				response.body().charStream().close();
 				response.body().close();
+				response.close();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -533,8 +533,8 @@ public class CryptoUtil {
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 				return bArr;
 			} finally {
-				response.body().charStream().close();
 				response.body().close();
+				response.close();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -563,8 +563,8 @@ public class CryptoUtil {
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 				return bArr;
 			} finally {
-				response.body().charStream().close();
 				response.body().close();
+				response.close();
 			}
 		}
 		throw new UnsupportedOperationException();
@@ -605,7 +605,7 @@ public class CryptoUtil {
 				return jobj;
 			}
 		} finally {
-			response.body().charStream().close();
+			response.body().close();
 			response.close();
 		}
 	}
@@ -634,7 +634,7 @@ public class CryptoUtil {
 			var items = jobj.getJSONArray("blockIds");
 			return items;
 		} finally {
-			response.body().charStream().close();
+			response.body().close();
 			response.close();
 		}
 	}
@@ -663,7 +663,7 @@ public class CryptoUtil {
 			var items = jobj.getJSONArray("blockIds");
 			return items;
 		} finally {
-			response.body().charStream().close();
+			response.body().close();
 			response.close();
 		}
 	}
@@ -686,7 +686,7 @@ public class CryptoUtil {
 			var items = jobj.getJSONArray("transactionIds");
 			return items;
 		} finally {
-			response.body().charStream().close();
+			response.body().close();
 			response.close();
 		}
 	}
@@ -708,7 +708,7 @@ public class CryptoUtil {
 			}
 			return jobj;
 		} finally {
-			response.body().charStream().close();
+			response.body().close();
 			response.close();
 		}
 	}
@@ -831,8 +831,8 @@ public class CryptoUtil {
 			byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 			return bArr;
 		} finally {
-			response.body().charStream().close();
 			response.body().close();
+			response.close();
 		}
 	}
 
@@ -859,7 +859,7 @@ public class CryptoUtil {
 				}
 				return Optional.empty();
 			} finally {
-				response.body().charStream().close();
+				response.body().close();
 				response.close();
 			}
 		}

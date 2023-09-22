@@ -46,7 +46,7 @@ public class Main {
 			var msg = x.getLocalizedMessage();
 			if (x.getClass().equals(StandardException.class)) {
 				if (((StandardException) x).getSQLState().equals("XSDB6")) {
-					msg = "Cannot run multi instances in concurrent!";
+					msg = "Cannot run multi instances concurrently!";
 				}
 			}
 			JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
@@ -66,7 +66,7 @@ public class Main {
 				var jobj = jarr.getJSONObject(0);
 				var name = jobj.getString("networkName");
 				var url = jobj.getString("server url");
-				MyDb.get_networks().stream().filter(n -> n.getUrl().equals("http://mainnet.peth.world:6876")).findFirst().ifPresent(nw -> {
+				MyDb.get_networks().stream().filter(n -> n.getUrl().contains("mainnet.peth.world")).findFirst().ifPresent(nw -> {
 					nw.setName(name);
 					nw.setUrl(url);
 					MyDb.update_network(nw);

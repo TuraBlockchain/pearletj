@@ -53,9 +53,6 @@ public class LocalMiner {
 		m.put("logfile_log_pattern", "");
 		m.put("logfile_max_count", 0);
 		m.put("logfile_max_size", 0);
-		if (server_url.getHost().equals("mainnet.ppcoin.cc")) {
-			m.put("get_mining_info_interval", 10000);
-		}
 		m.put("show_progress", false);
 		var fz = plot_dirs.parallelStream().flatMap(t -> {
 			try {

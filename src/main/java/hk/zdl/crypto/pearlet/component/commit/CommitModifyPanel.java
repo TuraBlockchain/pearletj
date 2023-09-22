@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -198,25 +199,19 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 						do_revoke_commit(public_key, private_key, amount, fee_dml);
 					}
 				} catch (Exception x) {
-					btn.setEnabled(true);
-					busy_icon.stop();
-					wuli.stop();
-					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
+					SwingUtilities.invokeLater(() -> {
+						btn.setEnabled(true);
+						busy_icon.stop();
+						wuli.stop();
+						JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
+						if (x.getMessage().trim().contains("Not enough funds")) {
+							Util.submit(new RefreshChart(committed_balance, account));
+						}
+					});
 					return null;
 				}
 				UIUtil.displayMessage("Commitment", "Commitment is set.");
-				var old_committed_balance = committed_balance;
-				var acc = account;
-				for (var j = 0; j < 10; j++) {
-					btn.setEnabled(false);
-					busy_icon.start();
-					wuli.start();
-					TimeUnit.SECONDS.sleep(2);
-					onMessage(new AccountChangeEvent(network, account));
-					if (acc != account || committed_balance.intValue() != old_committed_balance.intValue()) {
-						break;
-					}
-				}
+				Util.submit(new RefreshChart(committed_balance, account));
 			}
 			return null;
 		});
@@ -232,6 +227,34 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		byte[] unsigned = CryptoUtil.removeCommitment(network, public_key, amount, fee);
 		byte[] signed = CryptoUtil.signTransaction(network, private_key, unsigned);
 		CryptoUtil.broadcastTransaction(network, signed);
+	}
+
+	private class RefreshChart implements Callable<Void> {
+
+		private final BigDecimal old_committed_balance;
+		private final String acc;
+
+		RefreshChart(BigDecimal old_committed_balance, String acc) {
+			super();
+			this.old_committed_balance = old_committed_balance;
+			this.acc = acc;
+		}
+
+		@Override
+		public Void call() throws Exception {
+			for (var j = 0; j < 10; j++) {
+				btn.setEnabled(false);
+				busy_icon.start();
+				wuli.start();
+				TimeUnit.SECONDS.sleep(2);
+				onMessage(new AccountChangeEvent(network, account));
+				if (acc != account || committed_balance.intValue() != old_committed_balance.intValue()) {
+					break;
+				}
+			}
+			return null;
+		}
+
 	}
 
 }

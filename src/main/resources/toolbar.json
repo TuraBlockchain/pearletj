@@ -32,7 +32,7 @@
   "icon" : "tractor-200.png"
 }, {
   "id" : "miner",
-  "text" : "Miner/Mining",
+  "text" : "Mining",
   "icon" : "minecart-loaded.svg"
 }, {
   "id" : "sets",

@@ -16,7 +16,7 @@ public class SettingsPanelEvent {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("MyGUIMessageEvent [str=").append(str).append("]");
+		builder.append("SettingsPanelEvent [str=").append(str).append("]");
 		return builder.toString();
 	}
 

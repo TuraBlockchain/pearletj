@@ -3,11 +3,7 @@ package hk.zdl.crypto.pearlet.component;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.SystemTray;
 import java.awt.Toolkit;
-import java.awt.TrayIcon;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -16,12 +12,15 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import org.greenrobot.eventbus.EventBus;
+
 import com.formdev.flatlaf.extras.FlatDesktop;
 import com.formdev.flatlaf.util.SystemInfo;
 
 import hk.zdl.crypto.pearlet.MainFrameSwitch;
 import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.blocks.BlocksPanel;
+import hk.zdl.crypto.pearlet.component.event.WalletLockEvent;
 import hk.zdl.crypto.pearlet.component.miner.MinerPanel;
 import hk.zdl.crypto.pearlet.component.plot.PlotPanel;
 import hk.zdl.crypto.pearlet.component.settings.SettingsPanel;
@@ -31,7 +30,7 @@ import hk.zdl.crypto.pearlet.util.Util;
 
 public class MainFrame {
 
-	public static void create(Image app_icon) throws Exception{
+	public static void create(Image app_icon) throws Exception {
 		SwingUtilities.invokeLater(() -> {
 			var appName = Util.getProp().get("appName");
 			var frame = new JFrame(appName);
@@ -73,26 +72,15 @@ public class MainFrame {
 				@Override
 				public void windowClosing(WindowEvent e) {
 					if (UIUtil.show_confirm_exit_dialog(frame)) {
+						frame.dispose();
 						System.exit(0);
 					}
 				}
 			});
-			try {
-				var quit_menu_item = new MenuItem("Quit");
-				quit_menu_item.addActionListener((e) -> {
-					if (UIUtil.show_confirm_exit_dialog(frame)) {
-						System.exit(0);
-					}
-				});
-				var menu = new PopupMenu();
-				menu.add(quit_menu_item);
-				TrayIcon trayIcon = new TrayIcon(app_icon, Util.getProp().get("appName"), menu);
-				trayIcon.setImageAutoSize(true);
-				SystemTray.getSystemTray().add(trayIcon);
-			} catch (Exception e) {
-			}
+			new TrayIconMenu(app_icon, frame);
 			FlatDesktop.setQuitHandler((e) -> {
 				if (UIUtil.show_confirm_exit_dialog(frame)) {
+					frame.dispose();
 					e.performQuit();
 				} else {
 					e.cancelQuit();
@@ -109,7 +97,8 @@ public class MainFrame {
 			}
 
 			IndepandentWindows.add(frame);
+			EventBus.getDefault().post(new WalletLockEvent(WalletLockEvent.Type.LOCK));
 		});
-		
+
 	}
 }

@@ -11,7 +11,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -80,24 +79,22 @@ public class ReceivePanel extends JPanel {
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
-		if (e.account == null)
-			return;
 		setText(e.account);
-		String qr_str = "";
-		if (e.network.isBurst()) {
-			JSONObject jobj = new JSONObject();
-			jobj.put("recipient", e.account);
-			String str = Base64.encodeBytes(jobj.toString().getBytes());
-			qr_str = "signum://v1?action=pay&payload=" + str;
-		} else if (e.network.isWeb3J()) {
-			qr_str = "ethereum:" + e.account;
-		}
-		ByteArrayOutputStream baos = new ByteArrayOutputStream(5120);
-		QRCode.from(qr_str).to(ImageType.GIF).writeTo(baos);
-		BufferedImage img = null;
+		BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
 		try {
+			String qr_str = "";
+			if (e.network.isBurst()) {
+				JSONObject jobj = new JSONObject();
+				jobj.put("recipient", e.account);
+				String str = Base64.encodeBytes(jobj.toString().getBytes());
+				qr_str = "signum://v1?action=pay&payload=" + str;
+			} else if (e.network.isWeb3J()) {
+				qr_str = "ethereum:" + e.account;
+			}
+			ByteArrayOutputStream baos = new ByteArrayOutputStream(5120);
+			QRCode.from(qr_str).to(ImageType.GIF).writeTo(baos);
 			img = ImageIO.read(new ByteArrayInputStream(baos.toByteArray()));
-		} catch (IOException e1) {
+		} catch (Exception x) {
 		}
 		qr_code.setIcon(new ImageIcon(img));
 	}
