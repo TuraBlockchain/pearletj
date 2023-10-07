@@ -174,17 +174,15 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 					JOptionPane.showMessageDialog(getRootPane(), "Negetive Number Not Allowed!", "ERROR", JOptionPane.ERROR_MESSAGE);
 					return null;
 				}
-				var public_key = new byte[] {};
-				var private_key = new byte[] {};
 				var opt_r = CryptoAccount.getAccount(network, account);
 				if (opt_r.isPresent()) {
-					public_key = opt_r.get().getPublicKey();
-					private_key = opt_r.get().getPrivateKey();
 				} else {
 					JOptionPane.showMessageDialog(getRootPane(), "Account not found in database!", "ERROR", JOptionPane.ERROR_MESSAGE);
 					return null;
 				}
 				try {
+					var public_key = opt_r.get().getPublicKey();
+					var private_key = opt_r.get().getPrivateKey();
 					var fee_qnt = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
 					var fee_dml = new BigDecimal(fee_qnt, CryptoUtil.getConstants(network).getInt("decimalPlaces"));
 					btn.setEnabled(false);

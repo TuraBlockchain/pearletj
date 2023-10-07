@@ -22,8 +22,6 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
-import com.jfinal.plugin.activerecord.Record;
-
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.lock.CryptoAccount;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;

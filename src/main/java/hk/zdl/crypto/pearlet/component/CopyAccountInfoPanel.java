@@ -5,7 +5,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
@@ -111,7 +110,7 @@ public class CopyAccountInfoPanel extends JPanel {
 		if(network==null) {
 			return;
 		}
-		Optional<CryptoAccount> opt_r = CryptoAccount.getAccount(network, account);
+		var opt_r = CryptoAccount.getAccount(network, account);
 		if (opt_r.isPresent()) {
 			public_key = opt_r.get().getPublicKey();
 		} else {

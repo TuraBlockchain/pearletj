@@ -9,7 +9,6 @@ import java.awt.Insets;
 import java.awt.TrayIcon.MessageType;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -27,8 +26,6 @@ import javax.swing.JTextField;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
@@ -103,15 +100,15 @@ public class SetAccountInfoPanel extends JPanel {
 			}
 			send_btn.setEnabled(false);
 			Util.submit(() -> {
-				Optional<CryptoAccount> o_r = CryptoAccount.getAccount(network, account);
-				if (o_r.isPresent()) {
-					byte[] public_key = o_r.get().getPublicKey();
-					byte[] private_key = o_r.get().getPrivateKey();
-					if (network.isBurst()) {
+				if (network.isBurst()) {
+					var o_r = CryptoAccount.getAccount(network, account);
+					if (o_r.isPresent()) {
 						try {
 							var feeNQT = fee_slider.getValue();
-							byte[] ugsigned_tx = CryptoUtil.setAccountInfo(network, name_field.getText().trim(), desc_field.getText().trim(), feeNQT, public_key);
-							byte[] signed_tx = CryptoUtil.signTransaction(network, private_key, ugsigned_tx);
+							var public_key = o_r.get().getPublicKey();
+							var private_key = o_r.get().getPrivateKey();
+							var ugsigned_tx = CryptoUtil.setAccountInfo(network, name_field.getText().trim(), desc_field.getText().trim(), feeNQT, public_key);
+							var signed_tx = CryptoUtil.signTransaction(network, private_key, ugsigned_tx);
 							CryptoUtil.broadcastTransaction(network, signed_tx);
 							UIUtil.displayMessage("Set Account Info", "Account Info is set!", MessageType.INFO);
 						} catch (Exception x) {
