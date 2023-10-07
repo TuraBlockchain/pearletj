@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.stream.Stream;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -16,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -24,6 +26,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import hk.zdl.crypto.pearlet.component.event.WalletLockEvent;
 import hk.zdl.crypto.pearlet.lock.WalletLock;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class LockWalletPanel extends JPanel implements ActionListener {
 
@@ -35,7 +38,6 @@ public class LockWalletPanel extends JPanel implements ActionListener {
 	private final JComboBox<Entry> box = new JComboBox<>(Entry.values());
 
 	public LockWalletPanel() {
-		box.setSelectedItem(Entry.NEVER);
 		EventBus.getDefault().register(this);
 		t_btn.addActionListener(this);
 		t_btn.setPreferredSize(new Dimension(150, 32));
@@ -51,6 +53,19 @@ public class LockWalletPanel extends JPanel implements ActionListener {
 		panel_1.add(chg_pwd_btn, new GridBagConstraints(0, 2, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
 		panel.add(panel_1);
 		add(panel);
+		box.addActionListener(e -> {
+			var x = (Entry) box.getSelectedItem();
+			var p = Util.getUserSettings();
+			p.putInt(WalletLock.AUTO_LOCK_MIN, x.val);
+			Util.submit(() -> {
+				p.flush();
+				return null;
+			});
+		});
+		SwingUtilities.invokeLater(() -> {
+			var i = Util.getUserSettings().getInt(WalletLock.AUTO_LOCK_MIN, -1);
+			Stream.of(Entry.values()).filter(e -> e.val == i).findFirst().ifPresent(e -> box.setSelectedItem(e));
+		});
 	}
 
 	@Override

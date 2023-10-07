@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.apache.derby.shared.common.error.StandardException;
 import org.json.JSONArray;
@@ -55,7 +56,7 @@ public class Main {
 		if (db_empty) {
 			create_default_networks();
 		}
-		MainFrame.create(app_icon);
+		SwingUtilities.invokeLater(()->new MainFrame(Util.getProp().get("appName"),app_icon));
 		new NWMon();
 		new TxHistoryQueryExecutor();
 		Util.submit(new Callable<Void>() {

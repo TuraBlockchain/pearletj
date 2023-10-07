@@ -3,6 +3,7 @@ package hk.zdl.crypto.pearlet.component;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Taskbar;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -10,9 +11,11 @@ import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.JProgressBar;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import com.formdev.flatlaf.extras.FlatDesktop;
 import com.formdev.flatlaf.util.SystemInfo;
@@ -20,7 +23,7 @@ import com.formdev.flatlaf.util.SystemInfo;
 import hk.zdl.crypto.pearlet.MainFrameSwitch;
 import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.blocks.BlocksPanel;
-import hk.zdl.crypto.pearlet.component.event.WalletLockEvent;
+import hk.zdl.crypto.pearlet.component.event.WalletTimerEvent;
 import hk.zdl.crypto.pearlet.component.miner.MinerPanel;
 import hk.zdl.crypto.pearlet.component.plot.PlotPanel;
 import hk.zdl.crypto.pearlet.component.settings.SettingsPanel;
@@ -29,79 +32,96 @@ import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
-public class MainFrame {
+public class MainFrame extends JFrame {
 
-	public static void create(Image app_icon) throws Exception {
-		SwingUtilities.invokeLater(() -> {
-			var appName = Util.getProp().get("appName");
-			var frame = new JFrame(appName);
-			frame.setIconImage(app_icon);
-			frame.getContentPane().setLayout(new BorderLayout());
-			var panel1 = new JPanel(new BorderLayout());
-			var panel2 = new JPanel();
-			var naa_bar = new NetworkAndAccountBar();
-			panel1.add(naa_bar, BorderLayout.NORTH);
-			panel1.add(panel2, BorderLayout.CENTER);
-			frame.add(panel1, BorderLayout.CENTER);
+	private static final long serialVersionUID = 6121732572128813921L;
+	private Dimension frame_size = new Dimension(Util.getProp().getInt("default_window_width"), Util.getProp().getInt("default_window_height"));
+	private JPanel panel1 = new JPanel(new BorderLayout());
+	private JPanel panel2 = new JPanel();
+	private NetworkAndAccountBar naa_bar = new NetworkAndAccountBar();
+	private JProgressBar bar = new JProgressBar();
+	private MainFrameSwitch mfs = new MainFrameSwitch(panel2);
+	private MyToolbar toolbar = new MyToolbar(mfs);
 
-			var mfs = new MainFrameSwitch(panel2);
-			mfs.put("dashboard", new DashBoard());
-			mfs.put("txs", new TranscationPanel());
-			mfs.put("blocks", new BlocksPanel());
-			mfs.put("send", new SendPanel());
-			mfs.put("rcv", new ReceivePanel());
-			mfs.put("acc_info", new AccountInfoPanel());
-			mfs.put("plot", new PlotPanel());
-			mfs.put("miner", new MinerPanel());
-			mfs.put("alis", new AlisesPanel());
-			mfs.put("sets", new SettingsPanel());
-			mfs.put("about", new AboutPanel());
-			var toolbar = new MyToolbar(mfs);
-			toolbar.clickButton("dashboard");
-			frame.add(toolbar, BorderLayout.WEST);
+	public MainFrame(String appName, Image app_icon) {
+		super(appName);
+		setIconImage(app_icon);
+		EventBus.getDefault().register(this);
+		setLayout(new BorderLayout());
+		add(bar, BorderLayout.SOUTH);
+		panel1.add(naa_bar, BorderLayout.NORTH);
+		panel1.add(panel2, BorderLayout.CENTER);
+		add(panel1, BorderLayout.CENTER);
 
-			var frame_size = new Dimension(Util.getProp().getInt("default_window_width"), Util.getProp().getInt("default_window_height"));
-			frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-			frame.setPreferredSize(frame_size);
-			frame.setMinimumSize(frame_size);
-			frame.setSize(frame_size);
-			frame.pack();
-			frame.setLocationRelativeTo(null);
-			frame.setVisible(true);
-			frame.addWindowListener(new WindowAdapter() {
+		mfs.put("dashboard", new DashBoard());
+		mfs.put("txs", new TranscationPanel());
+		mfs.put("blocks", new BlocksPanel());
+		mfs.put("send", new SendPanel());
+		mfs.put("rcv", new ReceivePanel());
+		mfs.put("acc_info", new AccountInfoPanel());
+		mfs.put("plot", new PlotPanel());
+		mfs.put("miner", new MinerPanel());
+		mfs.put("alis", new AlisesPanel());
+		mfs.put("sets", new SettingsPanel());
+		mfs.put("about", new AboutPanel());
+		toolbar.clickButton("dashboard");
+		add(toolbar, BorderLayout.WEST);
 
-				@Override
-				public void windowClosing(WindowEvent e) {
-					if (UIUtil.show_confirm_exit_dialog(frame)) {
-						frame.setVisible(false);
-						frame.dispose();
-						System.exit(0);
-					}
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		setPreferredSize(frame_size);
+		setMinimumSize(frame_size);
+		setSize(frame_size);
+		pack();
+		setLocationRelativeTo(null);
+		setVisible(true);
+		addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (UIUtil.show_confirm_exit_dialog(MainFrame.this)) {
+					setVisible(false);
+					dispose();
+					System.exit(0);
 				}
-			});
-			new TrayIconMenu(app_icon, frame);
-			FlatDesktop.setQuitHandler((e) -> {
-				if (UIUtil.show_confirm_exit_dialog(frame)) {
-					frame.setVisible(false);
-					frame.dispose();
-					e.performQuit();
-				} else {
-					e.cancelQuit();
-				}
-			});
-			var screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-			if (screenSize.getWidth() <= frame.getWidth() || screenSize.getHeight() <= frame.getHeight()) {
-				frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			}
-			if (SystemInfo.isMacOS) {
-				frame.getRootPane().putClientProperty("apple.awt.fullWindowContent", true);
-				frame.getRootPane().putClientProperty("apple.awt.transparentTitleBar", true);
-				toolbar.setBorder(BorderFactory.createEmptyBorder(naa_bar.getHeight(), 0, 0, 0));
-			}
-			WalletLock.setFrame(frame);
-			IndepandentWindows.add(frame);
-			EventBus.getDefault().post(new WalletLockEvent(WalletLockEvent.Type.LOCK));
 		});
+		new TrayIconMenu(app_icon, MainFrame.this);
+		FlatDesktop.setQuitHandler((e) -> {
+			if (UIUtil.show_confirm_exit_dialog(MainFrame.this)) {
+				setVisible(false);
+				dispose();
+				e.performQuit();
+			} else {
+				e.cancelQuit();
+			}
+		});
+		var screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		if (screenSize.getWidth() <= getWidth() || screenSize.getHeight() <= getHeight()) {
+			setExtendedState(MAXIMIZED_BOTH);
+		}
+		if (SystemInfo.isMacOS) {
+			getRootPane().putClientProperty("apple.awt.fullWindowContent", true);
+			getRootPane().putClientProperty("apple.awt.transparentTitleBar", true);
+			toolbar.setBorder(BorderFactory.createEmptyBorder(naa_bar.getHeight(), 0, 0, 0));
+		}
+		WalletLock.setFrame(this);
+		IndepandentWindows.add(this);
+	}
 
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(WalletTimerEvent e) {
+		bar.setMaximum(e.total);
+		bar.setValue(e.value);
+		try {
+			int progress = 100 * e.value / e.total;
+			if (progress < 1) {
+				Taskbar.getTaskbar().setWindowProgressValue(this, 0);
+				Taskbar.getTaskbar().setWindowProgressState(this, Taskbar.State.OFF);
+			} else {
+				Taskbar.getTaskbar().setWindowProgressState(this, Taskbar.State.NORMAL);
+				Taskbar.getTaskbar().setWindowProgressValue(this, progress);
+			}
+		} catch (Exception x) {
+		}
 	}
 }
