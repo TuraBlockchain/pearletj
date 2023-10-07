@@ -15,6 +15,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import hk.zdl.crypto.pearlet.component.event.WalletLockEvent;
 import hk.zdl.crypto.pearlet.component.event.WalletTimerEvent;
+import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class WalletLock {
@@ -46,7 +47,7 @@ public class WalletLock {
 						JOptionPane.showMessageDialog(frame, "Password Mismatch!", null, JOptionPane.ERROR_MESSAGE);
 						return false;
 					} else {
-						return change_password(pw_field[2].getPassword());
+						return change_password(pw_field[0].getPassword(), pw_field[1].getPassword());
 					}
 				}
 			}
@@ -108,12 +109,13 @@ public class WalletLock {
 				} else if (System.currentTimeMillis() < target_lock_time) {
 					var a = target_lock_time - last_unlock_time;
 					var b = target_lock_time - System.currentTimeMillis();
-					var c = 100F * b / a;
-					EventBus.getDefault().post(new WalletTimerEvent((int) c, 100));
+					var c = 1000F * b / a;
+					EventBus.getDefault().post(new WalletTimerEvent((int) c, 1000));
 				} else {
 					EventBus.getDefault().post(new WalletTimerEvent(0, 100));
 					EventBus.getDefault().post(new WalletLockEvent(WalletLockEvent.Type.LOCK));
 					timer.cancel();
+					UIUtil.displayMessage("Wallet is locked!", "");
 				}
 			}
 		};
@@ -124,7 +126,7 @@ public class WalletLock {
 		return true;
 	}
 
-	private static boolean change_password(char[] password) {
+	private static boolean change_password(char[] old_pw, char[] new_pw) {
 		// TODO:implement this!
 		return true;
 	}

@@ -33,7 +33,7 @@ import com.jfinal.plugin.activerecord.Record;
 import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
-import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.lock.CryptoAccount;
 import hk.zdl.crypto.pearlet.ui.SpinableIcon;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
@@ -103,10 +103,10 @@ public class SetAccountInfoPanel extends JPanel {
 			}
 			send_btn.setEnabled(false);
 			Util.submit(() -> {
-				Optional<Record> o_r = MyDb.getAccount(network, account);
+				Optional<CryptoAccount> o_r = CryptoAccount.getAccount(network, account);
 				if (o_r.isPresent()) {
-					byte[] private_key = o_r.get().getBytes("PRIVATE_KEY");
-					byte[] public_key = o_r.get().getBytes("PUBLIC_KEY");
+					byte[] public_key = o_r.get().getPublicKey();
+					byte[] private_key = o_r.get().getPrivateKey();
 					if (network.isBurst()) {
 						try {
 							var feeNQT = fee_slider.getValue();

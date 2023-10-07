@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,11 +23,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import com.jfinal.plugin.activerecord.Record;
-
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
-import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.lock.CryptoAccount;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -105,12 +102,13 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 					bar.setString("");
 					bar.setIndeterminate(true);
 					btn.setEnabled(false);
+
 					var public_key = new byte[] {};
 					var private_key = new byte[] {};
-					Optional<Record> opt_r = MyDb.getAccount(network, account);
+					var opt_r = CryptoAccount.getAccount(network, account);
 					if (opt_r.isPresent()) {
-						public_key = opt_r.get().getBytes("PUBLIC_KEY");
-						private_key = opt_r.get().getBytes("PRIVATE_KEY");
+						public_key = opt_r.get().getPublicKey();
+						private_key = opt_r.get().getPrivateKey();
 						if (private_key.length < 1) {
 							JOptionPane.showMessageDialog(getRootPane(), "Cannot modify watch account!", "ERROR", JOptionPane.ERROR_MESSAGE);
 							return;

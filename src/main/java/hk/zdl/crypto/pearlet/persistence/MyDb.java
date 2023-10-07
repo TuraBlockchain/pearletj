@@ -159,8 +159,7 @@ public class MyDb {
 		if (network == null || address == null) {
 			return Optional.empty();
 		}
-
-		Record r = Db.findFirst("select * from ACCOUNTS WHERE NETWORK = ? AND ADDRESS = ?", network.getType().name(), address);
+		Record r = Db.findFirst("select * from ACCOUNTS WHERE NWID = ? AND ADDRESS = ?", network.getId(), address);
 		return r == null ? Optional.empty() : Optional.of(r);
 	}
 

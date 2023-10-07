@@ -25,7 +25,7 @@ import javax.swing.border.TitledBorder;
 import com.jfinal.plugin.activerecord.Record;
 
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
-import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.lock.CryptoAccount;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 
 public class IssueTokenPanel extends JPanel {
@@ -116,11 +116,12 @@ public class IssueTokenPanel extends JPanel {
 			}
 		}
 		try {
-			Record r = MyDb.getAccount(nw, account).get();
-			byte[] public_key = r.getBytes("PUBLIC_KEY");
+			var r = CryptoAccount.getAccount(nw, account).get();
+			byte[] public_key = r.getPublicKey();
+			byte[] private_key = r.getPrivateKey();
 			byte[] unsigned_tx = CryptoUtil.issueAsset(nw, token_name_field.getText().trim(), token_desc_area.getText().trim(), (Long) qty_spinner.getValue(),
 					CryptoUtil.toSignumValue(nw,new BigDecimal((Long) fee_spinner.getValue())).toNQT().longValue(), public_key);
-			byte[] signed_tx = CryptoUtil.signTransaction(nw, r.getBytes("PRIVATE_KEY"), unsigned_tx);
+			byte[] signed_tx = CryptoUtil.signTransaction(nw, private_key, unsigned_tx);
 			CryptoUtil.broadcastTransaction(nw, signed_tx);
 		} catch (Throwable x) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);

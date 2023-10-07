@@ -12,10 +12,8 @@ import org.web3j.tx.Transfer;
 import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.utils.Convert;
 
-import com.jfinal.plugin.activerecord.Record;
-
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
-import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.lock.CryptoAccount;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 
 public class SendTx implements Callable<Boolean> {
@@ -51,10 +49,10 @@ public class SendTx implements Callable<Boolean> {
 
 	@Override
 	public Boolean call() throws Exception {
-		Optional<Record> o_r = MyDb.getAccount(network, from);
+		var  o_r = CryptoAccount.getAccount(network, from);
 		if (o_r.isPresent()) {
-			byte[] private_key = o_r.get().getBytes("PRIVATE_KEY");
-			byte[] public_key = o_r.get().getBytes("PUBLIC_KEY");
+			byte[] private_key = o_r.get().getPrivateKey();
+			byte[] public_key = o_r.get().getPublicKey();
 			if (network.isBurst()) {
 				byte[] tx = new byte[0];
 				if (asset_id == null) {

@@ -16,11 +16,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import com.jfinal.plugin.activerecord.Record;
-
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
-import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.lock.CryptoAccount;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.crypto.SignumCrypto;
@@ -59,7 +57,7 @@ public class CopyAccountInfoPanel extends JPanel {
 			var id = SignumAddress.fromEither(account).getID();
 			copy_to_clip_board(id);
 		} else if (network.isWeb3J()) {
-			var id = MyDb.getAccount(network, account).get().getStr("ADDRESS");
+			var id = CryptoAccount.getAccount(network, account).get().getAddress();
 			copy_to_clip_board(id);
 		}
 	}
@@ -77,7 +75,7 @@ public class CopyAccountInfoPanel extends JPanel {
 			}
 			copy_to_clip_board(id);
 		} else if (network.isWeb3J()) {
-			var id = MyDb.getAccount(network, account).get().getStr("ADDRESS");
+			var id = CryptoAccount.getAccount(network, account).get().getAddress();
 			copy_to_clip_board(id);
 		}
 	}
@@ -113,9 +111,9 @@ public class CopyAccountInfoPanel extends JPanel {
 		if(network==null) {
 			return;
 		}
-		Optional<Record> opt_r = MyDb.getAccount(network, account);
+		Optional<CryptoAccount> opt_r = CryptoAccount.getAccount(network, account);
 		if (opt_r.isPresent()) {
-			public_key = opt_r.get().getBytes("PUBLIC_KEY");
+			public_key = opt_r.get().getPublicKey();
 		} else {
 			public_key = new byte[] {};
 		}

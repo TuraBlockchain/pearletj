@@ -82,9 +82,11 @@ public class UIUtil {
 		if (SystemInfo.isLinux) {
 			try {
 				new ProcessBuilder("zenity", "--notification", "--title=" + title, "--text=" + message).start().waitFor();
+				return;
 			} catch (Exception e) {
 			}
-		} else if (SystemTray.isSupported()) {
+		}
+		if (SystemTray.isSupported()) {
 			if (SystemTray.getSystemTray().getTrayIcons().length > 0) {
 				SystemTray.getSystemTray().getTrayIcons()[0].displayMessage(title, message, messageType[0]);
 			}

@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -35,13 +34,11 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 
-import com.jfinal.plugin.activerecord.Record;
-
 import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.BalanceUpdateEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
-import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.lock.CryptoAccount;
 import hk.zdl.crypto.pearlet.ui.SpinableIcon;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.ui.WaitLayerUI;
@@ -179,10 +176,10 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 				}
 				var public_key = new byte[] {};
 				var private_key = new byte[] {};
-				Optional<Record> opt_r = MyDb.getAccount(network, account);
+				var opt_r = CryptoAccount.getAccount(network, account);
 				if (opt_r.isPresent()) {
-					public_key = opt_r.get().getBytes("PUBLIC_KEY");
-					private_key = opt_r.get().getBytes("PRIVATE_KEY");
+					public_key = opt_r.get().getPublicKey();
+					private_key = opt_r.get().getPrivateKey();
 				} else {
 					JOptionPane.showMessageDialog(getRootPane(), "Account not found in database!", "ERROR", JOptionPane.ERROR_MESSAGE);
 					return null;
