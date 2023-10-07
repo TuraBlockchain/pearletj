@@ -24,6 +24,7 @@ import hk.zdl.crypto.pearlet.component.event.WalletLockEvent;
 import hk.zdl.crypto.pearlet.component.miner.MinerPanel;
 import hk.zdl.crypto.pearlet.component.plot.PlotPanel;
 import hk.zdl.crypto.pearlet.component.settings.SettingsPanel;
+import hk.zdl.crypto.pearlet.lock.WalletLock;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
@@ -72,6 +73,7 @@ public class MainFrame {
 				@Override
 				public void windowClosing(WindowEvent e) {
 					if (UIUtil.show_confirm_exit_dialog(frame)) {
+						frame.setVisible(false);
 						frame.dispose();
 						System.exit(0);
 					}
@@ -80,6 +82,7 @@ public class MainFrame {
 			new TrayIconMenu(app_icon, frame);
 			FlatDesktop.setQuitHandler((e) -> {
 				if (UIUtil.show_confirm_exit_dialog(frame)) {
+					frame.setVisible(false);
 					frame.dispose();
 					e.performQuit();
 				} else {
@@ -95,7 +98,7 @@ public class MainFrame {
 				frame.getRootPane().putClientProperty("apple.awt.transparentTitleBar", true);
 				toolbar.setBorder(BorderFactory.createEmptyBorder(naa_bar.getHeight(), 0, 0, 0));
 			}
-
+			WalletLock.setFrame(frame);
 			IndepandentWindows.add(frame);
 			EventBus.getDefault().post(new WalletLockEvent(WalletLockEvent.Type.LOCK));
 		});

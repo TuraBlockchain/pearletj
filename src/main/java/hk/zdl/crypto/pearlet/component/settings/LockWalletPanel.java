@@ -6,8 +6,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,42 +22,68 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crypto.pearlet.component.event.WalletLockEvent;
+import hk.zdl.crypto.pearlet.lock.WalletLock;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 
-public class LockWalletPanel extends JPanel {
+public class LockWalletPanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 9007587563161970151L;
-	private final JToggleButton button = new JToggleButton();
 	private final Icon locked_icon = UIUtil.getStretchIcon("icon/lock-closed.svg", 32, 32);
 	private final Icon unlocked_icon = UIUtil.getStretchIcon("icon/lock-open.svg", 32, 32);
+	private final JToggleButton t_btn = new JToggleButton();
+	private final JButton chg_pwd_btn = new JButton("Change Password...");
+	private final JComboBox<Entry> box = new JComboBox<>(Entry.values());
 
 	public LockWalletPanel() {
-		super(new FlowLayout());
+		box.setSelectedItem(Entry.NEVER);
+		EventBus.getDefault().register(this);
+		t_btn.addActionListener(this);
+		t_btn.setPreferredSize(new Dimension(150, 32));
+		t_btn.setHorizontalAlignment(SwingConstants.LEFT);
+		chg_pwd_btn.addActionListener(e -> WalletLock.change_password());
+		setLayout(new FlowLayout());
 		var panel = new JPanel(new GridLayout(0, 1));
 		var panel_1 = new JPanel(new GridBagLayout());
 		panel_1.add(new JLabel("Your wallet is now:"), new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
-		panel_1.add(button, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
+		panel_1.add(t_btn, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
 		panel_1.add(new JLabel("Lock up your wallet in:"), new GridBagConstraints(0, 1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
-		var box = new JComboBox<>(Entry.values());
 		panel_1.add(box, new GridBagConstraints(1, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
+		panel_1.add(chg_pwd_btn, new GridBagConstraints(0, 2, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 2, 2));
 		panel.add(panel_1);
 		add(panel);
-		EventBus.getDefault().register(this);
-		button.addActionListener(e -> EventBus.getDefault().post(new WalletLockEvent(button.isSelected() ? WalletLockEvent.Type.LOCK : WalletLockEvent.Type.UNLOCK)));
-		button.setPreferredSize(new Dimension(150, 32));
-		button.setHorizontalAlignment(SwingConstants.LEFT);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (t_btn.isSelected()) {
+			if (WalletLock.lock()) {
+				EventBus.getDefault().post(new WalletLockEvent(WalletLockEvent.Type.LOCK));
+			} else {
+				t_btn.setSelected(false);
+			}
+		} else {
+			if (WalletLock.unlock()) {
+				EventBus.getDefault().post(new WalletLockEvent(WalletLockEvent.Type.UNLOCK));
+			} else {
+				t_btn.setSelected(true);
+			}
+		}
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(WalletLockEvent e) {
 		if (e.type == WalletLockEvent.Type.LOCK) {
-			button.setIcon(locked_icon);
-			button.setText("Locked");
-			button.setSelected(true);
+			t_btn.setIcon(locked_icon);
+			t_btn.setText("Locked");
+			t_btn.setSelected(true);
+			chg_pwd_btn.setEnabled(false);
+			box.setEnabled(false);
 		} else {
-			button.setIcon(unlocked_icon);
-			button.setText("Unlocked");
-			button.setSelected(false);
+			t_btn.setIcon(unlocked_icon);
+			t_btn.setText("Unlocked");
+			t_btn.setSelected(false);
+			chg_pwd_btn.setEnabled(true);
+			box.setEnabled(true);
 		}
 	}
 
@@ -87,4 +116,5 @@ public class LockWalletPanel extends JPanel {
 			return "";
 		}
 	}
+
 }
