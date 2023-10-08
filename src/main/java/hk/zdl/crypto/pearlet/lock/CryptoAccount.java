@@ -36,7 +36,7 @@ public class CryptoAccount {
 	public byte[] getPrivateKey() {
 		if(WalletLock.isLocked()) {
 			if(WalletLock.unlock()) {
-				//TODO:
+				// TODO:
 			}else {
 				throw new IllegalStateException("Failed to unlock wallet!");
 			}

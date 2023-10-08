@@ -8,17 +8,10 @@ import java.awt.Insets;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.jar.JarFile;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -28,6 +21,7 @@ import javax.swing.JLayer;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -35,14 +29,11 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import com.jakewharton.byteunits.BinaryByteUnit;
 
@@ -54,7 +45,6 @@ import hk.zdl.crypto.pearlet.ui.CloseableTabbedPaneLayerUI;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
-import hk.zdl.crypto.peth.plot.gui.PlotProgressListener;
 import signumj.entity.SignumAddress;
 
 public class PlotPanel extends JPanel implements ActionListener {
@@ -62,8 +52,9 @@ public class PlotPanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 3756771655055487175L;
 	private static final long byte_per_nounce = 262144;
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
-	private final JTextField jar_file_field = new JTextField(50);
-	private final JTextField plot_path_field = new JTextField(50);
+	private final JSlider mem_slider = new JSlider(1, 8, 2);
+	private final JLabel mem_field = new JLabel("2GiB");
+	private final JTextField plot_path_field = new JTextField(100);
 	private final JSpinner pcs_spinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
 	private final JSpinner fz_spinner = new JSpinner(new SpinnerNumberModel(50, 1, 1024, 1));
 	private final JComboBox<String> fz_op = new JComboBox<>(new String[] { "MB", "GB" });
@@ -71,30 +62,28 @@ public class PlotPanel extends JPanel implements ActionListener {
 	private final JTabbedPane tabbed_pane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
 	private CryptoNetwork network;
 	private String account;
-	private Path jar_path, plot_path;
+	private Path plot_path;
 	private ExecutorService es;
 
 	public PlotPanel() {
 		super(new GridBagLayout());
 		EventBus.getDefault().register(this);
-		var jar_file_label = new JLabel("JAR File:");
-		var plot_path_label = new JLabel("Plot Path:");
-		add(jar_file_label, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
-		add(plot_path_label, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
-		jar_file_field.setEditable(false);
-		var jar_file_btn = new JButton("Browse...");
-		add(jar_file_field, new GridBagConstraints(1, 0, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-		add(jar_file_btn, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
+		add(new JLabel("Plot Path:"), new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+		add(new JLabel("Memory Limit:"), new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 
 		plot_path_field.setEditable(false);
-		var plot_path_btn = new JButton("Browse...");
-		add(plot_path_field, new GridBagConstraints(1, 1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-		add(plot_path_btn, new GridBagConstraints(2, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
+		add(plot_path_field, new GridBagConstraints(1, 0, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
-		var fz_label = new JLabel("File Size:");
-		var fc_label = new JLabel("File Count:");
-		add(fz_label, new GridBagConstraints(3, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
-		add(fc_label, new GridBagConstraints(3, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+		add(mem_slider, new GridBagConstraints(1, 1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+
+		var plot_path_btn = new JButton("Browse...");
+		add(plot_path_btn, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
+
+		mem_field.setFont(new Font(Font.MONOSPACED, Font.BOLD, getFont().getSize()));
+		add(mem_field, new GridBagConstraints(2, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
+
+		add(new JLabel("File Size:"), new GridBagConstraints(3, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+		add(new JLabel("File Count:"), new GridBagConstraints(3, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 
 		add(fz_spinner, new GridBagConstraints(4, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		add(fz_op, new GridBagConstraints(5, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
@@ -104,7 +93,9 @@ public class PlotPanel extends JPanel implements ActionListener {
 		fz_op.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
 		fz_op.getModel().setSelectedItem("GB");
 
-		jar_file_btn.addActionListener(this::check_and_set_jar_path);
+		mem_slider.addChangeListener(e -> {
+			mem_field.setText(mem_slider.getValue() + "GiB");
+		});
 		plot_path_btn.addActionListener(e -> {
 			var file_dialog = new JFileChooser();
 			file_dialog.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -118,44 +109,6 @@ public class PlotPanel extends JPanel implements ActionListener {
 			}
 		});
 		plot_btn.addActionListener(this);
-	}
-
-	private void check_and_set_jar_path(ActionEvent e) {
-		var file_dialog = new JFileChooser();
-		file_dialog.setDialogType(JFileChooser.OPEN_DIALOG);
-		file_dialog.setMultiSelectionEnabled(false);
-		file_dialog.setDragEnabled(false);
-		file_dialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		file_dialog.setFileFilter(new FileFilter() {
-
-			@Override
-			public String getDescription() {
-				return "JAR Files";
-			}
-
-			@Override
-			public boolean accept(File f) {
-				return f.isDirectory() || f.getName().toLowerCase().endsWith(".jar");
-			}
-		});
-		if (file_dialog.showOpenDialog(getRootPane()) != JFileChooser.APPROVE_OPTION) {
-			return;
-		}
-		var file = file_dialog.getSelectedFile();
-		try {
-			var jar_file = new JarFile(file);
-			var clz = jar_file.getManifest().getMainAttributes().getValue("Main-Class");
-			jar_file.close();
-			if (clz == null) {
-				throw new IOException("Selected JAR is not runnable!");
-			} else {
-				jar_path = file.toPath();
-				jar_file_field.setText(file.getAbsolutePath());
-			}
-		} catch (IOException x) {
-			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-		}
-
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
@@ -243,60 +196,27 @@ public class PlotPanel extends JPanel implements ActionListener {
 					});
 				}
 			}
-			if (jar_path == null) {
-				es.submit(() -> {
-					for (var i = 0; i < count; i++) {
-						var _i = i;
-						try {
-							hk.zdl.crypto.peth.plot.gui.Main.do_plot(Paths.get(plot_path_str), id, nounces, new PlotProgressListener() {
+			es.submit(() -> {
+				for (var i = 0; i < count; i++) {
+					var _i = i;
+					try {
+						hk.zdl.crypto.pearlet.plot.Main.do_plot(Paths.get(plot_path_str), id, nounces, new hk.zdl.crypto.pearlet.plot.PlotProgressListener() {
 
-								@Override
-								public void onProgress(Type type, float progress, String rate, String ETA) {
-									if (type == Type.WRIT) {
-										model.setValueAt(progress, _i, 1);
-										if (progress >= 100) {
-											on_plot_done(plot_path, file_size, id);
-										}
+							@Override
+							public void onProgress(Type type, float progress, String rate, String ETA) {
+								if (type == Type.WRIT) {
+									model.setValueAt(progress, _i, 1);
+									if (progress >= 100) {
+										on_plot_done(plot_path, file_size, id);
 									}
 								}
-							});
-						} catch (Exception x) {
-							UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
-						}
-					}
-				});
-			} else {
-				es.submit(() -> {
-					try {
-						var jobj = new JSONObject();
-						jobj.put("id", id);
-						jobj.put("path", plot_path_str);
-						jobj.put("count", count);
-						jobj.put("nounce", nounces);
-						jobj.put("exitOnDone", true);
-
-						var str = Base64.getEncoder().encodeToString(jobj.toString().getBytes(Charset.defaultCharset()));
-						var proc = new ProcessBuilder("java", "-jar", jar_path.toFile().getAbsolutePath(), str).start();
-						var in = proc.getInputStream();
-						var reader = new BufferedReader(new InputStreamReader(in));
-						while (true) {
-							var line = reader.readLine();
-							if (line == null) {
-								break;
 							}
-							var o = new JSONObject(new JSONTokener(line));
-							var i = o.getInt("index");
-							var p = o.getFloat("progress");
-							model.setValueAt(p, i, 1);
-							if (p >= 100) {
-								on_plot_done(plot_path, file_size, id);
-							}
-						}
+						}, mem_field.getText());
 					} catch (Exception x) {
 						UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
 					}
-				});
-			}
+				}
+			});
 		});
 	}
 
