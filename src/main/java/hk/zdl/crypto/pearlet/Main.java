@@ -11,12 +11,15 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.apache.derby.shared.common.error.StandardException;
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.component.MainFrame;
+import hk.zdl.crypto.pearlet.component.event.WalletLockEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.laf.MyUIManager;
+import hk.zdl.crypto.pearlet.lock.WalletLock;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.tx_history_query.TxHistoryQueryExecutor;
 import hk.zdl.crypto.pearlet.ui.AquaMagic;
@@ -56,7 +59,8 @@ public class Main {
 		if (db_empty) {
 			create_default_networks();
 		}
-		SwingUtilities.invokeLater(()->new MainFrame(Util.getProp().get("appName"),app_icon));
+		SwingUtilities.invokeLater(() -> new MainFrame(Util.getProp().get("appName"), app_icon));
+		SwingUtilities.invokeLater(() -> EventBus.getDefault().post(new WalletLockEvent(WalletLock.hasPassword() ? WalletLockEvent.Type.LOCK : WalletLockEvent.Type.UNLOCK)));
 		new NWMon();
 		new TxHistoryQueryExecutor();
 		Util.submit(new Callable<Void>() {
@@ -100,6 +104,5 @@ public class Main {
 		}
 		return false;
 	}
-
 
 }

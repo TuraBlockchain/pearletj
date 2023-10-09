@@ -14,6 +14,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
@@ -42,7 +43,6 @@ public class LockWalletPanel extends JPanel implements ActionListener {
 		t_btn.addActionListener(this);
 		t_btn.setPreferredSize(new Dimension(150, 32));
 		t_btn.setHorizontalAlignment(SwingConstants.LEFT);
-		chg_pwd_btn.addActionListener(e -> WalletLock.change_password());
 		setLayout(new FlowLayout());
 		var panel = new JPanel(new GridLayout(0, 1));
 		var panel_1 = new JPanel(new GridBagLayout());
@@ -61,6 +61,13 @@ public class LockWalletPanel extends JPanel implements ActionListener {
 				p.flush();
 				return null;
 			});
+		});
+		chg_pwd_btn.addActionListener(e -> {
+			try {
+				WalletLock.change_password();
+			} catch (Exception x) {
+				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
+			}
 		});
 		SwingUtilities.invokeLater(() -> {
 			var i = Util.getUserSettings().getInt(WalletLock.AUTO_LOCK_MIN, -1);

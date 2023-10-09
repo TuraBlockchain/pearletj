@@ -32,10 +32,10 @@ public class WalletLock {
 		WalletLock.frame = frame;
 	}
 
-	public static boolean change_password() {
+	public static boolean change_password() throws Exception {
 		var pw_field = new JPasswordField[] { new JPasswordField(), new JPasswordField(), new JPasswordField() };
 		if (show_option_pane("Old password:", frame, pw_field[0])) {
-			if (!validete_password(pw_field[0].getPassword())) {
+			if (!LockImpl.validete_password(pw_field[0].getPassword())) {
 				JOptionPane.showMessageDialog(frame, "Wrong Password!", null, JOptionPane.ERROR_MESSAGE);
 				return false;
 			} else if (show_option_pane("New password:", frame, pw_field[1])) {
@@ -47,7 +47,7 @@ public class WalletLock {
 						JOptionPane.showMessageDialog(frame, "Password Mismatch!", null, JOptionPane.ERROR_MESSAGE);
 						return false;
 					} else {
-						return change_password(pw_field[0].getPassword(), pw_field[1].getPassword());
+						return LockImpl.change_password(pw_field[0].getPassword(), pw_field[1].getPassword());
 					}
 				}
 			}
@@ -69,23 +69,35 @@ public class WalletLock {
 	}
 
 	public static synchronized boolean unlock() {
-		var pw_field = new JPasswordField();
-		if (show_option_pane("Enter Password:", frame, pw_field) && validete_password(pw_field.getPassword())) {
-			var i = Util.getUserSettings().getInt(WalletLock.AUTO_LOCK_MIN, -1);
-			if (i > 0) {
-				last_unlock_time = System.currentTimeMillis();
-				target_lock_time = last_unlock_time + Duration.ofMinutes(i).toMillis();
-			} else {
-				last_unlock_time = -1;
-				target_lock_time = -1;
-			}
-			locked = false;
-			timer.cancel();
-			timer = new Timer();
-			timer.scheduleAtFixedRate(getTimerTask(), 0, i <= 1 ? 500 : 2000);
+		if (!LockImpl.hasPassword()) {
 			return true;
 		}
+		var pw_field = new JPasswordField();
+		if(show_option_pane("Enter Password:", frame, pw_field)) {
+			if(LockImpl.validete_password(pw_field.getPassword())) {
+				var i = Util.getUserSettings().getInt(WalletLock.AUTO_LOCK_MIN, -1);
+				if (i > 0) {
+					last_unlock_time = System.currentTimeMillis();
+					target_lock_time = last_unlock_time + Duration.ofMinutes(i).toMillis();
+				} else {
+					last_unlock_time = -1;
+					target_lock_time = -1;
+				}
+				locked = false;
+				timer.cancel();
+				timer = new Timer();
+				timer.scheduleAtFixedRate(getTimerTask(), 0, i <= 1 ? 500 : 2000);
+				return true;
+			}else {
+				JOptionPane.showMessageDialog(frame, "Wrong Password!", null, JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+		}
 		return false;
+	}
+
+	public static final boolean hasPassword() {
+		return LockImpl.hasPassword();
 	}
 
 	public static boolean lock() {
@@ -121,13 +133,4 @@ public class WalletLock {
 		};
 	}
 
-	private static boolean validete_password(char[] password) {
-		// TODO:implement this!
-		return true;
-	}
-
-	private static boolean change_password(char[] old_pw, char[] new_pw) {
-		// TODO:implement this!
-		return true;
-	}
 }
