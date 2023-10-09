@@ -76,7 +76,7 @@ public class MinerServerAddressSettingsPane extends JPanel {
 				var response = httpclient.execute(httpPost);
 				response.getEntity().getContent().close();
 				if (response.getStatusLine().getStatusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Set server URL Done!", null);
+					UIUtil.displayMessage("Succeed", "Set server URL Done!");
 					update_server_address();
 				}
 			} catch (Exception x) {
@@ -108,7 +108,7 @@ public class MinerServerAddressSettingsPane extends JPanel {
 				var response = httpclient.execute(httpPost);
 				response.getEntity().getContent().close();
 				if (response.getStatusLine().getStatusCode() == 201) {
-					UIUtil.displayMessage("Succeed", "Set server URL Done!", null);
+					UIUtil.displayMessage("Succeed", "Set server URL Done!");
 					update_server_address();
 				}
 			} catch (Exception x) {
@@ -129,7 +129,7 @@ public class MinerServerAddressSettingsPane extends JPanel {
 				var httpPost = new HttpDelete(basePath + miner_conf_serv_u_path + "?id=" + id);
 				var response = httpclient.execute(httpPost);
 				if (response.getStatusLine().getStatusCode() == 204) {
-					UIUtil.displayMessage("Succeed", "Set server URL Deleted!", null);
+					UIUtil.displayMessage("Succeed", "Set server URL Deleted!");
 					update_server_address();
 				}
 			} catch (Exception x) {

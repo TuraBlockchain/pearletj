@@ -258,7 +258,7 @@ public class Main {
 
 	public static void do_plot(Path dir, String id, long nounce, PlotProgressListener listener, String... mem_usage) throws Exception {
 		Path plotter_bin_path = copy_plotter().toPath();
-		Process proc = PlotUtil.plot(plotter_bin_path, dir, false, new BigInteger(id), Math.abs(new Random().nextInt()), nounce, listener);
+		Process proc = PlotUtil.plot(plotter_bin_path, dir, false, new BigInteger(id), Math.abs(new Random().nextInt()), nounce, listener, mem_usage);
 		int i = proc.waitFor();
 		if (i != 0) {
 			var err_info = IOUtils.readLines(proc.getErrorStream(), Charset.defaultCharset()).stream().reduce("", (a, b) -> a + "\n" + b).trim();

@@ -1,7 +1,5 @@
 package hk.zdl.crypto.pearlet.component;
 
-import java.awt.LayoutManager;
-
 import javax.swing.JPanel;
 
 public class AlisesRegisterPanel extends JPanel {
