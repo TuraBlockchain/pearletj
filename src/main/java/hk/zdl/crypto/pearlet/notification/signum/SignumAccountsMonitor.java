@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.notification.TxListener;
+import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 
 public class SignumAccountsMonitor implements TxListener {
@@ -28,7 +29,7 @@ public class SignumAccountsMonitor implements TxListener {
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountListUpdateEvent e) {
-		List<String> l = e.getAccounts().stream().filter(o -> o.getInt("NWID") == nw.getId()).map(o -> o.getStr("ADDRESS")).toList();
+		List<String> l = MyDb.getAccounts().stream().filter(o -> o.getInt("NWID") == nw.getId()).map(o -> o.getStr("ADDRESS")).toList();
 		process_add_worker(l);
 		process_del_worker(l);
 	}

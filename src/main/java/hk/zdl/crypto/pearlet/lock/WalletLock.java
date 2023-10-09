@@ -5,6 +5,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -15,6 +16,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import hk.zdl.crypto.pearlet.component.event.WalletLockEvent;
 import hk.zdl.crypto.pearlet.component.event.WalletTimerEvent;
+import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -25,7 +27,7 @@ public class WalletLock {
 	private static Timer timer = new Timer();
 	private static long last_unlock_time = -1;
 	private static long target_lock_time = -1;
-	private static boolean locked = false;
+	private static char[] tmp_pw = null;
 	private static Component frame = null;
 
 	public static void setFrame(Component frame) {
@@ -68,13 +70,13 @@ public class WalletLock {
 		return pane.getValue().equals(JOptionPane.OK_OPTION);
 	}
 
-	public static synchronized boolean unlock() {
+	public static synchronized Optional<Boolean> unlock() {
 		if (!LockImpl.hasPassword()) {
-			return true;
+			return Optional.of(true);
 		}
 		var pw_field = new JPasswordField();
-		if(show_option_pane("Enter Password:", frame, pw_field)) {
-			if(LockImpl.validete_password(pw_field.getPassword())) {
+		if (show_option_pane("Enter Password:", frame, pw_field)) {
+			if (LockImpl.validete_password(pw_field.getPassword())) {
 				var i = Util.getUserSettings().getInt(WalletLock.AUTO_LOCK_MIN, -1);
 				if (i > 0) {
 					last_unlock_time = System.currentTimeMillis();
@@ -83,17 +85,16 @@ public class WalletLock {
 					last_unlock_time = -1;
 					target_lock_time = -1;
 				}
-				locked = false;
+				tmp_pw = pw_field.getPassword();
 				timer.cancel();
 				timer = new Timer();
 				timer.scheduleAtFixedRate(getTimerTask(), 0, i <= 1 ? 500 : 2000);
-				return true;
+				return Optional.of(true);
 			}else {
-				JOptionPane.showMessageDialog(frame, "Wrong Password!", null, JOptionPane.ERROR_MESSAGE);
-				return false;
+				return Optional.of(false);
 			}
 		}
-		return false;
+		return Optional.empty();
 	}
 
 	public static final boolean hasPassword() {
@@ -101,14 +102,23 @@ public class WalletLock {
 	}
 
 	public static boolean lock() {
-		locked = true;
+		tmp_pw = null;
 		timer.cancel();
 		EventBus.getDefault().post(new WalletTimerEvent(0, 100));
 		return true;
 	}
 
 	public static boolean isLocked() {
-		return locked;
+		return tmp_pw != null;
+	}
+
+	public static byte[] encrypt_private_key(byte[] bArr) throws Exception {
+		return LockImpl.aes_encrypt(tmp_pw, bArr);
+	}
+
+	public static byte[] decrypt_private_key(int network_id, int account_id) throws Exception {
+		var bArr = MyDb.get_ancpvk(network_id, account_id);
+		return LockImpl.aes_decrypt(tmp_pw, bArr);
 	}
 
 	private static final TimerTask getTimerTask() {

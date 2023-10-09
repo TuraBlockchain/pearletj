@@ -33,16 +33,18 @@ public class CryptoAccount {
 		return r.getBytes("PUBLIC_KEY");
 	}
 
-	public byte[] getPrivateKey() {
-		if(WalletLock.isLocked()) {
-			if(WalletLock.unlock()) {
-				// TODO:
-			}else {
-				throw new IllegalStateException("Failed to unlock wallet!");
+	public byte[] getPrivateKey() throws Exception {
+		if (WalletLock.hasPassword()) {
+			if (WalletLock.isLocked()) {
+				var o = WalletLock.unlock();
+				if (!o.isPresent() || o.get() == false) {
+					throw new IllegalStateException("Failed to unlock wallet!");
+				}
 			}
+			return WalletLock.decrypt_private_key(r.getInt("NWID"), r.getInt("ID"));
+		} else {
+			return r.getBytes("PRIVATE_KEY");
 		}
-		// TODO:
-		return r.getBytes("PRIVATE_KEY");
 	}
 
 	public static final Optional<CryptoAccount> getAccount(CryptoNetwork network, String address) {

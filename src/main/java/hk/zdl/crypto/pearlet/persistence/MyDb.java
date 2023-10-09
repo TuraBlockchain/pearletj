@@ -30,6 +30,7 @@ import com.jfinal.plugin.activerecord.dialect.AnsiSqlDialect;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
 
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
+import hk.zdl.crypto.pearlet.lock.WalletLock;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.SignumID;
 import signumj.entity.response.Transaction;
@@ -81,7 +82,7 @@ public class MyDb {
 	}
 
 	public static final List<CryptoNetwork> get_networks() {
-		return Db.find("select * from networks").stream().map(r -> {
+		return Db.find("SELECT * FROM NETWORKS").stream().map(r -> {
 			var n = new CryptoNetwork();
 			n.setId(r.getInt("ID"));
 			n.setType(CryptoNetwork.Type.valueOf(r.getStr("NETWORK")));
@@ -92,7 +93,7 @@ public class MyDb {
 	}
 
 	public static final boolean insert_network(CryptoNetwork nw) {
-		return Db.save("networks", new Record().set("NETWORK", nw.getType().name()).set("NWNAME", nw.getName()).set("URL", nw.getUrl()));
+		return Db.save("NETWORKS", new Record().set("NETWORK", nw.getType().name()).set("NWNAME", nw.getName()).set("URL", nw.getUrl()));
 	}
 
 	public static final boolean update_network(CryptoNetwork nw) {
@@ -105,11 +106,14 @@ public class MyDb {
 	}
 
 	public static final boolean delete_network(int id) {
+		Db.delete("DELETE FROM SIGNUM_TX WHERE NWID=?", id);
+		Db.delete("DELETE FROM ACCOUNTS WHERE NWID=?", id);
+		Db.delete("DELETE FROM ENCPVK WHERE NWID=?", id);
 		return Db.deleteById("NETWORKS", "ID", id);
 	}
 
 	public static final Optional<String> get_server_url(CryptoNetwork network) {
-		List<Record> l = Db.find("select * from networks where ID = ?", network.getId());
+		List<Record> l = Db.find("SELECT * FROM NETWORKS WHERE ID = ?", network.getId());
 		if (l.isEmpty()) {
 			return Optional.empty();
 		} else {
@@ -130,7 +134,7 @@ public class MyDb {
 		if (scret.equals("unchanged")) {
 			return true;
 		}
-		List<Record> l = Db.find("select * from WEBJAUTH");
+		List<Record> l = Db.find("SELECT * FROM WEBJAUTH");
 		if (l.isEmpty()) {
 			var o = new Record().set("MYAUTH", auth_id).set("SECRET", scret);
 			return Db.save("WEBJAUTH", o);
@@ -142,7 +146,7 @@ public class MyDb {
 	}
 
 	public static final Optional<Boolean> isWatchAccount(CryptoNetwork network, String address) {
-		Record r = Db.findFirst("select * from ACCOUNTS WHERE NWID = ? AND ADDRESS = ?", network.getId(), address);
+		Record r = Db.findFirst("SELECT * FROM ACCOUNTS WHERE NWID = ? AND ADDRESS = ?", network.getId(), address);
 		if (r == null) {
 			return Optional.empty();
 		} else {
@@ -152,31 +156,57 @@ public class MyDb {
 	}
 
 	public static final List<Record> getAccounts(CryptoNetwork network) {
-		return Db.find("select * from ACCOUNTS WHERE NWID = ?", network.getId());
+		return Db.find("SELECT * FROM ACCOUNTS WHERE NWID = ?", network.getId());
 	}
 
 	public static final Optional<Record> getAccount(CryptoNetwork network, String address) {
 		if (network == null || address == null) {
 			return Optional.empty();
 		}
-		Record r = Db.findFirst("select * from ACCOUNTS WHERE NWID = ? AND ADDRESS = ?", network.getId(), address);
+		Record r = Db.findFirst("SELECT * FROM ACCOUNTS WHERE NWID = ? AND ADDRESS = ?", network.getId(), address);
 		return r == null ? Optional.empty() : Optional.of(r);
 	}
 
 	public static final List<Record> getAccounts() {
-		return Db.find("select * from ACCOUNTS");
+		return Db.find("SELECT * FROM ACCOUNTS");
 	}
 
 	public static final boolean insertAccount(CryptoNetwork nw, String address, byte[] public_key, byte[] private_key) {
 		int i = Db.queryInt("SELECT COUNT(*) FROM ACCOUNTS WHERE NWID = ? AND ADDRESS = ?", nw.getId(), address);
 		if (i > 0) {
 			return false;
+		} else if (WalletLock.hasPassword()) {
+			if (WalletLock.isLocked()) {
+				var o = WalletLock.unlock();
+				if (!o.isPresent() || o.get() == false) {
+					throw new IllegalStateException("Failed to unlock wallet!");
+				}
+			}
+			try {
+				private_key = WalletLock.encrypt_private_key(private_key);
+			} catch (Exception x) {
+				return false;
+			}
 		}
 		var o = new Record().set("NWID", nw.getId()).set("NETWORK", nw.getType().name()).set("ADDRESS", address).set("PUBLIC_KEY", public_key).set("PRIVATE_KEY", private_key);
 		return Db.save("ACCOUNTS", "ID", o);
 	}
 
+	public static final int[] batch_mark_account_with_encpvk(List<? extends Record> recordList) {
+		for (var r : recordList) {
+			r.set("PRIVATE_KEY", new byte[] { 1 });
+		}
+		return Db.batchUpdate("ACCOUNTS", recordList, 10);
+	}
+
+	public static final boolean mark_account_with_encpvk(Record r) {
+		r.set("PRIVATE_KEY", new byte[] { 1 });
+		return Db.update("ACCOUNTS", r);
+	}
+
 	public static final boolean deleteAccount(int id) {
+		int nwid = Db.queryInt("SELECT NWID FROM ACCOUNTS WHERE ID = ? ", id);
+		Db.delete("DELETE FROM APP.ENCPVK WHERE NWID = ? AND ACID = ?", nwid, id);
 		return Db.deleteById("ACCOUNTS", "ID", id);
 	}
 
@@ -286,5 +316,32 @@ public class MyDb {
 		} else {
 			return false;
 		}
+	}
+
+	public static final List<Record> find_all_encpvk() {
+		return Db.findAll("ENCPVK");
+	}
+
+	public static final int[] batch_update_encpvk(List<? extends Record> recordList) {
+		return Db.batchUpdate("ENCPVK", recordList, 10);
+	}
+
+	public static final synchronized boolean insert_or_update_encpvk(int network_id, int account_id, byte[] content) {
+		var r = Db.findFirst("SELECT * FROM APP.ENCPVK WHERE NWID = ? AND ACID = ?", network_id, account_id);
+		if (r == null) {
+			var o = new Record().set("NWID", network_id).set("ACID", account_id).set("CONTENT", content);
+			return Db.save("ENCPVK", "ID", o);
+		} else {
+			r.set("CONTENT", content);
+			return Db.update("ENCPVK", r);
+		}
+	}
+
+	public static final byte[] get_ancpvk(int network_id, int account_id) {
+		return Db.queryBytes("SELECT CONTENT FROM APP.ENCPVK WHERE NWID = ? AND ACID = ?", network_id, account_id);
+	}
+
+	public static final int delete_ancpvk(int network_id, int account_id) {
+		return Db.delete("DELETE FROM APP.ENCPVK WHERE NWID = ? AND ACID = ?", network_id, account_id);
 	}
 }

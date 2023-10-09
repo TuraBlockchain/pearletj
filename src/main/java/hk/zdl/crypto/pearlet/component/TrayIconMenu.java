@@ -11,6 +11,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -25,8 +26,10 @@ public class TrayIconMenu implements ItemListener {
 
 	private final CheckboxMenuItem lock_menu_item = new CheckboxMenuItem();
 	private final MenuItem quit_menu_item = new MenuItem("Quit");
+	private final JFrame frame;
 
 	public TrayIconMenu(Image app_icon, JFrame frame) {
+		this.frame = frame;
 		EventBus.getDefault().register(this);
 		lock_menu_item.addItemListener(this);
 		quit_menu_item.addActionListener((e) -> {
@@ -57,8 +60,14 @@ public class TrayIconMenu implements ItemListener {
 				lock_menu_item.setState(false);
 			}
 		} else {
-			if (WalletLock.unlock()) {
-				EventBus.getDefault().post(new WalletLockEvent(WalletLockEvent.Type.UNLOCK));
+			var o = WalletLock.unlock();
+			if (o.isPresent()) {
+				if (o.get()) {
+					EventBus.getDefault().post(new WalletLockEvent(WalletLockEvent.Type.UNLOCK));
+				} else {
+					JOptionPane.showMessageDialog(frame, "Wrong Password!", null, JOptionPane.ERROR_MESSAGE);
+					lock_menu_item.setState(true);
+				}
 			} else {
 				lock_menu_item.setState(true);
 			}

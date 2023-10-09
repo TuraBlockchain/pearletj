@@ -246,7 +246,7 @@ public class AccountSettingsPanel extends JPanel {
 	}
 
 	private static final void reload_accounts() {
-		Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+		EventBus.getDefault().post(new AccountListUpdateEvent());
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)

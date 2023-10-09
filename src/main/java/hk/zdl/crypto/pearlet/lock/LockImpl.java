@@ -4,6 +4,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.Base64;
+import java.util.List;
 import java.util.Random;
 
 import javax.crypto.Cipher;
@@ -14,12 +15,14 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.json.JSONObject;
 
+import com.jfinal.plugin.activerecord.Record;
+
+import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class LockImpl {
 	private static final String WALLET_LOCK_DATA = "WALLET_LOCK_DATA", IV = "WALLET_LOCK_IV";
 	private static final String MY_SALT = "WALLET_LOCK_MY_SALT", MD5_HASH = "MD5_HASH", SHA_512_HASH = "SHA_512_HASH", AES_256 = "AES_256";
-	private char[] tmp_pw = null;
 
 	static {
 		var p = Util.getUserSettings();
@@ -41,7 +44,7 @@ public class LockImpl {
 			}
 		}
 	}
-
+	
 	static final boolean hasPassword() {
 		var s = Util.getUserSettings().get(WALLET_LOCK_DATA, null);
 		if (s == null || s.isBlank()) {
@@ -83,6 +86,42 @@ public class LockImpl {
 	}
 
 	static boolean change_password(char[] old_pw, char[] new_pw) throws Exception {
+		var l = MyDb.find_all_encpvk();
+		decrypt_with_old_pw(l, old_pw);
+		encrypt_with_new_pw(l, new_pw);
+		MyDb.batch_update_encpvk(l);
+		encrypt_with_new_pw_1(new_pw);
+		store_new_pw(new_pw);
+		return true;
+	}
+	
+	private static void encrypt_with_new_pw_1(char[] new_pw) throws Exception {
+		var l = MyDb.getAccounts().stream().filter(r -> r.getBytes("PRIVATE_KEY").length > 1).toList();
+		for (var r : l) {
+			var b = r.getBytes("PRIVATE_KEY");
+			b = aes_encrypt(new_pw, b);
+			MyDb.insert_or_update_encpvk(r.getInt("NWID"), r.getInt("ID"), b);
+		}
+		MyDb.batch_mark_account_with_encpvk(l);
+	}
+
+	private static void decrypt_with_old_pw(List<Record> l, char[] old_pw) throws Exception {
+		for (var r : l) {
+			var b = r.getBytes("CONTENT");
+			b = aes_decrypt(old_pw, b);
+			r.set("CONTENT", b);
+		}
+	}
+
+	private static void encrypt_with_new_pw(List<Record> l, char[] new_pw) throws Exception {
+		for (var r : l) {
+			var b = r.getBytes("CONTENT");
+			b = aes_encrypt(new_pw, b);
+			r.set("CONTENT", b);
+		}
+	}
+
+	private static final void store_new_pw(char[] new_pw) throws Exception {
 		var enc = Base64.getEncoder();
 		var barr = Charset.defaultCharset().encode(CharBuffer.wrap(new_pw)).array();
 		var md5_hash = enc.encodeToString(MessageDigest.getInstance("MD5").digest(barr));
@@ -94,10 +133,9 @@ public class LockImpl {
 		jobj.put(AES_256, aes_hash);
 		var p = Util.getUserSettings();
 		p.put(WALLET_LOCK_DATA, jobj.toString());
-		return true;
 	}
 
-	private static final byte[] aes_encrypt(char[] pw, byte[] input) throws Exception {
+	static final byte[] aes_encrypt(char[] pw, byte[] input) throws Exception {
 		var p = Util.getUserSettings();
 		var iv = p.getByteArray(IV, null);
 		var salt = p.getByteArray(MY_SALT, null);
@@ -110,7 +148,7 @@ public class LockImpl {
 		return cipher.doFinal(input);
 	}
 
-	private static final byte[] aes_decrypt(char[] pw, byte[] input) throws Exception {
+	static final byte[] aes_decrypt(char[] pw, byte[] input) throws Exception {
 		var p = Util.getUserSettings();
 		var iv = p.getByteArray(IV, null);
 		var salt = p.getByteArray(MY_SALT, null);

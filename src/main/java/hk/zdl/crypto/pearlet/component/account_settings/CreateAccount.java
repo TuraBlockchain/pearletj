@@ -132,14 +132,14 @@ public class CreateAccount {
 				public_key = CryptoUtil.getPublicKey(nw, private_key);
 				b = MyDb.insertAccount(nw, CryptoUtil.getAddress(nw, public_key), public_key, private_key);
 			} catch (Exception x) {
-				JOptionPane.showMessageDialog(dialog, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(dialog, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
 			if (b) {
 				dialog.dispose();
 				UIUtil.displayMessage("Create Account", "done!");
-				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+				EventBus.getDefault().post(new AccountListUpdateEvent());
 			} else {
 				JOptionPane.showMessageDialog(dialog, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
@@ -223,7 +223,7 @@ public class CreateAccount {
 			boolean b = MyDb.insertAccount(nw, cred.getAddress(), Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
 			if (b) {
 				UIUtil.displayMessage("Create Account", "done!");
-				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+				EventBus.getDefault().post(new AccountListUpdateEvent());
 			} else {
 				JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 			}

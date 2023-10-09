@@ -22,7 +22,6 @@ import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.Util;
 
 public class ImportWeb3JAccountFromFile {
 
@@ -71,7 +70,7 @@ public class ImportWeb3JAccountFromFile {
 		boolean b = MyDb.insertAccount(nw, cred.getAddress(),Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
 		if (b) {
 			UIUtil.displayMessage("Import Account", "Done!");
-			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+			EventBus.getDefault().post(new AccountListUpdateEvent());
 		} else {
 			JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 		}

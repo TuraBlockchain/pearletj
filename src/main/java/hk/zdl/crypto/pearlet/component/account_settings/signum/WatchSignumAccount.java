@@ -13,7 +13,6 @@ import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
-import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.SignumAddress;
 
 public class WatchSignumAccount {
@@ -55,7 +54,7 @@ public class WatchSignumAccount {
 
 		if (b) {
 			UIUtil.displayMessage("Watch Account", "Done!");
-			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+			EventBus.getDefault().post(new AccountListUpdateEvent());
 		} else {
 			JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 		}

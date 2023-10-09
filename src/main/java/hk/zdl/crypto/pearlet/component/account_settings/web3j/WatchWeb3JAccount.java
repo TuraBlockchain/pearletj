@@ -13,7 +13,6 @@ import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
-import hk.zdl.crypto.pearlet.util.Util;
 
 public class WatchWeb3JAccount {
 
@@ -28,7 +27,7 @@ public class WatchWeb3JAccount {
 		if (CryptoUtil.isValidAddress(nw, address)) {
 			if (MyDb.insertAccount(nw, address, new byte[] {}, new byte[] {})) {
 				UIUtil.displayMessage("Watch Account", "done!");
-				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+				EventBus.getDefault().post(new AccountListUpdateEvent());
 			} else {
 				JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 			}

@@ -68,14 +68,14 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		Record r = accounts.get(rowIndex);
+		var r = accounts.get(rowIndex);
 		if (columnIndex == 0) {
-			return r.get("ID");
+			return r.getInt("ID");
 		} else if (columnIndex == 1) {
 			var i = r.getInt("NWID");
-			return i == null ? null : MyDb.get_networks().stream().filter(o -> o.getId() == i).findAny().get();
+			return i == null ? null : MyDb.get_networks().stream().filter(o -> o.getId() == i).findAny().orElse(null);
 		} else if (columnIndex == 2) {
-			var o = r.get("ADDRESS");
+			var o = r.getStr("ADDRESS");
 			var b = r.getBytes("PRIVATE_KEY");
 			if (b == null || b.length == 0)
 				o += ",watch";
@@ -104,15 +104,16 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public synchronized void onMessage(AccountListUpdateEvent e) {
-		var arr_a = e.getAccounts().stream().mapToInt(o -> o.getInt("ID")).toArray();
+		var l = MyDb.getAccounts();
+		var arr_a = l.stream().mapToInt(o -> o.getInt("ID")).toArray();
 		var arr_b = accounts.stream().mapToInt(o -> o.getInt("ID")).toArray();
 		if (Arrays.equals(arr_a, arr_b)) {
 			return;
 		}
-		setAccounts(e.getAccounts());
+		setAccounts(l);
 		var nws = MyDb.get_networks();
-		for (int i = 0; i < e.getAccounts().size(); i++) {
-			var r = e.getAccounts().get(i);
+		for (int i = 0; i < l.size(); i++) {
+			var r = l.get(i);
 			if (r.getInt("NWID") == null)
 				continue;
 			var nw = nws.stream().filter(o -> o.getId() == r.getInt("NWID")).findAny().get();
@@ -156,6 +157,9 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 
 		@Override
 		public Void call() throws Exception {
+			if (nw == null || address == null) {
+				return null;
+			}
 			var bal = CryptoUtil.getBalance(nw, address);
 			EventBus.getDefault().post(new BalanceUpdateEvent(nw, address, bal));
 			return null;
@@ -189,13 +193,11 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(BalanceUpdateEvent e) {
-		var balance = e.getBalance();
-		for (int i = 0; i < getRowCount(); i++) {
-			var nw = (CryptoNetwork) getValueAt(i, 1);
-			if (nw.getId() == e.getNetwork().getId()) {
-				var adr = getValueAt(i, 2).toString().replace(",watch", "");
-				if (adr.equals(e.getAddress())) {
-					setValueAt(balance, i, 3);
+		for (var i = 0; i < getRowCount(); i++) {
+			var r = accounts.get(i);
+			if (r.getInt("NWID") == e.getNetwork().getId()) {
+				if (r.getStr("ADDRESS").equals(e.getAddress())) {
+					setValueAt(e.getBalance(), i, 3);
 					fireTableRowsUpdated(i, i);
 				}
 			}
@@ -206,7 +208,7 @@ public class AccountTableModel extends AbstractTableModel implements ActionListe
 	public synchronized void actionPerformed(ActionEvent e) {
 		for (int i = 0; i < getRowCount(); i++) {
 			var nw = (CryptoNetwork) getValueAt(i, 1);
-			var adr = getValueAt(i, 2).toString().replace(",watch", "");
+			var adr = accounts.get(i).getStr("ADDRESS");
 			var q = new BalanceQuery(nw, adr);
 			Util.submit(q);
 		}

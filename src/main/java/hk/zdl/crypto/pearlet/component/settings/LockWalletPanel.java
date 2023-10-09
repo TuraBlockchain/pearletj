@@ -84,8 +84,14 @@ public class LockWalletPanel extends JPanel implements ActionListener {
 				t_btn.setSelected(false);
 			}
 		} else {
-			if (WalletLock.unlock()) {
-				EventBus.getDefault().post(new WalletLockEvent(WalletLockEvent.Type.UNLOCK));
+			var o = WalletLock.unlock();
+			if (o.isPresent()) {
+				if (o.get()) {
+					EventBus.getDefault().post(new WalletLockEvent(WalletLockEvent.Type.UNLOCK));
+				} else {
+					JOptionPane.showMessageDialog(getRootPane(), "Wrong Password!", null, JOptionPane.ERROR_MESSAGE);
+					t_btn.setSelected(true);
+				}
 			} else {
 				t_btn.setSelected(true);
 			}

@@ -29,7 +29,6 @@ import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
-import hk.zdl.crypto.pearlet.util.Util;
 
 public class ImportSignumAccount {
 
@@ -71,7 +70,7 @@ public class ImportSignumAccount {
 
 			if (b) {
 				UIUtil.displayMessage("Import Account", "Done!");
-				Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+				EventBus.getDefault().post(new AccountListUpdateEvent());
 			} else {
 				JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
@@ -125,7 +124,7 @@ public class ImportSignumAccount {
 				}
 			}
 			reader.close();
-			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+			EventBus.getDefault().post(new AccountListUpdateEvent());
 			var panel = new JPanel(new GridBagLayout());
 			var label_1 = new JLabel("Imported:");
 			panel.add(label_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));

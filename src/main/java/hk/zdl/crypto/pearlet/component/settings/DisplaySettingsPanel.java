@@ -13,7 +13,6 @@ import javax.swing.SpinnerNumberModel;
 import org.greenrobot.eventbus.EventBus;
 
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
-import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class DisplaySettingsPanel extends JPanel {
@@ -45,7 +44,7 @@ public class DisplaySettingsPanel extends JPanel {
 				perf.flush();
 				return null;
 			});
-			Util.submit(() -> EventBus.getDefault().post(new AccountListUpdateEvent(MyDb.getAccounts())));
+			EventBus.getDefault().post(new AccountListUpdateEvent());
 		});
 
 		cbox2.setSelected(perf.getBoolean(DisplaySettings.SNSM, false));

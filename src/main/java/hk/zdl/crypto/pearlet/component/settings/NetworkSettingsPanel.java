@@ -29,6 +29,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.NetworkChangeEvent;
 import hk.zdl.crypto.pearlet.component.settings.wizard.ChooseNetworkType;
 import hk.zdl.crypto.pearlet.component.settings.wizard.ConfirmNetwork;
@@ -143,6 +144,7 @@ public class NetworkSettingsPanel extends JPanel {
 			if (JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this?", null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 				MyDb.delete_network(o.getId());
 				EventBus.getDefault().post(new NetworkChangeEvent());
+				EventBus.getDefault().post(new AccountListUpdateEvent());
 			}
 		});
 		btn_2.addActionListener(e -> {
