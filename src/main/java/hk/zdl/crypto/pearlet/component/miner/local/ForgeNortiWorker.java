@@ -42,7 +42,7 @@ public class ForgeNortiWorker implements Runnable {
 						timestamp = Math.max(timestamp, jobj.getLong("timestamp"));
 					}
 				}
-				Thread.sleep(Duration.ofSeconds(30));
+				Thread.sleep(Duration.ofSeconds(30).toMillis());
 			} catch (Exception x) {
 			}
 		}

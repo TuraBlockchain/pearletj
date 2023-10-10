@@ -104,8 +104,9 @@ public class PlotPanel extends JPanel implements ActionListener {
 			file_dialog.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			int i = file_dialog.showOpenDialog(getRootPane());
 			if (i == JFileChooser.APPROVE_OPTION) {
-				plot_path = file_dialog.getSelectedFile().toPath();
-				plot_path_field.setText(plot_path.toFile().getAbsolutePath());
+				var f = file_dialog.getSelectedFile();
+				plot_path = f.toPath();
+				plot_path_field.setText(f.getAbsolutePath());
 			}
 		});
 		plot_btn.addActionListener(this);
