@@ -54,7 +54,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import hk.zdl.crypto.pearlet.MyToolbar;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.BalanceUpdateEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
@@ -164,7 +163,7 @@ public class SendPanel extends JPanel {
 		msg_scr.setPreferredSize(new Dimension(500, 200));
 		panel_1.add(msg_scr, newGridConst(0, 9, 5));
 
-		send_btn = new JButton("Send", MyToolbar.getIcon("paper-plane-solid.svg"));
+		send_btn = new JButton("Send", UIUtil.getStretchIcon("toolbar/paper-plane-solid.svg", 64, 64));
 		send_btn.setFont(new Font("Arial Black", Font.PLAIN, 32));
 		send_btn.setMultiClickThreshhold(300);
 		send_btn.setEnabled(false);

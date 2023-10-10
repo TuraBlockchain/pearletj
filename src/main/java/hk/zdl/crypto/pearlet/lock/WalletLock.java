@@ -23,7 +23,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import hk.zdl.crypto.pearlet.component.event.WalletLockEvent;
 import hk.zdl.crypto.pearlet.component.event.WalletTimerEvent;
-import hk.zdl.crypto.pearlet.laf.MyUIManager;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
