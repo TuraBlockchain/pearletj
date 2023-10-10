@@ -163,7 +163,7 @@ public class SendPanel extends JPanel {
 		msg_scr.setPreferredSize(new Dimension(500, 200));
 		panel_1.add(msg_scr, newGridConst(0, 9, 5));
 
-		send_btn = new JButton("Send", UIUtil.getStretchIcon("toolbar/paper-plane-solid.svg", 64, 64));
+		send_btn = new JButton("Send", UIUtil.getStretchIcon("toolbar/paper-plane-solid.svg", 32, 32));
 		send_btn.setFont(new Font("Arial Black", Font.PLAIN, 32));
 		send_btn.setMultiClickThreshhold(300);
 		send_btn.setEnabled(false);

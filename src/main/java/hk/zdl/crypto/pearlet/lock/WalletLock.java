@@ -67,6 +67,7 @@ public class WalletLock {
 					var d = new JDialog(frame);
 					SwingUtilities.invokeLater(() -> {
 						var bar = new JProgressBar();
+						bar.setString("In Progress...");
 						bar.setPreferredSize(new Dimension(500, 50));
 						bar.setIndeterminate(true);
 						d.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -78,7 +79,6 @@ public class WalletLock {
 						d.setVisible(true);
 					});
 					try {
-//						Thread.sleep(Duration.ofSeconds(10));
 						return LockImpl.change_password(pw_field[0] == null ? null : pw_field[0].getPassword(), pw_field[1].getPassword());
 					} finally {
 						d.dispose();
@@ -141,7 +141,7 @@ public class WalletLock {
 	}
 
 	public static boolean isLocked() {
-		return tmp_pw != null;
+		return tmp_pw == null;
 	}
 
 	public static byte[] encrypt_private_key(byte[] bArr) throws Exception {

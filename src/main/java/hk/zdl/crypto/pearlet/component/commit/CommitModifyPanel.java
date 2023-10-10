@@ -51,7 +51,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final WaitLayerUI wuli = new WaitLayerUI();
 	private final ChartPanel chart_panel = new ChartPanel(ChartFactory.createPieChart(null, new DefaultPieDataset<String>(), true, true, false));
-	private final JButton btn = new JButton("Commit", UIUtil.getStretchIcon("toolbar/paper-plane-solid.svg", 64, 64));
+	private final JButton btn = new JButton("Commit", UIUtil.getStretchIcon("toolbar/paper-plane-solid.svg", 32, 32));
 	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32, 32, BufferedImage.TYPE_4BYTE_ABGR), 32, 32);
 
 	private BigDecimal committed_balance = null;

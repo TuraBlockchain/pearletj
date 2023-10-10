@@ -338,7 +338,7 @@ public class MyDb {
 	}
 
 	public static final byte[] get_ancpvk(int network_id, int account_id) {
-		return Db.queryBytes("SELECT CONTENT FROM APP.ENCPVK WHERE NWID = ? AND ACID = ?", network_id, account_id);
+		return Db.findFirst("SELECT CONTENT FROM APP.ENCPVK WHERE NWID = ? AND ACID = ?", network_id, account_id).getBytes("CONTENT");
 	}
 
 	public static final int delete_ancpvk(int network_id, int account_id) {

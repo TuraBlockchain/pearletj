@@ -78,7 +78,7 @@ public class SetAccountInfoPanel extends JPanel {
 		fee_slider.addChangeListener(e -> fee_field.setText(new BigDecimal(fee_slider.getValue()).movePointLeft(decimalPlaces).toPlainString()));
 		add(fee_panel, newGridConst(0, 7, 5));
 
-		var send_icon = UIUtil.getStretchIcon("toolbar/paper-plane-solid.svg", 64, 64);
+		var send_icon = UIUtil.getStretchIcon("toolbar/paper-plane-solid.svg", 32, 32);
 		var send_btn = new JButton("Update Account Info", send_icon);
 		try {
 			var btn_img = ImageIO.read(Util.getResource("icon/spinner-solid.svg"));
