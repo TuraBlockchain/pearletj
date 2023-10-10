@@ -44,7 +44,7 @@ public class LockImpl {
 			}
 		}
 	}
-	
+
 	static final boolean hasPassword() {
 		var s = Util.getUserSettings().get(WALLET_LOCK_DATA, null);
 		if (s == null || s.isBlank()) {
@@ -86,15 +86,17 @@ public class LockImpl {
 	}
 
 	static boolean change_password(char[] old_pw, char[] new_pw) throws Exception {
-		var l = MyDb.find_all_encpvk();
-		decrypt_with_old_pw(l, old_pw);
-		encrypt_with_new_pw(l, new_pw);
-		MyDb.batch_update_encpvk(l);
+		if (old_pw != null) {
+			var l = MyDb.find_all_encpvk();
+			decrypt_with_old_pw(l, old_pw);
+			encrypt_with_new_pw(l, new_pw);
+			MyDb.batch_update_encpvk(l);
+		}
 		encrypt_with_new_pw_1(new_pw);
 		store_new_pw(new_pw);
 		return true;
 	}
-	
+
 	private static void encrypt_with_new_pw_1(char[] new_pw) throws Exception {
 		var l = MyDb.getAccounts().stream().filter(r -> r.getBytes("PRIVATE_KEY").length > 1).toList();
 		for (var r : l) {

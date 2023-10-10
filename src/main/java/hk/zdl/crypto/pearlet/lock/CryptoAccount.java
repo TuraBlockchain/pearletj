@@ -16,7 +16,7 @@ public class CryptoAccount {
 	}
 
 	public CryptoNetwork getNetwork() {
-		var x = Db.findFirst("select * from networks where ID = ?", r.getInt("NWID"));
+		var x = Db.findFirst("SELECT * FROM NETWORKS WHERE ID = ?", r.getInt("NWID"));
 		var c = new CryptoNetwork();
 		c.setId(r.getInt("NWID"));
 		c.setUrl(x.getStr("URL"));
@@ -48,7 +48,7 @@ public class CryptoAccount {
 	}
 
 	public static final Optional<CryptoAccount> getAccount(CryptoNetwork network, String address) {
-		Record r = Db.findFirst("select * from ACCOUNTS WHERE NWID = ? AND ADDRESS = ?", network.getId(), address);
+		var r = Db.findFirst("SELECT * from ACCOUNTS WHERE NWID = ? AND ADDRESS = ?", network.getId(), address);
 		if (r == null) {
 			return Optional.empty();
 		} else {

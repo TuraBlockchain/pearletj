@@ -1,12 +1,13 @@
 package hk.zdl.crypto.pearlet.component;
 
-import java.awt.AWTException;
 import java.awt.CheckboxMenuItem;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -22,7 +23,7 @@ import hk.zdl.crypto.pearlet.lock.WalletLock;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
-public class TrayIconMenu implements ItemListener {
+public class TrayIconMenu implements ItemListener, ActionListener {
 
 	private final CheckboxMenuItem lock_menu_item = new CheckboxMenuItem();
 	private final MenuItem quit_menu_item = new MenuItem("Quit");
@@ -32,13 +33,7 @@ public class TrayIconMenu implements ItemListener {
 		this.frame = frame;
 		EventBus.getDefault().register(this);
 		lock_menu_item.addItemListener(this);
-		quit_menu_item.addActionListener((e) -> {
-			if (UIUtil.show_confirm_exit_dialog(frame)) {
-				frame.setVisible(false);
-				frame.dispose();
-				System.exit(0);
-			}
-		});
+		quit_menu_item.addActionListener(this);
 		var menu = new PopupMenu();
 		menu.add(lock_menu_item);
 		menu.add(quit_menu_item);
@@ -46,9 +41,18 @@ public class TrayIconMenu implements ItemListener {
 		trayIcon.setImageAutoSize(true);
 		try {
 			SystemTray.getSystemTray().add(trayIcon);
-		} catch (AWTException x) {
+		} catch (Exception x) {
 		}
 
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (UIUtil.show_confirm_exit_dialog(frame)) {
+			frame.setVisible(false);
+			frame.dispose();
+			System.exit(0);
+		}
 	}
 
 	@Override

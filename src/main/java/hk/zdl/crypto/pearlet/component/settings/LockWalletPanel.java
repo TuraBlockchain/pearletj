@@ -63,11 +63,13 @@ public class LockWalletPanel extends JPanel implements ActionListener {
 			});
 		});
 		chg_pwd_btn.addActionListener(e -> {
-			try {
-				WalletLock.change_password();
-			} catch (Exception x) {
-				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
-			}
+			Util.submit(()->{
+				try {
+					WalletLock.change_password();
+				} catch (Exception x) {
+					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
+				}
+			});
 		});
 		SwingUtilities.invokeLater(() -> {
 			var i = Util.getUserSettings().getInt(WalletLock.AUTO_LOCK_MIN, -1);

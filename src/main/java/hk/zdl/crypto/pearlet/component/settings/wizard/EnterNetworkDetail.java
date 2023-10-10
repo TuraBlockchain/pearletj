@@ -9,6 +9,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
@@ -104,15 +108,39 @@ public class EnterNetworkDetail extends AbstractWizardPage {
 				new Font("Arial Black", Font.PLAIN, (getFont().getSize()))));
 		var icon = new JLabel(UIUtil.getStretchIcon(icon_path, 32, 32));
 		var box = new JComboBox<String>(address);
-		if (address.length < 1) {
-			box.setEditable(true);
-		}
 		var ratio = new JRadioButton();
 		ratio.setSelected(btn_grp.getButtonCount() == 0);
 		btn_grp.add(ratio);
+		if (address.length < 1) {
+			box.setEditable(true);
+			var o = box.getEditor().getEditorComponent();
+			o.addKeyListener(new KeyAdapter() {
+
+				@Override
+				public void keyReleased(KeyEvent event) {
+					ratio.setSelected(true);
+				}
+			});
+			o.addMouseListener(new MouseAdapter() {
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					ratio.setSelected(true);
+				}
+			});
+		}
 		c.add(icon, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		c.add(box, new GridBagConstraints(1, 0, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 		c.add(ratio, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+
+		box.addActionListener(e -> ratio.setSelected(true));
+		box.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				ratio.setSelected(true);
+			}
+		});
 
 		options.add(new NWOP() {
 
