@@ -46,7 +46,7 @@ public class WatchBurstAccount {
 				} catch (Exception e) {
 				}
 			}
-			b = MyDb.insertAccount(nw, address, public_key, private_key);
+			b = MyDb.insert_or_update_account(nw, address, public_key, private_key);
 		} catch (Exception x) {
 			JOptionPane.showMessageDialog(w, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			return;

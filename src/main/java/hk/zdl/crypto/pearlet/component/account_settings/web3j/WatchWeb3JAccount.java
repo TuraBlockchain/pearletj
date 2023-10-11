@@ -25,7 +25,7 @@ public class WatchWeb3JAccount {
 		}
 		address = address.trim();
 		if (CryptoUtil.isValidAddress(nw, address)) {
-			if (MyDb.insertAccount(nw, address, new byte[] {}, new byte[] {})) {
+			if (MyDb.insert_or_update_account(nw, address, new byte[] {}, new byte[] {})) {
 				UIUtil.displayMessage("Watch Account", "done!");
 				EventBus.getDefault().post(new AccountListUpdateEvent());
 			} else {

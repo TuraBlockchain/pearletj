@@ -129,16 +129,7 @@ public class AccountSettingsPanel extends JPanel {
 			}
 		});
 
-		var export_acc_menu = new JPopupMenu();
-//		var export_acc_item = new JMenuItem("Current account...");
-//		export_acc_item.setEnabled(false);
-		var export_table_item = new JMenu("Table As ...");
-		var export_csv_item = new JMenuItem("Comma-separated values (.CSV)");
-		export_table_item.add(export_csv_item);
-		export_acc_menu.add(export_table_item);
-		export_account_btn.addActionListener(e -> export_acc_menu.show(export_account_btn, 0, 0));
-		export_csv_item.addActionListener(e -> ExportAccountTable.export_csv(this, account_table_model));
-
+		export_account_btn.addActionListener(e -> ExportAccountTable.export_csv(this, account_table_model));
 		watch_account_btn.addActionListener(e -> {
 			if (nw == null) {
 				return;

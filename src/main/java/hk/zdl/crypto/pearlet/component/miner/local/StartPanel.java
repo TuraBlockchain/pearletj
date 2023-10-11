@@ -6,9 +6,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
@@ -28,6 +28,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
+import hk.zdl.crypto.pearlet.lock.WalletLock;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
@@ -114,18 +115,37 @@ public class StartPanel extends JPanel {
 			String id = SignumAddress.fromRs(account).getID();
 			String passphrase = null;
 			if (solo) {
-				var icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
-				passphrase = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input account passphrase:", "Start Mining", JOptionPane.INFORMATION_MESSAGE, icon, null, null)).trim();
-				if (passphrase == null) {
-					return;
-				} else if (passphrase.isBlank()) {
-					JOptionPane.showMessageDialog(getRootPane(), "Passphrase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
-					return;
+				int account_id = MyDb.getAccount(network, account).get().getInt("ID");
+				if (WalletLock.hasPassword() && WalletLock.unlock().orElseGet(() -> false) == true) {
+					try {
+						passphrase = WalletLock.decrypt_passphrase(network.getId(), account_id);
+						var _id = SignumCrypto.getInstance().getAddressFromPassphrase(passphrase).getID();
+						if (!id.equals(_id)) {
+							passphrase = null;
+						}
+					} catch (Exception x) {
+						passphrase = null;
+					}
 				}
-				var _id = SignumCrypto.getInstance().getAddressFromPassphrase(passphrase).getID();
-				if (!id.equals(_id)) {
-					JOptionPane.showMessageDialog(getRootPane(), "Passphrase not match with account ID!", "Error", JOptionPane.ERROR_MESSAGE);
-					return;
+				if (passphrase == null) {
+					var icon = UIUtil.getStretchIcon("icon/wallet_2.svg", 64, 64);
+					passphrase = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input account passphrase:", "Start Mining", JOptionPane.INFORMATION_MESSAGE, icon, null, null))
+							.trim();
+					if (passphrase == null) {
+						return;
+					} else if (passphrase.isBlank()) {
+						JOptionPane.showMessageDialog(getRootPane(), "Passphrase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					var _id = SignumCrypto.getInstance().getAddressFromPassphrase(passphrase).getID();
+					if (!id.equals(_id)) {
+						JOptionPane.showMessageDialog(getRootPane(), "Passphrase not match with account ID!", "Error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					if (WalletLock.hasPassword() && WalletLock.unlock().orElseGet(() -> false) == true) {
+						var enc_pse = WalletLock.encrypt_private_key(Charset.defaultCharset().encode(passphrase).array());
+						MyDb.insert_or_update_encpse(network.getId(), account_id, enc_pse);
+					}
 				}
 			} else {
 				url = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input URL of pool:")).trim();
@@ -138,7 +158,7 @@ public class StartPanel extends JPanel {
 					new URL(url);
 				}
 				String _id = "";
-				Optional<String> opt = CryptoUtil.getRewardRecipient(network, account);
+				var opt = CryptoUtil.getRewardRecipient(network, account);
 				if (opt.isPresent()) {
 					_id = SignumAddress.fromEither(opt.get()).getID();
 				}

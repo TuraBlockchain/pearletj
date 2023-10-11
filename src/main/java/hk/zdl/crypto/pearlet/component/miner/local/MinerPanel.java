@@ -93,7 +93,7 @@ public class MinerPanel extends JPanel implements Runnable {
 				}
 				if (line.isBlank() || line.startsWith("Searching")) {
 					continue;
-				} else if (network.getName().startsWith("PETH") || network.getName().toLowerCase().startsWith("tura")) {
+				} else if (network.isBurst()) {
 					line = line.replace("signum-miner", "pearletj-miner");
 				}
 				if (line.startsWith("message:")) {
@@ -112,7 +112,6 @@ public class MinerPanel extends JPanel implements Runnable {
 				taos.write(line);
 			}
 		} catch (Exception x) {
-//			Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 		} finally {
 			taos.close();

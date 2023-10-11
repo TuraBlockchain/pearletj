@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Optional;
@@ -151,6 +153,15 @@ public class WalletLock {
 	public static byte[] decrypt_private_key(int network_id, int account_id) throws Exception {
 		var bArr = MyDb.get_encpvk(network_id, account_id);
 		return LockImpl.aes_decrypt(tmp_pw, bArr);
+	}
+
+	public static String decrypt_passphrase(int network_id, int account_id) throws Exception {
+		var bArr = MyDb.get_encpse(network_id, account_id);
+		if (bArr == null) {
+			return null;
+		}
+		bArr = LockImpl.aes_decrypt(tmp_pw, bArr);
+		return Charset.defaultCharset().decode(ByteBuffer.wrap(bArr)).toString();
 	}
 
 	private static final TimerTask getTimerTask() {

@@ -24,7 +24,7 @@ public class WalletUtil {
 				if (o.get()) {
 					var enc_pvk = WalletLock.encrypt_private_key(private_key);
 					private_key = new byte[] { 1 };
-					b = MyDb.insertAccount(nw, address, public_key, private_key);
+					b = MyDb.insert_or_update_account(nw, address, public_key, private_key);
 					var account_id = MyDb.getAccount(nw, address).get().getInt("ID");
 					MyDb.insert_or_update_encpvk(nw.getId(), account_id, enc_pvk);
 				} else {
@@ -34,7 +34,7 @@ public class WalletUtil {
 				throw new IllegalStateException("Wallet is locked!");
 			}
 		} else {
-			b = MyDb.insertAccount(nw, address, public_key, private_key);
+			b = MyDb.insert_or_update_account(nw, address, public_key, private_key);
 		}
 		return b;
 	}
@@ -50,7 +50,7 @@ public class WalletUtil {
 				if (o.get()) {
 					var enc_pvk = WalletLock.encrypt_private_key(private_key);
 					private_key = new byte[] { 1 };
-					b = MyDb.insertAccount(nw, address, public_key, private_key);
+					b = MyDb.insert_or_update_account(nw, address, public_key, private_key);
 					var account_id = MyDb.getAccount(nw, address).get().getInt("ID");
 					MyDb.insert_or_update_encpvk(nw.getId(), account_id, enc_pvk);
 					if (type == PKT.Phrase) {
@@ -64,7 +64,7 @@ public class WalletUtil {
 				throw new IllegalStateException("Wallet is locked!");
 			}
 		} else {
-			b = MyDb.insertAccount(nw, address, public_key, private_key);
+			b = MyDb.insert_or_update_account(nw, address, public_key, private_key);
 		}
 		return b;
 	}

@@ -30,7 +30,6 @@ import com.jfinal.plugin.activerecord.dialect.AnsiSqlDialect;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
 
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
-import hk.zdl.crypto.pearlet.lock.WalletLock;
 import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.SignumID;
 import signumj.entity.response.Transaction;
@@ -172,25 +171,17 @@ public class MyDb {
 		return Db.find("SELECT * FROM ACCOUNTS");
 	}
 
-	public static final boolean insertAccount(CryptoNetwork nw, String address, byte[] public_key, byte[] private_key) {
-		int i = Db.queryInt("SELECT COUNT(*) FROM ACCOUNTS WHERE NWID = ? AND ADDRESS = ?", nw.getId(), address);
-		if (i > 0) {
+	public static final boolean insert_or_update_account(CryptoNetwork nw, String address, byte[] public_key, byte[] private_key) {
+		var r = Db.findFirst("SELECT * FROM ACCOUNTS WHERE NWID = ? AND ADDRESS = ?", nw.getId(), address);
+		if (r == null) {
+			r = new Record().set("NWID", nw.getId()).set("NETWORK", nw.getType().name()).set("ADDRESS", address).set("PUBLIC_KEY", public_key).set("PRIVATE_KEY", private_key);
+			return Db.save("ACCOUNTS", "ID", r);
+		} else if (r.getBytes("PRIVATE_KEY").length == 0 && private_key.length > 0) {
+			r.set("PRIVATE_KEY", private_key);
+			return Db.update("ACCOUNTS", "ID", r);
+		} else {
 			return false;
-		} else if (WalletLock.hasPassword()) {
-			if (WalletLock.isLocked()) {
-				var o = WalletLock.unlock();
-				if (!o.isPresent() || o.get() == false) {
-					throw new IllegalStateException("Failed to unlock wallet!");
-				}
-			}
-			try {
-				private_key = WalletLock.encrypt_private_key(private_key);
-			} catch (Exception x) {
-				return false;
-			}
 		}
-		var o = new Record().set("NWID", nw.getId()).set("NETWORK", nw.getType().name()).set("ADDRESS", address).set("PUBLIC_KEY", public_key).set("PRIVATE_KEY", private_key);
-		return Db.save("ACCOUNTS", "ID", o);
 	}
 
 	public static final int[] batch_mark_account_with_encpvk(List<? extends Record> recordList) {
@@ -340,7 +331,11 @@ public class MyDb {
 	}
 
 	public static final byte[] get_encpvk(int network_id, int account_id) {
-		return Db.findFirst("SELECT CONTENT FROM APP.ENCPVK WHERE NWID = ? AND ACID = ?", network_id, account_id).getBytes("CONTENT");
+		var r = Db.findFirst("SELECT CONTENT FROM APP.ENCPVK WHERE NWID = ? AND ACID = ?", network_id, account_id);
+		if (r != null) {
+			r.getBytes("CONTENT");
+		}
+		return null;
 	}
 
 	public static final int delete_encpvk(int network_id, int account_id) {
@@ -367,7 +362,11 @@ public class MyDb {
 	}
 
 	public static final byte[] get_encpse(int network_id, int account_id) {
-		return Db.findFirst("SELECT CONTENT FROM APP.ENCPSE WHERE NWID = ? AND ACID = ?", network_id, account_id).getBytes("CONTENT");
+		var r = Db.findFirst("SELECT CONTENT FROM APP.ENCPSE WHERE NWID = ? AND ACID = ?", network_id, account_id);
+		if (r != null) {
+			r.getBytes("CONTENT");
+		}
+		return null;
 	}
 
 	public static final int delete_encpse(int network_id, int account_id) {

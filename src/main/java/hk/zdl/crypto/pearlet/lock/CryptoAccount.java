@@ -1,11 +1,15 @@
 package hk.zdl.crypto.pearlet.lock;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
 
+import hk.zdl.crypto.pearlet.component.account_settings.burst.PKT;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
+import hk.zdl.crypto.pearlet.persistence.MyDb;
+import hk.zdl.crypto.pearlet.util.CryptoUtil;
 
 public class CryptoAccount {
 
@@ -33,7 +37,7 @@ public class CryptoAccount {
 		return r.getBytes("PUBLIC_KEY");
 	}
 
-	public byte[] getPrivateKey() throws Exception {
+	public synchronized byte[] getPrivateKey() throws Exception {
 		if (WalletLock.hasPassword()) {
 			if (WalletLock.isLocked()) {
 				var o = WalletLock.unlock();
@@ -41,7 +45,29 @@ public class CryptoAccount {
 					throw new IllegalStateException("Failed to unlock wallet!");
 				}
 			}
-			return WalletLock.decrypt_private_key(r.getInt("NWID"), r.getInt("ID"));
+			var network_id = r.getInt("NWID");
+			var account_id = r.getInt("ID");
+			var network = getNetwork();
+			var private_key = WalletLock.decrypt_private_key(network_id, account_id);
+			var public_key = CryptoUtil.getPublicKey(network, private_key);
+			if (!Arrays.equals(public_key, getPublicKey())) {
+				var passphrase = WalletLock.decrypt_passphrase(network_id, account_id);
+				if (passphrase == null) {
+					MyDb.delete_encpvk(network_id, account_id);
+				}else {
+					private_key = CryptoUtil.getPrivateKey(network, PKT.Phrase, passphrase);
+					public_key = CryptoUtil.getPublicKey(network, private_key);
+					if (Arrays.equals(public_key, getPublicKey())) {
+						var encpvk = WalletLock.encrypt_private_key(private_key);
+						MyDb.insert_or_update_encpvk(network_id, account_id, encpvk);
+						return private_key;
+					} else {
+						MyDb.delete_encpse(network_id, account_id);
+					}
+				}
+				throw new IllegalArgumentException();
+			}
+			return private_key;
 		} else {
 			return r.getBytes("PRIVATE_KEY");
 		}

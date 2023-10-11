@@ -110,7 +110,7 @@ public class ImportBurstAccount {
 				try {
 					byte[] private_key = CryptoUtil.getPrivateKey(nw, PKT.Phrase, phrase);
 					byte[] public_key = CryptoUtil.getPublicKey(nw, private_key);
-					boolean b = MyDb.insertAccount(nw, CryptoUtil.getAddress(nw, public_key), public_key, private_key);
+					boolean b = MyDb.insert_or_update_account(nw, CryptoUtil.getAddress(nw, public_key), public_key, private_key);
 					if (b) {
 						imported++;
 					}
