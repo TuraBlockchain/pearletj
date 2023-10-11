@@ -14,18 +14,16 @@ import javax.swing.filechooser.FileFilter;
 import org.greenrobot.eventbus.EventBus;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
-import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.WalletUtils;
-import org.web3j.utils.Numeric;
 
+import hk.zdl.crypto.pearlet.component.account_settings.WalletUtil;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
-import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 
 public class ImportWeb3JAccountFromFile {
 
-	public static final void create_import_account_dialog(Component c,CryptoNetwork nw) {
+	public static final void create_import_account_dialog(Component c, CryptoNetwork nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var file_dialog = new JFileChooser();
@@ -63,18 +61,20 @@ public class ImportWeb3JAccountFromFile {
 		try {
 			cred = WalletUtils.loadCredentials(new String(pw_field.getPassword()), file);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(w, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(w, e.getMessage(), e.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		ECKeyPair eckp = cred.getEcKeyPair();
-		boolean b = MyDb.insertAccount(nw, cred.getAddress(),Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
-		if (b) {
-			UIUtil.displayMessage("Import Account", "Done!");
-			EventBus.getDefault().post(new AccountListUpdateEvent());
-		} else {
-			JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+
+		try {
+			if (WalletUtil.insert_web3j_account(nw, cred.getEcKeyPair())) {
+				UIUtil.displayMessage("Import Account", "Done!");
+				EventBus.getDefault().post(new AccountListUpdateEvent());
+			} else {
+				JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		} catch (Exception x) {
+			JOptionPane.showMessageDialog(w, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 		}
 
-		
 	}
 }

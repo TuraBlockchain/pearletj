@@ -1,4 +1,4 @@
-package hk.zdl.crypto.pearlet.component.account_settings.signum;
+package hk.zdl.crypto.pearlet.component.account_settings.burst;
 
 import java.awt.Component;
 
@@ -15,7 +15,7 @@ import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import signumj.entity.SignumAddress;
 
-public class WatchSignumAccount {
+public class WatchBurstAccount {
 
 	public static final void create_watch_account_dialog(Component c, CryptoNetwork nw) {
 		var w = SwingUtilities.getWindowAncestor(c);

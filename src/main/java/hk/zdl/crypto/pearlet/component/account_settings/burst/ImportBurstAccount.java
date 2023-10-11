@@ -1,4 +1,4 @@
-package hk.zdl.crypto.pearlet.component.account_settings.signum;
+package hk.zdl.crypto.pearlet.component.account_settings.burst;
 
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -24,13 +24,14 @@ import org.jdesktop.swingx.combobox.EnumComboBoxModel;
 
 import com.csvreader.CsvReader;
 
+import hk.zdl.crypto.pearlet.component.account_settings.WalletUtil;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 
-public class ImportSignumAccount {
+public class ImportBurstAccount {
 
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
@@ -54,26 +55,20 @@ public class ImportSignumAccount {
 
 		int i = JOptionPane.showConfirmDialog(w, panel, "Import Existing Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
 		if (i == JOptionPane.OK_OPTION) {
-			PKT type = (PKT) combobox_1.getSelectedItem();
-			String text = text_area.getText().trim();
-
-			boolean b = false;
-			byte[] public_key, private_key;
+			var type = (PKT) combobox_1.getSelectedItem();
+			var text = text_area.getText().trim();
 			try {
-				private_key = CryptoUtil.getPrivateKey(nw, type, text);
-				public_key = CryptoUtil.getPublicKey(nw, private_key);
-				b = MyDb.insertAccount(nw, CryptoUtil.getAddress(nw, public_key), public_key, private_key);
+				if (WalletUtil.insert_burst_account(nw, type, text)) {
+					UIUtil.displayMessage("Import Account", "Done!");
+					EventBus.getDefault().post(new AccountListUpdateEvent());
+				} else {
+					JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+				}
 			} catch (Exception x) {
-				JOptionPane.showMessageDialog(w, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(w, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
-			if (b) {
-				UIUtil.displayMessage("Import Account", "Done!");
-				EventBus.getDefault().post(new AccountListUpdateEvent());
-			} else {
-				JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
-			}
 		}
 	}
 
@@ -116,7 +111,7 @@ public class ImportSignumAccount {
 					byte[] private_key = CryptoUtil.getPrivateKey(nw, PKT.Phrase, phrase);
 					byte[] public_key = CryptoUtil.getPublicKey(nw, private_key);
 					boolean b = MyDb.insertAccount(nw, CryptoUtil.getAddress(nw, public_key), public_key, private_key);
-					if(b) {
+					if (b) {
 						imported++;
 					}
 				} catch (Exception x) {
@@ -128,13 +123,13 @@ public class ImportSignumAccount {
 			var panel = new JPanel(new GridBagLayout());
 			var label_1 = new JLabel("Imported:");
 			panel.add(label_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
-			var label_2 = new JLabel(""+imported);
+			var label_2 = new JLabel("" + imported);
 			label_2.setHorizontalAlignment(SwingConstants.RIGHT);
 			label_2.setHorizontalTextPosition(SwingConstants.RIGHT);
 			panel.add(label_2, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 			var label_3 = new JLabel("Total:");
 			panel.add(label_3, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
-			var label_4 = new JLabel(""+total);
+			var label_4 = new JLabel("" + total);
 			label_4.setHorizontalAlignment(SwingConstants.RIGHT);
 			label_4.setHorizontalTextPosition(SwingConstants.RIGHT);
 			panel.add(label_4, new GridBagConstraints(1, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));

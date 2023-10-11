@@ -149,7 +149,7 @@ public class WalletLock {
 	}
 
 	public static byte[] decrypt_private_key(int network_id, int account_id) throws Exception {
-		var bArr = MyDb.get_ancpvk(network_id, account_id);
+		var bArr = MyDb.get_encpvk(network_id, account_id);
 		return LockImpl.aes_decrypt(tmp_pw, bArr);
 	}
 

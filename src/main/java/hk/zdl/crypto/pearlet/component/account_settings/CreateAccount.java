@@ -36,18 +36,13 @@ import javax.swing.WindowConstants;
 import org.greenrobot.eventbus.EventBus;
 import org.java_websocket.util.Base64;
 import org.jdesktop.swingx.combobox.EnumComboBoxModel;
-import org.web3j.crypto.Credentials;
-import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.WalletUtils;
-import org.web3j.utils.Numeric;
 
-import hk.zdl.crypto.pearlet.component.account_settings.signum.PKT;
+import hk.zdl.crypto.pearlet.component.account_settings.burst.PKT;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.misc.IndepandentWindows;
-import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
-import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
 public class CreateAccount {
@@ -122,26 +117,18 @@ public class CreateAccount {
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(s, s);
 		});
 		btn_3.addActionListener(e -> Util.submit(() -> {
-			PKT type = (PKT) combobox_1.getSelectedItem();
-			String text = text_area.getText().trim();
-
-			boolean b = false;
-			byte[] public_key, private_key;
+			var type = (PKT) combobox_1.getSelectedItem();
+			var text = text_area.getText().trim();
 			try {
-				private_key = CryptoUtil.getPrivateKey(nw, type, text);
-				public_key = CryptoUtil.getPublicKey(nw, private_key);
-				b = MyDb.insertAccount(nw, CryptoUtil.getAddress(nw, public_key), public_key, private_key);
+				if (WalletUtil.insert_burst_account(nw, type, text)) {
+					UIUtil.displayMessage("Create Account", "Done!");
+					EventBus.getDefault().post(new AccountListUpdateEvent());
+				} else {
+					JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+				}
 			} catch (Exception x) {
-				JOptionPane.showMessageDialog(dialog, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(w, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 				return;
-			}
-
-			if (b) {
-				dialog.dispose();
-				UIUtil.displayMessage("Create Account", "done!");
-				EventBus.getDefault().post(new AccountListUpdateEvent());
-			} else {
-				JOptionPane.showMessageDialog(dialog, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}));
 		combobox_1.addActionListener((e) -> btn_1.doClick());
@@ -218,15 +205,19 @@ public class CreateAccount {
 				JOptionPane.showMessageDialog(w, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			Credentials cred = WalletUtils.loadBip39Credentials(new String(pw_field.getPassword()), tx_field.getText().trim());
-			ECKeyPair eckp = cred.getEcKeyPair();
-			boolean b = MyDb.insertAccount(nw, cred.getAddress(), Numeric.toBytesPadded(eckp.getPublicKey(), 64), Numeric.toBytesPadded(eckp.getPrivateKey(), 32));
-			if (b) {
-				UIUtil.displayMessage("Create Account", "done!");
-				EventBus.getDefault().post(new AccountListUpdateEvent());
-			} else {
-				JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+			var cred = WalletUtils.loadBip39Credentials(new String(pw_field.getPassword()), tx_field.getText().trim());
+
+			try {
+				if (WalletUtil.insert_web3j_account(nw, cred.getEcKeyPair())) {
+					UIUtil.displayMessage("Create Account", "Done!");
+					EventBus.getDefault().post(new AccountListUpdateEvent());
+				} else {
+					JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+				}
+			} catch (Exception x) {
+				JOptionPane.showMessageDialog(w, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 			}
+
 		}
 	}
 }

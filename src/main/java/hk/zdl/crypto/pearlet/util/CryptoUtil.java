@@ -28,7 +28,7 @@ import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Convert;
 
-import hk.zdl.crypto.pearlet.component.account_settings.signum.PKT;
+import hk.zdl.crypto.pearlet.component.account_settings.burst.PKT;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
@@ -125,13 +125,13 @@ public class CryptoUtil {
 	}
 
 	public static final byte[] getPrivateKey(CryptoNetwork nw, PKT type, String text) {
-		if (nw.isBurst()) {
-			switch (type) {
-			case Base64:
-				return Base64.decode(text);
-			case HEX:
-				return Hex.decode(text);
-			case Phrase:
+		switch (type) {
+		case Base64:
+			return Base64.decode(text);
+		case HEX:
+			return Hex.decode(text);
+		case Phrase:
+			if (nw.isBurst()) {
 				return SignumCrypto.getInstance().getPrivateKey(text);
 			}
 		}

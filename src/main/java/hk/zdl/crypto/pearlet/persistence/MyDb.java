@@ -109,6 +109,7 @@ public class MyDb {
 		Db.delete("DELETE FROM SIGNUM_TX WHERE NWID=?", id);
 		Db.delete("DELETE FROM ACCOUNTS WHERE NWID=?", id);
 		Db.delete("DELETE FROM ENCPVK WHERE NWID=?", id);
+		Db.delete("DELETE FROM ENCPSE WHERE NWID=?", id);
 		return Db.deleteById("NETWORKS", "ID", id);
 	}
 
@@ -206,7 +207,8 @@ public class MyDb {
 
 	public static final boolean deleteAccount(int id) {
 		int nwid = Db.queryInt("SELECT NWID FROM ACCOUNTS WHERE ID = ? ", id);
-		Db.delete("DELETE FROM APP.ENCPVK WHERE NWID = ? AND ACID = ?", nwid, id);
+		delete_encpvk(nwid, id);
+		delete_encpse(nwid, id);
 		return Db.deleteById("ACCOUNTS", "ID", id);
 	}
 
@@ -337,11 +339,38 @@ public class MyDb {
 		}
 	}
 
-	public static final byte[] get_ancpvk(int network_id, int account_id) {
+	public static final byte[] get_encpvk(int network_id, int account_id) {
 		return Db.findFirst("SELECT CONTENT FROM APP.ENCPVK WHERE NWID = ? AND ACID = ?", network_id, account_id).getBytes("CONTENT");
 	}
 
-	public static final int delete_ancpvk(int network_id, int account_id) {
+	public static final int delete_encpvk(int network_id, int account_id) {
 		return Db.delete("DELETE FROM APP.ENCPVK WHERE NWID = ? AND ACID = ?", network_id, account_id);
+	}
+
+	public static final List<Record> find_all_encpse() {
+		return Db.findAll("ENCPSE");
+	}
+
+	public static final int[] batch_update_encpse(List<? extends Record> recordList) {
+		return Db.batchUpdate("ENCPSE", recordList, 10);
+	}
+
+	public static final synchronized boolean insert_or_update_encpse(int network_id, int account_id, byte[] content) {
+		var r = Db.findFirst("SELECT * FROM APP.ENCPSE WHERE NWID = ? AND ACID = ?", network_id, account_id);
+		if (r == null) {
+			var o = new Record().set("NWID", network_id).set("ACID", account_id).set("CONTENT", content);
+			return Db.save("ENCPSE", "ID", o);
+		} else {
+			r.set("CONTENT", content);
+			return Db.update("ENCPSE", r);
+		}
+	}
+
+	public static final byte[] get_encpse(int network_id, int account_id) {
+		return Db.findFirst("SELECT CONTENT FROM APP.ENCPSE WHERE NWID = ? AND ACID = ?", network_id, account_id).getBytes("CONTENT");
+	}
+
+	public static final int delete_encpse(int network_id, int account_id) {
+		return Db.delete("DELETE FROM APP.ENCPSE WHERE NWID = ? AND ACID = ?", network_id, account_id);
 	}
 }

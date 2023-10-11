@@ -36,8 +36,8 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crypto.pearlet.component.account_settings.CreateAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.ExportAccountTable;
-import hk.zdl.crypto.pearlet.component.account_settings.signum.ImportSignumAccount;
-import hk.zdl.crypto.pearlet.component.account_settings.signum.WatchSignumAccount;
+import hk.zdl.crypto.pearlet.component.account_settings.burst.ImportBurstAccount;
+import hk.zdl.crypto.pearlet.component.account_settings.burst.WatchBurstAccount;
 import hk.zdl.crypto.pearlet.component.account_settings.web3j.WatchWeb3JAccount;
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
@@ -101,19 +101,19 @@ public class AccountSettingsPanel extends JPanel {
 				return;
 			}
 			if (UIUtil.isAltDown(e)) {
-				ImportSignumAccount.batch_import(this, nw);
+				ImportBurstAccount.batch_import(this, nw);
 			} else {
 				var nws = MyDb.get_networks();
 				if (nws.isEmpty()) {
 					return;
 				} else if (nws.size() == 1 && nw.isBurst()) {
-					ImportSignumAccount.create_import_account_dialog(this, nw);
+					ImportBurstAccount.create_import_account_dialog(this, nw);
 				} else {
 					var menu = new JPopupMenu();
 					for (var n : nws) {
 						if (n.isBurst()) {
 							var item = new JMenuItem(n.getName());
-							item.addActionListener(a -> ImportSignumAccount.create_import_account_dialog(this, n));
+							item.addActionListener(a -> ImportBurstAccount.create_import_account_dialog(this, n));
 							menu.add(item);
 						} else if (n.isWeb3J()) {
 							var import_acc_web3j = new JMenu(n.getName());
@@ -148,7 +148,7 @@ public class AccountSettingsPanel extends JPanel {
 				return;
 			} else if (nws.size() == 1) {
 				if (nw.isBurst()) {
-					WatchSignumAccount.create_watch_account_dialog(this, nw);
+					WatchBurstAccount.create_watch_account_dialog(this, nw);
 				} else if (nw.isWeb3J()) {
 					WatchWeb3JAccount.create_watch_account_dialog(this, nw);
 				}
@@ -157,7 +157,7 @@ public class AccountSettingsPanel extends JPanel {
 				for (var n : nws) {
 					if (n.isBurst()) {
 						var item = new JMenuItem(n.getName());
-						item.addActionListener(a -> WatchSignumAccount.create_watch_account_dialog(this, n));
+						item.addActionListener(a -> WatchBurstAccount.create_watch_account_dialog(this, n));
 						menu.add(item);
 					} else if (n.isWeb3J()) {
 						var item = new JMenuItem(n.getName());
