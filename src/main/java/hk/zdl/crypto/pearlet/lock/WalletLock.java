@@ -143,7 +143,7 @@ public class WalletLock {
 	}
 
 	public static boolean isLocked() {
-		return tmp_pw == null;
+		return LockImpl.hasPassword() && tmp_pw == null;
 	}
 
 	public static byte[] encrypt_private_key(byte[] bArr) throws Exception {
