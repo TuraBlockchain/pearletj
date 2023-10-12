@@ -104,7 +104,7 @@ public class Util {
 		}
 	}
 
-	public static final String get_icon_file_name(CryptoNetwork o) {
+	public static final String get_icon_file_name(CryptoNetwork o,boolean isDark) {
 		if (o.getType() == CryptoNetwork.Type.WEB3J) {
 			return "ethereum-crypto-cryptocurrency-2-svgrepo-com.svg";
 		} else if (is_signum_server_address(o.getUrl())) {
@@ -116,7 +116,11 @@ public class Util {
 				for (var i = 0; i < jarr.length(); i++) {
 					var jobj = jarr.getJSONObject(i);
 					if (url.equals(jobj.getString("server url"))) {
-						return jobj.getString("icon");
+						var s = jobj.getString("icon");
+						if(isDark) {
+							s =  jobj.optString("icon_dark", s);
+						}
+						return s;
 					}
 				}
 			} catch (Exception x) {

@@ -29,6 +29,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import com.jthemedetecor.OsThemeDetector;
+
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.component.event.NetworkChangeEvent;
 import hk.zdl.crypto.pearlet.component.settings.wizard.ChooseNetworkType;
@@ -104,8 +106,14 @@ public class NetworkSettingsPanel extends JPanel {
 	private final Component init_network_UI_components(CryptoNetwork o) {
 		var panel = new JPanel(new BorderLayout());
 		panel.setPreferredSize(new Dimension(700, 130));
-		var icon = new JLabel(UIUtil.getStretchIcon("icon/" + Util.get_icon_file_name(o), 64, 64));
-		panel.add(icon, BorderLayout.WEST);
+		var icon = UIUtil.getStretchIcon("icon/" + Util.get_icon_file_name(o, false), 64, 64);
+		var icon_dark = UIUtil.getStretchIcon("icon/" + Util.get_icon_file_name(o, true), 64, 64);
+		var icon_label = new JLabel();
+		OsThemeDetector.getDetector().registerListener((isDark) -> {
+			icon_label.setIcon(isDark ? icon_dark : icon);
+		});
+		icon_label.setIcon(OsThemeDetector.getDetector().isDark() ? icon_dark : icon);
+		panel.add(icon_label, BorderLayout.WEST);
 		var my_panel = new JPanel(new GridBagLayout());
 		panel.add(my_panel, BorderLayout.CENTER);
 		my_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), o.getName(), TitledBorder.LEFT, TitledBorder.TOP,

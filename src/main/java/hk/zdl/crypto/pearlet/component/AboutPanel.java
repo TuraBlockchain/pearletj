@@ -31,6 +31,8 @@ import javax.swing.border.TitledBorder;
 import org.json.JSONArray;
 import org.json.JSONTokener;
 
+import com.jthemedetecor.OsThemeDetector;
+
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -85,7 +87,7 @@ public class AboutPanel extends JPanel {
 		});
 		add(sw_info, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.NORTH, GridBagConstraints.NONE, insets_5, 0, 0));
 
-		var dec_pane = new JTextArea(0,100);
+		var dec_pane = new JTextArea(0, 100);
 		dec_pane.setText(Util.getResourceAsText("disclaimer.txt"));
 		dec_pane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
 		dec_pane.setEditable(false);
@@ -108,11 +110,22 @@ public class AboutPanel extends JPanel {
 		var jarr = new JSONArray(new JSONTokener(Util.getResourceAsText("badges.json")));
 		for (int i = 0; i < jarr.length(); i++) {
 			try {
-				String _icon = jarr.getJSONObject(i).getString("icon");
-				String _text = jarr.getJSONObject(i).getString("text");
-				var _label = new JLabel(UIUtil.getStretchIcon("icon/" + _icon, -1, 100));
+				var _icon_dark = jarr.getJSONObject(i).optString("icon_dark");
+				var _icon = jarr.getJSONObject(i).getString("icon");
+				var _text = jarr.getJSONObject(i).getString("text");
+				var icon = UIUtil.getStretchIcon("icon/" + _icon, -1, 100);
+				var _label = new JLabel(icon);
 				_label.setToolTipText(_text);
 				badge_panel.add(_label);
+				if (!_icon_dark.isBlank()) {
+					var dark_icon = UIUtil.getStretchIcon("icon/" + _icon_dark, -1, 100);
+					OsThemeDetector.getDetector().registerListener((isDark) -> {
+						_label.setIcon(isDark ? dark_icon : icon);
+					});
+					if (OsThemeDetector.getDetector().isDark()) {
+						_label.setIcon(dark_icon);
+					}
+				}
 			} catch (Exception e) {
 				continue;
 			}

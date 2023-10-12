@@ -64,7 +64,7 @@ public class TxHistoryQueryExecutor {
 						new EtherTxQuery(network).queryTxHistory(account);
 					}
 					is_finished = true;
-				} catch (InterruptedException e) {
+				} catch (InterruptedException|ThreadDeath e) {
 				} catch (Exception e) {
 					Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
 					is_finished = true;

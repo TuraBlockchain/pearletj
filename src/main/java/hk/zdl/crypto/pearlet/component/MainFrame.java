@@ -74,6 +74,7 @@ public class MainFrame extends JFrame {
 		pack();
 		setLocationRelativeTo(null);
 		setVisible(true);
+		toFront();
 		addWindowListener(new WindowAdapter() {
 
 			@Override

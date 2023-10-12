@@ -1,5 +1,6 @@
 [ {
-  "icon" : "Tura LOGO_01.png",
+  "icon" : "Tura LOGO_01.gif",
+  "icon_dark" : "Tura LOGO_02.gif",
   "text" : "TURA"
 }, {
   "icon" : "pp-logo.png",
