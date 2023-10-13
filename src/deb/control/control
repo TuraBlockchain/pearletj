@@ -5,4 +5,4 @@ Architecture: all
 Priority: optional
 Maintainer: David Zhang <david290@qq.com>
 Description: [[description]]
-Depends: openjdk-17-jre , libcap2 , zenity
+Depends: openjdk-17-jre , libcanberra-gtk-module , libcap2 , zenity
