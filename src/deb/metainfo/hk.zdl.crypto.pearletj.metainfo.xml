@@ -6,5 +6,5 @@
 	<summary>PearletJ</summary>
 	<description>Cross-platform multi-chain thick wallet for Cryto-currencies</description>
 	<launchable type="desktop-id">hk.zdl.crypto.pearletj.desktop</launchable>
-	<url type="homepage">https://github.com/eth3-peth/pearletj.git</url>
+	<url type="homepage">https://github.com/TuraBlockchain/pearletj.git</url>
 </component>

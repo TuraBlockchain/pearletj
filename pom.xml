@@ -10,12 +10,12 @@
 	<inceptionYear>2022</inceptionYear>
 	<url>${project.scm.url}</url>
 	<scm>
-		<url>https://github.com/eth3-peth/pearletj</url>
-		<connection>https://github.com/eth3-peth/pearletj.git</connection>
+		<url>https://github.com/TuraBlockchain/pearletj</url>
+		<connection>https://github.com/TuraBlockchain/pearletj.git</connection>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/eth3-peth/pearletj/issues</url>
+		<url>https://github.com/TuraBlockchain/pearletj/issues</url>
 	</issueManagement>
 	<licenses>
 		<license>
@@ -44,7 +44,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>hk.zdl.crypto.pearlet.Main</mainClass>
+							<mainClass>hk.zdl.crypto.pearlet.PearletJ</mainClass>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 						</manifest>
 						<manifestEntries>
@@ -90,7 +90,7 @@
 							</descriptors>
 							<archive>
 								<manifest>
-									<mainClass>PearletJ</mainClass>
+									<mainClass>hk.zdl.crypto.pearlet.PearletJ</mainClass>
 									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 								</manifest>
 								<manifestEntries>
@@ -175,7 +175,7 @@
 						<CFBundleIconFile>src/main/resources/app.icns</CFBundleIconFile>
 						<CFBundleName>PearletJ</CFBundleName>
 						<CFBundleDisplayName>PearletJ</CFBundleDisplayName>
-						<JVMMainClassName>hk.zdl.crypto.pearlet.Main</JVMMainClassName>
+						<JVMMainClassName>hk.zdl.crypto.pearlet.PearletJ</JVMMainClassName>
 						<JVMVersion>17+</JVMVersion>
 						<JVMSplashFile>src/main/resources/splash.png</JVMSplashFile>
 						<NSHumanReadableCopyright>${project.licenses[0].name}</NSHumanReadableCopyright>

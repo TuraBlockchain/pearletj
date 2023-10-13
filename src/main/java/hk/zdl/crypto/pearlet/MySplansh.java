@@ -33,7 +33,7 @@ public class MySplansh extends JFrame{
 		frame.setResizable(false);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		Main.main(args);
+		PearletJ.main(args);
 		frame.dispose();
 	}
 

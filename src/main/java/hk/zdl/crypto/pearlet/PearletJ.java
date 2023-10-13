@@ -4,7 +4,6 @@ import java.awt.Taskbar;
 import java.awt.Taskbar.Feature;
 import java.io.File;
 import java.nio.file.Files;
-import java.util.concurrent.Callable;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -12,8 +11,6 @@ import javax.swing.SwingUtilities;
 
 import org.apache.derby.shared.common.error.StandardException;
 import org.greenrobot.eventbus.EventBus;
-import org.json.JSONArray;
-import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.component.MainFrame;
 import hk.zdl.crypto.pearlet.component.event.WalletLockEvent;
@@ -28,7 +25,7 @@ import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.NWMon;
 import hk.zdl.crypto.pearlet.util.Util;
 
-public class Main {
+public class PearletJ {
 
 	public static void main(String[] args) throws Throwable {
 		AquaMagic.do_trick();
@@ -63,22 +60,6 @@ public class Main {
 		SwingUtilities.invokeLater(() -> EventBus.getDefault().post(new WalletLockEvent(WalletLock.hasPassword() ? WalletLockEvent.Type.LOCK : WalletLockEvent.Type.UNLOCK)));
 		new NWMon();
 		new TxHistoryQueryExecutor();
-		Util.submit(new Callable<Void>() {
-
-			@Override
-			public Void call() throws Exception {
-				var jarr = new JSONArray(new JSONTokener(Main.class.getClassLoader().getResourceAsStream("network/predefined.json")));
-				var jobj = jarr.getJSONObject(0);
-				var name = jobj.getString("networkName");
-				var url = jobj.getString("server url");
-				MyDb.get_networks().stream().filter(n -> n.getUrl().contains("mainnet.peth.world")).findFirst().ifPresent(nw -> {
-					nw.setName(name);
-					nw.setUrl(url);
-					MyDb.update_network(nw);
-				});
-				return null;
-			}
-		});
 	}
 
 	private static void create_default_networks() throws Exception {
