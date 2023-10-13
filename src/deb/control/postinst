@@ -1,5 +1,7 @@
 #/usr/bin
 
+if [ $1 = "configure" ]
+then
 java -cp /usr/share/[[name]]/[[name]].jar hk.zdl.crypto.pearlet.util.SetCapPermission setcap cap_net_raw,cap_net_admin=eip
 
 FILE=/usr/share/applications/hk.zdl.crypto.[[name]].desktop
@@ -14,3 +16,4 @@ echo "SingleMainWindow=true" >> $FILE
 echo "Type=Application" >> $FILE
 echo "Categories=Network;Finance;" >> $FILE
 echo "Version=[[version]]" >> $FILE
+fi

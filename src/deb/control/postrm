@@ -1,5 +1,16 @@
 #/usr/bin
 
+if [ $1 = "remove" ]
+then
 rm -rf /usr/share/[[name]]/
 rm -rf /usr/share/applications/hk.zdl.crypto.[[name]].desktop
 rm -rf /usr/share/metainfo/hk.zdl.crypto.[[name]].metainfo.xml
+elif [ $1 = "purge" ]
+then
+for d in /home/*/ ; do 
+if [ -d "$d" ]; then
+rm -rf $d/.java/.userPrefs/hk/zdl/crypto/pearlet/
+rm -rf $d/.local/share/PearletJ/1.0.0/
+fi
+done
+fi
