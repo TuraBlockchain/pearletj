@@ -1,6 +1,8 @@
 package hk.zdl.crypto.pearlet.component;
 
+import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -20,6 +22,7 @@ import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -41,7 +44,7 @@ public class AboutPanel extends JPanel {
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	public AboutPanel() {
-		super(new GridBagLayout());
+		setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
 		var sw_info = new JPanel(new GridBagLayout());
 		var icon = new JLabel();
 		icon.setHorizontalAlignment(SwingConstants.CENTER);
@@ -85,23 +88,25 @@ public class AboutPanel extends JPanel {
 				}
 			}
 		});
-		add(sw_info, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.NORTH, GridBagConstraints.NONE, insets_5, 0, 0));
+		sw_info.setMaximumSize(new Dimension(300,400));
+		add(sw_info, Component.CENTER_ALIGNMENT);
 
-		var dec_pane = new JTextArea(0, 100);
+		var dec_pane = new JTextArea();
 		dec_pane.setText(Util.getResourceAsText("disclaimer.txt"));
 		dec_pane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
 		dec_pane.setEditable(false);
 		dec_pane.setWrapStyleWord(true);
 		dec_pane.setLineWrap(true);
 		set_titled_border(dec_pane, "Disclaimer:");
-		add(dec_pane, new GridBagConstraints(0, 1, 1, 1, 1, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+		dec_pane.setMinimumSize(new Dimension(600,300));
+		add(dec_pane, Component.LEFT_ALIGNMENT);
 
 		var pwby_pane = new JScrollPane();
 		pwby_pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		pwby_pane.setBorder(BorderFactory.createEmptyBorder());
 		pwby_pane.setViewportView(create_badge_panel());
 		set_titled_border(pwby_pane, "Powered By:");
-		add(pwby_pane, new GridBagConstraints(0, 2, 1, 1, 1, 1, GridBagConstraints.WEST, GridBagConstraints.BOTH, insets_5, 0, 0));
+		add(pwby_pane, Component.LEFT_ALIGNMENT);
 
 	}
 
