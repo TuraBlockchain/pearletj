@@ -114,7 +114,11 @@ public class LocalMiner {
 		} else if (SystemInfo.isWindows) {
 			in_filename = "signum-miner.exe";
 		} else if (SystemInfo.isMacOS) {
-			in_filename = "signum-miner-x86_64-apple-darwin.zip";
+			if (SystemInfo.isAARCH64) {
+				in_filename = "signum-miner-arm64.zip";
+			} else {
+				in_filename = "signum-miner-x86_64-apple-darwin.zip";
+			}
 		}
 		var in = LocalMiner.class.getClassLoader().getResourceAsStream("miner/" + in_filename);
 		var out = new FileOutputStream(tmp_file);
