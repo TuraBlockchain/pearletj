@@ -39,7 +39,7 @@ public class PlotUtil {
 		var tmp_file = File.createTempFile("tura-plotter-", suffix);
 		tmp_file.deleteOnExit();
 		String in_filename = "";
-		if (SystemInfo.isLinux) {
+		if (SystemInfo.isLinux || SystemInfo.isAARCH64) {
 			in_filename = "signum-plotter";
 		} else if (SystemInfo.isWindows) {
 			in_filename = "signum-plotter.exe";
@@ -52,7 +52,7 @@ public class PlotUtil {
 		out.flush();
 		out.close();
 		in.close();
-		if (SystemInfo.isMacOS) {
+		if (in_filename.endsWith(".zip")) {
 			var zipfile = new ZipFile(tmp_file);
 			var entry = zipfile.stream().findAny().get();
 			in = zipfile.getInputStream(entry);
@@ -91,7 +91,7 @@ public class PlotUtil {
 			throw new IOException("not dir: " + target.toString());
 		}
 		var l = new LinkedList<String>();
-		if (SystemInfo.isAARCH64 && !SystemInfo.isMacOS) {
+		if (SystemInfo.isAARCH64) {
 			var proc = new ProcessBuilder("docker", "run", "--privileged", "--rm", "tonistiigi/binfmt", "--install", "linux/amd64").start();
 			int i = proc.waitFor();
 			if (i != 0) {
