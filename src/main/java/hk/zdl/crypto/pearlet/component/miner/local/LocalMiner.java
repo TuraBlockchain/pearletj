@@ -106,7 +106,7 @@ public class LocalMiner {
 		if (SystemInfo.isWindows) {
 			suffix = ".exe";
 		}
-		var tmp_file = File.createTempFile("peth-miner-", suffix);
+		var tmp_file = File.createTempFile("tura-miner-", suffix);
 		tmp_file.deleteOnExit();
 		var in_filename = "";
 		if (SystemInfo.isLinux) {
@@ -126,7 +126,7 @@ public class LocalMiner {
 			var zipfile = new ZipFile(tmp_file);
 			var entry = zipfile.stream().findAny().get();
 			in = zipfile.getInputStream(entry);
-			tmp_file = File.createTempFile("peth-miner-", ".app");
+			tmp_file = File.createTempFile("tura-miner-", ".app");
 			tmp_file.deleteOnExit();
 			out = new FileOutputStream(tmp_file);
 			IOUtils.copy(in, out);

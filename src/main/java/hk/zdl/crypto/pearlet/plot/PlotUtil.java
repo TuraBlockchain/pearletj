@@ -36,7 +36,7 @@ public class PlotUtil {
 		if (SystemInfo.isWindows) {
 			suffix = ".exe";
 		}
-		var tmp_file = File.createTempFile("plotter-", suffix);
+		var tmp_file = File.createTempFile("tura-plotter-", suffix);
 		tmp_file.deleteOnExit();
 		String in_filename = "";
 		if (SystemInfo.isLinux) {
@@ -56,7 +56,7 @@ public class PlotUtil {
 			var zipfile = new ZipFile(tmp_file);
 			var entry = zipfile.stream().findAny().get();
 			in = zipfile.getInputStream(entry);
-			tmp_file = File.createTempFile("plotter-", ".app");
+			tmp_file = File.createTempFile("tura-plotter-", ".app");
 			tmp_file.deleteOnExit();
 			out = new FileOutputStream(tmp_file);
 			IOUtils.copy(in, out);
