@@ -142,6 +142,7 @@
 										<argument>-m5</argument>
 										<argument>-k</argument>
 										<argument>-y</argument>
+										<argument>-inul</argument>
 										<argument>-sfx</argument>
 										<argument>-iicon${project.build.outputDirectory}/app_icon.ico</argument>
 										<argument>-z${project.build.outputDirectory}/winrar.txt</argument>
