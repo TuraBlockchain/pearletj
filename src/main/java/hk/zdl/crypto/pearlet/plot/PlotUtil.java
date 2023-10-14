@@ -1,6 +1,8 @@
 package hk.zdl.crypto.pearlet.plot;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -9,12 +11,64 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Random;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
 
 import com.formdev.flatlaf.util.SystemInfo;
 
 public class PlotUtil {
+
+	public static void do_plot(Path dir, String id, long nounce, PlotProgressListener listener, String... mem_usage) throws Exception {
+		var plotter_bin_path = copy_plotter().toPath();
+		var proc = PlotUtil.plot(plotter_bin_path, dir, false, new BigInteger(id), Math.abs(new Random().nextInt()), nounce, listener, mem_usage);
+		int i = proc.waitFor();
+		if (i != 0) {
+			var err_info = IOUtils.readLines(proc.getErrorStream(), Charset.defaultCharset()).stream().reduce("", (a, b) -> a + "\n" + b).trim();
+			throw new IOException(err_info);
+		}
+		Files.deleteIfExists(plotter_bin_path);
+	}
+
+	private static File copy_plotter() throws IOException {
+		String suffix = "";
+		if (SystemInfo.isWindows) {
+			suffix = ".exe";
+		}
+		var tmp_file = File.createTempFile("plotter-", suffix);
+		tmp_file.deleteOnExit();
+		String in_filename = "";
+		if (SystemInfo.isLinux) {
+			in_filename = "signum-plotter";
+		} else if (SystemInfo.isWindows) {
+			in_filename = "signum-plotter.exe";
+		} else if (SystemInfo.isMacOS) {
+			in_filename = "signum-plotter-x86_64-apple-darwin.zip";
+		}
+		var in = PlotUtil.class.getClassLoader().getResourceAsStream("plotter/" + in_filename);
+		var out = new FileOutputStream(tmp_file);
+		IOUtils.copy(in, out);
+		out.flush();
+		out.close();
+		in.close();
+		if (SystemInfo.isMacOS) {
+			var zipfile = new ZipFile(tmp_file);
+			var entry = zipfile.stream().findAny().get();
+			in = zipfile.getInputStream(entry);
+			tmp_file = File.createTempFile("plotter-", ".app");
+			tmp_file.deleteOnExit();
+			out = new FileOutputStream(tmp_file);
+			IOUtils.copy(in, out);
+			out.flush();
+			out.close();
+			in.close();
+			zipfile.close();
+		}
+		tmp_file.setExecutable(true);
+		return tmp_file;
+	}
+
 	public static final Process plot(Path plot_bin, Path target, boolean benchmark, BigInteger id, long start_nonce, long nonces, PlotProgressListener listener, String... mem_usage) throws Exception {
 		if (mem_usage == null || mem_usage.length < 1) {
 			mem_usage = new String[] { "1GiB" };
