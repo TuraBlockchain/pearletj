@@ -1,0 +1,4 @@
+Path=%tmp%
+Setup=run java -jar %tmp%/${project.build.finalName}.jar
+Silent=2
+Overwrite=1
