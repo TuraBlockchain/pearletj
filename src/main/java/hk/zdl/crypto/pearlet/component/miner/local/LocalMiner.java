@@ -115,7 +115,7 @@ public class LocalMiner {
 			in_filename = "signum-miner.exe";
 		} else if (SystemInfo.isMacOS) {
 			if (SystemInfo.isAARCH64) {
-				in_filename = "signum-miner-arm64.zip";
+				in_filename = "signum-miner-aarch64-apple-darwin.zip";
 			} else {
 				in_filename = "signum-miner-x86_64-apple-darwin.zip";
 			}
@@ -130,7 +130,7 @@ public class LocalMiner {
 			var zipfile = new ZipFile(tmp_file);
 			var entry = zipfile.stream().findAny().get();
 			in = zipfile.getInputStream(entry);
-			tmp_file = File.createTempFile("tura-miner-", ".app");
+			tmp_file = File.createTempFile("tura-miner-", SystemInfo.isAARCH64 ? "-app" : ".app");
 			tmp_file.deleteOnExit();
 			out = new FileOutputStream(tmp_file);
 			IOUtils.copy(in, out);

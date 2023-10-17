@@ -118,7 +118,7 @@ public class StartPanel extends JPanel {
 				int account_id = MyDb.getAccount(network, account).get().getInt("ID");
 				if (WalletLock.isLocked() && WalletLock.unlock().orElseGet(() -> false) == true) {
 					try {
-						passphrase = WalletLock.decrypt_passphrase(network.getId(), account_id);
+						passphrase = WalletLock.decrypt_passphrase(network.getId(), account_id).trim();
 						var _id = SignumCrypto.getInstance().getAddressFromPassphrase(passphrase).getID();
 						if (!id.equals(_id)) {
 							passphrase = null;
@@ -142,10 +142,10 @@ public class StartPanel extends JPanel {
 						JOptionPane.showMessageDialog(getRootPane(), "Passphrase not match with account ID!", "Error", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
-					if (WalletLock.hasPassword() && WalletLock.unlock().orElseGet(() -> false) == true) {
-						var enc_pse = WalletLock.encrypt_private_key(Charset.defaultCharset().encode(passphrase).array());
-						MyDb.insert_or_update_encpse(network.getId(), account_id, enc_pse);
-					}
+				}
+				if (WalletLock.hasPassword() && (!WalletLock.isLocked() || WalletLock.unlock().orElseGet(() -> false) == true)) {
+					var enc_pse = WalletLock.encrypt_private_key(Charset.defaultCharset().encode(passphrase).array());
+					MyDb.insert_or_update_encpse(network.getId(), account_id, enc_pse);
 				}
 			} else {
 				url = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input URL of pool:")).trim();
@@ -184,6 +184,7 @@ public class StartPanel extends JPanel {
 			m_p.setNetwork(network);
 			m_p.setPlotDirs(plot_dirs);
 			pane.addTab(id, m_p);
+			pane.setSelectedComponent(m_p);
 			Util.submit(m_p);
 			if (solo) {
 				Util.submit(fnw);

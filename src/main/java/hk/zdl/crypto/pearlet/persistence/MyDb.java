@@ -357,14 +357,14 @@ public class MyDb {
 			return Db.save("ENCPSE", "ID", o);
 		} else {
 			r.set("CONTENT", content);
-			return Db.update("ENCPSE", r);
+			return Db.update("APP.ENCPSE", "ID",r);
 		}
 	}
 
 	public static final byte[] get_encpse(int network_id, int account_id) {
 		var r = Db.findFirst("SELECT CONTENT FROM APP.ENCPSE WHERE NWID = ? AND ACID = ?", network_id, account_id);
 		if (r != null) {
-			r.getBytes("CONTENT");
+			return r.getBytes("CONTENT");
 		}
 		return null;
 	}
