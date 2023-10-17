@@ -109,10 +109,14 @@ public class LocalMiner {
 		var tmp_file = File.createTempFile("tura-miner-", suffix);
 		tmp_file.deleteOnExit();
 		var in_filename = "";
-		if (SystemInfo.isLinux) {
-			in_filename = "signum-miner";
-		} else if (SystemInfo.isWindows) {
+		if (SystemInfo.isWindows && SystemInfo.isX86_64) {
 			in_filename = "signum-miner.exe";
+		} else if (SystemInfo.isLinux) {
+			if (SystemInfo.isAARCH64) {
+				in_filename = "signum-miner-aarch64-linux";
+			} else if (SystemInfo.isX86_64) {
+				in_filename = "signum-miner-x86_64-linux";
+			}
 		} else if (SystemInfo.isMacOS) {
 			if (SystemInfo.isAARCH64) {
 				in_filename = "signum-miner-aarch64-apple-darwin.zip";
