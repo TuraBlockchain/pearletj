@@ -9,12 +9,15 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.EnumMap;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -26,6 +29,19 @@ import hk.zdl.crypto.pearlet.util.Util;
 
 public class UIUtil {
 
+	public static final boolean show_password_dialog(String title, Component frame, JPasswordField pwf) {
+		var pane = new JOptionPane(pwf, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+		var dlg = pane.createDialog(frame, title);
+		dlg.addWindowFocusListener(new WindowAdapter() {
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				pwf.grabFocus();
+			}
+		});
+		dlg.setVisible(true);
+		return pane.getValue().equals(JOptionPane.OK_OPTION);
+	}
+	
 	public static final void adjust_table_width(JTable table, TableColumnModel table_column_model) {
 		for (int column = 0; column < table.getColumnCount(); column++) {
 			int width = 100; // Min width

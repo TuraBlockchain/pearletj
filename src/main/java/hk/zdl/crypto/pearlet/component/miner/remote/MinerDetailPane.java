@@ -4,14 +4,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.net.http.HttpClient;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JTabbedPane;
 import javax.swing.Timer;
-
-import org.json.JSONObject;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerSettingsPane;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.MiningPanel;
@@ -23,7 +22,6 @@ public class MinerDetailPane extends JTabbedPane implements ActionListener {
 	 */
 	private static final long serialVersionUID = 6324183845145603011L;
 	private final Timer timer = new Timer((int) TimeUnit.SECONDS.toMillis(10), this);
-
 	private final StatusPane status_pane = new StatusPane();
 	private final MinerSettingsPane settings_pane = new MinerSettingsPane();
 	private final PlotProgressPanel plot_progress_panel = new PlotProgressPanel();
@@ -52,8 +50,11 @@ public class MinerDetailPane extends JTabbedPane implements ActionListener {
 		mining_panel.setBasePath(basePath);
 	}
 
-	public void setStatus(JSONObject status) {
-		status_pane.setStatus(status);
+	public void setClient(HttpClient client) {
+		status_pane.setClient(client);
+		settings_pane.setClient(client);
+		plot_progress_panel.setClient(client);
+		mining_panel.setClient(client);
 	}
 
 	@Override

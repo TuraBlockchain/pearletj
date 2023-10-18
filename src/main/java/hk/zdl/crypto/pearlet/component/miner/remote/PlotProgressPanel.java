@@ -7,7 +7,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.math.BigInteger;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 
@@ -27,16 +31,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import com.jakewharton.byteunits.BinaryByteUnit;
 
@@ -47,16 +47,12 @@ import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
-import hk.zdl.crypto.pearlet.util.WebUtil;
 
 public class PlotProgressPanel extends JPanel {
 
-	/**
-	 * 
-	 */
+	public static final String plot_path = "/api/v1/plot";
 	private static final long serialVersionUID = -1150055243038748734L;
 	private static final long byte_per_nounce = 262144;
-	public static final String plot_path = "/api/v1/plot";
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private final JButton add_btn = new JButton("Add");
 	private final JButton del_btn = new JButton("Del");
@@ -74,6 +70,7 @@ public class PlotProgressPanel extends JPanel {
 		}
 	};
 
+	private HttpClient client = HttpClient.newHttpClient();
 	private String basePath = "";
 	private String selected_account_id = "";
 
@@ -96,6 +93,10 @@ public class PlotProgressPanel extends JPanel {
 
 	public void setBasePath(String basePath) {
 		this.basePath = basePath;
+	}
+
+	public void setClient(HttpClient client) {
+		this.client = client;
 	}
 
 	private void init_table() {
@@ -141,24 +142,34 @@ public class PlotProgressPanel extends JPanel {
 		fz_op.getModel().setSelectedItem("GB");
 		Util.submit(() -> {
 			var show_numberic = Util.getUserSettings().getBoolean("show_numberic_id", false);
-			var list = new JSONArray(new JSONTokener(new URL(basePath + MinerAccountSettingsPanel.miner_account_path).openStream())).toList().stream().map(String::valueOf).toList();
-			list = list.stream().map(RoturaAddress::fromEither).map(r -> show_numberic ? r.getID() : r.getFullAddress()).toList();
-			combo_box_1.setModel(new ListComboBoxModel<String>(list));
-			combo_box_1.getActionListeners()[0].actionPerformed(null);
-			for (var str : list) {
-				var a = RoturaAddress.fromEither(str).getFullAddress();
-				if (a.equals(selected_account_id)) {
-					combo_box_1.getModel().setSelectedItem(str);
-					break;
+			var request = HttpRequest.newBuilder().GET().uri(new URI(basePath + MinerAccountSettingsPanel.miner_account_path)).build();
+			var response = client.send(request, BodyHandlers.ofString());
+			if (response.statusCode() == 200) {
+				var list = new JSONArray(response.body()).toList().stream().map(String::valueOf).toList();
+				list = list.stream().map(RoturaAddress::fromEither).map(r -> show_numberic ? r.getID() : r.getFullAddress()).toList();
+				combo_box_1.setModel(new ListComboBoxModel<String>(list));
+				combo_box_1.getActionListeners()[0].actionPerformed(null);
+				for (var str : list) {
+					var a = RoturaAddress.fromEither(str).getFullAddress();
+					if (a.equals(selected_account_id)) {
+						combo_box_1.getModel().setSelectedItem(str);
+						break;
+					}
 				}
+			} else {
+				return null;
 			}
 			return null;
 		});
 		combo_box_1.addActionListener(e -> {
 			Util.submit(() -> {
 				var str = RoturaAddress.fromEither(combo_box_1.getSelectedItem().toString()).getID();
-				combo_box_2.setModel(new ListComboBoxModel<String>(
-						new JSONArray(new JSONTokener(new URL(basePath + MinerPathSettingPanel.miner_file_path + "/list?id=" + str).openStream())).toList().stream().map(String::valueOf).toList()));
+				var request = HttpRequest.newBuilder().GET().uri(new URI(basePath + MinerPathSettingPanel.miner_file_path + "/list?id=" + str)).build();
+				var response = client.send(request, BodyHandlers.ofString());
+				if (response.statusCode() == 200) {
+					var jarr = new JSONArray(response.body());
+					combo_box_2.setModel(new ListComboBoxModel<String>(jarr.toList().stream().map(String::valueOf).toList()));
+				}
 				return null;
 			});
 		});
@@ -180,18 +191,16 @@ public class PlotProgressPanel extends JPanel {
 
 			try {
 				var str = RoturaAddress.fromEither(combo_box_1.getSelectedItem().toString()).getID();
-				var httpclient = WebUtil.getHttpclient();
-				var httpPost = new HttpPost(basePath + plot_path + "/add");
 				var jobj = new JSONObject();
 				jobj.put("id", new BigInteger(str));
 				jobj.put("nounces", l);
 				jobj.put("target_path", combo_box_2.getSelectedItem());
 				jobj.put("restart", chech_box_1.isSelected());
-				httpPost.setEntity(new StringEntity(jobj.toString()));
-				httpPost.setHeader("Content-type", "application/json");
-				var response = httpclient.execute(httpPost);
-				if (response.getStatusLine().getStatusCode() == 200) {
-					response.close();
+				str = jobj.toString();
+				var request = HttpRequest.newBuilder().POST(BodyPublishers.ofString(str, Charset.defaultCharset())).uri(new URI(basePath + plot_path + "/add"))
+						.header("Content-type", "application/json").build();
+				var response = client.send(request, BodyHandlers.ofString());
+				if (response.statusCode() == 200) {
 					UIUtil.displayMessage("Succeed", "Plot queued!");
 					Util.submit(() -> {
 						for (var a = 0; a < 5; a++) {
@@ -201,12 +210,10 @@ public class PlotProgressPanel extends JPanel {
 						return null;
 					});
 				} else {
-					var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-					JOptionPane.showMessageDialog(getRootPane(), text, "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), response.body(), "Error", JOptionPane.ERROR_MESSAGE);
 				}
-				response.getEntity().getContent().close();
 			} catch (Exception x) {
-				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
@@ -217,49 +224,41 @@ public class PlotProgressPanel extends JPanel {
 			return;
 		}
 		try {
-			var httpclient = WebUtil.getHttpclient();
-			var httpPost = new HttpPost(basePath + plot_path + "/del");
 			var jobj = new JSONObject();
 			jobj.put("index", index);
-			httpPost.setEntity(new StringEntity(jobj.toString()));
-			var response = httpclient.execute(httpPost);
-			if (response.getStatusLine().getStatusCode() == 200) {
-				response.close();
+			var request = HttpRequest.newBuilder().POST(BodyPublishers.ofString(jobj.toString(), Charset.defaultCharset())).uri(new URI(basePath + plot_path + "/del"))
+					.header("Content-type", "application/json").build();
+			var response = client.send(request, BodyHandlers.ofString());
+			if (response.statusCode() == 200) {
 				UIUtil.displayMessage("Succeed", "");
 				Util.submit(() -> refresh_current_plots());
 			} else {
-				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-				JOptionPane.showMessageDialog(getRootPane(), text, "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), response.body(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
-			response.getEntity().getContent().close();
 		} catch (Exception x) {
-			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
 	private final void clear_done() {
 		try {
-			var httpclient = WebUtil.getHttpclient();
-			var httpPost = new HttpPost(basePath + plot_path + "/clear_done");
-			var response = httpclient.execute(httpPost);
-			if (response.getStatusLine().getStatusCode() == 200) {
-				response.close();
+			var request = HttpRequest.newBuilder().POST(BodyPublishers.noBody()).uri(new URI(basePath + plot_path + "/clear_done")).build();
+			var response = client.send(request, BodyHandlers.ofString());
+			if (response.statusCode() == 200) {
 				UIUtil.displayMessage("Succeed", "");
 				Util.submit(() -> refresh_current_plots());
 			} else {
-				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-				JOptionPane.showMessageDialog(getRootPane(), text, "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), response.body(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
-			response.getEntity().getContent().close();
 		} catch (Exception x) {
-			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
 	public Void refresh_current_plots() throws Exception {
-		var in = new URL(basePath + plot_path + "/list").openStream();
-		var jarr = new JSONArray(new JSONTokener(in));
-		in.close();
+		var request = HttpRequest.newBuilder().GET().uri(new URI(basePath + plot_path + "/list")).build();
+		var response = client.send(request, BodyHandlers.ofString());
+		var jarr = new JSONArray(response.body());
 		var model = (DefaultTableModel) table.getModel();
 		model.setRowCount(jarr.length() * 2);
 		for (int i = 0; i < jarr.length(); i++) {

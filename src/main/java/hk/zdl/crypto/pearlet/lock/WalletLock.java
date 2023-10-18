@@ -1,11 +1,8 @@
 package hk.zdl.crypto.pearlet.lock;
 
-import java.awt.Component;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.time.Duration;
@@ -46,7 +43,7 @@ public class WalletLock {
 	public static boolean change_password() throws Exception {
 		var pw_field = new JPasswordField[] { new JPasswordField(), new JPasswordField(), new JPasswordField() };
 		if (LockImpl.hasPassword()) {
-			if (show_option_pane("Old password:", frame, pw_field[0])) {
+			if (UIUtil.show_password_dialog("Old password:", frame, pw_field[0])) {
 				if (!LockImpl.validete_password(pw_field[0].getPassword())) {
 					JOptionPane.showMessageDialog(frame, "Wrong Password!", null, JOptionPane.ERROR_MESSAGE);
 					return false;
@@ -57,11 +54,11 @@ public class WalletLock {
 		} else {
 			pw_field[0] = null;
 		}
-		if (show_option_pane("New password:", frame, pw_field[1])) {
+		if (UIUtil.show_password_dialog("New password:", frame, pw_field[1])) {
 			if (pw_field[1].getPassword().length < MIN_PW_LEN) {
 				JOptionPane.showMessageDialog(frame, "Password must be at least " + MIN_PW_LEN + " characters!", null, JOptionPane.ERROR_MESSAGE);
 				return false;
-			} else if (show_option_pane("Re-type new password:", frame, pw_field[2])) {
+			} else if (UIUtil.show_password_dialog("Re-type new password:", frame, pw_field[2])) {
 				if (!Arrays.equals(pw_field[1].getPassword(), pw_field[2].getPassword())) {
 					JOptionPane.showMessageDialog(frame, "Password Mismatch!", null, JOptionPane.ERROR_MESSAGE);
 					return false;
@@ -91,25 +88,12 @@ public class WalletLock {
 		return false;
 	}
 
-	private static final boolean show_option_pane(String title, Component frame, JPasswordField pwf) {
-		var pane = new JOptionPane(pwf, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-		var dlg = pane.createDialog(frame, title);
-		dlg.addWindowFocusListener(new WindowAdapter() {
-			@Override
-			public void windowGainedFocus(WindowEvent e) {
-				pwf.grabFocus();
-			}
-		});
-		dlg.setVisible(true);
-		return pane.getValue().equals(JOptionPane.OK_OPTION);
-	}
-
 	public static synchronized Optional<Boolean> unlock() {
 		if (!hasPassword()) {
 			return Optional.of(true);
 		}
 		var pw_field = new JPasswordField();
-		if (show_option_pane("Enter Password:", frame, pw_field)) {
+		if (UIUtil.show_password_dialog("Enter Password:", frame, pw_field)) {
 			if (LockImpl.validete_password(pw_field.getPassword())) {
 				var i = Util.getUserSettings().getInt(WalletLock.AUTO_LOCK_MIN, -1);
 				if (i > 0) {
@@ -161,7 +145,7 @@ public class WalletLock {
 			return null;
 		}
 		bArr = LockImpl.aes_decrypt(tmp_pw, bArr);
-		return Charset.defaultCharset().decode(ByteBuffer.wrap(bArr)).toString();
+		return Charset.defaultCharset().decode(ByteBuffer.wrap(bArr)).toString().trim();
 	}
 
 	private static final TimerTask getTimerTask() {

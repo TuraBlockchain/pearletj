@@ -11,13 +11,18 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.net.Authenticator;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.PasswordAuthentication;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -36,9 +41,10 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 
+import org.jdesktop.swingx.JXLoginPane;
+import org.jdesktop.swingx.JXLoginPane.Status;
+import org.jdesktop.swingx.auth.LoginService;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CaptorTool;
@@ -196,17 +202,39 @@ final class StartPanel extends JPanel {
 	}
 
 	private void addMinerDetailPane(String base_path) throws Exception {
-		var in = new URL(base_path + StatusPane.miner_status_path).openStream();
-		try {
-			var jobj = new JSONObject(new JSONTokener(in));
-			jobj.get("version");
-			var pane = new MinerDetailPane();
-			pane.setBasePath(base_path);
-			pane.setStatus(jobj);
-			this.pane.insertTab("Miner", getIcon(), pane, base_path, this.pane.getTabCount());
-		} finally {
-			in.close();
+		var pane = new MinerDetailPane();
+		pane.setBasePath(base_path);
+		var url = new URL(base_path + StatusPane.miner_status_path);
+		var auth = url.openConnection().getHeaderField("WWW-Authenticate");
+		if ("Basic".equals(auth)) {
+			var svc = new LoginService() {
+
+				@Override
+				public boolean authenticate(String name, char[] password, String server) throws Exception {
+					var client = HttpClient.newBuilder().authenticator(new Authenticator() {
+						@Override
+						protected PasswordAuthentication getPasswordAuthentication() {
+							return new PasswordAuthentication(name, password);
+						}
+					}).build();
+					var request = HttpRequest.newBuilder().GET().uri(url.toURI()).build();
+
+					var response = client.send(request, BodyHandlers.ofString());
+					if (response.statusCode() == 200) {
+						pane.setClient(client);
+						return true;
+					} else {
+						return false;
+					}
+				}
+			};
+			var status = JXLoginPane.showLoginDialog(getRootPane(), svc);
+			if (status.equals(Status.CANCELLED)) {
+				return;
+			}
 		}
+		this.pane.insertTab("Miner", getIcon(), pane, base_path, this.pane.getTabCount());
+		Util.submit(() -> pane.actionPerformed(null));
 	}
 
 	private static final Icon getIcon() {

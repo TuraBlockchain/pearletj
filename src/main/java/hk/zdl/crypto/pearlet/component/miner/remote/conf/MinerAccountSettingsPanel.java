@@ -10,7 +10,11 @@ import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 
@@ -30,13 +34,9 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import com.csvreader.CsvReader;
 
@@ -44,7 +44,6 @@ import hk.zdl.crypto.pearlet.component.miner.remote.MinerGridTitleFont;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
-import hk.zdl.crypto.pearlet.util.WebUtil;
 import signumj.crypto.SignumCrypto;
 
 public class MinerAccountSettingsPanel extends JPanel {
@@ -59,6 +58,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 	private final JList<String> acc_list = new JList<>();
 	private final JButton add_btn = new JButton("Add");
 	private final JButton del_btn = new JButton("Del");
+	private HttpClient client = HttpClient.newHttpClient();
 	private String basePath = "";
 
 	public MinerAccountSettingsPanel() {
@@ -127,6 +127,10 @@ public class MinerAccountSettingsPanel extends JPanel {
 		this.basePath = basePath;
 	}
 
+	public void setClient(HttpClient client) {
+		this.client = client;
+	}
+
 	public void addListSelectionListener(ListSelectionListener listener) {
 		acc_list.addListSelectionListener(listener);
 	}
@@ -136,12 +140,16 @@ public class MinerAccountSettingsPanel extends JPanel {
 		if (basePath.isBlank()) {
 			return;
 		}
-		var l = new JSONArray(new JSONTokener(new URL(basePath + miner_account_path).openStream())).toList().stream().map(o -> o.toString()).toList();
-		var str = acc_list.getSelectedValue();
-		acc_list.setModel(new ListComboBoxModel<String>(l));
-		if (str != null) {
-			if (l.contains(str)) {
-				acc_list.setSelectedValue(str, false);
+		var request = HttpRequest.newBuilder().GET().uri(new URI(basePath + miner_account_path)).build();
+		var response = client.send(request, BodyHandlers.ofString());
+		if (response.statusCode() == 200) {
+			var l = new JSONArray(response.body()).toList().stream().map(String::valueOf).toList();
+			var str = acc_list.getSelectedValue();
+			acc_list.setModel(new ListComboBoxModel<String>(l));
+			if (str != null) {
+				if (l.contains(str)) {
+					acc_list.setSelectedValue(str, false);
+				}
 			}
 		}
 	}
@@ -170,20 +178,16 @@ public class MinerAccountSettingsPanel extends JPanel {
 
 	private boolean do_add(String phrase) throws Exception {
 		var id = SignumCrypto.getInstance().getAddressFromPassphrase(phrase).getID();
-		var httpPost = new HttpPost(basePath + miner_account_path + "/add");
 		var jobj = new JSONObject();
 		jobj.put("id", id);
 		jobj.put("passphrase", phrase);
-		httpPost.setEntity(new StringEntity(jobj.toString()));
-		httpPost.setHeader("Content-type", "application/json");
-		var httpclient = WebUtil.getHttpclient();
-		var response = httpclient.execute(httpPost);
-		var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-		response.getEntity().getContent().close();
-		if (response.getStatusLine().getStatusCode() == 200) {
-			return Integer.parseInt(text) > 0;
+		var request = HttpRequest.newBuilder().POST(BodyPublishers.ofString(jobj.toString(), Charset.defaultCharset())).uri(new URI(basePath + miner_account_path + "/add"))
+				.header("Content-type", "application/json").build();
+		var response = client.send(request, BodyHandlers.ofString());
+		if (response.statusCode() == 200) {
+			return Integer.parseInt(response.body()) > 0;
 		} else {
-			throw new IllegalArgumentException(text);
+			throw new IllegalArgumentException(response.body());
 		}
 	}
 
@@ -195,17 +199,13 @@ public class MinerAccountSettingsPanel extends JPanel {
 		if (i == JOptionPane.YES_OPTION) {
 			try {
 				var id = acc_list.getSelectedValue();
-				var httpPost = new HttpPost(basePath + miner_account_path + "/del");
 				var jobj = new JSONObject();
 				jobj.put("id", id);
-				httpPost.setEntity(new StringEntity(jobj.toString()));
-				httpPost.setHeader("Content-type", "application/json");
-				var httpclient = WebUtil.getHttpclient();
-				var response = httpclient.execute(httpPost);
-				var text = IOUtils.readLines(response.getEntity().getContent(), Charset.defaultCharset()).get(0);
-				response.getEntity().getContent().close();
-				if (response.getStatusLine().getStatusCode() != 200) {
-					throw new IllegalArgumentException(text);
+				var request = HttpRequest.newBuilder().POST(BodyPublishers.ofString(jobj.toString(), Charset.defaultCharset())).uri(new URI(basePath + miner_account_path + "/del"))
+						.header("Content-type", "application/json").build();
+				var response = client.send(request, BodyHandlers.ofString());
+				if (response.statusCode() != 200) {
+					throw new IllegalArgumentException(response.body());
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);

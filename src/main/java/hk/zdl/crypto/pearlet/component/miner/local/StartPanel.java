@@ -118,7 +118,7 @@ public class StartPanel extends JPanel {
 				int account_id = MyDb.getAccount(network, account).get().getInt("ID");
 				if (WalletLock.isLocked() && WalletLock.unlock().orElseGet(() -> false) == true) {
 					try {
-						passphrase = WalletLock.decrypt_passphrase(network.getId(), account_id).trim();
+						passphrase = WalletLock.decrypt_passphrase(network.getId(), account_id);
 						var _id = SignumCrypto.getInstance().getAddressFromPassphrase(passphrase).getID();
 						if (!id.equals(_id)) {
 							passphrase = null;

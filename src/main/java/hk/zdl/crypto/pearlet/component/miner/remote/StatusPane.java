@@ -8,6 +8,9 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -28,7 +31,6 @@ import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 final class StatusPane extends JPanel implements ActionListener {
 
@@ -43,6 +45,7 @@ final class StatusPane extends JPanel implements ActionListener {
 	private final JPanel mining_detail_panel = new JPanel(new BorderLayout(5, 5));
 	private final ChartPanel memory_usage_panel = new ChartPanel(ChartFactory.createPieChart("Memory Usage", new DefaultPieDataset<String>(), true, true, false));
 	private final DefaultTableModel mining_table_model = new DefaultTableModel(7, 2);
+	private HttpClient client = HttpClient.newHttpClient();
 	private JSONObject status;
 	private String basePath = "";
 
@@ -174,15 +177,16 @@ final class StatusPane extends JPanel implements ActionListener {
 		this.basePath = basePath;
 	}
 
+	public void setClient(HttpClient client) {
+		this.client = client;
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
-			var in = new URL(basePath + miner_status_path).openStream();
-			try {
-				setStatus(new JSONObject(new JSONTokener(in)));
-			} finally {
-				in.close();
-			}
+			var request = HttpRequest.newBuilder().GET().uri(new URL(basePath + miner_status_path).toURI()).build();
+			var response = client.send(request, BodyHandlers.ofString());
+			setStatus(new JSONObject(response.body()));
 		} catch (Exception x) {
 		}
 	}

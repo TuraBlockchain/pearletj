@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.net.http.HttpClient;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,6 +63,12 @@ public class MinerSettingsPane extends JTabbedPane implements ActionListener {
 		account_settings_panel.setBasePath(basePath);
 		miner_path_settings_panel.setBasePath(basePath);
 		server_address_settings_panel.setBasePath(basePath);
+	}
+
+	public void setClient(HttpClient client) {
+		account_settings_panel.setClient(client);
+		miner_path_settings_panel.setClient(client);
+		server_address_settings_panel.setClient(client);
 	}
 
 	@Override

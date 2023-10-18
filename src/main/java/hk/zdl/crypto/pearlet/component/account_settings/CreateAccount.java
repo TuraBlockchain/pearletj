@@ -11,8 +11,9 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -33,6 +34,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
+import org.apache.commons.io.IOUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.java_websocket.util.Base64;
 import org.jdesktop.swingx.combobox.EnumComboBoxModel;
@@ -152,9 +154,11 @@ public class CreateAccount {
 	}
 
 	private static synchronized String get_mnemoic() {
-		if (mnemoic == null)
-			mnemoic = new BufferedReader(new InputStreamReader(CreateAccount.class.getClassLoader().getResourceAsStream("en-mnemonic-word-list.txt"))).lines().filter(s -> !s.isBlank())
-					.map(String::trim).toList();
+		if (mnemoic == null) {
+			mnemoic = new LinkedList<>(Arrays.asList("data", "direct", "darling"));
+			IOUtils.readLines(CreateAccount.class.getClassLoader().getResourceAsStream("en-mnemonic-word-list.txt"), Charset.defaultCharset()).stream().map(String::trim).filter(s -> !s.isBlank())
+					.forEach(mnemoic::add);
+		}
 		var sb = new StringBuilder();
 		var rand = new Random();
 		for (var i = 0; i < 12; i++) {
