@@ -46,6 +46,7 @@ import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.IDRenderer;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.MinerStatusCellRenderer;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer.PlotDirCellRenderer;
 import hk.zdl.crypto.pearlet.ds.RoturaAddress;
+import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
@@ -141,9 +142,14 @@ public class MiningPanel extends JPanel implements ActionListener {
 				int row = table.rowAtPoint(point);
 				if (mouseEvent.getClickCount() == 2 && row >= 0 & row == table.getSelectedRow()) {
 					if (table.getSelectedColumn() == 0) {
-						// TODO:
-//						var str = table.getModel().getValueAt(row, 0).toString();
-//						Util.viewAccountDetail(CrptoNetworks.ROTURA, str);
+						var nws = MyDb.get_networks();
+						if (nws.size() == 1) {
+							try {
+								var str = table.getModel().getValueAt(row, 0).toString();
+								Util.viewAccountDetail(nws.get(0), str);
+							} catch (Exception e) {
+							}
+						}
 					} else if (table.getSelectedColumn() == 4) {
 						var jarr = table.getModel().getValueAt(row, 4);
 						if (jarr != null && ((JSONArray) jarr).length() == 1) {
