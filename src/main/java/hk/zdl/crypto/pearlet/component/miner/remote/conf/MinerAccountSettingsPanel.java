@@ -48,11 +48,8 @@ import signumj.crypto.SignumCrypto;
 
 public class MinerAccountSettingsPanel extends JPanel {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1698208979389357636L;
 	public static final String miner_account_path = "/api/v1/miner/configure/account";
+	private static final long serialVersionUID = -1698208979389357636L;
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	private final JList<String> acc_list = new JList<>();

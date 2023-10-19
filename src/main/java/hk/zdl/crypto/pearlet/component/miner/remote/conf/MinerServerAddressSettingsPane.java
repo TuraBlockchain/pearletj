@@ -29,18 +29,15 @@ import hk.zdl.crypto.pearlet.ui.UIUtil;
 
 public class MinerServerAddressSettingsPane extends JPanel {
 
-	/**
-	 * 
-	 */
+	private static final String miner_conf_serv_u_path = "/api/v1/miner/configure/server_url";
 	private static final long serialVersionUID = 4764477299442830256L;
-	public static final String miner_conf_serv_u_path = "/api/v1/miner/configure/server_url";
-	private String basePath = "";
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private final JList<JSONObject> my_list = new JList<>();
 	private final JButton add_btn = new JButton("Add");
 	private final JButton edit_btn = new JButton("Edit");
 	private final JButton del_btn = new JButton("Delete");
 	private HttpClient client = HttpClient.newHttpClient();
+	private String basePath = "";
 
 	public MinerServerAddressSettingsPane() {
 		super(new BorderLayout());

@@ -83,7 +83,7 @@ public class ReceivePanel extends JPanel {
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(AccountChangeEvent e) {
 		setText(e.account);
-		Image img = new BufferedImage(1, 1, BufferedImage.TYPE_3BYTE_BGR);
+		Image img = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
 		try {
 			String qr_str = "";
 			if (e.network.isBurst()) {

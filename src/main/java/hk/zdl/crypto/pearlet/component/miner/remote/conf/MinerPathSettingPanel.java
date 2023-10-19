@@ -35,11 +35,8 @@ import hk.zdl.crypto.pearlet.util.Util;
 
 public class MinerPathSettingPanel extends JPanel {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -718519273950546176L;
 	public static final String miner_file_path = "/api/v1/miner_path";
+	private static final long serialVersionUID = -718519273950546176L;
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	private final JList<String> path_list = new JList<>();

@@ -29,7 +29,7 @@ import hk.zdl.crypto.pearlet.util.Util;
 public class WalletLock {
 
 	public static final String AUTO_LOCK_MIN = "AUTO_LOCK_MIN";
-	private static final int MIN_PW_LEN = 8;
+	public static final int MIN_PW_LEN = 8;
 	private static Timer timer = new Timer();
 	private static long last_unlock_time = -1;
 	private static long target_lock_time = -1;

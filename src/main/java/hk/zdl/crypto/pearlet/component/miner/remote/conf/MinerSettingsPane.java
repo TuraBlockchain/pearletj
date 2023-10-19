@@ -15,20 +15,26 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.Timer;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import hk.zdl.crypto.pearlet.component.miner.remote.ClientUpdateEvent;
+
 public class MinerSettingsPane extends JTabbedPane implements ActionListener {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3040618948690123951L;
 	private final JPanel my_panel = new JPanel(new GridLayout(1, 2));
 	private final MinerAccountSettingsPanel account_settings_panel = new MinerAccountSettingsPanel();
 	private final MinerPathSettingPanel miner_path_settings_panel = new MinerPathSettingPanel();
 	private final MinerServerAddressSettingsPane server_address_settings_panel = new MinerServerAddressSettingsPane();
+	private final AuthSchemePanel auth_scheme_panel = new AuthSchemePanel();
 	private final Timer timer = new Timer((int) TimeUnit.SECONDS.toMillis(10), this);
+	private String basePath = "";
 
 	public MinerSettingsPane() {
 		init_panels();
+		EventBus.getDefault().register(this);
 	}
 
 	private void init_panels() {
@@ -57,18 +63,22 @@ public class MinerSettingsPane extends JTabbedPane implements ActionListener {
 		});
 		addTab("Account and Directory", my_panel);
 		addTab("Server URL", server_address_settings_panel);
+		addTab("Authentication Scheme", auth_scheme_panel);
 	}
 
 	public void setBasePath(String basePath) {
+		this.basePath = basePath;
 		account_settings_panel.setBasePath(basePath);
 		miner_path_settings_panel.setBasePath(basePath);
 		server_address_settings_panel.setBasePath(basePath);
+		auth_scheme_panel.setBasePath(basePath);
 	}
 
 	public void setClient(HttpClient client) {
 		account_settings_panel.setClient(client);
 		miner_path_settings_panel.setClient(client);
 		server_address_settings_panel.setClient(client);
+		auth_scheme_panel.setClient(client);
 	}
 
 	@Override
@@ -85,10 +95,18 @@ public class MinerSettingsPane extends JTabbedPane implements ActionListener {
 		}
 	}
 
+	@Subscribe(threadMode = ThreadMode.ASYNC)
+	public void onMessage(ClientUpdateEvent e) {
+		if (basePath.equals(e.base_path)) {
+			setClient(e.client);
+		}
+	}
+
 	@Override
 	public void removeNotify() {
 		super.removeNotify();
 		timer.stop();
+		EventBus.getDefault().unregister(this);
 	}
 
 }

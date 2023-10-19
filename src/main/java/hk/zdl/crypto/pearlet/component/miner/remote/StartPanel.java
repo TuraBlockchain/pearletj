@@ -219,7 +219,7 @@ final class StartPanel extends JPanel {
 					}).build();
 					var request = HttpRequest.newBuilder().GET().uri(url.toURI()).build();
 
-					var response = client.send(request, BodyHandlers.ofString());
+					var response = client.send(request, BodyHandlers.discarding());
 					if (response.statusCode() == 200) {
 						pane.setClient(client);
 						return true;
