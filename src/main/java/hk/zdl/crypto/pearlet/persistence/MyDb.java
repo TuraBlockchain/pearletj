@@ -176,7 +176,7 @@ public class MyDb {
 		if (r == null) {
 			r = new Record().set("NWID", nw.getId()).set("NETWORK", nw.getType().name()).set("ADDRESS", address).set("PUBLIC_KEY", public_key).set("PRIVATE_KEY", private_key);
 			return Db.save("ACCOUNTS", "ID", r);
-		} else if (r.getBytes("PRIVATE_KEY").length == 0 && private_key.length > 0) {
+		} else if (r.getBytes("PRIVATE_KEY").length != 1) {
 			r.set("PRIVATE_KEY", private_key);
 			return Db.update("ACCOUNTS", "ID", r);
 		} else {
@@ -357,7 +357,7 @@ public class MyDb {
 			return Db.save("ENCPSE", "ID", o);
 		} else {
 			r.set("CONTENT", content);
-			return Db.update("APP.ENCPSE", "ID",r);
+			return Db.update("APP.ENCPSE", "ID", r);
 		}
 	}
 

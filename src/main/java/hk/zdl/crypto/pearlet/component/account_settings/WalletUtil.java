@@ -40,7 +40,6 @@ public class WalletUtil {
 	}
 
 	public static final boolean insert_burst_account(CryptoNetwork nw, PKT type, String text) throws Exception {
-		boolean b = false;
 		var private_key = CryptoUtil.getPrivateKey(nw, type, text);
 		var public_key = CryptoUtil.getPublicKey(nw, private_key);
 		var address = CryptoUtil.getAddress(nw, public_key);
@@ -50,12 +49,13 @@ public class WalletUtil {
 				if (o.get()) {
 					var enc_pvk = WalletLock.encrypt_private_key(private_key);
 					private_key = new byte[] { 1 };
-					b = MyDb.insert_or_update_account(nw, address, public_key, private_key);
-					var account_id = MyDb.getAccount(nw, address).get().getInt("ID");
-					MyDb.insert_or_update_encpvk(nw.getId(), account_id, enc_pvk);
-					if (type == PKT.Phrase) {
-						var enc_pse = WalletLock.encrypt_private_key(Charset.defaultCharset().encode(text).array());
-						MyDb.insert_or_update_encpse(nw.getId(), account_id, enc_pse);
+					if (MyDb.insert_or_update_account(nw, address, public_key, private_key)) {
+						var account_id = MyDb.getAccount(nw, address).get().getInt("ID");
+						MyDb.insert_or_update_encpvk(nw.getId(), account_id, enc_pvk);
+						if (type == PKT.Phrase) {
+							var enc_pse = WalletLock.encrypt_private_key(Charset.defaultCharset().encode(text).array());
+							return MyDb.insert_or_update_encpse(nw.getId(), account_id, enc_pse);
+						}
 					}
 				} else {
 					throw new IllegalArgumentException("Wrong Password!");
@@ -64,8 +64,8 @@ public class WalletUtil {
 				throw new IllegalStateException("Wallet is locked!");
 			}
 		} else {
-			b = MyDb.insert_or_update_account(nw, address, public_key, private_key);
+			return MyDb.insert_or_update_account(nw, address, public_key, private_key);
 		}
-		return b;
+		return false;
 	}
 }

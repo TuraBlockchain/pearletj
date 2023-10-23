@@ -54,7 +54,7 @@ public class AuthSchemePanel extends JPanel {
 		method_btn.addActionListener((e) -> {
 			var p = new JPanel(new FlowLayout());
 			p.add(new JLabel("Scheme:"));
-			var<Auth> box = new JComboBox<>(Auth.values());
+			var box = new JComboBox<>(Auth.values());
 			p.add(box);
 			Util.submit(() -> {
 				var request = HttpRequest.newBuilder().GET().uri(new URI(basePath + miner_auth_path + "/method")).build();
