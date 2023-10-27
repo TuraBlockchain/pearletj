@@ -4,6 +4,8 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -38,8 +40,16 @@ public class ImportWeb3JAccountFromText {
 		panel.add(mm_label, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		panel.add(sc_panee, new GridBagConstraints(0, 1, 2, 1, 0, 0, 17, 1, insets_5, 0, 0));
 
-		int i = JOptionPane.showConfirmDialog(w, panel, "Import Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
-		if (i != JOptionPane.OK_OPTION) {
+		var pane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION, icon);
+		var dlg = pane.createDialog(w, "Import Existing Account");
+		dlg.addWindowFocusListener(new WindowAdapter() {
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				tx_field.grabFocus();
+			}
+		});
+		dlg.setVisible(true);
+		if ((int) pane.getValue() != JOptionPane.OK_OPTION) {
 			return;
 		}
 		var private_key_str = tx_field.getText().trim();

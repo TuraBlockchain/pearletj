@@ -148,7 +148,7 @@ public class StartPanel extends JPanel {
 					MyDb.insert_or_update_encpse(network.getId(), account_id, enc_pse);
 				}
 			} else {
-				url = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input URL of pool:")).trim();
+				url = JOptionPane.showInputDialog(getRootPane(), "Please input URL of pool:");
 				if (url == null) {
 					return;
 				} else if (url.isBlank()) {

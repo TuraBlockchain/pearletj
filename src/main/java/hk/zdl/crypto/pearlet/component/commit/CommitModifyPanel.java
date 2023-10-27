@@ -8,6 +8,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -158,8 +160,17 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 			return null;
 		});
 		Util.submit(() -> {
-			int i = JOptionPane.showConfirmDialog(getRootPane(), panel, "Set Commitment", JOptionPane.OK_CANCEL_OPTION);
-			if (i == JOptionPane.OK_OPTION) {
+			var pane = new JOptionPane(panel, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+			var dlg = pane.createDialog(getRootPane(), "Set Commitment");
+			dlg.addWindowFocusListener(new WindowAdapter() {
+				@Override
+				public void windowGainedFocus(WindowEvent e) {
+					txt_field.grabFocus();
+				}
+			});
+			dlg.setVisible(true);
+
+			if ((int) pane.getValue() == JOptionPane.OK_OPTION) {
 				var amount = new BigDecimal(0);
 				try {
 					amount = new BigDecimal(txt_field.getText().trim());
