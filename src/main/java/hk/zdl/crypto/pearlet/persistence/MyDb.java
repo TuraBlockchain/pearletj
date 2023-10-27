@@ -333,7 +333,7 @@ public class MyDb {
 	public static final byte[] get_encpvk(int network_id, int account_id) {
 		var r = Db.findFirst("SELECT CONTENT FROM APP.ENCPVK WHERE NWID = ? AND ACID = ?", network_id, account_id);
 		if (r != null) {
-			r.getBytes("CONTENT");
+			return r.getBytes("CONTENT");
 		}
 		return null;
 	}
