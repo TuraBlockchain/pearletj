@@ -33,6 +33,7 @@ import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
+import hk.zdl.crypto.tura.miner.util.LocalMiner;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.SignumAddress;
 
