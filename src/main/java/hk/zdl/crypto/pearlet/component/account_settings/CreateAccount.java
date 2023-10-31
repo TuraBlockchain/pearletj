@@ -11,10 +11,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 
 import javax.swing.Icon;
@@ -34,10 +30,10 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-import org.apache.commons.io.IOUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.java_websocket.util.Base64;
 import org.jdesktop.swingx.combobox.EnumComboBoxModel;
+import org.web3j.crypto.MnemonicUtils;
 import org.web3j.crypto.WalletUtils;
 
 import hk.zdl.crypto.pearlet.component.account_settings.burst.PKT;
@@ -49,7 +45,6 @@ import hk.zdl.crypto.pearlet.util.Util;
 
 public class CreateAccount {
 
-	private static List<String> mnemoic = null;
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	public static final void create_new_account_dialog(Component c, CryptoNetwork nw) {
@@ -154,18 +149,9 @@ public class CreateAccount {
 	}
 
 	private static synchronized String get_mnemoic() {
-		if (mnemoic == null) {
-			mnemoic = new LinkedList<>(Arrays.asList("data", "direct", "darling"));
-			IOUtils.readLines(CreateAccount.class.getClassLoader().getResourceAsStream("en-mnemonic-word-list.txt"), Charset.defaultCharset()).stream().map(String::trim).filter(s -> !s.isBlank())
-					.forEach(mnemoic::add);
-		}
-		var sb = new StringBuilder();
-		var rand = new Random();
-		for (var i = 0; i < 12; i++) {
-			sb.append(mnemoic.get(rand.nextInt(mnemoic.size())));
-			sb.append(' ');
-		}
-		return sb.toString().trim();
+		var bArr = new byte[16];
+		new Random().nextBytes(bArr);
+		return MnemonicUtils.generateMnemonic(bArr);
 	}
 
 	private static final void web3j(Component c, CryptoNetwork nw) {
