@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.SocketTimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -124,6 +125,7 @@ public class BlocksPanel extends JPanel {
 					table_model.insertData(new Object[] { str, null, null, null, null });
 				}
 			}
+		} catch (RuntimeException | SocketTimeoutException | InterruptedException | ThreadDeath x) {
 		} catch (Exception x) {
 			Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 		} finally {
@@ -149,16 +151,19 @@ public class BlocksPanel extends JPanel {
 						continue;
 					}
 					synchronized (lock) {
-						var block_id = table_model.getValueAt(i, 0).toString();
-						var jobj = BlockCache.getSignumBlock(nw, block_id);
-						long height = jobj.getLong("height");
-						long timestamp = jobj.getLong("timestamp");
-						long reward = jobj.getLong("blockRewardNQT");
-						int notx = jobj.getInt("numberOfTransactions");
-						table_model.setValueAt(height, i, 1);
-						table_model.setValueAt(timestamp, i, 2);
-						table_model.setValueAt(reward, i, 3);
-						table_model.setValueAt(notx, i, 4);
+						try {
+							var block_id = table_model.getValueAt(i, 0).toString();
+							var jobj = BlockCache.getSignumBlock(nw, block_id);
+							long height = jobj.getLong("height");
+							long timestamp = jobj.getLong("timestamp");
+							long reward = jobj.getLong("blockRewardNQT");
+							int notx = jobj.getInt("numberOfTransactions");
+							table_model.setValueAt(height, i, 1);
+							table_model.setValueAt(timestamp, i, 2);
+							table_model.setValueAt(reward, i, 3);
+							table_model.setValueAt(notx, i, 4);
+						} catch (SocketTimeoutException | InterruptedException | ThreadDeath x) {
+						}
 					}
 					i++;
 				} catch (Exception x) {
