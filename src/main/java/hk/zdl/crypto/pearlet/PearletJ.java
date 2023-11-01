@@ -50,7 +50,11 @@ public class PearletJ {
 					msg = "Cannot run multi instances concurrently!";
 				}
 			}
-			JOptionPane.showMessageDialog(null, msg, "Error", JOptionPane.ERROR_MESSAGE);
+			var pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE);
+			var dlg = pane.createDialog(null, "Error");
+			dlg.setIconImage(app_icon);
+			dlg.setVisible(true);
+			pane.getValue();
 			System.exit(1);
 		}
 		if (db_empty) {
