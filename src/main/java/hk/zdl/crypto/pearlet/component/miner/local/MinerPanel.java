@@ -26,6 +26,7 @@ import org.json.JSONObject;
 import hk.zdl.crypto.pearlet.component.event.PlotDoneEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.ui.TextAreaOutputStream;
+import hk.zdl.crypto.tura.miner.util.LocalMiner;
 
 public class MinerPanel extends JPanel implements Runnable {
 

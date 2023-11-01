@@ -33,6 +33,7 @@ import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
+import hk.zdl.crypto.tura.miner.util.LocalMiner;
 import signumj.crypto.SignumCrypto;
 import signumj.entity.SignumAddress;
 
@@ -148,7 +149,7 @@ public class StartPanel extends JPanel {
 					MyDb.insert_or_update_encpse(network.getId(), account_id, enc_pse);
 				}
 			} else {
-				url = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input URL of pool:")).trim();
+				url = JOptionPane.showInputDialog(getRootPane(), "Please input URL of pool:");
 				if (url == null) {
 					return;
 				} else if (url.isBlank()) {

@@ -16,6 +16,7 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -370,6 +371,7 @@ public class SendPanel extends JPanel {
 			Util.submit(() -> {
 				try {
 					update_balance();
+				} catch (RuntimeException | SocketTimeoutException | InterruptedException | ThreadDeath x) {
 				} catch (Exception x) {
 					Logger.getLogger(getClass().getName()).log(Level.SEVERE, x.getMessage(), x);
 				} finally {

@@ -43,6 +43,7 @@ import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
 import hk.zdl.crypto.pearlet.component.event.PlotDoneEvent;
 import hk.zdl.crypto.pearlet.component.settings.DisplaySettings;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
+import hk.zdl.crypto.pearlet.plot.PlotProgressListener;
 import hk.zdl.crypto.pearlet.plot.PlotUtil;
 import hk.zdl.crypto.pearlet.ui.CloseableTabbedPaneLayerUI;
 import hk.zdl.crypto.pearlet.ui.ProgressBarTableCellRenderer;
@@ -221,7 +222,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 				for (var i = 0; i < count; i++) {
 					var _i = i;
 					try {
-						PlotUtil.do_plot(Paths.get(plot_path_str), id, nounces, new hk.zdl.crypto.pearlet.plot.PlotProgressListener() {
+						PlotUtil.do_plot(Paths.get(plot_path_str), id, nounces, new PlotProgressListener() {
 
 							@Override
 							public void onProgress(Type type, float progress, String rate, String ETA) {

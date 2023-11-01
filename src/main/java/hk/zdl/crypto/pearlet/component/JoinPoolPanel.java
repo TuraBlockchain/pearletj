@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.SocketTimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -153,6 +154,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 			try {
 				bar.setString(CryptoUtil.getRewardRecipient(network, account).orElse(NONE));
 				break;
+			} catch (RuntimeException | SocketTimeoutException | InterruptedException | ThreadDeath x) {
 			} catch (Exception x) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, x.getMessage(), x);
 			}

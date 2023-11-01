@@ -47,14 +47,14 @@ public class WalletUtil {
 			var o = WalletLock.unlock();
 			if (o.isPresent()) {
 				if (o.get()) {
-					var enc_pvk = WalletLock.encrypt_private_key(private_key);
-					private_key = new byte[] { 1 };
-					if (MyDb.insert_or_update_account(nw, address, public_key, private_key)) {
+					private_key = WalletLock.encrypt_private_key(private_key);
+					if (MyDb.insert_or_update_account(nw, address, public_key, new byte[] { 1 })) {
 						var account_id = MyDb.getAccount(nw, address).get().getInt("ID");
-						MyDb.insert_or_update_encpvk(nw.getId(), account_id, enc_pvk);
-						if (type == PKT.Phrase) {
-							var enc_pse = WalletLock.encrypt_private_key(Charset.defaultCharset().encode(text).array());
-							return MyDb.insert_or_update_encpse(nw.getId(), account_id, enc_pse);
+						if (MyDb.insert_or_update_encpvk(nw.getId(), account_id, private_key)) {
+							if (type == PKT.Phrase) {
+								var enc_pse = WalletLock.encrypt_private_key(Charset.defaultCharset().encode(text).array());
+								return MyDb.insert_or_update_encpse(nw.getId(), account_id, enc_pse);
+							}
 						}
 					}
 				} else {

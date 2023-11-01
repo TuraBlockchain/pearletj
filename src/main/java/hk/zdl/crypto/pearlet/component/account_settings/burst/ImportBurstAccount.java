@@ -4,6 +4,8 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.nio.file.Files;
 
@@ -53,8 +55,16 @@ public class ImportBurstAccount {
 		var scr_pane = new JScrollPane(text_area);
 		panel.add(scr_pane, new GridBagConstraints(0, 1, 4, 3, 0, 0, 17, 1, new Insets(5, 5, 0, 5), 0, 0));
 
-		int i = JOptionPane.showConfirmDialog(w, panel, "Import Existing Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
-		if (i == JOptionPane.OK_OPTION) {
+		var pane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION, icon);
+		var dlg = pane.createDialog(w, "Import Existing Account");
+		dlg.addWindowFocusListener(new WindowAdapter() {
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				text_area.grabFocus();
+			}
+		});
+		dlg.setVisible(true);
+		if ((int) pane.getValue() == JOptionPane.OK_OPTION) {
 			var type = (PKT) combobox_1.getSelectedItem();
 			var text = text_area.getText().trim();
 			try {
