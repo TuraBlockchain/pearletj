@@ -117,7 +117,7 @@ public class UIUtil {
 	}
 
 	public static final boolean show_confirm_exit_dialog(Component... c) {
-		return JOptionPane.showConfirmDialog(c.length > 0 ? c[0] : null, "Are you sure to exit PearlrtJ ?", "Exit", JOptionPane.OK_CANCEL_OPTION,
+		return JOptionPane.showConfirmDialog(c.length > 0 ? c[0] : null, "Are you sure to exit PearletJ ?", "Exit", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE) == JOptionPane.OK_OPTION;
 	}
 }
