@@ -353,9 +353,9 @@
 		</dependency>
 		<!-- API backend-->
 		<dependency>
-			<groupId>com.github.signum-network</groupId>
+			<groupId>tura.world</groupId>
 			<artifactId>signumj</artifactId>
-			<version>v1.0.0</version>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.web3j</groupId>
