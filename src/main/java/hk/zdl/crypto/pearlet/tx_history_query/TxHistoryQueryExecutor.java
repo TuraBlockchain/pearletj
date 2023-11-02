@@ -1,6 +1,5 @@
 package hk.zdl.crypto.pearlet.tx_history_query;
 
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,7 +64,6 @@ public class TxHistoryQueryExecutor {
 						new EtherTxQuery(network).queryTxHistory(account);
 					}
 					is_finished = true;
-				} catch (RuntimeException | SocketTimeoutException | InterruptedException | ThreadDeath x) {
 				} catch (Exception e) {
 					Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
 					is_finished = true;

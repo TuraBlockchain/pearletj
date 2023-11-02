@@ -228,7 +228,7 @@ final class StartPanel extends JPanel {
 				}
 			};
 			var status = JXLoginPane.showLoginDialog(getRootPane(), svc);
-			if (status.equals(Status.CANCELLED)) {
+			if (!status.equals(Status.SUCCEEDED)) {
 				return;
 			}
 		}

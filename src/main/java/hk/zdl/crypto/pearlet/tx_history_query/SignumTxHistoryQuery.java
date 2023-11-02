@@ -1,7 +1,5 @@
 package hk.zdl.crypto.pearlet.tx_history_query;
 
-import java.net.SocketTimeoutException;
-
 import org.greenrobot.eventbus.EventBus;
 
 import hk.zdl.crypto.pearlet.component.event.TxHistoryEvent;
@@ -24,7 +22,7 @@ public class SignumTxHistoryQuery {
 			try {
 				Transaction tx = CryptoUtil.getSignumTx(nw, id);
 				EventBus.getDefault().post(new TxHistoryEvent<Transaction>(nw, TxHistoryEvent.Type.INSERT, tx));
-			} catch (RuntimeException | SocketTimeoutException | InterruptedException | ThreadDeath x) {
+			} catch (Throwable x) {
 				continue;
 			}
 		}
