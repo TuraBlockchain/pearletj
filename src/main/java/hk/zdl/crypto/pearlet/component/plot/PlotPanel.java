@@ -8,7 +8,6 @@ import java.awt.Insets;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
@@ -36,7 +35,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import com.formdev.flatlaf.util.SystemInfo;
 import com.jakewharton.byteunits.BinaryByteUnit;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
@@ -131,23 +129,6 @@ public class PlotPanel extends JPanel implements ActionListener {
 	@SuppressWarnings("serial")
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (SystemInfo.isAARCH64) {
-			int i = 0;
-			try {
-				var proc  = new ProcessBuilder("docker", "version").start();
-				i = proc.waitFor();
-			} catch (Exception x) {
-				i = -1;
-			}
-			if (i != 0) {
-				JOptionPane.showMessageDialog(getRootPane(), "docker is required to plot on machines with ARM CPU", "Error", JOptionPane.ERROR_MESSAGE);
-				try {
-					Util.browse(URI.create("https://www.docker.com/products/docker-desktop/"));
-				} catch (Exception e1) {
-				}
-				return;
-			}
-		}
 		if (plot_path == null) {
 			JOptionPane.showMessageDialog(getRootPane(), "Plot path not specified!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;

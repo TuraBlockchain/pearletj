@@ -76,7 +76,7 @@ public class LocalMiner {
 
 	@SuppressWarnings("unchecked")
 	public static Process build_process(File miner_bin, File conf_file) throws Exception {
-		if (SystemInfo.isAARCH64 && !SystemInfo.isMacOS) {
+		if (SystemInfo.isAARCH64 && SystemInfo.isLinux) {
 			var proc = new ProcessBuilder("docker", "run", "--privileged", "--rm", "tonistiigi/binfmt", "--install", "linux/amd64").start();
 			var i = proc.waitFor();
 			if (i != 0) {
