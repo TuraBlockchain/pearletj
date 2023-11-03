@@ -1,5 +1,6 @@
 package hk.zdl.crypto.pearlet.ui;
 
+import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JProgressBar;
@@ -14,9 +15,16 @@ public class ProgressBarTableCellRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		if (value instanceof Float) {
+			var val = (int) (float) value;
 			var bar = new JProgressBar(0, 100);
-			bar.setValue((int) Float.parseFloat(value.toString()));
-			bar.setString(bar.getValue() + "%");
+			if (val < 0) {
+				bar.setValue(100);
+				bar.setString("ERROR");
+				bar.setForeground(Color.red.darker());
+			} else {
+				bar.setValue(val);
+				bar.setString(bar.getValue() + "%");
+			}
 			bar.setStringPainted(true);
 			bar.setFont(table.getFont());
 			bar.setBorder(super.getBorder());

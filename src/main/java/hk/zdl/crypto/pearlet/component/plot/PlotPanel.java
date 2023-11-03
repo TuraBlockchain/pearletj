@@ -216,6 +216,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 							}
 						}, mem_field.getText());
 					} catch (Exception x) {
+						model.setValueAt(-1F, _i, 1);
 						UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
 					}
 				}
