@@ -1,29 +1,36 @@
 package hk.zdl.crypto.pearlet.component.miner.remote.mining;
 
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.stream.Stream;
+
 import javax.swing.table.AbstractTableModel;
 
 import org.json.JSONArray;
 
+import hk.zdl.crypto.pearlet.util.Util;
+
 public class MinerStateTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 5805340052864846718L;
-	public static final String[] column_name = new String[] { "ID", "Start Time", "File Count", "Capacity", "Plot File Directory", "Last Refresh", "Round Time", "Speed", "Height", "Scoop",
-			"Status" };
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
+	public static final List<String> column_name = Stream.of("ID", "START_TIME", "FILE_COUNT", "CAPACITY", "PLOT_PATH", "LAST_REFRESH", "ROUND_TIME", "SPEED", "HEIGHT", "SCOOP", "STATUS")
+			.map(s -> rsc_bdl.getString("MINING.REMOTE.COLUMN." + s)).toList();
 	private final JSONArray jarr = new JSONArray();
 
 	@Override
+	public String getColumnName(int column) {
+		return column_name.get(column);
+	}
+
+	@Override
 	public int getColumnCount() {
-		return column_name.length;
+		return column_name.size();
 	}
 
 	@Override
 	public int getRowCount() {
 		return jarr.length();
-	}
-
-	@Override
-	public String getColumnName(int column) {
-		return column_name[column];
 	}
 
 	@Override

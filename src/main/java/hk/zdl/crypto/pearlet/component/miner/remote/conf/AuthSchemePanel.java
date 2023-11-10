@@ -11,7 +11,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.ResourceBundle;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -33,14 +35,19 @@ import hk.zdl.crypto.pearlet.util.Util;
 public class AuthSchemePanel extends JPanel {
 
 	private enum Auth {
-		NONE, PASSWORD, PASSPHRASE
+		NONE, PASSWORD, PASSPHRASE;
+
+		public String toString() {
+			return rsc_bdl.getString("MINING.REMOTE.AUTH.SCHEME." + name());
+		}
 	}
 
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final String miner_auth_path = "/api/v1/miner/configure/auth";
 	private static final long serialVersionUID = 7777531371995940084L;
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
-	private JButton method_btn = new JButton("Change Scheme");
-	private JButton pw_btn = new JButton("Change Password");
+	private JButton method_btn = new JButton(rsc_bdl.getString("MINING.REMOTE.AUTH.CHANGE_SCHEME"));
+	private JButton pw_btn = new JButton(rsc_bdl.getString("MINING.REMOTE.AUTH.CHANGE_PASSWORD"));
 	private String basePath = "";
 	private HttpClient client = HttpClient.newHttpClient();
 
@@ -64,7 +71,7 @@ public class AuthSchemePanel extends JPanel {
 				}
 				return null;
 			});
-			int i = JOptionPane.showConfirmDialog(getRootPane(), p, "Choose your Scheme", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+			int i = JOptionPane.showConfirmDialog(getRootPane(), p, rsc_bdl.getString("MINING.REMOTE.AUTH.CHOOSE_SCHEME"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if (i == JOptionPane.OK_OPTION) {
 				Util.submit(() -> {
 					var request = HttpRequest.newBuilder().POST(BodyPublishers.ofString(box.getSelectedItem().toString())).uri(new URI(basePath + miner_auth_path + "/method")).build();
@@ -96,14 +103,15 @@ public class AuthSchemePanel extends JPanel {
 					}
 				}
 				var pw_arr = new JPasswordField[] { new JPasswordField(), new JPasswordField() };
-				if (UIUtil.show_password_dialog("Enter new password:", getRootPane(), pw_arr[0])) {
+				if (UIUtil.show_password_dialog(rsc_bdl.getString("MINING.REMOTE.AUTH.ENTER_PASSWORD"), getRootPane(), pw_arr[0])) {
 					if (pw_arr[0].getPassword().length < WalletLock.MIN_PW_LEN) {
-						JOptionPane.showMessageDialog(getRootPane(), "Password must be at least " + WalletLock.MIN_PW_LEN + " characters!", null, JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(getRootPane(), MessageFormat.format(rsc_bdl.getString("MINING.REMOTE.AUTH.MSG.ERR.MIN_LENGTH"), WalletLock.MIN_PW_LEN), null,
+								JOptionPane.ERROR_MESSAGE);
 						return false;
 					}
-					if (UIUtil.show_password_dialog("Re-Enter new password:", getRootPane(), pw_arr[1])) {
+					if (UIUtil.show_password_dialog(rsc_bdl.getString("MINING.REMOTE.AUTH.ENTER_PASSWORD_AGAIN"), getRootPane(), pw_arr[1])) {
 						if (!Arrays.equals(pw_arr[0].getPassword(), pw_arr[1].getPassword())) {
-							JOptionPane.showMessageDialog(getRootPane(), "Password Mismatch!", "Error", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("MINING.REMOTE.AUTH.MSG.ERR.MIS_MATCH"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 							return null;
 						} else {
 							var request = HttpRequest.newBuilder().POST(BodyPublishers.ofString(new String(pw_arr[0].getPassword()))).uri(new URI(basePath + miner_auth_path + "/password")).build();
@@ -116,7 +124,7 @@ public class AuthSchemePanel extends JPanel {
 									}
 								}).build();
 								EventBus.getDefault().post(new ClientUpdateEvent(basePath, client));
-								JOptionPane.showMessageDialog(getRootPane(), "Password is set!", "", JOptionPane.INFORMATION_MESSAGE);
+								JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("MINING.REMOTE.AUTH.MSG.DONE"), "", JOptionPane.INFORMATION_MESSAGE);
 							}
 						}
 					}
