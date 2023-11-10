@@ -2,23 +2,28 @@ package hk.zdl.crypto.pearlet.component.blocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 import javax.swing.table.AbstractTableModel;
+
+import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class BlocksTableModel extends AbstractTableModel {
 
-	private static final String[] columnNames = new String[] { "Block id", "Height", "Date", "Reward", "No. of Tx." };
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
+	private static final List<String> columnNames = Stream.of("ID","HEIGHT","DATE","REWARD","TX_COUNT").map(s->rsc_bdl.getString("TABLE.COLUNM_NAME.BLOCK."+s)).toList();
 	private final List<Object[]> data = new ArrayList<>();
 
 	@Override
 	public int getColumnCount() {
-		return columnNames.length;
+		return columnNames.size();
 	}
 
 	@Override
 	public String getColumnName(int column) {
-		return columnNames[column];
+		return columnNames.get(column);
 	}
 
 	@Override

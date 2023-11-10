@@ -57,16 +57,15 @@ public class ReceivePanel extends JPanel {
 	public ReceivePanel() {
 		super(new BorderLayout());
 		EventBus.getDefault().register(this);
-		var panel_0 = new JPanel(new BorderLayout());
-		var panel_1 = new JPanel(new FlowLayout());
+		var panel = new JPanel(new FlowLayout());
 		adr_filed.setMinimumSize(new Dimension(400, 20));
 		adr_filed.setPreferredSize(new Dimension(400, 20));
 		adr_filed.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
-		panel_0.add(adr_filed, BorderLayout.CENTER);
-		var btn = new JButton("Copy Address");
-		panel_0.add(btn, BorderLayout.EAST);
-		panel_1.add(panel_0);
-		add(panel_1, BorderLayout.NORTH);
+		panel.add(adr_filed);
+		var rsc_bdl = Util.getResourceBundle();
+		var btn = new JButton(rsc_bdl.getString("COPY_ACCOUNT_INFO.COPY_ADDR"));
+		panel.add(btn);
+		add(panel, BorderLayout.NORTH);
 		add(qr_code, BorderLayout.CENTER);
 		adr_filed.setEditable(false);
 		qr_code.setHorizontalAlignment(SwingConstants.CENTER);

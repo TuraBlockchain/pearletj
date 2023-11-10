@@ -2,23 +2,28 @@ package hk.zdl.crypto.pearlet.component.dashboard;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 import javax.swing.table.AbstractTableModel;
+
+import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class TxTableModel extends AbstractTableModel {
 
-	private static final String[] columnNames = new String[] { "Tx id", "Date", "Type", "Amount", "Account" };
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
+	private static final List<String> columnNames = Stream.of("ID", "DATE", "TYPE", "AMT", "ACC").map(s -> rsc_bdl.getString("TABLE.COLUNM_NAME.TX." + s)).toList();
 	private final List<Object[]> data = new ArrayList<>();
 
 	@Override
 	public int getColumnCount() {
-		return columnNames.length;
+		return columnNames.size();
 	}
 
 	@Override
 	public String getColumnName(int column) {
-		return columnNames[column];
+		return columnNames.get(column);
 	}
 
 	@Override
@@ -46,6 +51,5 @@ public class TxTableModel extends AbstractTableModel {
 		data.add(entry);
 		fireTableRowsInserted(data.size() - 1, data.size());
 	}
-
 
 }
