@@ -21,6 +21,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.Charset;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -52,16 +53,17 @@ import hk.zdl.crypto.pearlet.util.Util;
 
 public class MiningPanel extends JPanel implements ActionListener {
 
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final long serialVersionUID = 3870247981006005478L;
 	public static final String addational_path = "/api/v1/miner";
 	public static final String miner_reboot_path = "/api/v1/miner/restart_all";
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private final MinerStateTableModel table_model = new MinerStateTableModel();
 	private final JTable table = new JTable(table_model);
-	private final JButton start_btn = new JButton("Start");
-	private final JButton stop_btn = new JButton("Stop");
-	private final JButton restart_btn = new JButton("Restart");
-	private final JButton restart_all_btn = new JButton("Restart All");
+	private final JButton start_btn = new JButton(rsc_bdl.getString("MINING.REMOTE.START_BTN"));
+	private final JButton stop_btn = new JButton(rsc_bdl.getString("MINING.REMOTE.STOP_BTN"));
+	private final JButton restart_btn = new JButton(rsc_bdl.getString("MINING.REMOTE.RESTART_BTN"));
+	private final JButton restart_all_btn = new JButton(rsc_bdl.getString("MINING.REMOTE.RESTART_ALL_BTN"));
 	private HttpClient client = HttpClient.newHttpClient();
 	private String basePath = "";
 
@@ -207,7 +209,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 					options[i] = adr;
 				}
 			}
-			var choice = JOptionPane.showInputDialog(getRootPane(), "Choose your wallet id to start mining:", "Start Miner", JOptionPane.QUESTION_MESSAGE, icon, options, null);
+			var choice = JOptionPane.showInputDialog(getRootPane(), rsc_bdl.getString("MINING.REMOTE.CHOOSE_ID"), rsc_bdl.getString("MINING.REMOTE.START_MINER"), JOptionPane.QUESTION_MESSAGE, icon, options, null);
 			choice = RoturaAddress.fromEither(choice.toString()).getID();
 			if (choice == null) {
 				return false;
@@ -219,9 +221,9 @@ public class MiningPanel extends JPanel implements ActionListener {
 							.header("Content-type", "application/json").build();
 					response = client.send(request, BodyHandlers.ofString());
 					if (response.statusCode() == 200) {
-						UIUtil.displayMessage("Succeed", "Miner has started.");
+						UIUtil.displayMessage(rsc_bdl.getString("MINING.REMOTE.SUCCEED"), rsc_bdl.getString("MINING.REMOTE.START.SUCCEED"));
 					} else {
-						UIUtil.displayMessage("Failed", "Failed to start miner.", MessageType.ERROR);
+						UIUtil.displayMessage(rsc_bdl.getString("MINING.REMOTE.FAILED"), rsc_bdl.getString("MINING.REMOTE.START.FAILED"), MessageType.ERROR);
 					}
 				} catch (Exception x) {
 					JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
@@ -239,7 +241,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 			return false;
 		}
 		var row = table.getSelectedRow();
-		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to stop this miner?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		int i = JOptionPane.showConfirmDialog(getRootPane(), rsc_bdl.getString("MINING.REMOTE.STOP.CONFRIM"), "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.YES_OPTION) {
 			try {
 				var jobj = new JSONObject();
@@ -248,9 +250,9 @@ public class MiningPanel extends JPanel implements ActionListener {
 						.header("Content-type", "application/json").build();
 				var response = client.send(request, BodyHandlers.ofString());
 				if (response.statusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Miner has stopped.");
+					UIUtil.displayMessage(rsc_bdl.getString("MINING.REMOTE.SUCCEED"), rsc_bdl.getString("MINING.REMOTE.STOP.SUCCEED"));
 				} else {
-					UIUtil.displayMessage("Failed", "Failed to stop miner.", MessageType.ERROR);
+					UIUtil.displayMessage(rsc_bdl.getString("MINING.REMOTE.FAILED"), rsc_bdl.getString("MINING.REMOTE.STOP.FAILED"), MessageType.ERROR);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
@@ -265,7 +267,7 @@ public class MiningPanel extends JPanel implements ActionListener {
 			return false;
 		}
 		var row = table.getSelectedRow();
-		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to restart this miner?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		int i = JOptionPane.showConfirmDialog(getRootPane(), rsc_bdl.getString("MINING.REMOTE.RESTART.CONFRIM"), "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.YES_OPTION) {
 			try {
 				var id = new BigInteger(table.getValueAt(row, 0).toString());
@@ -275,9 +277,9 @@ public class MiningPanel extends JPanel implements ActionListener {
 						.header("Content-type", "application/json").build();
 				var response = client.send(request, BodyHandlers.ofString());
 				if (response.statusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Miner has stopped.");
+					UIUtil.displayMessage(rsc_bdl.getString("MINING.REMOTE.SUCCEED"), rsc_bdl.getString("MINING.REMOTE.STOP.SUCCEED"));
 				} else {
-					UIUtil.displayMessage("Failed", "Failed to stop miner.", MessageType.ERROR);
+					UIUtil.displayMessage(rsc_bdl.getString("MINING.REMOTE.FAILED"), rsc_bdl.getString("MINING.REMOTE.STOP.FAILED"), MessageType.ERROR);
 					return false;
 				}
 				jobj = new JSONObject();
@@ -286,9 +288,9 @@ public class MiningPanel extends JPanel implements ActionListener {
 						.header("Content-type", "application/json").build();
 				response = client.send(request, BodyHandlers.ofString());
 				if (response.statusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Miner has started.");
+					UIUtil.displayMessage(rsc_bdl.getString("MINING.REMOTE.SUCCEED"), rsc_bdl.getString("MINING.REMOTE.START.SUCCEED"));
 				} else {
-					UIUtil.displayMessage("Failed", "Failed to start miner.", MessageType.ERROR);
+					UIUtil.displayMessage(rsc_bdl.getString("MINING.REMOTE.FAILED"), rsc_bdl.getString("MINING.REMOTE.START.FAILED"), MessageType.ERROR);
 					return false;
 				}
 			} catch (Exception x) {
@@ -300,15 +302,15 @@ public class MiningPanel extends JPanel implements ActionListener {
 	}
 
 	public boolean restart_all_miner() {
-		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to restart all miners?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		int i = JOptionPane.showConfirmDialog(getRootPane(), rsc_bdl.getString("MINING.REMOTE.RESTART_ALL.CONFRIM"), "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.YES_OPTION) {
 			try {
 				var request = HttpRequest.newBuilder().POST(BodyPublishers.noBody()).uri(new URI(basePath + miner_reboot_path)).header("Content-type", "application/json").build();
 				var response = client.send(request, BodyHandlers.ofString());
 				if (response.statusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Miners have restarted.");
+					UIUtil.displayMessage(rsc_bdl.getString("MINING.REMOTE.SUCCEED"), rsc_bdl.getString("MINING.REMOTE.RESTART_ALL.SUCCEED"));
 				} else {
-					UIUtil.displayMessage("Failed", "Failed to restart miners.", MessageType.ERROR);
+					UIUtil.displayMessage(rsc_bdl.getString("MINING.REMOTE.FAILED"), rsc_bdl.getString("MINING.REMOTE.RESTART_ALL.FAILED"), MessageType.ERROR);
 					return false;
 				}
 			} catch (Exception x) {

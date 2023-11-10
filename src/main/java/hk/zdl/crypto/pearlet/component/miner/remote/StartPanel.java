@@ -24,6 +24,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Arrays;
+import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -56,11 +57,12 @@ final class StartPanel extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 6066932317672101910L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private final JComboBox<Inet4Address> iface_combobox = new JComboBox<>();
 	private final JSpinner port_spinner = new JSpinner(new SpinnerNumberModel(8080, 1050, 65500, 1));
-	private final JButton start_button = new JButton("Start");
+	private final JButton start_button = new JButton(rsc_bdl.getString("MINER.REMOTE.START.BTN_TEXT"));
 	private final JTextField miner_url_field = new JTextField(30);
-	private final JButton inspect_button = new JButton("Inspect");
+	private final JButton inspect_button = new JButton(rsc_bdl.getString("MINER.REMOTE.INSP.BTN_TEXT"));
 	private final JProgressBar p_bar = new JProgressBar();
 	private final MinerExplorePane pane;
 
@@ -68,17 +70,17 @@ final class StartPanel extends JPanel {
 	public StartPanel(MinerExplorePane pane) {
 		super(new GridBagLayout());
 		this.pane = pane;
-		var inetface_label = new JLabel("Network Interface:");
+		var inetface_label = new JLabel(rsc_bdl.getString("MINER.REMOTE.INET_FACE"));
 		add(inetface_label, new GridBagConstraints(0, 0, 1, 1, 1, 0, GridBagConstraints.WEST, 1, new Insets(5, 5, 0, 5), 0, 0));
 		add(iface_combobox, new GridBagConstraints(0, 1, 1, 1, 1, 0, GridBagConstraints.WEST, 1, new Insets(5, 5, 5, 5), 0, 0));
-		var inetport_label = new JLabel("Port:");
+		var inetport_label = new JLabel(rsc_bdl.getString("MINER.REMOTE.INET_PORT"));
 		add(inetport_label, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.WEST, 1, new Insets(5, 5, 0, 5), 0, 0));
 		add(port_spinner, new GridBagConstraints(1, 1, 1, 1, 0, 0, GridBagConstraints.WEST, 1, new Insets(5, 5, 5, 5), 0, 0));
-		var start_label = new JLabel("Search for miner(s)");
+		var start_label = new JLabel(rsc_bdl.getString("MINER.REMOTE.SEARCH"));
 		add(start_label, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.WEST, 1, new Insets(5, 5, 0, 5), 0, 0));
 		add(start_button, new GridBagConstraints(2, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, 1, new Insets(5, 5, 5, 5), 0, 0));
 
-		var url_label = new JLabel("Inspect miner of URL:");
+		var url_label = new JLabel(rsc_bdl.getString("MINER.REMOTE.CHECK_FOR_URL"));
 		add(url_label, new GridBagConstraints(0, 2, 2, 1, 0, 0, GridBagConstraints.WEST, 1, new Insets(5, 5, 0, 5), 0, 0));
 		add(miner_url_field, new GridBagConstraints(0, 3, 2, 1, 1, 0, GridBagConstraints.WEST, 1, new Insets(5, 5, 5, 5), 0, 0));
 		add(inspect_button, new GridBagConstraints(2, 3, 1, 1, 0, 0, GridBagConstraints.CENTER, 1, new Insets(5, 5, 5, 5), 0, 0));
@@ -232,7 +234,7 @@ final class StartPanel extends JPanel {
 				return;
 			}
 		}
-		this.pane.insertTab("Miner", getIcon(), pane, base_path, this.pane.getTabCount());
+		this.pane.insertTab(rsc_bdl.getString("GENERAL.MINER"), getIcon(), pane, base_path, this.pane.getTabCount());
 		Util.submit(() -> pane.actionPerformed(null));
 	}
 

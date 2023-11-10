@@ -13,7 +13,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.Charset;
+import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -51,13 +53,15 @@ import hk.zdl.crypto.pearlet.util.Util;
 public class PlotProgressPanel extends JPanel {
 
 	public static final String plot_path = "/api/v1/plot";
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final long serialVersionUID = -1150055243038748734L;
 	private static final long byte_per_nounce = 262144;
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
-	private final JButton add_btn = new JButton("Add");
-	private final JButton del_btn = new JButton("Del");
-	private final JButton clear_btn = new JButton("Clear Done");
-	private final JTable table = new JTable(new DefaultTableModel(new Object[][] {}, new Object[] { "Type", "Rate", "Progress", "ETA", "Path" })) {
+	private final JButton add_btn = new JButton(rsc_bdl.getString("MINER.REMOTE.PLOT.ADD"));
+	private final JButton del_btn = new JButton(rsc_bdl.getString("MINER.REMOTE.PLOT.DEL"));
+	private final JButton clear_btn = new JButton(rsc_bdl.getString("MINER.REMOTE.PLOT.CLEAR"));
+	private final Object[] col_name = Stream.of("TYPE", "RATE", "PROG", "ETA", "PATH").map(s -> rsc_bdl.getString("MINER.REMOTE.PLOT.TABLE.COLUMN_NAME." + s)).toArray();
+	private final JTable table = new JTable(new DefaultTableModel(new Object[][] {}, col_name)) {
 
 		/**
 		 * 
@@ -127,17 +131,17 @@ public class PlotProgressPanel extends JPanel {
 		var combo_box_1 = new JComboBox<String>();
 		combo_box_1.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
 		panel.add(combo_box_1, new GridBagConstraints(1, 0, 2, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-		var label_2 = new JLabel("Path:");
+		var label_2 = new JLabel(rsc_bdl.getString("PLOT.PATH_LABEL"));
 		panel.add(label_2, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 		var combo_box_2 = new JComboBox<String>();
 		panel.add(combo_box_2, new GridBagConstraints(1, 1, 2, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-		var label_4 = new JLabel("File Size:");
+		var label_4 = new JLabel(rsc_bdl.getString("PLOT.FILE_SIZE"));
 		panel.add(label_4, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 		var fz_spinner = new JSpinner(new SpinnerNumberModel(50, 1, 1024, 1));
 		var fz_op = new JComboBox<>(new String[] { "MB", "GB" });
 		panel.add(fz_spinner, new GridBagConstraints(1, 2, 1, 1, 1, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		panel.add(fz_op, new GridBagConstraints(2, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
-		var chech_box_1 = new JCheckBox("Restart miner on plot finish", true);
+		var chech_box_1 = new JCheckBox(rsc_bdl.getString("MINER.REMOTE.PLOT.RESTART"), true);
 		panel.add(chech_box_1, new GridBagConstraints(0, 3, 3, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		fz_op.getModel().setSelectedItem("GB");
 		Util.submit(() -> {
@@ -174,7 +178,7 @@ public class PlotProgressPanel extends JPanel {
 			});
 		});
 
-		int i = JOptionPane.showConfirmDialog(getRootPane(), panel, "Add a Plot", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+		int i = JOptionPane.showConfirmDialog(getRootPane(), panel, rsc_bdl.getString("MINER.REMOTE.PLOT.ADD_TITLE"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.OK_OPTION && combo_box_1.getSelectedIndex() > -1 && combo_box_2.getSelectedIndex() > -1) {
 			long l = (Integer) fz_spinner.getValue();
 			if (fz_op.getSelectedItem().equals("MB")) {
@@ -185,7 +189,7 @@ public class PlotProgressPanel extends JPanel {
 			l = l / byte_per_nounce;
 
 			if (l < 10) {
-				JOptionPane.showMessageDialog(getRootPane(), "File size too small!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("PLOT.MSG.ERR.FILE.TOO_SMALL"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
@@ -201,7 +205,7 @@ public class PlotProgressPanel extends JPanel {
 						.header("Content-type", "application/json").build();
 				var response = client.send(request, BodyHandlers.ofString());
 				if (response.statusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Plot queued!");
+					UIUtil.displayMessage(rsc_bdl.getString("GENERAL.SUCCEED"), rsc_bdl.getString("MINER.REMOTE.PLOT.QUEUED"));
 					Util.submit(() -> {
 						for (var a = 0; a < 5; a++) {
 							refresh_current_plots();
@@ -210,7 +214,7 @@ public class PlotProgressPanel extends JPanel {
 						return null;
 					});
 				} else {
-					JOptionPane.showMessageDialog(getRootPane(), response.body(), "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), response.body(), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
@@ -230,10 +234,10 @@ public class PlotProgressPanel extends JPanel {
 					.header("Content-type", "application/json").build();
 			var response = client.send(request, BodyHandlers.ofString());
 			if (response.statusCode() == 200) {
-				UIUtil.displayMessage("Succeed", "");
+				UIUtil.displayMessage(rsc_bdl.getString("GENERAL.SUCCEED"), "");
 				Util.submit(() -> refresh_current_plots());
 			} else {
-				JOptionPane.showMessageDialog(getRootPane(), response.body(), "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), response.body(), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception x) {
 			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
@@ -245,10 +249,10 @@ public class PlotProgressPanel extends JPanel {
 			var request = HttpRequest.newBuilder().POST(BodyPublishers.noBody()).uri(new URI(basePath + plot_path + "/clear_done")).build();
 			var response = client.send(request, BodyHandlers.ofString());
 			if (response.statusCode() == 200) {
-				UIUtil.displayMessage("Succeed", "");
+				UIUtil.displayMessage(rsc_bdl.getString("GENERAL.SUCCEED"), "");
 				Util.submit(() -> refresh_current_plots());
 			} else {
-				JOptionPane.showMessageDialog(getRootPane(), response.body(), "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), response.body(), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception x) {
 			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);

@@ -2,12 +2,14 @@ package hk.zdl.crypto.pearlet.component.miner.local;
 
 import javax.swing.JTabbedPane;
 
+import hk.zdl.crypto.pearlet.util.Util;
+
 public class LocalMinerPanel extends JTabbedPane {
 
 	private static final long serialVersionUID = -5549092062588608169L;
 
 	public LocalMinerPanel() {
-		addTab("Start", new StartPanel(this));
+		addTab(Util.getResourceBundle().getString("MINER.TAB.LOCAL.START"), new StartPanel(this));
 	}
 
 	@Override

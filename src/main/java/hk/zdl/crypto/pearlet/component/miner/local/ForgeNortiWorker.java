@@ -1,6 +1,7 @@
 package hk.zdl.crypto.pearlet.component.miner.local;
 
 import java.awt.TrayIcon.MessageType;
+import java.text.MessageFormat;
 import java.time.Duration;
 
 import hk.zdl.crypto.pearlet.component.settings.DisplaySettings;
@@ -23,6 +24,7 @@ public class ForgeNortiWorker implements Runnable {
 
 	@Override
 	public void run() {
+		var rsc_bdl = Util.getResourceBundle();
 		var timestamp = -1L;
 		while (timestamp < 0 && running) {
 			try {
@@ -38,7 +40,10 @@ public class ForgeNortiWorker implements Runnable {
 					for (var i = 0; i < block_ids.length(); i++) {
 						var jobj = CryptoUtil.getSignumBlock(network, block_ids.getString(i));
 						var blockReward = jobj.getInt("blockReward");// Integer
-						UIUtil.displayMessage("" + blockReward + " " + coin_name + " have gained", "with id " + account, MessageType.INFO);
+						var line_1 = MessageFormat.format(rsc_bdl.getString("MINER.FORGE.TEXT_1"), blockReward, coin_name);
+						var line_2 = MessageFormat.format(rsc_bdl.getString("MINER.FORGE.TEXT_2"), account);
+						UIUtil.displayMessage(line_1, line_2, MessageType.INFO);
+
 						timestamp = Math.max(timestamp, jobj.getLong("timestamp"));
 					}
 				}

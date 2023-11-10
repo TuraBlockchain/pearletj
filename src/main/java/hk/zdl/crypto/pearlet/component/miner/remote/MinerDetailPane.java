@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.net.http.HttpClient;
+import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,6 +15,7 @@ import javax.swing.Timer;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.conf.MinerSettingsPane;
 import hk.zdl.crypto.pearlet.component.miner.remote.mining.MiningPanel;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class MinerDetailPane extends JTabbedPane implements ActionListener {
 
@@ -21,6 +23,7 @@ public class MinerDetailPane extends JTabbedPane implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 6324183845145603011L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private final Timer timer = new Timer((int) TimeUnit.SECONDS.toMillis(10), this);
 	private final StatusPane status_pane = new StatusPane();
 	private final MinerSettingsPane settings_pane = new MinerSettingsPane();
@@ -28,10 +31,10 @@ public class MinerDetailPane extends JTabbedPane implements ActionListener {
 	private final MiningPanel mining_panel = new MiningPanel();
 
 	public MinerDetailPane() {
-		add("Status", status_pane);
-		add("Configure", settings_pane);
-		add("Plot", plot_progress_panel);
-		add("Mining", mining_panel);
+		add(rsc_bdl.getString("MINER.REMOTE.TAB.STATUS"), status_pane);
+		add(rsc_bdl.getString("MINER.REMOTE.TAB.CONF"), settings_pane);
+		add(rsc_bdl.getString("MINER.REMOTE.TAB.PLOT"), plot_progress_panel);
+		add(rsc_bdl.getString("MINER.REMOTE.TAB.MINING"), mining_panel);
 
 		addComponentListener(new ComponentAdapter() {
 

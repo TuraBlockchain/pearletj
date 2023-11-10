@@ -9,6 +9,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
@@ -41,10 +42,11 @@ public class StartPanel extends JPanel {
 
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private static final long serialVersionUID = 1278363752513931443L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private final JList<String> path_list = new JList<>(new DefaultListModel<String>());
-	private final JButton add_btn = new JButton("Add");
-	private final JButton del_btn = new JButton("Delete");
-	private final JButton run_btn = new JButton("Run");
+	private final JButton add_btn = new JButton(rsc_bdl.getString("MINER.LOCAL.ADD"));
+	private final JButton del_btn = new JButton(rsc_bdl.getString("MINER.LOCAL.DEL"));
+	private final JButton run_btn = new JButton(rsc_bdl.getString("MINER.LOCAL.RUN"));
 	private LocalMinerPanel pane;
 	private CryptoNetwork network;
 	private String account;
@@ -54,7 +56,7 @@ public class StartPanel extends JPanel {
 		EventBus.getDefault().register(this);
 		this.pane = pane;
 		JScrollPane scr = new JScrollPane(path_list);
-		scr.setBorder(BorderFactory.createTitledBorder("Miner Paths"));
+		scr.setBorder(BorderFactory.createTitledBorder(rsc_bdl.getString("MINER.LOCAL.PATH.TEXT")));
 		add(scr, BorderLayout.CENTER);
 
 		var btn_panel = new JPanel(new GridBagLayout());
@@ -96,8 +98,8 @@ public class StartPanel extends JPanel {
 		});
 
 		var mining_menu = new JPopupMenu();
-		var solo_mining = new JMenuItem("Solo...");
-		var pool_mining = new JMenuItem("in Pool");
+		var solo_mining = new JMenuItem(rsc_bdl.getString("MINER.LOCAL.RUN.SOLO"));
+		var pool_mining = new JMenuItem(rsc_bdl.getString("MINER.LOCAL.RUN.POOL"));
 		Stream.of(solo_mining, pool_mining).forEach(mining_menu::add);
 
 		run_btn.addActionListener(e -> mining_menu.show(run_btn, 0, 0));
@@ -108,7 +110,7 @@ public class StartPanel extends JPanel {
 	private void start_mining(boolean solo) {
 		var l_m = ((DefaultListModel<String>) path_list.getModel());
 		if (l_m.isEmpty()) {
-			JOptionPane.showMessageDialog(getRootPane(), "Plot path unavailable!", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("MINER.LOCAL.ERR.MSG.PATH_UNA"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		try {
@@ -130,17 +132,18 @@ public class StartPanel extends JPanel {
 				}
 				if (passphrase == null) {
 					var icon = UIUtil.getStretchIcon("icon/wallet_2.svg", 64, 64);
-					passphrase = (String) JOptionPane.showInputDialog(getRootPane(), "Please input account passphrase:", "Start Mining", JOptionPane.INFORMATION_MESSAGE, icon, null, null);
+					passphrase = (String) JOptionPane.showInputDialog(getRootPane(), rsc_bdl.getString("MINER.LOCAL.INPUT.PHRASE"), rsc_bdl.getString("MINER.LOCAL.START"),
+							JOptionPane.INFORMATION_MESSAGE, icon, null, null);
 					if (passphrase == null) {
 						return;
 					} else if (passphrase.isBlank()) {
-						JOptionPane.showMessageDialog(getRootPane(), "Passphrase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("MINER.LOCAL.ERR.MSG.PHRASE_EMPTY"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 					passphrase = passphrase.trim();
 					var _id = SignumCrypto.getInstance().getAddressFromPassphrase(passphrase).getID();
 					if (!id.equals(_id)) {
-						JOptionPane.showMessageDialog(getRootPane(), "Passphrase not match with account ID!", "Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("MINER.LOCAL.ERR.MSG.PHRASE_NOT_MATCH"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 				}
@@ -149,11 +152,11 @@ public class StartPanel extends JPanel {
 					MyDb.insert_or_update_encpse(network.getId(), account_id, enc_pse);
 				}
 			} else {
-				url = JOptionPane.showInputDialog(getRootPane(), "Please input URL of pool:");
+				url = JOptionPane.showInputDialog(getRootPane(), rsc_bdl.getString("MINER.LOCAL.INPUT.POOL_URL"));
 				if (url == null) {
 					return;
 				} else if (url.isBlank()) {
-					JOptionPane.showMessageDialog(getRootPane(), "Pool URL cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("MINER.LOCAL.ERR.MSG.POOL_URL_EMPTY"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 					return;
 				} else {
 					new URL(url);
@@ -164,7 +167,7 @@ public class StartPanel extends JPanel {
 					_id = SignumAddress.fromEither(opt.get()).getID();
 				}
 				if (opt.isEmpty() || id.equals(_id)) {
-					JOptionPane.showMessageDialog(getRootPane(), "Reward recipient was not set for this account!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("MINER.LOCAL.ERR.MSG.REWARD_NOT_SET"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 			}
