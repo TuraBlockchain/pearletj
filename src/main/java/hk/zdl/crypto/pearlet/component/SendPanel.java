@@ -78,7 +78,7 @@ public class SendPanel extends JPanel {
 	private final JTextField fee_field = new JTextField("");
 	private final JSlider fee_slider = new JSlider();
 	private final JLayer<JPanel> jlayer = new JLayer<>();
-	private final JLabel fee_label = new JLabel(rsc_bdl.getString("GENERAL_FEE"));
+	private final JLabel fee_label = new JLabel(rsc_bdl.getString("GENERAL.FEE"));
 	private final WaitLayerUI wuli = new WaitLayerUI();
 	private final JComboBox<String> acc_combo_box = new JComboBox<>();
 	private final JComboBox<Object> token_combo_box = new JComboBox<>();
@@ -99,12 +99,12 @@ public class SendPanel extends JPanel {
 		jlayer.setUI(wuli);
 		var panel_1 = new JPanel(new GridBagLayout());
 		_panel.add(panel_1);
-		var label_1 = new JLabel(rsc_bdl.getString("GENERAL_ACCOUNT"));
+		var label_1 = new JLabel(rsc_bdl.getString("GENERAL.ACCOUNT"));
 		panel_1.add(label_1, newGridConst(0, 0, 3, 17));
-		var label_2 = new JLabel(rsc_bdl.getString("SEND_PANEL_BALANCE"));
+		var label_2 = new JLabel(rsc_bdl.getString("SEND_PANEL.BALANCE"));
 		label_2.setPreferredSize(new Dimension(100, 20));
 		panel_1.add(label_2, newGridConst(3, 0, 1, 17));
-		var label_3 = new JLabel(rsc_bdl.getString("SEND_PANEL_TOKEN"));
+		var label_3 = new JLabel(rsc_bdl.getString("SEND_PANEL.TOKEN"));
 		label_3.setPreferredSize(new Dimension(100, 20));
 		panel_1.add(label_3, newGridConst(4, 0, 1, 17));
 		acc_combo_box.setPreferredSize(new Dimension(300, 20));
@@ -113,7 +113,7 @@ public class SendPanel extends JPanel {
 		token_combo_box.setPreferredSize(new Dimension(100, 20));
 		panel_1.add(token_combo_box, newGridConst(4, 1, 1, 13));
 
-		var label_4 = new JLabel(rsc_bdl.getString("SEND_PANEL_RECP"));
+		var label_4 = new JLabel(rsc_bdl.getString("SEND_PANEL.RECP"));
 		panel_1.add(label_4, newGridConst(0, 2, 3, 17));
 		var rcv_field = new JTextField();
 		rcv_field.setPreferredSize(FIELD_DIMENSION);
@@ -121,7 +121,7 @@ public class SendPanel extends JPanel {
 
 		Stream.of(acc_combo_box, rcv_field).forEach(o -> o.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize())));
 
-		var label_5 = new JLabel(rsc_bdl.getString("SEND_PANEL_AMOUNT"));
+		var label_5 = new JLabel(rsc_bdl.getString("SEND_PANEL.AMOUNT"));
 		panel_1.add(label_5, newGridConst(0, 4, 3, 17));
 		var amt_field = new JTextField();
 		amt_field.setPreferredSize(FIELD_DIMENSION);
@@ -135,16 +135,16 @@ public class SendPanel extends JPanel {
 		panel_1.add(fee_panel, newGridConst(0, 7, 5));
 
 		var panel_3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		var msg_chk_box = new JCheckBox(rsc_bdl.getString("SEND_PANEL_ADDMSG"));
+		var msg_chk_box = new JCheckBox(rsc_bdl.getString("SEND_PANEL.ADDMSG"));
 		msg_chk_box.setPreferredSize(new Dimension(150, 30));
 		panel_3.add(msg_chk_box);
 		var msg_option_btn = new JButton("↓");
 		var msg_option_popup = new JPopupMenu();
-		var eny_msg_menu_item = new JCheckBoxMenuItem(rsc_bdl.getString("SEND_PANEL_ENC"));
+		var eny_msg_menu_item = new JCheckBoxMenuItem(rsc_bdl.getString("SEND_PANEL.ENC"));
 		msg_option_popup.add(eny_msg_menu_item);
-		var eny_msg_sub_menu = new JMenu(rsc_bdl.getString("SEND_PANEL_SEND_AS"));
+		var eny_msg_sub_menu = new JMenu(rsc_bdl.getString("SEND_PANEL.SEND_AS"));
 		msg_option_popup.add(eny_msg_sub_menu);
-		var plain_text_option_menu_item = new JRadioButtonMenuItem(rsc_bdl.getString("SEND_PANEL_PLAIN_TEXT"), true);
+		var plain_text_option_menu_item = new JRadioButtonMenuItem(rsc_bdl.getString("SEND_PANEL.PLAIN_TEXT"), true);
 		eny_msg_sub_menu.add(plain_text_option_menu_item);
 		var base64_option_menu_item = new JRadioButtonMenuItem("Base64", false);
 		eny_msg_sub_menu.add(base64_option_menu_item);
@@ -166,7 +166,7 @@ public class SendPanel extends JPanel {
 		msg_scr.setPreferredSize(new Dimension(500, 200));
 		panel_1.add(msg_scr, newGridConst(0, 9, 5));
 
-		send_btn = new JButton(rsc_bdl.getString("SEND_PANEL_BTN_TEXT"), UIUtil.getStretchIcon("toolbar/paper-plane-solid.svg", 32, 32));
+		send_btn = new JButton(rsc_bdl.getString("SEND_PANEL.BTN_TEXT"), UIUtil.getStretchIcon("toolbar/paper-plane-solid.svg", 32, 32));
 		send_btn.setFont(new Font("Arial Black", Font.PLAIN, 32));
 		send_btn.setMultiClickThreshhold(300);
 		send_btn.setEnabled(false);
@@ -229,11 +229,11 @@ public class SendPanel extends JPanel {
 		});
 		send_btn.addActionListener(e -> {
 			if (rcv_field.getText().isBlank()) {
-				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL_RECP_EMPTY"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL.RECP_EMPTY"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.INFORMATION_MESSAGE);
 				return;
 			} else {
 				if (!CryptoUtil.isValidAddress(network, rcv_field.getText())) {
-					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL_INVALID_ADDRESS"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL.INVALID_ADDRESS"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 			}
@@ -244,7 +244,7 @@ public class SendPanel extends JPanel {
 					throw new IllegalArgumentException();
 				}
 			} catch (Exception x) {
-				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL_INVALID_AMOUNT"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL.INVALID_AMOUNT"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			String asset_id = null;
@@ -272,7 +272,7 @@ public class SendPanel extends JPanel {
 				if (plain_text_option_menu_item.isSelected()) {
 					String str = msg_area.getText().trim();
 					if (str.getBytes().length > 1000) {
-						JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL_MSG_2_LONG"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL.MSG_2_LONG"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 					send_tx.setMessage(str);
@@ -281,11 +281,11 @@ public class SendPanel extends JPanel {
 					try {
 						bArr = Base64.decode(msg_area.getText().trim());
 					} catch (Exception x) {
-						JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL_ERR_1") , rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL.ERR_1") , rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 					if (bArr.length > 1000) {
-						JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL_MSG_2_LONG"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL.MSG_2_LONG"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 					send_tx.setMessage(bArr);
@@ -299,7 +299,7 @@ public class SendPanel extends JPanel {
 					if (send_tx.call()) {
 						b = true;
 					} else {
-						JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL_FAIL_1"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL.FAIL_1"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 					}
 				} catch (Throwable x) {
 					while (x.getCause() != null) {
@@ -316,7 +316,7 @@ public class SendPanel extends JPanel {
 					send_btn.setEnabled(true);
 				}
 				if (b) {
-					UIUtil.displayMessage(rsc_bdl.getString("SEND_PANEL_TITLE"), rsc_bdl.getString("SEND_PANEL_DONE_MSG"));
+					UIUtil.displayMessage(rsc_bdl.getString("SEND_PANEL.TITLE"), rsc_bdl.getString("SEND_PANEL.DONE_MSG"));
 					var old = balance_label.getText();
 					var acc = account;
 					for (var i = 0; i < 5; i++) {
@@ -328,7 +328,7 @@ public class SendPanel extends JPanel {
 						}
 					}
 				} else {
-					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL_FAIL_2"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SEND_PANEL.FAIL_2"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				}
 				return null;
 			});

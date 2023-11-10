@@ -13,8 +13,8 @@ public class AlisePanel extends JTabbedPane {
 
 	public AlisePanel() {
 		var rsc_bdl = Util.getResourceBundle();
-		add(new AliseSearchPanel(),rsc_bdl.getString("ALISE_PANEL_SEARCH"));
-		add(new AliseRegisterPanel(),rsc_bdl.getString("ALISE_PANEL_REG"));
+		add(new AliseSearchPanel(),rsc_bdl.getString("ALISE.PANEL.SEARCH"));
+		add(new AliseRegisterPanel(),rsc_bdl.getString("ALISE.PANEL.REG"));
 	}
 
 }

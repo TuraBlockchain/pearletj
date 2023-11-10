@@ -14,8 +14,8 @@ public class AccountInfoPanel extends JTabbedPane {
 		var rsc_bdl = Util.getResourceBundle();
 		var panel = new JPanel(new FlowLayout());
 		panel.add(new SetAccountInfoPanel());
-		addTab(rsc_bdl.getString("ACCOUNT_INFO_PANEL_COPY"), new CopyAccountInfoPanel());
-		addTab(rsc_bdl.getString("ACCOUNT_INFO_PANEL_SET"), panel);
+		addTab(rsc_bdl.getString("ACCOUNT_INFO_PANEL.COPY"), new CopyAccountInfoPanel());
+		addTab(rsc_bdl.getString("ACCOUNT_INFO_PANEL.SET"), panel);
 	}
 
 }

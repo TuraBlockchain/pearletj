@@ -36,11 +36,11 @@ public class CopyAccountInfoPanel extends JPanel {
 	public CopyAccountInfoPanel() {
 		super(new FlowLayout());
 		EventBus.getDefault().register(this);
-		btn_0 = new JButton(rsc_bdl.getString("GENERAL_ACID"));
-		btn_1 = new JButton(rsc_bdl.getString("GENERAL_ADDR"));
-		btn_2 = new JButton(rsc_bdl.getString("COPY_ACCOUNT_INFO_PANEL_EXT_ADR"));
-		btn_3 = new JButton(rsc_bdl.getString("GENERAL_PUBLIC_KEY"));
-		btn_4 = new JButton(rsc_bdl.getString("COPY_ACCOUNT_INFO_PANEL_MORE"));
+		btn_0 = new JButton(rsc_bdl.getString("GENERAL.ACID"));
+		btn_1 = new JButton(rsc_bdl.getString("GENERAL.ADDR"));
+		btn_2 = new JButton(rsc_bdl.getString("COPY_ACCOUNT_INFO.PANEL_EXT_ADR"));
+		btn_3 = new JButton(rsc_bdl.getString("GENERAL.PUBLIC_KEY"));
+		btn_4 = new JButton(rsc_bdl.getString("COPY_ACCOUNT_INFO.PANEL_MORE"));
 		Stream.of(btn_0, btn_1, btn_2, btn_3, btn_4).forEach(btns::add);
 		btns.stream().forEach(this::add);
 

@@ -40,7 +40,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 	private static ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final long serialVersionUID = -8477305312112985648L;
 	private final JProgressBar bar = new JProgressBar();
-	private final JButton btn = new JButton(rsc_bdl.getString("JOIN_POOL_BTN_TEXT"));
+	private final JButton btn = new JButton(rsc_bdl.getString("JOIN_POOL.BTN_TEXT"));
 	private CryptoNetwork network;
 	private BigInteger cheap_fee = BigInteger.ZERO;
 	private String account;
@@ -48,12 +48,12 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 	public JoinPoolPanel() {
 		super(new GridBagLayout());
 		EventBus.getDefault().register(this);
-		add(new JLabel(rsc_bdl.getString("JOIN_POOL_RCP_LABEL")), new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		add(new JLabel(rsc_bdl.getString("JOIN_POOL.RCP_LABEL")), new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		add(bar, new GridBagConstraints(1, 0, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 		add(btn, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		btn.addActionListener(this);
 		bar.setStringPainted(true);
-		bar.setString(rsc_bdl.getString("GENERAL_NONE"));
+		bar.setString(rsc_bdl.getString("GENERAL.NONE"));
 	}
 
 	@Subscribe(threadMode = ThreadMode.ASYNC)
@@ -81,9 +81,9 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 		var txt_field = new JTextField(30);
 		var label = new JLabel();
 		label.setHorizontalAlignment(SwingConstants.RIGHT);
-		panel.add(new JLabel(rsc_bdl.getString("JOIN_POOL_LABEL_1")), new GridBagConstraints(0, 0, 2, 1, 2, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(new JLabel(rsc_bdl.getString("JOIN_POOL.LABEL_1")), new GridBagConstraints(0, 0, 2, 1, 2, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 		panel.add(txt_field, new GridBagConstraints(0, 1, 2, 1, 2, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-		panel.add(new JLabel(rsc_bdl.getString("GENERAL_FEE")), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(new JLabel(rsc_bdl.getString("GENERAL.FEE")), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		panel.add(label, new GridBagConstraints(1, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		Util.submit(() -> {
 			var decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
@@ -92,7 +92,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 			return null;
 		});
 		var pane = new JOptionPane(panel, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-		var dlg = pane.createDialog(getRootPane(), rsc_bdl.getString("JOIN_POOL_DIALOG_TITLE"));
+		var dlg = pane.createDialog(getRootPane(), rsc_bdl.getString("JOIN_POOL.DIALOG_TITLE"));
 		dlg.addWindowFocusListener(new WindowAdapter() {
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
@@ -104,10 +104,10 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 		if (pane.getValue().equals(JOptionPane.OK_OPTION)) {
 			var target = txt_field.getText();
 			if (target.isBlank()) {
-				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("JOIN_POOL_ERR_1"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("JOIN_POOL.ERR_1"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				return;
 			} else if (SignumAddress.fromEither(target) == null) {
-				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("JOIN_POOL_ERR_2"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("JOIN_POOL.ERR_2"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			Util.submit(() -> {
@@ -123,11 +123,11 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 						public_key = opt_r.get().getPublicKey();
 						private_key = opt_r.get().getPrivateKey();
 						if (private_key.length < 1) {
-							JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("JOIN_POOL_ERR_3"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("JOIN_POOL.ERR_3"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 							return;
 						}
 					} else {
-						JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("JOIN_POOL_ERR_4"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("JOIN_POOL.ERR_4"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 					check_permission();
@@ -135,7 +135,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 					byte[] unsigned = CryptoUtil.setRewardRecipient(network, account, public_key, target, fee_dml);
 					byte[] signed = CryptoUtil.signTransaction(network, private_key, unsigned);
 					CryptoUtil.broadcastTransaction(network, signed);
-					UIUtil.displayMessage(rsc_bdl.getString("JOIN_POOL_TITLE"), rsc_bdl.getString("JOIN_POOL_COMPLETE_MSG_TEXT"));
+					UIUtil.displayMessage(rsc_bdl.getString("JOIN_POOL.TITLE"), rsc_bdl.getString("JOIN_POOL.COMPLETE_MSG_TEXT"));
 					update();
 				} catch (Exception x) {
 					UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
@@ -153,7 +153,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 			var decimalPlaces = CryptoUtil.getConstants(network).getInt("decimalPlaces");
 			var _c_bal = new BigDecimal(committed_balance.toNQT(), decimalPlaces);
 			if (_c_bal.compareTo(new BigDecimal("10000")) < 0) {
-				throw new IllegalStateException(rsc_bdl.getString("JOIN_POOL_ERR_5"));
+				throw new IllegalStateException(rsc_bdl.getString("JOIN_POOL.ERR_5"));
 			}
 		}
 	}
@@ -164,7 +164,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 		Util.submit(() -> cheap_fee = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT());
 		for (int j = 0; j < 100; j++) {
 			try {
-				bar.setString(CryptoUtil.getRewardRecipient(network, account).orElse(rsc_bdl.getString("GENERAL_NONE")));
+				bar.setString(CryptoUtil.getRewardRecipient(network, account).orElse(rsc_bdl.getString("GENERAL.NONE")));
 				break;
 			} catch (RuntimeException | SocketTimeoutException | InterruptedException | ThreadDeath x) {
 			} catch (Exception x) {

@@ -60,20 +60,20 @@ public class AboutPanel extends JPanel {
 		appNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		sw_info.add(appNameLabel, new GridBagConstraints(0, 1, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var appVer = Util.getAppVersion();
-		sw_info.add(new_label(rsc_bdl.getString("ABOUT_PANEL_VERSION"), false), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		sw_info.add(new_label(rsc_bdl.getString("ABOUT.PANEL.VERSION"), false), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		sw_info.add(new_label(appVer, true), new GridBagConstraints(1, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-		sw_info.add(new_label(rsc_bdl.getString("ABOUT_PANEL_BUILD"), false), new GridBagConstraints(0, 3, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		sw_info.add(new_label(rsc_bdl.getString("ABOUT.PANEL.BUILD"), false), new GridBagConstraints(0, 3, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var appBuild = Stream.of(Util.getTime(getClass())).filter(o -> o != null && o != -1).map(o -> {
 			var sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.SIMPLIFIED_CHINESE);
 			sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
 			return sdf.format(new Date(o));
-		}).findFirst().orElse(rsc_bdl.getString("ABOUT_PANEL_FROM_SOURCE_CODE"));
+		}).findFirst().orElse(rsc_bdl.getString("ABOUT.PANEL.FROM_SOURCE_CODE"));
 		sw_info.add(new_label(appBuild, true), new GridBagConstraints(1, 3, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
 
-		sw_info.add(new_label(rsc_bdl.getString("ABOUT_PANEL_AUTHOR"), false), new GridBagConstraints(0, 4, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		sw_info.add(new_label(rsc_bdl.getString("ABOUT.PANEL.AUTHOR"), false), new GridBagConstraints(0, 4, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		sw_info.add(new_label(Util.getProp().get("authorFullName"), true), new GridBagConstraints(1, 4, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
-		sw_info.add(new_label(rsc_bdl.getString("ABOUT_PANEL_LICENSE"), false), new GridBagConstraints(0, 5, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		sw_info.add(new_label(rsc_bdl.getString("ABOUT.PANEL.LICENSE"), false), new GridBagConstraints(0, 5, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var lic_label = new_label(Util.getProp().get("license"), true);
 		lic_label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		sw_info.add(lic_label, new GridBagConstraints(1, 5, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
@@ -99,7 +99,7 @@ public class AboutPanel extends JPanel {
 		dec_pane.setEditable(false);
 		dec_pane.setWrapStyleWord(true);
 		dec_pane.setLineWrap(true);
-		set_titled_border(dec_pane, rsc_bdl.getString("ABOUT_PANEL_DISCLAIMER"));
+		set_titled_border(dec_pane, rsc_bdl.getString("ABOUT.PANEL.DISCLAIMER"));
 		dec_pane.setMinimumSize(new Dimension(600, 300));
 		add(dec_pane, Component.LEFT_ALIGNMENT);
 
@@ -107,7 +107,7 @@ public class AboutPanel extends JPanel {
 		pwby_pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		pwby_pane.setBorder(BorderFactory.createEmptyBorder());
 		pwby_pane.setViewportView(create_badge_panel());
-		set_titled_border(pwby_pane, rsc_bdl.getString("ABOUT_PANEL_POWERED_BY"));
+		set_titled_border(pwby_pane, rsc_bdl.getString("ABOUT.PANEL.POWERED_BY"));
 		add(pwby_pane, Component.LEFT_ALIGNMENT);
 
 	}

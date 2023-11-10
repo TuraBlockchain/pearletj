@@ -28,7 +28,7 @@ public class TrayIconMenu implements ItemListener, ActionListener {
 
 	private static ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private final CheckboxMenuItem lock_menu_item = new CheckboxMenuItem();
-	private final MenuItem quit_menu_item = new MenuItem(rsc_bdl.getString("TRAY_QUIT"));
+	private final MenuItem quit_menu_item = new MenuItem(rsc_bdl.getString("TRAY.QUIT"));
 	private final JFrame frame;
 
 	public TrayIconMenu(Image app_icon, JFrame frame) {
@@ -71,7 +71,7 @@ public class TrayIconMenu implements ItemListener, ActionListener {
 				if (o.get()) {
 					EventBus.getDefault().post(new WalletLockEvent(WalletLockEvent.Type.UNLOCK));
 				} else {
-					JOptionPane.showMessageDialog(frame, rsc_bdl.getString("TRAY_WRONG_PW"), null, JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(frame, rsc_bdl.getString("TRAY.WRONG_PW"), null, JOptionPane.ERROR_MESSAGE);
 					lock_menu_item.setState(true);
 				}
 			} else {
@@ -83,10 +83,10 @@ public class TrayIconMenu implements ItemListener, ActionListener {
 	@Subscribe(threadMode = ThreadMode.ASYNC)
 	public void onMessage(WalletLockEvent e) {
 		if (e.type == WalletLockEvent.Type.LOCK) {
-			lock_menu_item.setLabel(rsc_bdl.getString("TRAY_LOCK"));
+			lock_menu_item.setLabel(rsc_bdl.getString("TRAY.LOCK"));
 			lock_menu_item.setState(true);
 		} else {
-			lock_menu_item.setLabel(rsc_bdl.getString("TRAY_UNLOCK"));
+			lock_menu_item.setLabel(rsc_bdl.getString("TRAY.UNLOCK"));
 			lock_menu_item.setState(false);
 		}
 	}
