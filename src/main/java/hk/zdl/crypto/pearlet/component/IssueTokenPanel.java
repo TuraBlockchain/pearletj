@@ -8,6 +8,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,6 +27,7 @@ import javax.swing.border.TitledBorder;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.lock.CryptoAccount;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class IssueTokenPanel extends JPanel {
 
@@ -32,6 +35,7 @@ public class IssueTokenPanel extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = -7832999111340079831L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private final Component root;
 	private final CryptoNetwork nw;
 	private final String account;
@@ -51,38 +55,39 @@ public class IssueTokenPanel extends JPanel {
 
 	private void init() {
 		var warning_panel = new JPanel(new GridLayout(0, 1));
-		warning_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()), "Warning", TitledBorder.CENTER, TitledBorder.TOP, getFont(), getForeground()));
-		warning_panel.add(new JLabel("Once submitted, you will not be able to change this information again, ever."));
-		warning_panel.add(new JLabel("Make sure it is correct."));
+		warning_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createDashedBorder(getForeground()), rsc_bdl.getString("GENERAL_WARNING"), TitledBorder.CENTER, TitledBorder.TOP,
+				getFont(), getForeground()));
+		warning_panel.add(new JLabel(rsc_bdl.getString("ISSUE_TOKEN_PANEL_TEXT_1")));
+		warning_panel.add(new JLabel(rsc_bdl.getString("ISSUE_TOKEN_PANEL_TEXT_2")));
 		add(warning_panel, new GridBagConstraints(0, 0, 4, 2, 1, 0, 11, 2, new Insets(0, 0, 0, 0), 0, 0));
 
-		var token_name_label = new JLabel("Token Name");
+		var token_name_label = new JLabel(rsc_bdl.getString("ISSUE_TOKEN_PANEL_TOKEN_NAME"));
 		add(token_name_label, new GridBagConstraints(0, 3, 1, 1, 0, 0, 17, 2, new Insets(0, 0, 0, 0), 0, 0));
 
 		add(token_name_field, new GridBagConstraints(0, 4, 4, 1, 0, 0, 10, 2, new Insets(0, 0, 0, 0), 0, 0));
-		token_name_field.setToolTipText("The token name is non-unique. Should be between 3 and 10 characters long.");
+		token_name_field.setToolTipText(rsc_bdl.getString("ISSUE_TOKEN_PANEL_TOKEN_NAME_TOOL_TIP"));
 
-		var token_desc_label = new JLabel("Description");
+		var token_desc_label = new JLabel(rsc_bdl.getString("GENERAL_DESC"));
 		add(token_desc_label, new GridBagConstraints(0, 5, 1, 1, 0, 0, 17, 2, new Insets(0, 0, 0, 0), 0, 0));
 		var token_desc_scr = new JScrollPane(token_desc_area);
 		add(token_desc_scr, new GridBagConstraints(0, 6, 4, 2, 0, 0, 10, 2, new Insets(0, 0, 0, 0), 0, 0));
 
-		var qty_label = new JLabel("Quantity");
+		var qty_label = new JLabel(rsc_bdl.getString("ISSUE_TOKEN_PANEL_QTY"));
 		add(qty_label, new GridBagConstraints(0, 8, 2, 1, 0, 0, 17, 2, new Insets(0, 0, 0, 0), 0, 0));
-		var dec_label = new JLabel("Decimals");
+		var dec_label = new JLabel(rsc_bdl.getString("ISSUE_TOKEN_PANEL_DSC"));
 		add(dec_label, new GridBagConstraints(2, 8, 2, 1, 0, 0, 17, 2, new Insets(0, 0, 0, 0), 0, 0));
 
 		qty_spinner.setPreferredSize(new Dimension(200, 25));
 		add(qty_spinner, new GridBagConstraints(0, 9, 2, 1, 1, 0, 17, 2, new Insets(0, 0, 0, 0), 0, 0));
 
 		add(dec_spinner, new GridBagConstraints(2, 9, 2, 1, 1, 0, 13, 2, new Insets(0, 0, 0, 0), 0, 0));
-		dec_spinner.setToolTipText("The maximum allowed number of digits after the token quantity decimal point.");
+		dec_spinner.setToolTipText(rsc_bdl.getString("ISSUE_TOKEN_PANEL_DSC_TOOL_TIP"));
 
-		var fee_label = new JLabel("Fee");
+		var fee_label = new JLabel(rsc_bdl.getString("GENERAL_FEE"));
 		add(fee_label, new GridBagConstraints(0, 10, 4, 1, 1, 0, 17, 2, new Insets(0, 0, 0, 0), 0, 0));
 
 		var symbol = "";
-		fee_spinner.setToolTipText("The minimum fee to issue a token is 1,000 " + symbol + ".");
+		fee_spinner.setToolTipText(MessageFormat.format(rsc_bdl.getString("ISSUE_TOKEN_PANEL_MIN_FEE_TOOL_TIP"), "1000", symbol));
 		var symbol_label = new JLabel(symbol);
 		var fee_spinner_panel = new JPanel(new BorderLayout());
 		fee_spinner_panel.add(fee_spinner, BorderLayout.CENTER);
@@ -92,23 +97,23 @@ public class IssueTokenPanel extends JPanel {
 	}
 
 	public boolean showConfirmDialog() {
-		int i = JOptionPane.showConfirmDialog(root, this, "Issue Token", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		int i = JOptionPane.showConfirmDialog(root, this, rsc_bdl.getString("ISSUE_TOKEN_PANEL_TITLE"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (i != JOptionPane.OK_OPTION) {
 			return false;
 		}
 		if (token_name_field.getText().isBlank()) {
-			JOptionPane.showMessageDialog(root, "Token Name Required", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(root, rsc_bdl.getString("ISSUE_TOKEN_NAME_REQUIRED"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
 			return false;
 		} else if (token_name_field.getText().length() < 3 || token_name_field.getText().length() > 10) {
-			JOptionPane.showMessageDialog(root, "Incorrect Name, name must be in [3...10]", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(root, rsc_bdl.getString("ISSUE_TOKEN_NAME_INCOORECT"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
 			return false;
 		} else if (token_desc_area.getText().isBlank()) {
-			JOptionPane.showMessageDialog(root, "Description is a required field.", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(root, rsc_bdl.getString("ISSUE_TOKEN_DESC_MISSING"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
 			return false;
 		} else {
 			for (Character c : token_name_field.getText().toCharArray()) {
 				if (!Character.isLetterOrDigit(c)) {
-					JOptionPane.showMessageDialog(root, "Invalud Name!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(root, rsc_bdl.getString("ISSUE_TOKEN_NAME_INVALID"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
 			}
@@ -118,7 +123,7 @@ public class IssueTokenPanel extends JPanel {
 			byte[] public_key = r.getPublicKey();
 			byte[] private_key = r.getPrivateKey();
 			byte[] unsigned_tx = CryptoUtil.issueAsset(nw, token_name_field.getText().trim(), token_desc_area.getText().trim(), (Long) qty_spinner.getValue(),
-					CryptoUtil.toSignumValue(nw,new BigDecimal((Long) fee_spinner.getValue())).toNQT().longValue(), public_key);
+					CryptoUtil.toSignumValue(nw, new BigDecimal((Long) fee_spinner.getValue())).toNQT().longValue(), public_key);
 			byte[] signed_tx = CryptoUtil.signTransaction(nw, private_key, unsigned_tx);
 			CryptoUtil.broadcastTransaction(nw, signed_tx);
 		} catch (Throwable x) {

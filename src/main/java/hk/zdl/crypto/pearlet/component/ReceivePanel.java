@@ -30,6 +30,7 @@ import org.java_websocket.util.Base64;
 import org.json.JSONObject;
 
 import hk.zdl.crypto.pearlet.component.event.AccountChangeEvent;
+import hk.zdl.crypto.pearlet.util.Util;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
 
@@ -90,7 +91,11 @@ public class ReceivePanel extends JPanel {
 				JSONObject jobj = new JSONObject();
 				jobj.put("recipient", e.account);
 				String str = Base64.encodeBytes(jobj.toString().getBytes());
-				qr_str = "signum://v1?action=pay&payload=" + str;
+				var scheme = "tura";
+				if (Util.is_signum_server_address(e.network.getUrl())) {
+					scheme = "signum";
+				}
+				qr_str = scheme + "://v1?action=pay&payload=" + str;
 			} else if (e.network.isWeb3J()) {
 				qr_str = "ethereum:" + e.account;
 			}

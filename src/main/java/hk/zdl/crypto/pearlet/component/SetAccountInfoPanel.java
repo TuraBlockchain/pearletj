@@ -9,6 +9,7 @@ import java.awt.Insets;
 import java.awt.TrayIcon.MessageType;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -39,6 +40,7 @@ import hk.zdl.crypto.pearlet.util.Util;
 public class SetAccountInfoPanel extends JPanel {
 
 	private static final Dimension FIELD_DIMENSION = new Dimension(500, 20);
+	private final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private final JComboBox<String> acc_combo_box = new JComboBox<>();
 	private final JSlider fee_slider = new JSlider();
 	private int decimalPlaces = 8;
@@ -49,7 +51,7 @@ public class SetAccountInfoPanel extends JPanel {
 	public SetAccountInfoPanel() {
 		super(new GridBagLayout());
 		EventBus.getDefault().register(this);
-		var label_1 = new JLabel("Account");
+		var label_1 = new JLabel(rsc_bdl.getString("GENERAL_ACCOUNT"));
 		add(label_1, newGridConst(0, 0, 3, 17));
 		acc_combo_box.setPreferredSize(new Dimension(300, 20));
 		add(acc_combo_box, newGridConst(0, 1, 3));
@@ -62,13 +64,13 @@ public class SetAccountInfoPanel extends JPanel {
 		name_field.setPreferredSize(FIELD_DIMENSION);
 		add(name_field, newGridConst(0, 3, 5));
 
-		var label_5 = new JLabel("Description");
+		var label_5 = new JLabel(rsc_bdl.getString("GENERAL_DESC"));
 		add(label_5, newGridConst(0, 4, 3, 17));
 		var desc_field = new JTextField();
 		desc_field.setPreferredSize(FIELD_DIMENSION);
 		add(desc_field, newGridConst(0, 5, 5));
 
-		var label_6 = new JLabel("Fee");
+		var label_6 = new JLabel(rsc_bdl.getString("GENERAL_FEE"));
 		add(label_6, newGridConst(0, 6, 3, 17));
 		var fee_field = new JTextField("0.05");
 		var fee_panel = new JPanel(new GridLayout(1, 0));
@@ -79,7 +81,7 @@ public class SetAccountInfoPanel extends JPanel {
 		add(fee_panel, newGridConst(0, 7, 5));
 
 		var send_icon = UIUtil.getStretchIcon("toolbar/paper-plane-solid.svg", 32, 32);
-		var send_btn = new JButton("Update Account Info", send_icon);
+		var send_btn = new JButton(rsc_bdl.getString("SET_ACCOUNT_INFO_PANEL_BTN_TEXT"), send_icon);
 		try {
 			var btn_img = ImageIO.read(Util.getResource("icon/spinner-solid.svg"));
 			var busy_icon = new SpinableIcon(btn_img, 32, 32);
@@ -91,10 +93,10 @@ public class SetAccountInfoPanel extends JPanel {
 		add(send_btn, new GridBagConstraints(4, 0, 1, 3, 0, 0, 10, 1, new Insets(5, 5, 5, 0), 0, 0));
 		send_btn.addActionListener(e -> {
 			if (name_field.getText().isBlank()) {
-				JOptionPane.showMessageDialog(getRootPane(), "Name cannot be empty!", null, JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SET_ACCOUNT_INFO_PANEL_NAME_CANNOT_BE_EMPTY"), null, JOptionPane.ERROR_MESSAGE);
 				return;
 			} else if (desc_field.getText().isBlank()) {
-				JOptionPane.showMessageDialog(getRootPane(), "Description cannot be empty!", null, JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("SET_ACCOUNT_INFO_PANEL_DESC_CANNOT_BE_EMPTY"), null, JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			send_btn.setEnabled(false);
@@ -109,7 +111,7 @@ public class SetAccountInfoPanel extends JPanel {
 							var ugsigned_tx = CryptoUtil.setAccountInfo(network, name_field.getText().trim(), desc_field.getText().trim(), feeNQT, public_key);
 							var signed_tx = CryptoUtil.signTransaction(network, private_key, ugsigned_tx);
 							CryptoUtil.broadcastTransaction(network, signed_tx);
-							UIUtil.displayMessage("Set Account Info", "Account Info is set!", MessageType.INFO);
+							UIUtil.displayMessage(rsc_bdl.getString("SET_ACCOUNT_INFO_MESSAGE_TITLE"), rsc_bdl.getString("SET_ACCOUNT_INFO_MESSAGE_TEXT"), MessageType.INFO);
 						} catch (Exception x) {
 							UIUtil.displayMessage(x.getClass().getSimpleName(), x.getMessage(), MessageType.ERROR);
 						}

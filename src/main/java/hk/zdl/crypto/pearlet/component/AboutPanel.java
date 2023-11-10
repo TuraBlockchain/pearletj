@@ -15,6 +15,7 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,10 +42,11 @@ import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class AboutPanel extends JPanel {
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	public AboutPanel() {
-		setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		var sw_info = new JPanel(new GridBagLayout());
 		var icon = new JLabel();
 		icon.setHorizontalAlignment(SwingConstants.CENTER);
@@ -58,20 +60,20 @@ public class AboutPanel extends JPanel {
 		appNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		sw_info.add(appNameLabel, new GridBagConstraints(0, 1, 2, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var appVer = Util.getAppVersion();
-		sw_info.add(new_label("Version:", false), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		sw_info.add(new_label(rsc_bdl.getString("ABOUT_PANEL_VERSION"), false), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		sw_info.add(new_label(appVer, true), new GridBagConstraints(1, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-		sw_info.add(new_label("Build:", false), new GridBagConstraints(0, 3, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		sw_info.add(new_label(rsc_bdl.getString("ABOUT_PANEL_BUILD"), false), new GridBagConstraints(0, 3, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var appBuild = Stream.of(Util.getTime(getClass())).filter(o -> o != null && o != -1).map(o -> {
 			var sdf = new SimpleDateFormat("yyyyMMddHHmmss", Locale.SIMPLIFIED_CHINESE);
 			sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
 			return sdf.format(new Date(o));
-		}).findFirst().orElse("from source code");
+		}).findFirst().orElse(rsc_bdl.getString("ABOUT_PANEL_FROM_SOURCE_CODE"));
 		sw_info.add(new_label(appBuild, true), new GridBagConstraints(1, 3, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
 
-		sw_info.add(new_label("Author:", false), new GridBagConstraints(0, 4, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		sw_info.add(new_label(rsc_bdl.getString("ABOUT_PANEL_AUTHOR"), false), new GridBagConstraints(0, 4, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		sw_info.add(new_label(Util.getProp().get("authorFullName"), true), new GridBagConstraints(1, 4, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
-		sw_info.add(new_label("License:", false), new GridBagConstraints(0, 5, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		sw_info.add(new_label(rsc_bdl.getString("ABOUT_PANEL_LICENSE"), false), new GridBagConstraints(0, 5, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var lic_label = new_label(Util.getProp().get("license"), true);
 		lic_label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		sw_info.add(lic_label, new GridBagConstraints(1, 5, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
@@ -88,7 +90,7 @@ public class AboutPanel extends JPanel {
 				}
 			}
 		});
-		sw_info.setMaximumSize(new Dimension(300,400));
+		sw_info.setMaximumSize(new Dimension(300, 400));
 		add(sw_info, Component.CENTER_ALIGNMENT);
 
 		var dec_pane = new JTextArea();
@@ -97,15 +99,15 @@ public class AboutPanel extends JPanel {
 		dec_pane.setEditable(false);
 		dec_pane.setWrapStyleWord(true);
 		dec_pane.setLineWrap(true);
-		set_titled_border(dec_pane, "Disclaimer:");
-		dec_pane.setMinimumSize(new Dimension(600,300));
+		set_titled_border(dec_pane, rsc_bdl.getString("ABOUT_PANEL_DISCLAIMER"));
+		dec_pane.setMinimumSize(new Dimension(600, 300));
 		add(dec_pane, Component.LEFT_ALIGNMENT);
 
 		var pwby_pane = new JScrollPane();
 		pwby_pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 		pwby_pane.setBorder(BorderFactory.createEmptyBorder());
 		pwby_pane.setViewportView(create_badge_panel());
-		set_titled_border(pwby_pane, "Powered By:");
+		set_titled_border(pwby_pane, rsc_bdl.getString("ABOUT_PANEL_POWERED_BY"));
 		add(pwby_pane, Component.LEFT_ALIGNMENT);
 
 	}

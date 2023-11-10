@@ -8,6 +8,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -26,7 +27,7 @@ import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
-public class AlisesSearchPanel extends JPanel {
+public class AliseSearchPanel extends JPanel {
 
 	/**
 	 * 
@@ -38,12 +39,13 @@ public class AlisesSearchPanel extends JPanel {
 	private final JPanel center_card_panel = new JPanel(card_layout_1);
 	private final RoundJTextField field_1 = new RoundJTextField(30);
 	private final RoundJTextField field_2 = new RoundJTextField(30);
+	private final ResourceBundle rsc_bdl = Util.getResourceBundle();
 
-	public AlisesSearchPanel() {
+	public AliseSearchPanel() {
 		super(new BorderLayout());
 		var center_panel = new JPanel(new GridBagLayout());
-		var label_1 = new JLabel("Name:");
-		var label_2 = new JLabel("Address:");
+		var label_1 = new JLabel(rsc_bdl.getString("ALISE_SEARCH_PANEL_NAME"));
+		var label_2 = new JLabel(rsc_bdl.getString("ALISE_SEARCH_PANEL_ADDRESS"));
 		center_panel.add(label_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
 		center_panel.add(label_2, new GridBagConstraints(0, 2, 1, 1, 0, 0, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
 		center_panel.add(field_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
@@ -54,8 +56,8 @@ public class AlisesSearchPanel extends JPanel {
 		progress_bar.setIndeterminate(true);
 		center_card_panel.add(progress_bar, "progress_bar");
 		center_panel.add(center_card_panel, new GridBagConstraints(1, 1, 1, 1, 0, 0, 10, 1, new Insets(0, 0, 0, 0), 0, 0));
-		var resolve_btn = new JButton("Resolve", UIUtil.getStretchIcon("icon/" + "arrow-down.svg", icon_size, icon_size));
-		var r_resolve_btn = new JButton("Reverse Resolve", UIUtil.getStretchIcon("icon/" + "arrow-up.svg", icon_size, icon_size));
+		var resolve_btn = new JButton(rsc_bdl.getString("ALISE_SEARCH_PANEL_RESOLVE"), UIUtil.getStretchIcon("icon/" + "arrow-down.svg", icon_size, icon_size));
+		var r_resolve_btn = new JButton(rsc_bdl.getString("ALISE_SEARCH_PANEL_REVERSE_RESOLVE"), UIUtil.getStretchIcon("icon/" + "arrow-up.svg", icon_size, icon_size));
 		resolve_buttons_panel.add(resolve_btn);
 		resolve_buttons_panel.add(r_resolve_btn);
 		Stream.of(label_1, label_2, field_1, field_2, resolve_btn, r_resolve_btn).forEach(o -> o.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20)));
@@ -77,7 +79,7 @@ public class AlisesSearchPanel extends JPanel {
 
 	protected void start_resolve() {
 		if (field_1.getText().isBlank()) {
-			JOptionPane.showMessageDialog(getRootPane(), "Name cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("ALISE_SEARCH_PANEL_NAME_CANNOT_BE_EMPTY"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		field_2.setText(null);
@@ -86,7 +88,7 @@ public class AlisesSearchPanel extends JPanel {
 			buildResolverIfAbsent();
 			if (r == null) {
 				setIndeterminate(false);
-				JOptionPane.showMessageDialog(getRootPane(), "Cannot load ENS resolver!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("ALISE_SEARCH_PANEL_CANNOT_LOAD_ENS"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
@@ -104,7 +106,7 @@ public class AlisesSearchPanel extends JPanel {
 
 	protected void r_resolve_btn() {
 		if (field_2.getText().isBlank()) {
-			JOptionPane.showMessageDialog(getRootPane(), "Address cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("ALISE_SEARCH_PANEL_ADDR_CANNOT_BE_EMPTY"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		field_1.setText(null);
@@ -113,7 +115,7 @@ public class AlisesSearchPanel extends JPanel {
 			buildResolverIfAbsent();
 			if (r == null) {
 				setIndeterminate(false);
-				JOptionPane.showMessageDialog(getRootPane(), "Cannot load ENS resolver!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("ALISE_SEARCH_PANEL_CANNOT_LOAD_ENS"), rsc_bdl.getString("GENERAL_ERROR"), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			Future<String> future = Util.submit(() -> r.reverseResolve(field_2.getText().trim()));

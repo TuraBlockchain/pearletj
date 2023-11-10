@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.Arrays;
+import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -29,10 +30,12 @@ import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.AccountComboboxRenderer;
 import hk.zdl.crypto.pearlet.ui.MyListComboBoxModel;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class NetworkAndAccountBar extends JPanel {
 
+	private static ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private final JPanel left = new JPanel(new FlowLayout()), right = new JPanel(new FlowLayout());
 	private final JComboBox<CryptoNetwork> network_combobox = new JComboBox<>();
 	private final JComboBox<AccountComboboxEntry> account_combobox = new JComboBox<>();
@@ -47,8 +50,8 @@ public class NetworkAndAccountBar extends JPanel {
 	private void init() {
 		add(left, BorderLayout.WEST);
 		add(right, BorderLayout.EAST);
-		left.add(new JLabel("Network:"));
-		right.add(new JLabel("Account:"));
+		left.add(new JLabel(rsc_bdl.getString("TOP_BAR_NETWORK")));
+		right.add(new JLabel(rsc_bdl.getString("TOP_BAR_ACCOUNT")));
 		left.add(network_combobox);
 		right.add(account_combobox);
 		Stream.of(network_combobox, account_combobox).forEach(o -> o.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize())));
@@ -57,8 +60,8 @@ public class NetworkAndAccountBar extends JPanel {
 		btn_icon = UIUtil.getStretchIcon("toolbar/" + "screwdriver-wrench-solid.svg", 24, 24);
 		var manage_network_btn = new JButton(btn_icon);
 		var manage_account_btn = new JButton(btn_icon);
-		manage_network_btn.setToolTipText("Manage Networks");
-		manage_account_btn.setToolTipText("Manage Accounts");
+		manage_network_btn.setToolTipText(rsc_bdl.getString("TOP_BAR_NETWORK_TOOL_TIP"));
+		manage_account_btn.setToolTipText(rsc_bdl.getString("TOP_BAR_ACCOUNT_TOOL_TIP"));
 
 		left.add(manage_network_btn);
 		right.add(manage_account_btn);

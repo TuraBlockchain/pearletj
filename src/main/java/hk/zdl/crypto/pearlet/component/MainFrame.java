@@ -61,7 +61,7 @@ public class MainFrame extends JFrame {
 		mfs.put("acc_info", new AccountInfoPanel());
 		mfs.put("plot", new PlotPanel());
 		mfs.put("miner", new MinerPanel());
-		mfs.put("alis", new AlisesPanel());
+		mfs.put("alis", new AlisePanel());
 		mfs.put("sets", new SettingsPanel());
 		mfs.put("about", new AboutPanel());
 		toolbar.clickButton("dashboard");

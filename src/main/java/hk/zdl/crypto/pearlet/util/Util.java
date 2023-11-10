@@ -8,6 +8,8 @@ import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,6 +66,10 @@ public class Util {
 			text = getProp().get("appVersion");
 		}
 		return text;
+	}
+	
+	public static final ResourceBundle getResourceBundle() {
+		return ResourceBundle.getBundle("i18n.MessagesBundle", Locale.getDefault());
 	}
 
 	public static final String getResourceAsText(String path) {
@@ -136,7 +142,7 @@ public class Util {
 		return jarr;
 	}
 
-	private static final boolean is_signum_server_address(String str) {
+	public static final boolean is_signum_server_address(String str) {
 		try {
 			var list = IOUtils.readLines(UIUtil.class.getClassLoader().getResourceAsStream("network/signum.txt"), Charset.defaultCharset());
 			if (list.contains(str)) {

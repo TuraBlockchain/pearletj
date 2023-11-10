@@ -5,6 +5,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
 import javax.swing.JButton;
@@ -25,6 +26,7 @@ import signumj.entity.SignumAddress;
 
 @SuppressWarnings("serial")
 public class CopyAccountInfoPanel extends JPanel {
+	private final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private JButton btn_0, btn_1, btn_2, btn_3, btn_4;
 	private List<JButton> btns = new LinkedList<>();
 	private CryptoNetwork network;
@@ -34,11 +36,11 @@ public class CopyAccountInfoPanel extends JPanel {
 	public CopyAccountInfoPanel() {
 		super(new FlowLayout());
 		EventBus.getDefault().register(this);
-		btn_0 = new JButton("Account ID");
-		btn_1 = new JButton("Address");
-		btn_2 = new JButton("Extended Address");
-		btn_3 = new JButton("Public Key");
-		btn_4 = new JButton("More...");
+		btn_0 = new JButton(rsc_bdl.getString("GENERAL_ACID"));
+		btn_1 = new JButton(rsc_bdl.getString("GENERAL_ADDR"));
+		btn_2 = new JButton(rsc_bdl.getString("COPY_ACCOUNT_INFO_PANEL_EXT_ADR"));
+		btn_3 = new JButton(rsc_bdl.getString("GENERAL_PUBLIC_KEY"));
+		btn_4 = new JButton(rsc_bdl.getString("COPY_ACCOUNT_INFO_PANEL_MORE"));
 		Stream.of(btn_0, btn_1, btn_2, btn_3, btn_4).forEach(btns::add);
 		btns.stream().forEach(this::add);
 

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -67,6 +68,7 @@ public class DashBoard extends JPanel {
 
 	private static Font title_font = new Font("Arial", Font.BOLD, 16);
 	private static Font asset_box_font = new Font("Arial", Font.PLAIN, 16);
+	private final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private final JList<AltTokenWrapper> token_list = new JList<>();
 	private final JScrollPane token_list_scr_pane = new JScrollPane(token_list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	private final JProgressBar token_list_progress_bar = new JProgressBar(JProgressBar.VERTICAL);
@@ -81,7 +83,7 @@ public class DashBoard extends JPanel {
 	private final WaitLayerUI wuli = new WaitLayerUI();
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private final JLayer<JScrollPane> scroll_pane_layer = new JLayer(table_scroll_pane, wuli);
-	private final JButton manage_token_list_btn = new JButton("Manage Token List");
+	private final JButton manage_token_list_btn = new JButton(rsc_bdl.getString("DASHBOARD_MANAGE_TOKEN_LIST"));
 	private long _last_table_update;
 	private CryptoNetwork nw;
 	private String account;
@@ -90,7 +92,7 @@ public class DashBoard extends JPanel {
 	public DashBoard() {
 		super(new GridBagLayout());
 		EventBus.getDefault().register(this);
-		var label1 = new JLabel("Tokens:");
+		var label1 = new JLabel(rsc_bdl.getString("DASHBOARD_TITLE_TOKENS"));
 		add(label1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, new Insets(0, 20, 0, 0), 0, 0));
 		token_list_progress_bar.setIndeterminate(true);
 		token_list_panel.setPreferredSize(new Dimension(200, 300));
@@ -100,13 +102,13 @@ public class DashBoard extends JPanel {
 		add(token_list_panel, new GridBagConstraints(0, 1, 1, 2, 0, 1, 17, 1, new Insets(0, 0, 0, 0), 0, 0));
 		add(manage_token_list_btn, new GridBagConstraints(0, 3, 1, 1, 0, 0, 10, 2, new Insets(5, 5, 5, 5), 0, 0));
 		var manage_token_list_menu = new JPopupMenu();
-		var issue_token_menu_item = new JMenuItem("Issue Token");
+		var issue_token_menu_item = new JMenuItem(rsc_bdl.getString("DASHBOARD_MANAGE_ISSUE_TOKEN"));
 		manage_token_list_menu.add(issue_token_menu_item);
 		manage_token_list_btn.addActionListener(e -> manage_token_list_menu.show(manage_token_list_btn, 0, 0));
 		issue_token_menu_item.addActionListener(e -> Stream.of(new IssueTokenPanel(getRootPane(), nw, account).showConfirmDialog()).filter(Boolean::valueOf).findAny()
 				.ifPresent(o -> EventBus.getDefault().post(new AccountChangeEvent(nw, account))));
 
-		var label2 = new JLabel("Balance:");
+		var label2 = new JLabel(rsc_bdl.getString("DASHBOARD_TITLE_BALANCE"));
 		add(label2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 20, 0, 0), 0, 0));
 		var balance_inner_panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		Stream.of(label1, label2, balance_label).forEach(o -> o.setFont(title_font));
