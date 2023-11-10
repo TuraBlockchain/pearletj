@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -12,19 +13,21 @@ import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
 
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 import se.gustavkarlsson.gwiz.AbstractWizardPage;
 
 public class ChooseNetworkType extends AbstractWizardPage {
 
 	private static final long serialVersionUID = -6080647905411931600L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private EnterNetworkDetail next;
-	private JRadioButton op_1 = new JRadioButton("Burst Variant", true);
-	private JRadioButton op_2 = new JRadioButton("Ethereum", false);
+	private JRadioButton op_1 = new JRadioButton(rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.TYPE.BURST"), true);
+	private JRadioButton op_2 = new JRadioButton(rsc_bdl.getString("GENERAL.Ethereum"), false);
 	private ButtonGroup group = new ButtonGroup();
 
 	public ChooseNetworkType() {
 		super(new GridBagLayout());
-		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Choose Network Type", TitledBorder.LEFT, TitledBorder.TOP,
+		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.TYPE.CHOOSE"), TitledBorder.LEFT, TitledBorder.TOP,
 				new Font("Arial Black", Font.PLAIN, (int) (getFont().getSize() * 1.5))));
 		var label_1 = new JLabel(UIUtil.getStretchIcon("icon/" + "blockchain-dot-com-svgrepo-com.svg", 64, 64));
 		var label_2 = new JLabel(UIUtil.getStretchIcon("icon/" + "ethereum-svgrepo-com-2.svg", 64, 64));

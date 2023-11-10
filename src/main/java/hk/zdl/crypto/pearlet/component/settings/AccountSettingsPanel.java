@@ -13,6 +13,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -54,6 +55,7 @@ import hk.zdl.crypto.pearlet.util.Util;
 @SuppressWarnings("serial")
 public class AccountSettingsPanel extends JPanel {
 
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private final AccountTableModel account_table_model = new AccountTableModel();
 	private final JTable table = buildAccountTable();
@@ -68,11 +70,11 @@ public class AccountSettingsPanel extends JPanel {
 
 		table.getColumnModel().removeColumn(table.getColumnModel().getColumn(0));
 		var btn_panel = new JPanel(new GridBagLayout());
-		create_account_btn = new JButton("Create");
-		import_account_btn = new JButton("Import");
-		export_account_btn = new JButton("Export");
-		watch_account_btn = new JButton("Watch");
-		del_btn = new JButton("Delete");
+		create_account_btn = new JButton(rsc_bdl.getString("SETTINGS.ACCOUNT.PANEL.CREATE"));
+		import_account_btn = new JButton(rsc_bdl.getString("SETTINGS.ACCOUNT.PANEL.IMPORT"));
+		export_account_btn = new JButton(rsc_bdl.getString("SETTINGS.ACCOUNT.PANEL.EXPORT"));
+		watch_account_btn = new JButton(rsc_bdl.getString("SETTINGS.ACCOUNT.PANEL.WATCH"));
+		del_btn = new JButton(rsc_bdl.getString("SETTINGS.ACCOUNT.PANEL.DELETE"));
 		btn_panel.add(create_account_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		btn_panel.add(import_account_btn, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		btn_panel.add(export_account_btn, new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
@@ -117,9 +119,9 @@ public class AccountSettingsPanel extends JPanel {
 							menu.add(item);
 						} else if (n.isWeb3J()) {
 							var import_acc_web3j = new JMenu(n.getName());
-							var import_from_prik = new JMenuItem("From Private Key ...");
-							var import_from_mnic = new JMenuItem("From Mnemonic ...");
-							var import_from_file = new JMenuItem("From JSON File ...");
+							var import_from_prik = new JMenuItem(rsc_bdl.getString("SETTINGS.ACCOUNT.PANEL.FROM.PRIVATE_KEY"));
+							var import_from_mnic = new JMenuItem(rsc_bdl.getString("SETTINGS.ACCOUNT.PANEL.FROM.MNC"));
+							var import_from_file = new JMenuItem(rsc_bdl.getString("SETTINGS.ACCOUNT.PANEL.FROM.JSON_FILE"));
 							Stream.of(import_from_prik, import_from_mnic, import_from_file).forEach(import_acc_web3j::add);
 							menu.add(import_acc_web3j);
 						}
@@ -165,7 +167,7 @@ public class AccountSettingsPanel extends JPanel {
 			if (row < 0) {
 				return;
 			}
-			int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this?", "", JOptionPane.YES_NO_OPTION);
+			int i = JOptionPane.showConfirmDialog(getRootPane(), rsc_bdl.getString("SETTINGS.ACCOUNT.PANEL.CONFIRN_DELETE"), "", JOptionPane.YES_NO_OPTION);
 			if (i == 0) {
 				int id = Integer.parseInt(account_table_model.getValueAt(row, 0).toString());
 				MyDb.deleteAccount(id);

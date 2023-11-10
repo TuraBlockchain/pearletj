@@ -16,6 +16,7 @@ import java.awt.event.MouseEvent;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -38,6 +39,7 @@ import se.gustavkarlsson.gwiz.AbstractWizardPage;
 public class EnterNetworkDetail extends AbstractWizardPage {
 
 	private static final long serialVersionUID = 1085301247361719995L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private final ButtonGroup btn_grp = new ButtonGroup();
 	private List<NWOP> options = new LinkedList<NWOP>();
 	private ConfirmNetwork next;
@@ -45,12 +47,12 @@ public class EnterNetworkDetail extends AbstractWizardPage {
 
 	public EnterNetworkDetail() {
 		super(new CardLayout());
-		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Provide Network Detail", TitledBorder.LEFT, TitledBorder.TOP,
+		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.DETAIL.TITLE"), TitledBorder.LEFT, TitledBorder.TOP,
 				new Font("Arial Black", Font.PLAIN, (int) (getFont().getSize() * 1.5))));
 		var burst_panel = new JPanel();
 		var eth_panel = new JPanel();
-		add(new JScrollPane(burst_panel), "Burst Variant");
-		add(new JScrollPane(eth_panel), "Ethereum");
+		add(new JScrollPane(burst_panel), rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.TYPE.BURST"));
+		add(new JScrollPane(eth_panel), rsc_bdl.getString("GENERAL.Ethereum"));
 		var in_burst_panel = new JPanel(new GridLayout(0, 1));
 		burst_panel.add(in_burst_panel);
 		var in_eth_panel = new JPanel(new GridLayout(0, 1));
@@ -102,9 +104,10 @@ public class EnterNetworkDetail extends AbstractWizardPage {
 
 	private Component generate_network_component(String name, String icon_path, String[] address) {
 		boolean is_custom_network = name == null;
+		var custom_txt = rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.DETAIL.CUSTOM");
 		var c = new JPanel(new GridBagLayout());
 		c.setPreferredSize(new Dimension(500, 60));
-		c.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), is_custom_network ? "custom" : name, TitledBorder.LEFT, TitledBorder.TOP,
+		c.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), is_custom_network ? custom_txt : name, TitledBorder.LEFT, TitledBorder.TOP,
 				new Font("Arial Black", Font.PLAIN, (getFont().getSize()))));
 		var icon = new JLabel(UIUtil.getStretchIcon(icon_path, 32, 32));
 		var box = new JComboBox<String>(address);

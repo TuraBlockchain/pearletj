@@ -10,6 +10,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.net.URL;
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -44,9 +46,10 @@ import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
 import hk.zdl.crypto.pearlet.util.Util;
 
-@SuppressWarnings("serial")
 public class NetworkSettingsPanel extends JPanel {
 
+	private static final long serialVersionUID = 6897317905255689373L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final Insets insets_5 = new Insets(2, 3, 3, 3);
 	private static final JPanel center_panel = new JPanel(new GridLayout(0, 1));
 	private static final int ping_timeout = 5000;
@@ -65,7 +68,7 @@ public class NetworkSettingsPanel extends JPanel {
 			startPage.setNextPage(detailPage);
 			var confPage = new ConfirmNetwork();
 			detailPage.setNextPage(confPage);
-			var finish = JDialogWizard.showWizard("Add a Network", startPage, this);
+			var finish = JDialogWizard.showWizard(rsc_bdl.getString("SETTINGS.NETWORK.PANEL.ADD"), startPage, this);
 			if (finish) {
 				var new_network = new CryptoNetwork();
 				new_network.setName(confPage.getNetworkName());
@@ -118,9 +121,9 @@ public class NetworkSettingsPanel extends JPanel {
 		panel.add(my_panel, BorderLayout.CENTER);
 		my_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), o.getName(), TitledBorder.LEFT, TitledBorder.TOP,
 				new Font("Arial Black", Font.PLAIN, (int) (getFont().getSize() * 1.5))));
-		var label_0 = new JLabel("Type:");
-		var label_1 = new JLabel("URL:");
-		var label_2 = new JLabel("Ping:");
+		var label_0 = new JLabel(rsc_bdl.getString("SETTINGS.NETWORK.PANEL.TYPE"));
+		var label_1 = new JLabel(rsc_bdl.getString("SETTINGS.NETWORK.PANEL.URL"));
+		var label_2 = new JLabel(rsc_bdl.getString("SETTINGS.NETWORK.PANEL.PING"));
 
 		var label_3 = new JLabel(o.getType().name());
 		var label_4 = new JLabel(o.getUrl());
@@ -128,10 +131,10 @@ public class NetworkSettingsPanel extends JPanel {
 		prog.setString("");
 		prog.setStringPainted(true);
 
-		var btn_0 = new JButton("Delete");
-		var btn_1 = new JButton("Modify");
+		var btn_0 = new JButton(rsc_bdl.getString("SETTINGS.NETWORK.PANEL.DEL"));
+		var btn_1 = new JButton(rsc_bdl.getString("SETTINGS.NETWORK.PANEL.MOD"));
 		var btn_2 = new JButton("Ping");
-		var btn_3 = new JButton("Credential...");
+		var btn_3 = new JButton(rsc_bdl.getString("SETTINGS.NETWORK.PANEL.Credential"));
 		if (o.getType() == CryptoNetwork.Type.WEB3J) {
 			my_panel.add(btn_3, new GridBagConstraints(2, 0, 1, 1, 1, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
 			btn_3.addActionListener(e -> createWeb3jAuthDialog(this));
@@ -149,7 +152,7 @@ public class NetworkSettingsPanel extends JPanel {
 		my_panel.add(btn_2, new GridBagConstraints(3, 2, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
 		btn_0.addActionListener(e -> {
-			if (JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this?", null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+			if (JOptionPane.showConfirmDialog(getRootPane(), rsc_bdl.getString("SETTINGS.NETWORK.PANEL.CONFIRN_DELETE"), null, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 				MyDb.delete_network(o.getId());
 				EventBus.getDefault().post(new NetworkChangeEvent());
 				EventBus.getDefault().post(new AccountListUpdateEvent());
@@ -165,14 +168,14 @@ public class NetworkSettingsPanel extends JPanel {
 					new URL(o.getUrl()).openStream().close();
 					t = System.currentTimeMillis() - t;
 					prog.setIndeterminate(false);
-					prog.setString("" + t + "ms");
+					prog.setString(MessageFormat.format(rsc_bdl.getString("SETTINGS.NETWORK.PANEL.PING_TIME"), t));
 					btn_2.setEnabled(true);
 					return null;
 				});
 				try {
 					f.get(ping_timeout, TimeUnit.MILLISECONDS);
 				} catch (TimeoutException x) {
-					prog.setString(">" + ping_timeout + "ms");
+					prog.setString(MessageFormat.format(rsc_bdl.getString("SETTINGS.NETWORK.PANEL.PING_TIME_OUT"), ping_timeout));
 				} catch (Throwable x) {
 					while (x.getCause() != null) {
 						x = x.getCause();
@@ -185,7 +188,7 @@ public class NetworkSettingsPanel extends JPanel {
 			});
 		});
 		btn_1.addActionListener(e -> {
-			var str = JOptionPane.showInputDialog(getRootPane(), "Please input node server URL:", null, JOptionPane.INFORMATION_MESSAGE, null, null, o.getUrl());
+			var str = JOptionPane.showInputDialog(getRootPane(), rsc_bdl.getString("SETTINGS.NETWORK.PANEL.INPUT_NODE_URL"), null, JOptionPane.INFORMATION_MESSAGE, null, null, o.getUrl());
 			if (str == null) {
 				return;
 			}
@@ -204,15 +207,15 @@ public class NetworkSettingsPanel extends JPanel {
 	private static final void createWeb3jAuthDialog(Component c) {
 		var w = SwingUtilities.getWindowAncestor(c);
 		var panel_1 = new JPanel(new GridBagLayout());
-		panel_1.add(new JLabel("Project ID:"), new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
+		panel_1.add(new JLabel(rsc_bdl.getString("SETTINGS.NETWORK.PANEL.PROJECT_ID")), new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
 		var id_field = new JTextField("<Your ID here>", 30);
 		panel_1.add(id_field, new GridBagConstraints(0, 1, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
-		panel_1.add(new JLabel("Project Secret:"), new GridBagConstraints(0, 2, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 0), 0, 0));
+		panel_1.add(new JLabel(rsc_bdl.getString("SETTINGS.NETWORK.PANEL.PROJECT_SECERT")), new GridBagConstraints(0, 2, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 0), 0, 0));
 		var scret_field = new JPasswordField("unchanged", 30);
 		panel_1.add(scret_field, new GridBagConstraints(0, 3, 1, 1, 0, 0, 17, 0, new Insets(0, 5, 5, 5), 0, 0));
 		MyDb.get_webj_auth().ifPresent(r -> id_field.setText(r.getStr("MYAUTH")));
 
-		int i = JOptionPane.showConfirmDialog(w, panel_1, "Enter Project ID & Secret", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, UIUtil.getStretchIcon("icon/" + "key_1.svg", 64, 64));
+		int i = JOptionPane.showConfirmDialog(w, panel_1, rsc_bdl.getString("SETTINGS.NETWORK.PANEL.INPUT_PROJECT_INFO"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, UIUtil.getStretchIcon("icon/" + "key_1.svg", 64, 64));
 		if (i != JOptionPane.OK_OPTION) {
 			return;
 		}

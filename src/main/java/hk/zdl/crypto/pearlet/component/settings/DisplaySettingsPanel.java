@@ -3,6 +3,7 @@ package hk.zdl.crypto.pearlet.component.settings;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.util.ResourceBundle;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -18,17 +19,18 @@ import hk.zdl.crypto.pearlet.util.Util;
 public class DisplaySettingsPanel extends JPanel {
 
 	private static final long serialVersionUID = -5548573847414921489L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 
 	public DisplaySettingsPanel() {
 		super(new FlowLayout());
 		var panel = new JPanel(new GridLayout(0, 1));
-		var cbox1 = new JCheckBox("Display Tura address as numeric id");
+		var cbox1 = new JCheckBox(rsc_bdl.getString("SETTINGS.DISPLAY.TURA_AS_NUM"));
 		panel.add(cbox1);
-		var cbox2 = new JCheckBox("Show notification for solo local miner(s)");
+		var cbox2 = new JCheckBox(rsc_bdl.getString("SETTINGS.DISPLAY.SHOW_NOTI.SOLO"));
 		panel.add(cbox2);
-		var cbox3 = new JCheckBox("Show notification on plot finish");
+		var cbox3 = new JCheckBox(rsc_bdl.getString("SETTINGS.DISPLAY.SHOW_NOTI.PLOT_FINISH"));
 		panel.add(cbox3);
-		var label_1 = new JLabel("Number of blocks to show:");
+		var label_1 = new JLabel(rsc_bdl.getString("SETTINGS.DISPLAY.SHOW_NOTI.PLOT_FINISH"));
 		var spinner_1 = new JSpinner(new SpinnerNumberModel(100, 100, 1000, 100));
 		var panel_1 = new JPanel(new BorderLayout());
 		panel_1.add(label_1, BorderLayout.WEST);

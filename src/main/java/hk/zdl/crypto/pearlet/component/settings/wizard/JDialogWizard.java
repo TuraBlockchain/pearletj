@@ -12,6 +12,7 @@ import java.awt.Window;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.awt.event.KeyEvent;
+import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
 import javax.swing.AbstractButton;
@@ -23,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import hk.zdl.crypto.pearlet.util.Util;
 import se.gustavkarlsson.gwiz.AbstractWizardPage;
 import se.gustavkarlsson.gwiz.Wizard;
 import se.gustavkarlsson.gwiz.WizardController;
@@ -30,13 +32,13 @@ import se.gustavkarlsson.gwiz.WizardController;
 public class JDialogWizard extends JDialog implements Wizard {
 
 	private static final long serialVersionUID = -4056365152045590112L;
-
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final Dimension defaultminimumSize = new Dimension(640, 480);
 	private final JPanel wizardPageContainer = new JPanel(new GridLayout(1, 1));
-	private final JButton backButton = new JButton("Back");
-	private final JButton nextButton = new JButton("Next");
-	private final JButton finishButton = new JButton("Finish");
-	private final JButton cancelButton = new JButton("Cancel");
+	private final JButton backButton = new JButton(rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.DIALOG.BACK"));
+	private final JButton nextButton = new JButton(rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.DIALOG.NEXT"));
+	private final JButton finishButton = new JButton(rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.DIALOG.FINISH"));
+	private final JButton cancelButton = new JButton(rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.DIALOG.CANCEL"));
 	private final CardLayout card = new CardLayout();
 	private final JPanel c = new JPanel(card);
 	private boolean finish = false;

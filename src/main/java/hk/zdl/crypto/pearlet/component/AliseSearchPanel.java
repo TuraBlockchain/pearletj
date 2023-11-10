@@ -33,13 +33,13 @@ public class AliseSearchPanel extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 4782115342409404512L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final int icon_size = 16;
 	private static EnsResolver r = null;
 	private final CardLayout card_layout_1 = new CardLayout(5, 5);
 	private final JPanel center_card_panel = new JPanel(card_layout_1);
 	private final RoundJTextField field_1 = new RoundJTextField(30);
 	private final RoundJTextField field_2 = new RoundJTextField(30);
-	private final ResourceBundle rsc_bdl = Util.getResourceBundle();
 
 	public AliseSearchPanel() {
 		super(new BorderLayout());
