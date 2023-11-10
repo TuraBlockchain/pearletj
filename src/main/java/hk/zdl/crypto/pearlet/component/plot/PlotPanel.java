@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,6 +31,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 
 import org.greenrobot.eventbus.EventBus;
@@ -51,6 +54,7 @@ import signumj.entity.SignumAddress;
 
 public class PlotPanel extends JPanel implements ActionListener {
 
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final long serialVersionUID = 3756771655055487175L;
 	private static final long byte_per_nounce = 262144;
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
@@ -60,7 +64,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 	private final JSpinner pcs_spinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
 	private final JSpinner fz_spinner = new JSpinner(new SpinnerNumberModel(50, 1, 1024, 1));
 	private final JComboBox<String> fz_op = new JComboBox<>(new String[] { "MB", "GB" });
-	private final JButton plot_btn = new JButton("Plot");
+	private final JButton plot_btn = new JButton(rsc_bdl.getString("PLOT.PLOT_BTN_TXT"));
 	private final JTabbedPane tabbed_pane = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
 	private CryptoNetwork network;
 	private String account;
@@ -70,22 +74,22 @@ public class PlotPanel extends JPanel implements ActionListener {
 	public PlotPanel() {
 		super(new GridBagLayout());
 		EventBus.getDefault().register(this);
-		add(new JLabel("Plot Path:"), new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
-		add(new JLabel("Memory Limit:"), new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+		add(new JLabel(rsc_bdl.getString("PLOT.PATH_LABEL")), new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+		add(new JLabel(rsc_bdl.getString("PLOT.MEMORY_LIMIT")), new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 
 		plot_path_field.setEditable(false);
 		add(plot_path_field, new GridBagConstraints(1, 0, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
 		add(mem_slider, new GridBagConstraints(1, 1, 1, 1, 1, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 
-		var plot_path_btn = new JButton("Browse...");
+		var plot_path_btn = new JButton(rsc_bdl.getString("PLOT.BROWSE_BTN_TXT"));
 		add(plot_path_btn, new GridBagConstraints(2, 0, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
 
 		mem_field.setFont(new Font(Font.MONOSPACED, Font.BOLD, getFont().getSize()));
 		add(mem_field, new GridBagConstraints(2, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, insets_5, 0, 0));
 
-		add(new JLabel("File Size:"), new GridBagConstraints(3, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
-		add(new JLabel("File Count:"), new GridBagConstraints(3, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+		add(new JLabel(rsc_bdl.getString("PLOT.FILE_SIZE")), new GridBagConstraints(3, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
+		add(new JLabel(rsc_bdl.getString("PLOT.FILE_COUNT")), new GridBagConstraints(3, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 
 		add(fz_spinner, new GridBagConstraints(4, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		add(fz_op, new GridBagConstraints(5, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
@@ -130,12 +134,12 @@ public class PlotPanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (plot_path == null) {
-			JOptionPane.showMessageDialog(getRootPane(), "Plot path not specified!", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("PLOT.MSG.ERR.PATH.NUL"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 			return;
 		} else {
 			for (char c : plot_path.toAbsolutePath().toString().toCharArray()) {
 				if (c > 127) {
-					JOptionPane.showMessageDialog(getRootPane(), "Path should contain only ASCII characters!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("PLOT.MSG.ERR.PATH.NON_ASCII"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 			}
@@ -152,7 +156,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 		var nounces = l / byte_per_nounce;
 
 		if (nounces < 10) {
-			JOptionPane.showMessageDialog(getRootPane(), "File size too small!", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("PLOT.MSG.ERR.FILE.TOO_SMALL"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
@@ -160,7 +164,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 		var id = SignumAddress.fromRs(account).getID();
 
 		Util.submit(() -> {
-			var table = new JTable(new DefaultTableModel(new Object[][] {}, new Object[] { "No.", "Progress" })) {
+			var table = new JTable(new DefaultTableModel(new Object[][] {}, new Object[] { rsc_bdl.getString("PLOT.NO"), rsc_bdl.getString("PLOT.PROGRESS") })) {
 
 				@Override
 				public boolean isCellEditable(int row, int column) {
@@ -228,11 +232,11 @@ public class PlotPanel extends JPanel implements ActionListener {
 		EventBus.getDefault().post(new PlotDoneEvent(path));
 		var perf = Util.getUserSettings();
 		if (perf.getBoolean(DisplaySettings.SNPF, false)) {
-			var msg = "File Size: ";
+			var msg = rsc_bdl.getString("PLOT.FILE_SIZE");
 			if (fz > BinaryByteUnit.GIBIBYTES.toBytes(1)) {
-				msg += BinaryByteUnit.BYTES.toGibibytes(fz) + "GB";
+				msg += MessageFormat.format(UIManager.getString("FileChooser.fileSizeGigaBytes"),BinaryByteUnit.BYTES.toGibibytes(fz));
 			} else {
-				msg += BinaryByteUnit.BYTES.toMebibytes(fz) + "MB";
+				msg += MessageFormat.format(UIManager.getString("FileChooser.fileSizeMegaBytes"),BinaryByteUnit.BYTES.toMebibytes(fz));
 			}
 			msg += "\nID: ";
 			if (perf.getBoolean(DisplaySettings.SNID, false)) {
@@ -240,7 +244,7 @@ public class PlotPanel extends JPanel implements ActionListener {
 			} else {
 				msg += SignumAddress.fromEither(id).getRawAddress();
 			}
-			UIUtil.displayMessage("Plot Done!", msg, MessageType.INFO);
+			UIUtil.displayMessage(rsc_bdl.getString("PLOT.MSG.DONE"), msg, MessageType.INFO);
 		}
 	}
 }

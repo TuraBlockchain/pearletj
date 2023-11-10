@@ -48,7 +48,7 @@ public class ExportAccountTable {
 			file = new File(file.getAbsolutePath() + ".csv");
 		}
 		if (file.isFile() && file.exists() && !file.canWrite()) {
-			JOptionPane.showMessageDialog(w, "file is not writable!", rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(w, rsc_bdl.getString("SETTINGS.ACCOUNT.EXPORT.MSG.UNWRITABLE"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		try {
@@ -75,6 +75,6 @@ public class ExportAccountTable {
 			JOptionPane.showMessageDialog(w, t.getMessage(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		UIUtil.displayMessage("", "Table export is done!", MessageType.INFO);
+		UIUtil.displayMessage("", rsc_bdl.getString("SETTINGS.ACCOUNT.EXPORT.MSG.DONE"), MessageType.INFO);
 	}
 }

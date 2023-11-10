@@ -1,6 +1,7 @@
 package hk.zdl.crypto.pearlet.component.account_settings;
 
 import java.nio.charset.Charset;
+import java.util.ResourceBundle;
 
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.utils.Numeric;
@@ -10,9 +11,11 @@ import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.lock.WalletLock;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class WalletUtil {
 
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	public static final boolean insert_web3j_account(CryptoNetwork nw, ECKeyPair eckp) throws Exception {
 		boolean b = false;
 		var private_key = Numeric.toBytesPadded(eckp.getPrivateKey(), 32);
@@ -28,10 +31,10 @@ public class WalletUtil {
 					var account_id = MyDb.getAccount(nw, address).get().getInt("ID");
 					MyDb.insert_or_update_encpvk(nw.getId(), account_id, enc_pvk);
 				} else {
-					throw new IllegalArgumentException("Wrong Password!");
+					throw new IllegalArgumentException(rsc_bdl.getString("TRAY.WRONG_PW"));
 				}
 			} else {
-				throw new IllegalStateException("Wallet is locked!");
+				throw new IllegalStateException(rsc_bdl.getString("SETTINGS.LOCK.IS_NOW_LOCKED"));
 			}
 		} else {
 			b = MyDb.insert_or_update_account(nw, address, public_key, private_key);
@@ -58,10 +61,10 @@ public class WalletUtil {
 						}
 					}
 				} else {
-					throw new IllegalArgumentException("Wrong Password!");
+					throw new IllegalArgumentException(rsc_bdl.getString("TRAY.WRONG_PW"));
 				}
 			} else {
-				throw new IllegalStateException("Wallet is locked!");
+				throw new IllegalStateException(rsc_bdl.getString("SETTINGS.LOCK.IS_NOW_LOCKED"));
 			}
 		} else {
 			return MyDb.insert_or_update_account(nw, address, public_key, private_key);
