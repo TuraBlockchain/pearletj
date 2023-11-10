@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ResourceBundle;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -24,9 +25,11 @@ import hk.zdl.crypto.pearlet.component.account_settings.WalletUtil;
 import hk.zdl.crypto.pearlet.component.event.AccountListUpdateEvent;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class ImportWeb3JAccountFromText {
 
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	public static final void import_from_private_key(Component c, CryptoNetwork nw) {
@@ -34,14 +37,14 @@ public class ImportWeb3JAccountFromText {
 		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var panel = new JPanel(new GridBagLayout());
 
-		var mm_label = new JLabel("Enter your private key in Hex:");
+		var mm_label = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.ENTER_PRIVATE_KEY_HEX"));
 		var tx_field = new JTextArea(5, 20);
 		var sc_panee = new JScrollPane(tx_field);
 		panel.add(mm_label, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		panel.add(sc_panee, new GridBagConstraints(0, 1, 2, 1, 0, 0, 17, 1, insets_5, 0, 0));
 
 		var pane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION, icon);
-		var dlg = pane.createDialog(w, "Import Existing Account");
+		var dlg = pane.createDialog(w, rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.TITLE"));
 		dlg.addWindowFocusListener(new WindowAdapter() {
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
@@ -55,7 +58,7 @@ public class ImportWeb3JAccountFromText {
 		var private_key_str = tx_field.getText().trim();
 
 		if (private_key_str.isBlank()) {
-			JOptionPane.showMessageDialog(w, "Private key cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(w, rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.PRIVATE_KEY_CANNOT_EMPTY"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
@@ -64,16 +67,16 @@ public class ImportWeb3JAccountFromText {
 		try {
 			cred = Credentials.create(private_key_str);
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(w, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(w, e.getMessage(), e.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
 		try {
 			if (WalletUtil.insert_web3j_account(nw, cred.getEcKeyPair())) {
-				UIUtil.displayMessage("Import Account", "Done!");
+				UIUtil.displayMessage(rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.TITLE"), rsc_bdl.getString("GENERAL.DONE"));
 				EventBus.getDefault().post(new AccountListUpdateEvent());
 			} else {
-				JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(w, rsc_bdl.getString("GENERAL.DUP"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception x) {
 			JOptionPane.showMessageDialog(w, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
@@ -86,20 +89,20 @@ public class ImportWeb3JAccountFromText {
 		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var panel = new JPanel(new GridBagLayout());
 
-		var mm_label = new JLabel("Enter your mnemonic:");
+		var mm_label = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.ENTER_MNC"));
 		var tx_field = new JTextArea(5, 20);
 		var sc_panee = new JScrollPane(tx_field);
 		panel.add(mm_label, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		panel.add(sc_panee, new GridBagConstraints(0, 1, 2, 1, 0, 0, 17, 1, insets_5, 0, 0));
 
-		int i = JOptionPane.showConfirmDialog(w, panel, "Import Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
+		int i = JOptionPane.showConfirmDialog(w, panel, rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.TITLE"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
 		if (i != JOptionPane.OK_OPTION) {
 			return;
 		}
-		String mnemonic = tx_field.getText().trim();
+		var mnemonic = tx_field.getText().trim();
 
 		if (mnemonic.isBlank()) {
-			JOptionPane.showMessageDialog(w, "Mnemonic cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(w, rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.MNC_CANNOT_EMPTY"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		Credentials cred = null;
@@ -117,8 +120,16 @@ public class ImportWeb3JAccountFromText {
 		}
 		if (cred == null) {
 			var pw_field = new JPasswordField(20);
-			int j = JOptionPane.showConfirmDialog(w, pw_field, "Enter password for wallet", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
-			if (j != JOptionPane.OK_OPTION) {
+			var pane = new JOptionPane(pw_field, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION, icon);
+			var dlg = pane.createDialog(w, rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.INPUT_PW"));
+			dlg.addWindowFocusListener(new WindowAdapter() {
+				@Override
+				public void windowGainedFocus(WindowEvent e) {
+					pw_field.grabFocus();
+				}
+			});
+			dlg.setVisible(true);
+			if ((int) pane.getValue() != JOptionPane.OK_OPTION) {
 				return;
 			}
 			try {
@@ -132,10 +143,10 @@ public class ImportWeb3JAccountFromText {
 
 		try {
 			if (WalletUtil.insert_web3j_account(nw, cred.getEcKeyPair())) {
-				UIUtil.displayMessage("Import Account", "Done!");
+				UIUtil.displayMessage(rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.TITLE"), rsc_bdl.getString("GENERAL.DONE"));
 				EventBus.getDefault().post(new AccountListUpdateEvent());
 			} else {
-				JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(w, rsc_bdl.getString("GENERAL.DUP"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception x) {
 			JOptionPane.showMessageDialog(w, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);

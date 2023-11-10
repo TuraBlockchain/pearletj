@@ -5,6 +5,7 @@ import java.awt.TrayIcon.MessageType;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.Charset;
+import java.util.ResourceBundle;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -15,8 +16,10 @@ import javax.swing.table.TableModel;
 import com.csvreader.CsvWriter;
 
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class ExportAccountTable {
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 
 	public static final void export_csv(Component c, TableModel m) {
 		var w = SwingUtilities.getWindowAncestor(c);
@@ -28,7 +31,7 @@ public class ExportAccountTable {
 
 			@Override
 			public String getDescription() {
-				return "Comma-separated values";
+				return rsc_bdl.getString("GENERAL.CSV_FILES");
 			}
 
 			@Override
@@ -45,7 +48,7 @@ public class ExportAccountTable {
 			file = new File(file.getAbsolutePath() + ".csv");
 		}
 		if (file.isFile() && file.exists() && !file.canWrite()) {
-			JOptionPane.showMessageDialog(w, "file is not writable!", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(w, "file is not writable!", rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		try {
@@ -69,7 +72,7 @@ public class ExportAccountTable {
 			out.flush();
 			out.close();
 		} catch (Throwable t) {
-			JOptionPane.showMessageDialog(w, t.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(w, t.getMessage(), t.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		UIUtil.displayMessage("", "Table export is done!", MessageType.INFO);

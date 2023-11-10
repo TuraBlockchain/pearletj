@@ -39,16 +39,17 @@ public class MyToolbar extends JToolBar {
 		var btn_gp = new ButtonGroup();
 		JSONArray jarr = new JSONArray(Util.getResourceAsText("toolbar.json"));
 		for (int i = 0; i < jarr.length(); i++) {
-			String id = jarr.getJSONObject(i).getString("id");
-			String text = jarr.getJSONObject(i).getString("text");
-			String icon = jarr.getJSONObject(i).getString("icon");
+			var id = jarr.getJSONObject(i).getString("id");
+			var text = Util.getResourceBundle().getString("TOOLBAR." + id.toUpperCase());
+			var icon = jarr.getJSONObject(i).getString("icon");
 			var btn = new JToggleButton(text, getIcon(icon)) {
 
 				@Override
 				public Dimension getMaximumSize() {
 					var h = super.getMaximumSize().getHeight();
 					return new Dimension(Short.MAX_VALUE, (int) h);
-				}};
+				}
+			};
 			btn.setBorderPainted(false);
 			btn.setFocusPainted(false);
 			btn.setFocusable(true);

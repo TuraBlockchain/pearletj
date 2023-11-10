@@ -6,7 +6,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ResourceBundle;
 
-import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -26,7 +25,7 @@ public class WatchBurstAccount {
 
 	public static final void create_watch_account_dialog(Component c, CryptoNetwork nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
-		Icon icon = UIUtil.getStretchIcon("icon/" + "eyeglasses.svg", 64, 64);
+		var icon = UIUtil.getStretchIcon("icon/" + "eyeglasses.svg", 64, 64);
 		var txt_field = new JTextField(30);
 		txt_field.setFont(new Font(Font.MONOSPACED, Font.PLAIN, txt_field.getFont().getSize()));
 		var pane = new JOptionPane(txt_field, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION, icon);

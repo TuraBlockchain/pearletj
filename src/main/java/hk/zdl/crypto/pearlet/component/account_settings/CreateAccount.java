@@ -29,6 +29,7 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 import org.greenrobot.eventbus.EventBus;
@@ -82,7 +83,7 @@ public class CreateAccount {
 
 		var btn_1 = new JButton(rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.RANDOM"));
 		var btn_2 = new JButton(rsc_bdl.getString("GENERAL.COPY"));
-		var btn_3 = new JButton(rsc_bdl.getString("GENERAL.OK"));
+		var btn_3 = new JButton(UIManager.getString("OptionPane.okButtonText"));
 		var panel_1 = new JPanel(new GridBagLayout());
 		panel_1.add(btn_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		panel_1.add(btn_2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));

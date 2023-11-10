@@ -41,7 +41,7 @@ public class UIUtil {
 		dlg.setVisible(true);
 		return pane.getValue().equals(JOptionPane.OK_OPTION);
 	}
-	
+
 	public static final void adjust_table_width(JTable table, TableColumnModel table_column_model) {
 		for (int column = 0; column < table.getColumnCount(); column++) {
 			int width = 100; // Min width
@@ -117,7 +117,8 @@ public class UIUtil {
 	}
 
 	public static final boolean show_confirm_exit_dialog(Component... c) {
-		return JOptionPane.showConfirmDialog(c.length > 0 ? c[0] : null, "Are you sure to exit PearletJ ?", "Exit", JOptionPane.OK_CANCEL_OPTION,
+		var rsc_bdl = Util.getResourceBundle();
+		return JOptionPane.showConfirmDialog(c.length > 0 ? c[0] : null, rsc_bdl.getString("GENERAL.CONFIRM_EXIT"), rsc_bdl.getString("GENERAL.EXIT"), JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE) == JOptionPane.OK_OPTION;
 	}
 }

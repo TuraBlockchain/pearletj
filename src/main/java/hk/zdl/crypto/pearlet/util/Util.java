@@ -8,7 +8,6 @@ import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -69,7 +68,7 @@ public class Util {
 	}
 	
 	public static final ResourceBundle getResourceBundle() {
-		return ResourceBundle.getBundle("i18n.MessagesBundle", Locale.getDefault());
+		return ResourceBundle.getBundle("i18n.MessagesBundle");
 	}
 
 	public static final String getResourceAsText(String path) {

@@ -23,6 +23,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import hk.zdl.crypto.pearlet.util.Util;
 import se.gustavkarlsson.gwiz.AbstractWizardPage;
@@ -38,7 +39,7 @@ public class JDialogWizard extends JDialog implements Wizard {
 	private final JButton backButton = new JButton(rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.DIALOG.BACK"));
 	private final JButton nextButton = new JButton(rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.DIALOG.NEXT"));
 	private final JButton finishButton = new JButton(rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.DIALOG.FINISH"));
-	private final JButton cancelButton = new JButton(rsc_bdl.getString("SETTINGS.NETWORK.WIZARD.DIALOG.CANCEL"));
+	private final JButton cancelButton = new JButton(UIManager.getString("OptionPane.cancelButton.textAndMnemonic"));
 	private final CardLayout card = new CardLayout();
 	private final JPanel c = new JPanel(card);
 	private boolean finish = false;

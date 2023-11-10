@@ -10,7 +10,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.ResourceBundle;
 
-import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -43,7 +42,7 @@ public class ImportBurstAccount {
 	@SuppressWarnings("unchecked")
 	public static final void create_import_account_dialog(Component c, CryptoNetwork nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
-		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
+		var icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var panel = new JPanel(new GridBagLayout());
 		var label_1 = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.NETWORK"));
 		var network_combobox = new JComboBox<>(new String[] { nw.toString() });
@@ -70,6 +69,10 @@ public class ImportBurstAccount {
 		if ((int) pane.getValue() == JOptionPane.OK_OPTION) {
 			var type = (PKT) combobox_1.getSelectedItem();
 			var text = text_area.getText().trim();
+			if (text.isBlank()) {
+				JOptionPane.showMessageDialog(w, rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.MNC_CANNOT_EMPTY"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 			try {
 				if (WalletUtil.insert_burst_account(nw, type, text)) {
 					UIUtil.displayMessage(rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.TITLE"), rsc_bdl.getString("GENERAL.DONE"));
