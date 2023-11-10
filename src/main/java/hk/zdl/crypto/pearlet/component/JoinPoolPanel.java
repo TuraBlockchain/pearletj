@@ -107,7 +107,7 @@ public class JoinPoolPanel extends JPanel implements ActionListener {
 				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("JOIN_POOL.ERR_1"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				return;
 			} else if (SignumAddress.fromEither(target) == null) {
-				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("JOIN_POOL.ERR_2"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("GENERAL.ADDRESS_INVALID"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			Util.submit(() -> {

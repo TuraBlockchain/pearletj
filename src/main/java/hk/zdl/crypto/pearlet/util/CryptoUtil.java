@@ -235,7 +235,7 @@ public class CryptoUtil {
 		} catch (Exception e) {
 			if (e.getCause().getClass().equals(signumj.entity.response.http.BRSError.class)) {
 				if (((BRSError) e.getCause()).getCode() == 5) {
-					return new Account(SignumAddress.fromEither(address), SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, null, "", "",
+					return new Account(SignumAddress.fromEither(address), SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, SignumValue.ZERO, new byte[] {}, "", "",
 							new AssetBalance[] {});
 				}
 			}

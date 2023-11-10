@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Random;
+import java.util.ResourceBundle;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -45,6 +46,7 @@ import hk.zdl.crypto.pearlet.util.Util;
 
 public class CreateAccount {
 
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	public static final void create_new_account_dialog(Component c, CryptoNetwork nw) {
@@ -58,15 +60,15 @@ public class CreateAccount {
 	@SuppressWarnings("unchecked")
 	private static final void burst(Component c, CryptoNetwork nw) {
 		var w = SwingUtilities.getWindowAncestor(c);
-		var dialog = new JDialog(w, "Create New Account", Dialog.ModalityType.APPLICATION_MODAL);
+		var dialog = new JDialog(w, rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.TITLE"), Dialog.ModalityType.APPLICATION_MODAL);
 		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		IndepandentWindows.add(dialog);
 		var panel = new JPanel(new GridBagLayout());
 		panel.add(new JLabel(UIUtil.getStretchIcon("icon/" + "cloud-plus-fill.svg", 64, 64)), new GridBagConstraints(0, 0, 1, 4, 0, 0, 17, 0, insets_5, 0, 0));
-		var label_1 = new JLabel("Network:");
+		var label_1 = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.NETWORK"));
 		var network_combobox = new JComboBox<>(new String[] { nw.toString() });
 		network_combobox.setEnabled(false);
-		var label_2 = new JLabel("Text type:");
+		var label_2 = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.TEXT_TYPE"));
 		var combobox_1 = new JComboBox<>(new EnumComboBoxModel<>(PKT.class));
 		panel.add(label_1, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
 		panel.add(network_combobox, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, 0, insets_5, 0, 0));
@@ -78,9 +80,9 @@ public class CreateAccount {
 		text_area.setEditable(false);
 		text_area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, text_area.getFont().getSize()));
 
-		var btn_1 = new JButton("Random");
-		var btn_2 = new JButton("Copy");
-		var btn_3 = new JButton("OK");
+		var btn_1 = new JButton(rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.RANDOM"));
+		var btn_2 = new JButton(rsc_bdl.getString("GENERAL.COPY"));
+		var btn_3 = new JButton(rsc_bdl.getString("GENERAL.OK"));
 		var panel_1 = new JPanel(new GridBagLayout());
 		panel_1.add(btn_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
 		panel_1.add(btn_2, new GridBagConstraints(1, 0, 1, 1, 0, 0, 10, 0, insets_5, 0, 0));
@@ -118,10 +120,10 @@ public class CreateAccount {
 			var text = text_area.getText().trim();
 			try {
 				if (WalletUtil.insert_burst_account(nw, type, text)) {
-					UIUtil.displayMessage("Create Account", "Done!");
+					UIUtil.displayMessage(rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.TITLE"), rsc_bdl.getString("GENERAL.DONE"));
 					EventBus.getDefault().post(new AccountListUpdateEvent());
 				} else {
-					JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(w, rsc_bdl.getString("GENERAL.DUP"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(w, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
@@ -159,29 +161,29 @@ public class CreateAccount {
 		Icon icon = UIUtil.getStretchIcon("icon/" + "cloud-plus-fill.svg", 64, 64);
 		var panel = new JPanel(new GridBagLayout());
 
-		var pw_label = new JLabel("Enter password for wallet:");
+		var pw_label = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.INPUT_PW"));
 		var pw_field = new JPasswordField(20);
 		panel.add(pw_label, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		panel.add(pw_field, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 
-		var mm_label = new JLabel("Enter your mnemonic:");
+		var mm_label = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.INPUT_MNC"));
 		var tx_field = new JTextArea(5, 20);
 		var sc_panee = new JScrollPane(tx_field, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		panel.add(mm_label, new GridBagConstraints(0, 1, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		panel.add(sc_panee, new GridBagConstraints(0, 2, 2, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		Util.submit(() -> tx_field.setText(get_mnemoic()));
 
-		var i = JOptionPane.showConfirmDialog(w, panel, "Create New Account", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
+		var i = JOptionPane.showConfirmDialog(w, panel, rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.TITLE"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, icon);
 		if (i == JOptionPane.CANCEL_OPTION) {
 			return;
 		} else if (i == JOptionPane.OK_OPTION) {
 			if (tx_field.getText().isBlank()) {
-				JOptionPane.showMessageDialog(w, "Mnemonic is required to generate a seed", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(w, rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.REQUIRE_MNC"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			var file_dialog = new JFileChooser();
 			file_dialog.setDialogType(JFileChooser.SAVE_DIALOG);
-			file_dialog.setDialogTitle("Save Wallet File to...");
+			file_dialog.setDialogTitle(rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.SAVE_TO"));
 			file_dialog.setMultiSelectionEnabled(false);
 			file_dialog.setDragEnabled(false);
 			file_dialog.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -192,17 +194,17 @@ public class CreateAccount {
 			try {
 				WalletUtils.generateBip39WalletFromMnemonic(new String(pw_field.getPassword()), tx_field.getText().trim(), file_dialog.getSelectedFile());
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(w, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(w, e.getMessage(), e.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			var cred = WalletUtils.loadBip39Credentials(new String(pw_field.getPassword()), tx_field.getText().trim());
 
 			try {
 				if (WalletUtil.insert_web3j_account(nw, cred.getEcKeyPair())) {
-					UIUtil.displayMessage("Create Account", "Done!");
+					UIUtil.displayMessage(rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.TITLE"), rsc_bdl.getString("GENERAL.DONE"));
 					EventBus.getDefault().post(new AccountListUpdateEvent());
 				} else {
-					JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(w, rsc_bdl.getString("GENERAL.DUP"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(w, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);

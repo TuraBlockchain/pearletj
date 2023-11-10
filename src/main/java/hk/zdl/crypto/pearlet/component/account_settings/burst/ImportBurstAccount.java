@@ -8,6 +8,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ResourceBundle;
 
 import javax.swing.Icon;
 import javax.swing.JComboBox;
@@ -32,9 +33,11 @@ import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.ui.UIUtil;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class ImportBurstAccount {
 
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	@SuppressWarnings("unchecked")
@@ -42,10 +45,10 @@ public class ImportBurstAccount {
 		var w = SwingUtilities.getWindowAncestor(c);
 		Icon icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var panel = new JPanel(new GridBagLayout());
-		var label_1 = new JLabel("Network:");
+		var label_1 = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.NETWORK"));
 		var network_combobox = new JComboBox<>(new String[] { nw.toString() });
 		network_combobox.setEnabled(false);
-		var label_2 = new JLabel("Text type:");
+		var label_2 = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.CREATE.TEXT_TYPE"));
 		var combobox_1 = new JComboBox<>(new EnumComboBoxModel<>(PKT.class));
 		panel.add(label_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
 		panel.add(network_combobox, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, 1, insets_5, 0, 0));
@@ -56,7 +59,7 @@ public class ImportBurstAccount {
 		panel.add(scr_pane, new GridBagConstraints(0, 1, 4, 3, 0, 0, 17, 1, new Insets(5, 5, 0, 5), 0, 0));
 
 		var pane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION, icon);
-		var dlg = pane.createDialog(w, "Import Existing Account");
+		var dlg = pane.createDialog(w, rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.TITLE"));
 		dlg.addWindowFocusListener(new WindowAdapter() {
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
@@ -69,10 +72,10 @@ public class ImportBurstAccount {
 			var text = text_area.getText().trim();
 			try {
 				if (WalletUtil.insert_burst_account(nw, type, text)) {
-					UIUtil.displayMessage("Import Account", "Done!");
+					UIUtil.displayMessage(rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.TITLE"), rsc_bdl.getString("GENERAL.DONE"));
 					EventBus.getDefault().post(new AccountListUpdateEvent());
 				} else {
-					JOptionPane.showMessageDialog(w, "Duplicate Entry!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(w, rsc_bdl.getString("GENERAL.DUP"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				}
 			} catch (Exception x) {
 				JOptionPane.showMessageDialog(w, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
@@ -93,7 +96,7 @@ public class ImportBurstAccount {
 
 			@Override
 			public String getDescription() {
-				return "CSV Files";
+				return rsc_bdl.getString("GENERAL.CSV_FILES");
 			}
 
 			@Override
@@ -131,24 +134,24 @@ public class ImportBurstAccount {
 			reader.close();
 			EventBus.getDefault().post(new AccountListUpdateEvent());
 			var panel = new JPanel(new GridBagLayout());
-			var label_1 = new JLabel("Imported:");
+			var label_1 = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.IMPORT_COUNT"));
 			panel.add(label_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 			var label_2 = new JLabel("" + imported);
 			label_2.setHorizontalAlignment(SwingConstants.RIGHT);
 			label_2.setHorizontalTextPosition(SwingConstants.RIGHT);
 			panel.add(label_2, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-			var label_3 = new JLabel("Total:");
+			var label_3 = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.IMPORT_TOTAL"));
 			panel.add(label_3, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 			var label_4 = new JLabel("" + total);
 			label_4.setHorizontalAlignment(SwingConstants.RIGHT);
 			label_4.setHorizontalTextPosition(SwingConstants.RIGHT);
 			panel.add(label_4, new GridBagConstraints(1, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-			JOptionPane.showMessageDialog(w, panel, "Done", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(w, panel, rsc_bdl.getString("GENERAL.DONE"), JOptionPane.INFORMATION_MESSAGE);
 		} catch (Throwable x) {
 			while (x.getCause() != null) {
 				x = x.getCause();
 			}
-			JOptionPane.showMessageDialog(w, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(w, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
