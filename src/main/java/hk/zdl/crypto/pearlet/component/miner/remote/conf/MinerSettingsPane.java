@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.net.http.HttpClient;
+import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,10 +21,12 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import hk.zdl.crypto.pearlet.component.miner.remote.ClientUpdateEvent;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class MinerSettingsPane extends JTabbedPane implements ActionListener {
 
 	private static final long serialVersionUID = -3040618948690123951L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private final JPanel my_panel = new JPanel(new GridLayout(1, 2));
 	private final MinerAccountSettingsPanel account_settings_panel = new MinerAccountSettingsPanel();
 	private final MinerPathSettingPanel miner_path_settings_panel = new MinerPathSettingPanel();
@@ -61,9 +64,9 @@ public class MinerSettingsPane extends JTabbedPane implements ActionListener {
 				actionPerformed(null);
 			}
 		});
-		addTab("Account and Directory", my_panel);
-		addTab("Server URL", server_address_settings_panel);
-		addTab("Authentication Scheme", auth_scheme_panel);
+		addTab(rsc_bdl.getString("MINING.TAB.ACC_DIR"), my_panel);
+		addTab(rsc_bdl.getString("MINING.TAB.SERVER"), server_address_settings_panel);
+		addTab(rsc_bdl.getString("MINING.TAB.AUTH"), auth_scheme_panel);
 	}
 
 	public void setBasePath(String basePath) {

@@ -70,8 +70,8 @@ public class NetworkAndAccountBar extends JPanel {
 			if (magic_1)
 				update_account_combobox();
 		});
-		manage_network_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.NET)));
-		manage_account_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(SettingsPanelEvent.ACC)));
+		manage_network_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(0)));
+		manage_account_btn.addActionListener(e -> EventBus.getDefault().post(new SettingsPanelEvent(1)));
 
 		account_combobox.addActionListener(e -> {
 			if (magic_2)

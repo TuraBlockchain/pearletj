@@ -13,6 +13,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -50,10 +51,11 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private static final long serialVersionUID = -4996189634836777005L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private final JLayer<JPanel> jlayer = new JLayer<>();
 	private final WaitLayerUI wuli = new WaitLayerUI();
 	private final ChartPanel chart_panel = new ChartPanel(ChartFactory.createPieChart(null, new DefaultPieDataset<String>(), true, true, false));
-	private final JButton btn = new JButton("Commit", UIUtil.getStretchIcon("toolbar/paper-plane-solid.svg", 32, 32));
+	private final JButton btn = new JButton(rsc_bdl.getString("COMMIT.BTN"), UIUtil.getStretchIcon("toolbar/paper-plane-solid.svg", 32, 32));
 	private final SpinableIcon busy_icon = new SpinableIcon(new BufferedImage(32, 32, BufferedImage.TYPE_4BYTE_ABGR), 32, 32);
 
 	private BigDecimal committed_balance = null;
@@ -125,11 +127,13 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		@SuppressWarnings("unchecked")
 		var plot = (PiePlot<String>) chart.getPlot();
 		var dataset = new DefaultPieDataset<String>();
-		dataset.setValue("Available Balance", _a_bal);
-		dataset.setValue("Committed Balance", _c_bal);
+		var label_a = rsc_bdl.getString("COMMIT.BALANCE.AVA");
+		var label_c = rsc_bdl.getString("COMMIT.BALANCE.COM");
+		dataset.setValue(label_a, _a_bal);
+		dataset.setValue(label_c, _c_bal);
 		plot.setDataset(dataset);
-		plot.setSectionPaint("Available Balance", Color.green.darker());
-		plot.setSectionPaint("Committed Balance", Color.blue.darker());
+		plot.setSectionPaint(label_a, Color.green.darker());
+		plot.setSectionPaint(label_c, Color.blue.darker());
 		btn.setEnabled(true);
 		busy_icon.stop();
 		wuli.stop();
@@ -139,20 +143,20 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		var panel = new JPanel(new GridBagLayout());
-		panel.add(new JLabel("Action"), new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-		var add_btn = new JRadioButton("Add", true);
-		var rvk_btn = new JRadioButton("Revoke", false);
+		panel.add(new JLabel(rsc_bdl.getString("COMMIT.BALANCE.ACTION")), new GridBagConstraints(0, 0, 1, 1, 0, 0, 17, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		var add_btn = new JRadioButton(rsc_bdl.getString("COMMIT.BALANCE.ADD"), true);
+		var rvk_btn = new JRadioButton(rsc_bdl.getString("COMMIT.BALANCE.RVK"), false);
 		var g = new ButtonGroup();
 		g.add(add_btn);
 		g.add(rvk_btn);
 		panel.add(add_btn, new GridBagConstraints(1, 0, 1, 1, 0, 0, 17, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		panel.add(rvk_btn, new GridBagConstraints(2, 0, 1, 1, 0, 0, 17, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-		panel.add(new JLabel("Amount"), new GridBagConstraints(0, 1, 1, 1, 0, 0, 17, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
+		panel.add(new JLabel(rsc_bdl.getString("GENERAL.AMT")), new GridBagConstraints(0, 1, 1, 1, 0, 0, 17, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var txt_field = new JTextField();
 		panel.add(txt_field, new GridBagConstraints(1, 1, 2, 1, 0, 0, 17, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
 		var a = new JLabel();
 		a.setHorizontalAlignment(SwingConstants.RIGHT);
-		panel.add(new JLabel("Tx fee:"), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
+		panel.add(new JLabel(rsc_bdl.getString("GENERAL.FEE")), new GridBagConstraints(0, 2, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		panel.add(a, new GridBagConstraints(1, 2, 2, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
 		Util.submit(() -> {
 			var fee = CryptoUtil.getFeeSuggestion(network).getCheapFee().toNQT();
@@ -161,7 +165,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		});
 		Util.submit(() -> {
 			var pane = new JOptionPane(panel, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-			var dlg = pane.createDialog(getRootPane(), "Set Commitment");
+			var dlg = pane.createDialog(getRootPane(), rsc_bdl.getString("COMMIT.SET.TITLE"));
 			dlg.addWindowFocusListener(new WindowAdapter() {
 				@Override
 				public void windowGainedFocus(WindowEvent e) {
@@ -175,19 +179,19 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 				try {
 					amount = new BigDecimal(txt_field.getText().trim());
 				} catch (Exception x) {
-					JOptionPane.showMessageDialog(getRootPane(), "Invalid Number!", "ERROR", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("COMMIT.MSG.ERR.INV"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 					return null;
 				}
 				if (amount.compareTo(new BigDecimal(0)) == 0) {
 					return null;
 				} else if (amount.doubleValue() < 0) {
-					JOptionPane.showMessageDialog(getRootPane(), "Negetive Number Not Allowed!", "ERROR", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("COMMIT.MSG.ERR.NEG"),rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 					return null;
 				}
 				var opt_r = CryptoAccount.getAccount(network, account);
 				if (opt_r.isPresent()) {
 				} else {
-					JOptionPane.showMessageDialog(getRootPane(), "Account not found in database!", "ERROR", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("COMMIT.MSG.ERR.404"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 					return null;
 				}
 				try {
@@ -215,7 +219,7 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 					});
 					return null;
 				}
-				UIUtil.displayMessage("Commitment", "Commitment is set.");
+				UIUtil.displayMessage(rsc_bdl.getString("COMMIT.TITLE"), rsc_bdl.getString("COMMIT.MSG.DONE"));
 				Util.submit(new RefreshChart(committed_balance, account));
 			}
 			return null;

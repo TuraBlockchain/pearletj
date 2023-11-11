@@ -6,8 +6,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import javax.swing.Timer;
 import javax.swing.table.AbstractTableModel;
@@ -29,10 +31,14 @@ import hk.zdl.crypto.pearlet.util.Util;
 import signumj.entity.response.Transaction;
 import signumj.response.attachment.AccountInfoAttachment;
 
-@SuppressWarnings("serial")
 public class AccountTableModel extends AbstractTableModel implements ActionListener {
 
-	private static final List<String> columnNames = Arrays.asList("Id", "Network", "Address", "Balance", "Alia", "Description");
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4807088125271894490L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
+	private static final List<String> columnNames = Stream.of("ID", "NW", "ADR", "BAL", "ALA", "DSC").map(s -> rsc_bdl.getString("SETTINGS.ACCOUNT.COLUMN." + s)).toList();
 	private final Timer mTimer = new Timer((int) TimeUnit.SECONDS.toMillis(30), this);
 	private Map<List<Integer>, Object> sparse = new HashMap<>();
 	private List<Record> accounts = Arrays.asList();

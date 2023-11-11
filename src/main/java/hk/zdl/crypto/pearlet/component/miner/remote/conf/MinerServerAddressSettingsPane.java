@@ -14,6 +14,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.Charset;
+import java.util.ResourceBundle;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
@@ -26,16 +27,18 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import hk.zdl.crypto.pearlet.ui.UIUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class MinerServerAddressSettingsPane extends JPanel {
 
 	private static final String miner_conf_serv_u_path = "/api/v1/miner/configure/server_url";
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final long serialVersionUID = 4764477299442830256L;
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 	private final JList<JSONObject> my_list = new JList<>();
-	private final JButton add_btn = new JButton("Add");
-	private final JButton edit_btn = new JButton("Edit");
-	private final JButton del_btn = new JButton("Delete");
+	private final JButton add_btn = new JButton(rsc_bdl.getString("GENERAL.ADD"));
+	private final JButton edit_btn = new JButton(rsc_bdl.getString("GENERAL.EDIT"));
+	private final JButton del_btn = new JButton(rsc_bdl.getString("GENERAL.DEL"));
 	private HttpClient client = HttpClient.newHttpClient();
 	private String basePath = "";
 
@@ -53,17 +56,17 @@ public class MinerServerAddressSettingsPane extends JPanel {
 		add(panel_1, BorderLayout.EAST);
 		add_btn.addActionListener(e -> {
 			try {
-				var url = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input URL of node:")).trim();
+				var url = String.valueOf(JOptionPane.showInputDialog(getRootPane(), rsc_bdl.getString("MINING.SERVER.MSG.ENTER"))).trim();
 				if ("null".equals(String.valueOf(url))) {
 					return;
 				} else if (url.isBlank()) {
-					JOptionPane.showMessageDialog(getRootPane(), "URL cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("MINING.SERVER.MSG.ERR.EMPTY"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				var request = HttpRequest.newBuilder().POST(BodyPublishers.ofString(url, Charset.defaultCharset())).uri(new URI(basePath + miner_conf_serv_u_path)).build();
 				var response = client.send(request, BodyHandlers.ofString());
 				if (response.statusCode() == 200) {
-					UIUtil.displayMessage("Succeed", "Set server URL Done!");
+					UIUtil.displayMessage(rsc_bdl.getString("GENERAL.SUCCEED"), rsc_bdl.getString("MINING.SERVER.MSG.DONE"));
 					update_server_address();
 				}
 			} catch (Exception x) {
@@ -77,11 +80,11 @@ public class MinerServerAddressSettingsPane extends JPanel {
 			try {
 				int id = my_list.getSelectedValue().getInt("ID");
 				var old_val = my_list.getSelectedValue().getString("URL");
-				var url = String.valueOf(JOptionPane.showInputDialog(getRootPane(), "Please input URL of node:", old_val)).trim();
+				var url = String.valueOf(JOptionPane.showInputDialog(getRootPane(), rsc_bdl.getString("MINING.SERVER.MSG.ENTER"), old_val)).trim();
 				if ("null".equals(String.valueOf(url))) {
 					return;
 				} else if (url.isBlank()) {
-					JOptionPane.showMessageDialog(getRootPane(), "URL cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("MINING.SERVER.MSG.ERR.EMPTY"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				var jobj = new JSONObject();
@@ -91,7 +94,7 @@ public class MinerServerAddressSettingsPane extends JPanel {
 						.header("Content-type", "application/json").build();
 				var response = client.send(request, BodyHandlers.ofString());
 				if (response.statusCode() == 201) {
-					UIUtil.displayMessage("Succeed", "Set server URL Done!");
+					UIUtil.displayMessage(rsc_bdl.getString("GENERAL.SUCCEED"), rsc_bdl.getString("MINING.SERVER.MSG.DONE"));
 					update_server_address();
 				}
 			} catch (Exception x) {
@@ -104,14 +107,14 @@ public class MinerServerAddressSettingsPane extends JPanel {
 			}
 			try {
 				int id = my_list.getSelectedValue().getInt("ID");
-				var i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this?", null, JOptionPane.YES_NO_OPTION);
+				var i = JOptionPane.showConfirmDialog(getRootPane(), rsc_bdl.getString("MINING.SERVER.MSG.DEL.CONFRIM"), null, JOptionPane.YES_NO_OPTION);
 				if (i != JOptionPane.YES_OPTION) {
 					return;
 				}
 				var request = HttpRequest.newBuilder().DELETE().uri(new URI(basePath + miner_conf_serv_u_path + "?id=" + id)).build();
 				var response = client.send(request, BodyHandlers.ofString());
 				if (response.statusCode() == 204) {
-					UIUtil.displayMessage("Succeed", "Set server URL Deleted!");
+					UIUtil.displayMessage(rsc_bdl.getString("GENERAL.SUCCEED"), rsc_bdl.getString("MINING.SERVER.MSG.DEL.DONE"));
 					update_server_address();
 				}
 			} catch (Exception x) {
@@ -145,7 +148,7 @@ public class MinerServerAddressSettingsPane extends JPanel {
 		var request = HttpRequest.newBuilder().GET().uri(new URI(basePath + miner_conf_serv_u_path)).build();
 		var response = client.send(request, BodyHandlers.ofString());
 		if (response.statusCode() == 200) {
-			var jarr = new JSONArray(response.body()); 
+			var jarr = new JSONArray(response.body());
 			var _arr = new JSONObject[jarr.length()];
 			for (var i = 0; i < jarr.length(); i++) {
 				_arr[i] = jarr.getJSONObject(i);

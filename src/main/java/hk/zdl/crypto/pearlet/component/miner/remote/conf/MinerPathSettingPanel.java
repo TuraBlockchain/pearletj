@@ -14,6 +14,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.Charset;
+import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -37,18 +38,20 @@ public class MinerPathSettingPanel extends JPanel {
 
 	public static final String miner_file_path = "/api/v1/miner_path";
 	private static final long serialVersionUID = -718519273950546176L;
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	private final JList<String> path_list = new JList<>();
-	private final JButton add_btn = new JButton("Add");
-	private final JButton del_btn = new JButton("Del");
+	private final JButton add_btn = new JButton(rsc_bdl.getString("MINING.REMOTE.PATH.ADD"));
+	private final JButton del_btn = new JButton(rsc_bdl.getString("MINING.REMOTE.PATH.DEL"));
 	private HttpClient client = HttpClient.newHttpClient();
 	private String basePath = "";
 	private String id = "";
 
 	public MinerPathSettingPanel() {
 		super(new BorderLayout());
-		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Miner Path", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
+		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), rsc_bdl.getString("MINING.REMOTE.PATH.TITLE"), TitledBorder.CENTER, TitledBorder.TOP,
+				MinerGridTitleFont.getFont()));
 		add(new JScrollPane(path_list), BorderLayout.CENTER);
 		var btn_panel = new JPanel(new GridBagLayout());
 		btn_panel.add(add_btn, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
@@ -113,11 +116,11 @@ public class MinerPathSettingPanel extends JPanel {
 		} else {
 			var icon = UIUtil.getStretchIcon("icon/" + "signpost-2.svg", 64, 64);
 			var txt_field = new JTextField(30);
-			int i = JOptionPane.showConfirmDialog(getRootPane(), txt_field, "Please Enter path for plot files:", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
+			int i = JOptionPane.showConfirmDialog(getRootPane(), txt_field, rsc_bdl.getString("MINING.REMOTE.PATH.ENTER"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
 			if (i == JOptionPane.OK_OPTION) {
 				path = txt_field.getText().trim();
 				if (path.isBlank()) {
-					JOptionPane.showMessageDialog(getRootPane(), "Path cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("MINING.REMOTE.PATH.MSG.ERR.EMPTY"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 					return false;
 				}
 			} else {
@@ -135,7 +138,7 @@ public class MinerPathSettingPanel extends JPanel {
 				throw new IllegalArgumentException(response.body());
 			}
 		} catch (Exception x) {
-			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		return true;
@@ -148,7 +151,7 @@ public class MinerPathSettingPanel extends JPanel {
 		var jobj = new JSONObject();
 		jobj.put("id", id);
 		jobj.put("path", path_list.getSelectedValue());
-		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete it?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		int i = JOptionPane.showConfirmDialog(getRootPane(), rsc_bdl.getString("MINING.REMOTE.PATH.CONFRIM_DEL"), "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.YES_OPTION) {
 			try {
 				var request = HttpRequest.newBuilder().POST(BodyPublishers.ofString(jobj.toString(), Charset.defaultCharset())).uri(new URI(basePath + miner_file_path + "/del"))
@@ -158,7 +161,7 @@ public class MinerPathSettingPanel extends JPanel {
 					throw new IllegalArgumentException(response.body());
 				}
 			} catch (Exception x) {
-				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 				return false;
 			}
 		}

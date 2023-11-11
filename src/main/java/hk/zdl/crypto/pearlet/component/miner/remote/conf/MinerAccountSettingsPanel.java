@@ -17,6 +17,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -49,18 +50,19 @@ import signumj.crypto.SignumCrypto;
 public class MinerAccountSettingsPanel extends JPanel {
 
 	public static final String miner_account_path = "/api/v1/miner/configure/account";
+	private static final ResourceBundle rsc_bdl = Util.getResourceBundle();
 	private static final long serialVersionUID = -1698208979389357636L;
 	private static final Insets insets_5 = new Insets(5, 5, 5, 5);
 
 	private final JList<String> acc_list = new JList<>();
-	private final JButton add_btn = new JButton("Add");
-	private final JButton del_btn = new JButton("Del");
+	private final JButton add_btn = new JButton(rsc_bdl.getString("MINING.REMOTE.ACCOUNT.ADD"));
+	private final JButton del_btn = new JButton(rsc_bdl.getString("MINING.REMOTE.ACCOUNT.DEL"));
 	private HttpClient client = HttpClient.newHttpClient();
 	private String basePath = "";
 
 	public MinerAccountSettingsPanel() {
 		super(new BorderLayout());
-		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), "Miner Account", TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
+		setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), rsc_bdl.getString("MINING.REMOTE.ACCOUNT.TITLE"), TitledBorder.CENTER, TitledBorder.TOP, MinerGridTitleFont.getFont()));
 		add(new JScrollPane(acc_list), BorderLayout.CENTER);
 
 		var btn_panel = new JPanel(new GridBagLayout());
@@ -154,11 +156,11 @@ public class MinerAccountSettingsPanel extends JPanel {
 	public boolean add_account() {
 		var icon = UIUtil.getStretchIcon("icon/" + "wallet_2.svg", 64, 64);
 		var txt_field = new JTextField(30);
-		int i = JOptionPane.showConfirmDialog(getRootPane(), txt_field, "Please Enter your Passphrase", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
+		int i = JOptionPane.showConfirmDialog(getRootPane(), txt_field, rsc_bdl.getString("MINING.REMOTE.ACCOUNT.ENTER_PHRASE"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, icon);
 		if (i == JOptionPane.OK_OPTION) {
 			var phrase = txt_field.getText().trim();
 			if (phrase.isBlank()) {
-				JOptionPane.showMessageDialog(getRootPane(), "Passphrase cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(getRootPane(), rsc_bdl.getString("MINING.REMOTE.ACCOUNT.MSG.ERR.EMPTY"), rsc_bdl.getString("GENERAL.ERROR"), JOptionPane.ERROR_MESSAGE);
 				return false;
 			} else {
 				try {
@@ -192,7 +194,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 		if (acc_list.getSelectedIndex() < 0) {
 			return false;
 		}
-		int i = JOptionPane.showConfirmDialog(getRootPane(), "Are you sure to delete this account?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		int i = JOptionPane.showConfirmDialog(getRootPane(), rsc_bdl.getString("MINING.REMOTE.ACCOUNT.CONFRIM_DEL"), "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (i == JOptionPane.YES_OPTION) {
 			try {
 				var id = acc_list.getSelectedValue();
@@ -223,7 +225,7 @@ public class MinerAccountSettingsPanel extends JPanel {
 
 			@Override
 			public String getDescription() {
-				return "CSV Files";
+				return rsc_bdl.getString("GENERAL.CSV_FILES");
 			}
 
 			@Override
@@ -257,24 +259,24 @@ public class MinerAccountSettingsPanel extends JPanel {
 			}
 			reader.close();
 			var panel = new JPanel(new GridBagLayout());
-			var label_1 = new JLabel("Imported:");
+			var label_1 = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.IMPORT_COUNT"));
 			panel.add(label_1, new GridBagConstraints(0, 0, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 			var label_2 = new JLabel("" + imported);
 			label_2.setHorizontalAlignment(SwingConstants.RIGHT);
 			label_2.setHorizontalTextPosition(SwingConstants.RIGHT);
 			panel.add(label_2, new GridBagConstraints(1, 0, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-			var label_3 = new JLabel("Total:");
+			var label_3 = new JLabel(rsc_bdl.getString("SETTINGS.ACCOUNT.IMPORT.IMPORT_TOTAL"));
 			panel.add(label_3, new GridBagConstraints(0, 1, 1, 1, 0, 0, GridBagConstraints.WEST, GridBagConstraints.NONE, insets_5, 0, 0));
 			var label_4 = new JLabel("" + total);
 			label_4.setHorizontalAlignment(SwingConstants.RIGHT);
 			label_4.setHorizontalTextPosition(SwingConstants.RIGHT);
 			panel.add(label_4, new GridBagConstraints(1, 1, 1, 1, 0, 0, GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, insets_5, 0, 0));
-			JOptionPane.showMessageDialog(w, panel, "Done", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(w, panel, rsc_bdl.getString("GENERAL.DONE"), JOptionPane.INFORMATION_MESSAGE);
 		} catch (Throwable x) {
 			while (x.getCause() != null) {
 				x = x.getCause();
 			}
-			JOptionPane.showMessageDialog(w, x.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(w, x.getMessage(), x.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
