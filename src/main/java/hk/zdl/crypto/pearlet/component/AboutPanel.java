@@ -94,7 +94,9 @@ public class AboutPanel extends JPanel {
 		add(sw_info, Component.CENTER_ALIGNMENT);
 
 		var dec_pane = new JTextArea();
-		dec_pane.setText(Util.getResourceAsText("disclaimer.txt"));
+		dec_pane.append(ResourceBundle.getBundle("i18n.disclaimer").getString("LINE1"));
+		dec_pane.append("\n\n");
+		dec_pane.append(ResourceBundle.getBundle("i18n.disclaimer").getString("LINE2"));
 		dec_pane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, getFont().getSize()));
 		dec_pane.setEditable(false);
 		dec_pane.setWrapStyleWord(true);
