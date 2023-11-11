@@ -8,7 +8,11 @@ import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -65,6 +69,16 @@ public class Util {
 			text = getProp().get("appVersion");
 		}
 		return text;
+	}
+	
+	public static final DateFormat getDateFormat() {
+		if(Locale.getDefault().toString().startsWith("zh_CN")) {
+			var sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss", Locale.SIMPLIFIED_CHINESE);
+			sdf.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+			return sdf;
+		}else {
+			return DateFormat.getDateTimeInstance();
+		}
 	}
 	
 	public static final ResourceBundle getResourceBundle() {

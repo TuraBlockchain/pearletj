@@ -1,7 +1,6 @@
 package hk.zdl.crypto.pearlet.component.miner.remote.mining.renderer;
 
 import java.awt.Component;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.JTable;
@@ -9,10 +8,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.json.JSONObject;
 
+import hk.zdl.crypto.pearlet.util.Util;
+
 public class MinerStatusCellRenderer extends DefaultTableCellRenderer {
 
 	private static final long serialVersionUID = -1777092869579013934L;
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -23,7 +23,7 @@ public class MinerStatusCellRenderer extends DefaultTableCellRenderer {
 			var time = jobj.optLong("time");
 			super.getTableCellRendererComponent(table, msg, isSelected, hasFocus, row, column);
 			if (time != 0) {
-				setToolTipText(sdf.format(new Date(time)));
+				setToolTipText(Util.getDateFormat().format(new Date(time)));
 			}
 			return this;
 		}

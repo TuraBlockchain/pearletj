@@ -8,11 +8,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 @SuppressWarnings("serial")
 public class InstantCellRenderer extends DefaultTableCellRenderer {
 
-	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
 	private long epochBeginning = 0;
 
 	public InstantCellRenderer(CryptoNetwork network) {
@@ -29,7 +29,7 @@ public class InstantCellRenderer extends DefaultTableCellRenderer {
 		if (value != null) {
 			long burstTime = Long.valueOf(value.toString());
 			Date date = new Date(epochBeginning + (burstTime * 1000L));
-			setText(sdf.format(date));
+			setText(Util.getDateFormat().format(date));
 		} else {
 			setText("");
 		}
