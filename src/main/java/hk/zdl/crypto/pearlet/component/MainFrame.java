@@ -58,6 +58,7 @@ public class MainFrame extends JFrame {
 		mfs.put("blocks", new BlocksPanel());
 		mfs.put("send", new SendPanel());
 		mfs.put("rcv", new ReceivePanel());
+		mfs.put("msg", new MessagesPanel());
 		mfs.put("acc_info", new AccountInfoPanel());
 		mfs.put("plot", new PlotPanel());
 		mfs.put("miner", new MinerPanel());

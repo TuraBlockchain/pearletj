@@ -10,6 +10,7 @@ import hk.zdl.crypto.pearlet.component.account_settings.burst.PKT;
 import hk.zdl.crypto.pearlet.ds.CryptoNetwork;
 import hk.zdl.crypto.pearlet.persistence.MyDb;
 import hk.zdl.crypto.pearlet.util.CryptoUtil;
+import hk.zdl.crypto.pearlet.util.Util;
 
 public class CryptoAccount {
 
@@ -42,7 +43,7 @@ public class CryptoAccount {
 			if (WalletLock.isLocked()) {
 				var o = WalletLock.unlock();
 				if (!o.isPresent() || o.get() == false) {
-					throw new IllegalStateException("Failed to unlock wallet!");
+					throw new IllegalStateException(Util.getResourceBundle().getString("UNLOCK_FAILURE"));
 				}
 			}
 			var network_id = r.getInt("NWID");

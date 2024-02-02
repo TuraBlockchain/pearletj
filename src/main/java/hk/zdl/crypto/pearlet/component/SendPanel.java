@@ -291,6 +291,7 @@ public class SendPanel extends JPanel {
 					send_tx.setMessage(bArr);
 				}
 			}
+			msg_area.setEnabled(false);
 			send_btn.setEnabled(false);
 			busy_icon.start();
 			Util.submit(() -> {
@@ -314,6 +315,7 @@ public class SendPanel extends JPanel {
 				} finally {
 					busy_icon.stop();
 					send_btn.setEnabled(true);
+					msg_area.setEnabled(true);
 				}
 				if (b) {
 					UIUtil.displayMessage(rsc_bdl.getString("SEND_PANEL.TITLE"), rsc_bdl.getString("SEND_PANEL.DONE_MSG"));

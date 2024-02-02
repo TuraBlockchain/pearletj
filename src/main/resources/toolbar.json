@@ -14,6 +14,9 @@
   "id" : "rcv",
   "icon" : "plane-arrival-solid.svg"
 }, {
+  "id" : "msg",
+  "icon" : "forum_black_24dp.svg"
+}, {
   "id" : "acc_info",
   "icon" : "account_balance_wallet_black_48dp.svg"
 }, {

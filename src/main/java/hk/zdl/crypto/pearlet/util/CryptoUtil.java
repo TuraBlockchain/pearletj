@@ -485,7 +485,7 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	public static byte[] sendMessage(CryptoNetwork nw, String recipient, byte[] public_key, String message) throws IOException {
+	public static byte[] sendMessage(CryptoNetwork nw, String recipient, byte[] public_key, String message, BigDecimal fee) throws Exception {
 		if (nw.isBurst()) {
 			var server_url = nw.getUrl();
 			if (!server_url.endsWith("/")) {
@@ -493,8 +493,8 @@ public class CryptoUtil {
 			}
 			var client = new OkHttpClient.Builder().build();
 			var request = new Request.Builder().url(server_url + "burst?requestType=sendMessage")
-					.post(RequestBody.create("recipient=" + recipient + "&message=" + URLEncoder.encode(message, Charset.defaultCharset())
-							+ "&deadline=1440&messageIsText=true&feeNQT=2205000&publicKey=" + Hex.toHexString(public_key), MediaType.parse("application/x-www-form-urlencoded")))
+					.post(RequestBody.create("recipient=" + recipient + "&message=" + URLEncoder.encode(message, Charset.defaultCharset()) + "&deadline=1440&messageIsText=true&feeNQT="
+							+ toSignumValue(nw, fee).toNQT() + "&publicKey=" + Hex.toHexString(public_key), MediaType.parse("application/x-www-form-urlencoded")))
 					.build();
 			var response = client.newCall(request).execute();
 			try {
@@ -511,9 +511,6 @@ public class CryptoUtil {
 
 	public static byte[] issueAsset(CryptoNetwork nw, String asset_name, String description, long quantityQNT, long feeNQT, byte[] public_key) throws Exception {
 		if (nw.isBurst()) {
-//			if (feeNQT < 100000000000L) {
-//				throw new IllegalArgumentException("not enought fee");
-//			}
 			var server_url = nw.getUrl();
 			if (!server_url.endsWith("/")) {
 				server_url += "/";
