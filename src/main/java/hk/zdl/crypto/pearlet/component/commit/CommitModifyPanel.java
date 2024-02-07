@@ -137,7 +137,10 @@ public class CommitModifyPanel extends JPanel implements ActionListener {
 		btn.setEnabled(true);
 		busy_icon.stop();
 		wuli.stop();
-		SwingUtilities.updateComponentTreeUI(chart_panel);
+		try {
+			SwingUtilities.updateComponentTreeUI(chart_panel);
+		} catch (Exception x) {
+		}
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package hk.zdl.crypto.pearlet.component.commit;
 
 import java.awt.CardLayout;
 import java.awt.Font;
-import java.util.ResourceBundle;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
