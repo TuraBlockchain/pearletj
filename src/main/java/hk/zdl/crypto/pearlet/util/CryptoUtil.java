@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -485,25 +484,34 @@ public class CryptoUtil {
 		throw new UnsupportedOperationException();
 	}
 
-	public static byte[] sendMessage(CryptoNetwork nw, String recipient, byte[] public_key, String message, BigDecimal fee) throws Exception {
-		if (nw.isBurst()) {
-			var server_url = nw.getUrl();
+	public static byte[] sendMessage(CryptoNetwork network, String recipient, byte[] public_key, String message, BigDecimal fee) throws Exception {			
+		if (network.isBurst()) {
+			var server_url = network.getUrl();
 			if (!server_url.endsWith("/")) {
 				server_url += "/";
 			}
-			var client = new OkHttpClient.Builder().build();
-			var request = new Request.Builder().url(server_url + "burst?requestType=sendMessage")
-					.post(RequestBody.create("recipient=" + recipient + "&message=" + URLEncoder.encode(message, Charset.defaultCharset()) + "&deadline=1440&messageIsText=true&feeNQT="
-							+ toSignumValue(nw, fee).toNQT() + "&publicKey=" + Hex.toHexString(public_key), MediaType.parse("application/x-www-form-urlencoded")))
-					.build();
-			var response = client.newCall(request).execute();
+			var httpPost = new HttpPost(server_url + "burst?requestType=sendMessage");
+			var l = new LinkedList<NameValuePair>();
+			l.add(new BasicNameValuePair("recipient", recipient));
+			l.add(new BasicNameValuePair("message",message));
+			l.add(new BasicNameValuePair("deadline", "1440"));
+			l.add(new BasicNameValuePair("messageIsText", "true"));
+			l.add(new BasicNameValuePair("publicKey", Hex.toHexString(public_key)));
+			l.add(new BasicNameValuePair("feeNQT", toSignumValue(network, fee).toNQT().toString()));
+			httpPost.setEntity(new UrlEncodedFormEntity(l));
+			var httpclient = WebUtil.getHttpclient();
+			var response = httpclient.execute(httpPost);
+			var bis = response.getEntity().getContent();
 			try {
-				var jobj = new JSONObject(new JSONTokener(response.body().charStream()));
+				var jobj = new JSONObject(new JSONTokener(bis));
+				bis.close();
+				if (jobj.has("errorDescription")) {
+					throw new Exception(jobj.getString("errorDescription"));
+				}
 				byte[] bArr = Hex.decode(jobj.getString("unsignedTransactionBytes"));
 				return bArr;
 			} finally {
-				response.body().close();
-				response.close();
+				bis.close();
 			}
 		}
 		throw new UnsupportedOperationException();
